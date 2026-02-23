@@ -6,6 +6,7 @@ import JuzIndex from "@/components/JuzIndex";
 import QuranHeader from "@/components/QuranHeader";
 import { Search, Bookmark, List, Download, Headphones, BookOpen, MoonStar, Shield, Loader2, Check, X, Pause, Play, Settings, Moon, Award } from "lucide-react";
 import { Link } from "react-router-dom";
+import ScrollReveal from "@/components/ScrollReveal";
 
 const BOOKMARK_KEY = "quran-bookmark";
 
@@ -161,6 +162,7 @@ const Index = () => {
         </div>
 
         {/* Download All Button */}
+        <ScrollReveal>
         <div className="w-full mb-4 flex items-center gap-2">
           <button
             onClick={downloadAllState === "downloading" ? pauseDownload : downloadAll}
@@ -214,8 +216,8 @@ const Index = () => {
             </button>
           )}
         </div>
+        </ScrollReveal>
 
-        {/* Download progress bar */}
         {(downloadAllState === "downloading" || downloadAllState === "paused") && (
           <div className="w-full mb-4 h-2 bg-muted rounded-full overflow-hidden">
             <div
@@ -226,7 +228,7 @@ const Index = () => {
         )}
 
         {/* Quick Access Cards */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        <ScrollReveal className="grid grid-cols-2 gap-3 mb-6">
           <Link
             to="/embed/qiyam"
             className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3.5 hover:border-gold/50 hover:shadow-islamic transition-all group"
@@ -251,7 +253,7 @@ const Index = () => {
               <p className="text-[11px] text-muted-foreground font-naskh">جدول الختمة</p>
             </div>
           </Link>
-        </div>
+        </ScrollReveal>
 
         {/* Results */}
         {filteredJuz.length === 0 ? (
