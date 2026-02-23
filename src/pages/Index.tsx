@@ -4,7 +4,7 @@ import { juzData, toArabicNumber, getQuranPageImageUrl } from "@/data/quranData"
 import JuzCard from "@/components/JuzCard";
 import JuzIndex from "@/components/JuzIndex";
 import QuranHeader from "@/components/QuranHeader";
-import { Search, Bookmark, List, Download, Headphones, BookOpen, MoonStar, Shield, Loader2, Check, X, Pause, Play, Settings, Moon, Award } from "lucide-react";
+import { Search, Bookmark, List, Download, Headphones, BookOpen, MoonStar, Shield, Loader2, Check, X, Pause, Play, Settings, Moon, Award, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import ScrollReveal from "@/components/ScrollReveal";
 
@@ -151,6 +151,13 @@ const Index = () => {
           </div>
 
           <div className="flex items-center gap-2">
+            <Link
+              to="/favorites"
+              className="flex items-center gap-2 bg-card border border-border px-4 py-2.5 rounded-lg text-sm font-naskh text-foreground hover:bg-muted transition-colors"
+            >
+              <Heart size={16} className="text-destructive" />
+              <span className="hidden sm:inline">المفضلة</span>
+            </Link>
             <button
               onClick={() => setShowIndex(true)}
               className="flex items-center gap-2 bg-card border border-border px-4 py-2.5 rounded-lg text-sm font-naskh text-foreground hover:bg-muted transition-colors"
