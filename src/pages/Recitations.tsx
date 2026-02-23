@@ -409,20 +409,14 @@ const Recitations = () => {
       {/* Header */}
       <header className="gradient-islamic pattern-islamic px-4 text-center relative overflow-hidden">
         <div className="absolute bottom-0 left-0 right-0 h-1 gradient-gold" />
-        <div className="flex justify-between items-center pt-3 pb-1">
-          <Link to="/" className="flex items-center gap-1.5 bg-gold text-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-all font-naskh text-sm font-bold shadow-md">
-            <Home size={16} />
-            الرئيسية
-          </Link>
-          <div className="flex gap-2">
-            <button
-              onClick={() => { setShowPlaylist(!showPlaylist); setActiveTab("playlist"); }}
-              className="flex items-center gap-1.5 bg-white/10 text-primary-foreground px-3 py-2 rounded-lg hover:bg-white/20 transition-all font-naskh text-xs font-bold"
-            >
-              <ListMusic size={14} />
-              قائمتي ({playlist.length})
-            </button>
-          </div>
+        <div className="flex justify-end items-center pt-3 pb-1">
+          <button
+            onClick={() => { setShowPlaylist(!showPlaylist); setActiveTab("playlist"); }}
+            className="flex items-center gap-1.5 bg-white/10 text-primary-foreground px-3 py-2 rounded-lg hover:bg-white/20 transition-all font-naskh text-xs font-bold"
+          >
+            <ListMusic size={14} />
+            قائمتي ({playlist.length})
+          </button>
         </div>
         <div className="pb-6">
           <p className="font-amiri text-gold text-lg mb-2">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
