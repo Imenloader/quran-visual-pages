@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { JuzInfo, toArabicNumber, getQuranPageImageUrl } from "@/data/quranData";
-import { Download, Check, Loader2 } from "lucide-react";
+import { Download, Check, Loader2, Wifi, WifiOff } from "lucide-react";
 
 interface JuzCardProps {
   juz: JuzInfo;
@@ -11,8 +11,33 @@ interface JuzCardProps {
 const JuzCard = ({ juz, index }: JuzCardProps) => {
   const [downloadState, setDownloadState] = useState<"idle" | "downloading" | "done">("idle");
   const [progress, setProgress] = useState(0);
+  const [cachedPercent, setCachedPercent] = useState<number | null>(null);
 
   const totalPages = juz.endPage - juz.startPage + 1;
+
+  // Check how many pages are cached on mount
+  useEffect(() => {
+    let cancelled = false;
+    const checkCache = async () => {
+      try {
+        const cache = await caches.open("workbox-runtime");
+        const keys = await cache.keys();
+        const urls = new Set(keys.map(k => k.url));
+        let cached = 0;
+        for (let p = juz.startPage; p <= juz.endPage; p++) {
+          if (urls.has(getQuranPageImageUrl(p))) cached++;
+        }
+        if (!cancelled) {
+          setCachedPercent(Math.round((cached / totalPages) * 100));
+          if (cached === totalPages) setDownloadState("done");
+        }
+      } catch {
+        if (!cancelled) setCachedPercent(null);
+      }
+    };
+    checkCache();
+    return () => { cancelled = true; };
+  }, [juz.startPage, juz.endPage, totalPages]);
 
   const downloadForOffline = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -41,6 +66,7 @@ const JuzCard = ({ juz, index }: JuzCardProps) => {
     }
 
     setDownloadState("done");
+    setCachedPercent(100);
   };
 
   return (
@@ -97,6 +123,30 @@ const JuzCard = ({ juz, index }: JuzCardProps) => {
         <p className="text-center text-xs text-muted-foreground mt-2 font-naskh">
           صفحة {toArabicNumber(juz.startPage)} - {toArabicNumber(juz.endPage)}
         </p>
+
+        {/* Offline status indicator */}
+        {downloadState !== "downloading" && cachedPercent !== null && (
+          <div className={`flex items-center justify-center gap-1 mt-2 text-[10px] font-naskh ${
+            cachedPercent === 100 ? "text-primary" : cachedPercent > 0 ? "text-gold" : "text-muted-foreground/50"
+          }`}>
+            {cachedPercent === 100 ? (
+              <>
+                <Wifi size={10} />
+                <span>متاح أوفلاين</span>
+              </>
+            ) : cachedPercent > 0 ? (
+              <>
+                <Wifi size={10} />
+                <span>{cachedPercent}% محمّل</span>
+              </>
+            ) : (
+              <>
+                <WifiOff size={10} />
+                <span>غير محمّل</span>
+              </>
+            )}
+          </div>
+        )}
 
         {downloadState === "downloading" && (
           <p className="text-center text-[10px] text-gold font-naskh mt-1">
