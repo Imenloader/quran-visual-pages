@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { BookOpen, Headphones, Shield, Settings, Home, ChevronUp, ChevronDown } from "lucide-react";
+import { Headphones, Shield, Settings, Home, ChevronUp, ChevronDown, Heart } from "lucide-react";
 
 const NAV_ITEMS = [
   { path: "/settings", label: "الإعدادات", icon: Settings },
   { path: "/athkar", label: "الأذكار", icon: Shield },
   { path: "/", label: "الرئيسية", icon: Home, isCenter: true },
+  { path: "/favorites", label: "المفضلة", icon: Heart },
   { path: "/recitations", label: "التلاوات", icon: Headphones },
-  { path: "/install", label: "التطبيق", icon: BookOpen },
 ];
 
 const BottomNav = () => {

@@ -10,6 +10,7 @@ import Install from "./pages/Install";
 import Recitations from "./pages/Recitations";
 import EmbedView from "./pages/EmbedView";
 import Athkar from "./pages/Athkar";
+import Favorites from "./pages/Favorites";
 import Settings from "./pages/Settings";
 import HowToUse from "./pages/HowToUse";
 import NotFound from "./pages/NotFound";
@@ -43,6 +44,7 @@ const App = () => (
           <Route path="/install" element={<Install />} />
           <Route path="/recitations" element={<Recitations />} />
           <Route path="/athkar" element={<Athkar />} />
+          <Route path="/favorites" element={<Favorites />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/how-to-use" element={<HowToUse />} />
           <Route path="/embed/:siteId" element={<EmbedView />} />
