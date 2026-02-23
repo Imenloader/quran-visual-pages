@@ -117,6 +117,7 @@ const Recitations = () => {
   const [showAddToPlaylist, setShowAddToPlaylist] = useState<Surah | null>(null);
   const [newPlaylistName, setNewPlaylistName] = useState("");
   const [activePlaylist, setActivePlaylist] = useState<Playlist | null>(null);
+  const [playerMinimized, setPlayerMinimized] = useState(false);
   const [playlistQueue, setPlaylistQueue] = useState<PlaylistTrack[]>([]);
   const [playlistQueueIndex, setPlaylistQueueIndex] = useState(-1);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -867,51 +868,75 @@ const Recitations = () => {
 
       {/* Audio Player - Fixed Bottom */}
       {currentSurah && (
-        <div className="fixed bottom-0 left-0 right-0 z-[60] bg-card/95 backdrop-blur-md border-t border-border shadow-lg pb-[env(safe-area-inset-bottom)] mb-[72px]">
-          <div className="px-4 pt-2">
-            <Slider value={[currentTime]} min={0} max={duration || 1} step={1} onValueChange={handleSeek} className="w-full" />
-            <div className="flex justify-between text-xs text-muted-foreground font-naskh mt-1">
-              <span>{formatTime(duration)}</span>
-              <span>{formatTime(currentTime)}</span>
-            </div>
-          </div>
+        <div className={`fixed bottom-0 left-0 right-0 z-[60] bg-card/95 backdrop-blur-md border-t border-border shadow-lg pb-[env(safe-area-inset-bottom)] mb-[72px] transition-all duration-300 ${playerMinimized ? "translate-y-[calc(100%-44px)]" : ""}`}>
+          {/* Minimize/Maximize toggle */}
+          <button
+            onClick={() => setPlayerMinimized(prev => !prev)}
+            className="absolute -top-8 left-1/2 -translate-x-1/2 bg-card border border-border border-b-0 rounded-t-lg px-4 py-1 text-muted-foreground hover:text-foreground transition-colors z-10"
+            title={playerMinimized ? "إظهار المشغّل" : "إخفاء المشغّل"}
+          >
+            <ChevronDown size={16} className={`transition-transform duration-300 ${playerMinimized ? "rotate-180" : ""}`} />
+          </button>
 
-          <div className="px-4 pb-3 flex items-center gap-3">
-            <div className="flex-1 min-w-0 text-right">
-              <p className="font-naskh text-sm font-bold text-foreground truncate">سورة {currentSurah.name}</p>
-              <p className="text-xs text-muted-foreground font-naskh truncate">
-                {selectedReciter?.name}
-                {playlistQueue.length > 0 && ` • ${playlistQueueIndex + 1}/${playlistQueue.length}`}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-1">
-              <button onClick={() => setIsShuffle(!isShuffle)} className={`p-2 rounded-full transition-colors ${isShuffle ? "text-gold" : "text-muted-foreground hover:text-foreground"}`}>
-                <Shuffle size={16} />
-              </button>
-              <button onClick={playPrevSurah} className="p-2 rounded-full text-foreground hover:bg-muted transition-colors">
-                <SkipForward size={18} />
-              </button>
+          {/* Mini bar shown when minimized */}
+          {playerMinimized && (
+            <div className="flex items-center gap-3 px-4 h-11">
               <button
-                onClick={togglePlay}
-                className="w-11 h-11 rounded-full gradient-islamic flex items-center justify-center text-primary-foreground shadow-md hover:opacity-90 transition-opacity"
-                disabled={audioLoading}
+                onClick={(e) => { e.stopPropagation(); togglePlay(); }}
+                className="w-7 h-7 rounded-full gradient-islamic flex items-center justify-center text-primary-foreground shrink-0"
               >
-                {audioLoading ? <Loader2 size={20} className="animate-spin" /> : isPlaying ? <Pause size={20} /> : <Play size={20} className="mr-[-2px]" />}
+                {audioLoading ? <Loader2 size={12} className="animate-spin" /> : isPlaying ? <Pause size={12} /> : <Play size={12} className="mr-[-1px]" />}
               </button>
-              <button onClick={playNextSurah} className="p-2 rounded-full text-foreground hover:bg-muted transition-colors">
-                <SkipBack size={18} />
-              </button>
-              <button onClick={() => setIsRepeat(!isRepeat)} className={`p-2 rounded-full transition-colors ${isRepeat ? "text-gold" : "text-muted-foreground hover:text-foreground"}`}>
-                <Repeat size={16} />
-              </button>
+              <p className="font-naskh text-xs text-foreground truncate flex-1">سورة {currentSurah.name} — {selectedReciter?.name}</p>
+            </div>
+          )}
+
+          <div className={`${playerMinimized ? "invisible" : ""}`}>
+            <div className="px-4 pt-2">
+              <Slider value={[currentTime]} min={0} max={duration || 1} step={1} onValueChange={handleSeek} className="w-full" />
+              <div className="flex justify-between text-xs text-muted-foreground font-naskh mt-1">
+                <span>{formatTime(duration)}</span>
+                <span>{formatTime(currentTime)}</span>
+              </div>
             </div>
 
-            <div className="hidden sm:flex items-center gap-2 w-28">
-              <button onClick={toggleMute} className="text-muted-foreground hover:text-foreground transition-colors">
-                {isMuted || volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
-              </button>
-              <Slider value={[isMuted ? 0 : volume]} min={0} max={100} step={1} onValueChange={handleVolume} className="flex-1" />
+            <div className="px-4 pb-3 flex items-center gap-3">
+              <div className="flex-1 min-w-0 text-right">
+                <p className="font-naskh text-sm font-bold text-foreground truncate">سورة {currentSurah.name}</p>
+                <p className="text-xs text-muted-foreground font-naskh truncate">
+                  {selectedReciter?.name}
+                  {playlistQueue.length > 0 && ` • ${playlistQueueIndex + 1}/${playlistQueue.length}`}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-1">
+                <button onClick={() => setIsShuffle(!isShuffle)} className={`p-2 rounded-full transition-colors ${isShuffle ? "text-gold" : "text-muted-foreground hover:text-foreground"}`}>
+                  <Shuffle size={16} />
+                </button>
+                <button onClick={playPrevSurah} className="p-2 rounded-full text-foreground hover:bg-muted transition-colors">
+                  <SkipForward size={18} />
+                </button>
+                <button
+                  onClick={togglePlay}
+                  className="w-11 h-11 rounded-full gradient-islamic flex items-center justify-center text-primary-foreground shadow-md hover:opacity-90 transition-opacity"
+                  disabled={audioLoading}
+                >
+                  {audioLoading ? <Loader2 size={20} className="animate-spin" /> : isPlaying ? <Pause size={20} /> : <Play size={20} className="mr-[-2px]" />}
+                </button>
+                <button onClick={playNextSurah} className="p-2 rounded-full text-foreground hover:bg-muted transition-colors">
+                  <SkipBack size={18} />
+                </button>
+                <button onClick={() => setIsRepeat(!isRepeat)} className={`p-2 rounded-full transition-colors ${isRepeat ? "text-gold" : "text-muted-foreground hover:text-foreground"}`}>
+                  <Repeat size={16} />
+                </button>
+              </div>
+
+              <div className="hidden sm:flex items-center gap-2 w-28">
+                <button onClick={toggleMute} className="text-muted-foreground hover:text-foreground transition-colors">
+                  {isMuted || volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                </button>
+                <Slider value={[isMuted ? 0 : volume]} min={0} max={100} step={1} onValueChange={handleVolume} className="flex-1" />
+              </div>
             </div>
           </div>
         </div>
