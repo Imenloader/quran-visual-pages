@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Home, Sun, Moon, Palette, Type, RotateCcw, Monitor } from "lucide-react";
+import { Home, Sun, Moon, Palette, Type, RotateCcw, HelpCircle } from "lucide-react";
 
 type ThemeMode = "light" | "dark" | "sepia";
 
@@ -174,6 +174,21 @@ const Settings = () => {
             سيتم حذف العلامات المرجعية وعدادات الأذكار والإعدادات
           </p>
         </section>
+
+        {/* How to use */}
+        <Link
+          to="/how-to-use"
+          className="flex items-center gap-3 bg-card border border-border rounded-2xl p-5 shadow-soft animate-slide-up hover:border-accent/40 transition-all"
+          style={{ animationDelay: "200ms" }}
+        >
+          <div className="w-10 h-10 rounded-xl gradient-gold flex items-center justify-center">
+            <HelpCircle size={18} className="text-foreground" />
+          </div>
+          <div className="flex-1">
+            <h2 className="font-naskh text-base font-bold text-foreground">كيفية الاستخدام</h2>
+            <p className="text-xs text-muted-foreground font-naskh">دليل سريع لجميع مميزات التطبيق</p>
+          </div>
+        </Link>
 
         {/* About */}
         <section className="text-center py-4 animate-slide-up" style={{ animationDelay: "240ms" }}>

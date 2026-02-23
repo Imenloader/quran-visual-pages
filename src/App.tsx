@@ -11,6 +11,7 @@ import Recitations from "./pages/Recitations";
 import EmbedView from "./pages/EmbedView";
 import Athkar from "./pages/Athkar";
 import Settings from "./pages/Settings";
+import HowToUse from "./pages/HowToUse";
 import NotFound from "./pages/NotFound";
 import NetworkStatus from "./components/NetworkStatus";
 import BottomNav from "./components/BottomNav";
@@ -43,6 +44,7 @@ const App = () => (
           <Route path="/recitations" element={<Recitations />} />
           <Route path="/athkar" element={<Athkar />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/how-to-use" element={<HowToUse />} />
           <Route path="/embed/:siteId" element={<EmbedView />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
