@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   MapPin, Clock, Bell, BellOff, Volume2, VolumeX,
   Settings, Loader2, RefreshCw, Edit3, Check, X,
@@ -11,6 +11,77 @@ import {
   PRAYER_NAMES,
   type PrayerTimesData,
 } from "@/hooks/usePrayerTimes";
+
+const NextPrayerCountdown = ({
+  prayerName,
+  prayerTime,
+  prayerIcon,
+}: {
+  prayerName: keyof PrayerTimesData;
+  prayerTime: string;
+  prayerIcon: string;
+}) => {
+  const [remaining, setRemaining] = useState({ hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const calc = () => {
+      const [h, m] = prayerTime.split(":").map(Number);
+      const now = new Date();
+      const target = new Date();
+      target.setHours(h, m, 0, 0);
+      if (target <= now) target.setDate(target.getDate() + 1);
+      const diff = target.getTime() - now.getTime();
+      setRemaining({
+        hours: Math.floor(diff / 3600000),
+        minutes: Math.floor((diff % 3600000) / 60000),
+        seconds: Math.floor((diff % 60000) / 1000),
+      });
+    };
+    calc();
+    const interval = setInterval(calc, 1000);
+    return () => clearInterval(interval);
+  }, [prayerTime]);
+
+  const pad = (n: number) => String(n).padStart(2, "0");
+
+  return (
+    <section className="bg-card border-2 border-gold rounded-2xl p-5 shadow-gold-glow animate-slide-up">
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-xs font-naskh text-muted-foreground">الصلاة القادمة</span>
+        <span className="text-xs font-naskh text-gold">{PRAYER_NAMES[prayerName]}</span>
+      </div>
+      <div className="flex items-center gap-4">
+        <div className="w-14 h-14 rounded-2xl gradient-islamic flex items-center justify-center">
+          <span className="text-2xl">{prayerIcon}</span>
+        </div>
+        <div className="flex-1">
+          <p className="font-amiri text-lg font-bold text-foreground mb-1">
+            {PRAYER_NAMES[prayerName]} — {prayerTime}
+          </p>
+          <div className="flex items-center gap-1.5 justify-start" dir="ltr">
+            {[
+              { value: pad(remaining.hours), label: "ساعة" },
+              { value: pad(remaining.minutes), label: "دقيقة" },
+              { value: pad(remaining.seconds), label: "ثانية" },
+            ].map((unit, i) => (
+              <div key={i} className="flex items-center gap-1.5">
+                {i > 0 && (
+                  <span className="text-gold font-bold text-lg animate-pulse">:</span>
+                )}
+                <div className="flex flex-col items-center">
+                  <span className="bg-muted border border-border rounded-lg px-2.5 py-1 font-mono text-lg font-bold text-foreground tabular-nums min-w-[2.5rem] text-center transition-all">
+                    {unit.value}
+                  </span>
+                  <span className="text-[9px] text-muted-foreground font-naskh mt-0.5">{unit.label}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
 
 const PrayerTimes = () => {
   const {
@@ -133,27 +204,13 @@ const PrayerTimes = () => {
           </section>
         ) : (
           <>
-            {/* Next prayer banner */}
+            {/* Next prayer banner with live countdown */}
             {nextPrayer && times && (
-              <section className="bg-card border-2 border-gold rounded-2xl p-5 shadow-gold-glow animate-slide-up">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-naskh text-muted-foreground">الصلاة القادمة</span>
-                  <span className="text-xs font-naskh text-gold">
-                    متبقي {getRemainingTime(nextPrayer.time)}
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-14 h-14 rounded-2xl gradient-islamic flex items-center justify-center">
-                    <span className="text-2xl">{prayerIcons[nextPrayer.name]}</span>
-                  </div>
-                  <div>
-                    <p className="font-amiri text-xl font-bold text-foreground">
-                      {PRAYER_NAMES[nextPrayer.name]}
-                    </p>
-                    <p className="font-naskh text-lg text-gold font-bold">{nextPrayer.time}</p>
-                  </div>
-                </div>
-              </section>
+              <NextPrayerCountdown
+                prayerName={nextPrayer.name}
+                prayerTime={nextPrayer.time}
+                prayerIcon={prayerIcons[nextPrayer.name]}
+              />
             )}
 
             {/* Prayer times list */}
