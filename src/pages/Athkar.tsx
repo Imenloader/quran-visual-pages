@@ -147,7 +147,7 @@ const Athkar = () => {
         ))}
       </main>
 
-      <footer className="text-center py-4 text-muted-foreground text-xs font-naskh border-t border-border">
+      <footer className="text-center py-4 pb-24 text-muted-foreground text-xs font-naskh border-t border-border">
         المصدر: حصن المسلم - صحيح البخاري - صحيح مسلم - من أذكار الكتاب والسنة
       </footer>
     </div>
