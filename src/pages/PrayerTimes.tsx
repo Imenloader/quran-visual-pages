@@ -87,7 +87,7 @@ const PrayerTimes = () => {
   const {
     settings, updateSettings, times, loading, error,
     locationLoading, detectLocation, nextPrayer, getRemainingTime,
-    previewAdhan, stopAdhan,
+    previewAdhan, stopAdhan, testPrayerNotification,
   } = usePrayerTimes();
 
   const [showSettings, setShowSettings] = useState(false);
@@ -288,6 +288,18 @@ const PrayerTimes = () => {
                             }`}>
                               {times[prayer]}
                             </span>
+                            {prayer !== "Sunrise" && (
+                              <button
+                                onClick={() => {
+                                  testPrayerNotification(prayer);
+                                  toast.success(`تم إرسال تنبيه تجريبي لصلاة ${PRAYER_NAMES[prayer]}`);
+                                }}
+                                className="text-gold hover:text-accent transition-colors p-1"
+                                title="تجربة الإشعار"
+                              >
+                                <Bell size={13} />
+                              </button>
+                            )}
                             <button
                               onClick={() => handleEditPrayer(prayer)}
                               className="text-muted-foreground hover:text-foreground transition-colors p-1"

@@ -315,6 +315,28 @@ export function usePrayerTimes() {
     }
   }, []);
 
+  const testPrayerNotification = useCallback((prayer: keyof PrayerTimesData) => {
+    if (!effectiveTimes) return;
+    const timeStr = effectiveTimes[prayer];
+    const title = `🕌 حان وقت صلاة ${PRAYER_NAMES[prayer]}`;
+    const body = `حان الآن موعد أذان ${PRAYER_NAMES[prayer]} - ${timeStr}`;
+    if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.ready.then((reg) => {
+        reg.showNotification(title, {
+          body, icon: "/pwa-192x192.png", tag: `test-${prayer}`, dir: "rtl", lang: "ar", renotify: true,
+        } as NotificationOptions);
+      });
+    } else if ("Notification" in window && Notification.permission === "granted") {
+      new Notification(title, { body, icon: "/pwa-192x192.png", tag: `test-${prayer}`, dir: "rtl", lang: "ar" });
+    }
+    // Play adhan
+    const adhanUrl = ADHAN_SOUNDS.find((s) => s.id === settings.adhanSound)?.url || ADHAN_SOUNDS[0].url;
+    if (audioRef.current) audioRef.current.pause();
+    audioRef.current = new Audio(adhanUrl);
+    audioRef.current.play().catch(() => {});
+    setTimeout(() => { if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; } }, 15000);
+  }, [effectiveTimes, settings.adhanSound]);
+
   return {
     settings,
     updateSettings,
@@ -327,5 +349,6 @@ export function usePrayerTimes() {
     getRemainingTime,
     previewAdhan,
     stopAdhan,
+    testPrayerNotification,
   };
 }
