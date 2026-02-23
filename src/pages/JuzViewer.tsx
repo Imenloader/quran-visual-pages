@@ -75,7 +75,12 @@ const JuzViewer = () => {
       }
     }
     setCurrentPage(visiblePage);
-  }, [juz]);
+    // Auto-save bookmark as user scrolls
+    if (visiblePage) {
+      saveBookmark(num, visiblePage);
+      setSavedBookmark({ juz: num, page: visiblePage });
+    }
+  }, [juz, num]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll, { passive: true });
