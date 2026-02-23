@@ -36,6 +36,9 @@ const JuzCard = ({ juz, index }: JuzCardProps) => {
 
   // Check how many pages are cached on mount
   useEffect(() => {
+    // If already marked done in localStorage, trust it and skip cache check
+    if (wasDone) return;
+
     let cancelled = false;
     const checkCache = async () => {
       try {
@@ -52,9 +55,6 @@ const JuzCard = ({ juz, index }: JuzCardProps) => {
           if (cached === totalPages) {
             setDownloadState("done");
             setStoredState(juz.number, true);
-          } else {
-            setStoredState(juz.number, false);
-            if (!wasDone || cached < totalPages) setDownloadState("idle");
           }
         }
       } catch {
