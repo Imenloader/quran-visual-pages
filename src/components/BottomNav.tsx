@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Clock, Shield, Settings, Home, ChevronUp, ChevronDown, Heart, Headphones } from "lucide-react";
 
@@ -13,8 +13,16 @@ const NAV_ITEMS = [
 const BottomNav = () => {
   const location = useLocation();
   const [isHidden, setIsHidden] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // No longer hide on embed pages
+  useEffect(() => {
+    const handler = () => setIsFullscreen(document.documentElement.classList.contains("fullscreen-reading"));
+    const observer = new MutationObserver(handler);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
+  if (isFullscreen) return null;
 
   return (
     <>
