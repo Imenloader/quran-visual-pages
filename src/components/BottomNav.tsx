@@ -34,10 +34,10 @@ const BottomNav = () => {
 
       {/* Nav bar */}
       <nav
-        className={`fixed left-0 right-0 z-50 glass border-t border-border safe-bottom transition-transform duration-300 ${
+        className={`fixed left-0 right-0 z-50 glass border-t border-border transition-transform duration-300 ease-out ${
           isHidden ? "translate-y-full" : "translate-y-0"
         }`}
-        style={{ bottom: 0 }}
+        style={{ bottom: 0, paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
         <div className="flex items-end justify-around max-w-lg mx-auto px-2">
           {NAV_ITEMS.map(item => {
