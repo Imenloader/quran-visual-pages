@@ -110,7 +110,7 @@ const Favorites = () => {
           <>
             {/* Favorite Juz */}
             {showJuz && favJuzList.length > 0 && (
-              <section className="animate-fade-in">
+              <section>
                 <div className="flex items-center gap-2 mb-3">
                   <BookOpen size={18} className="text-accent" />
                   <h2 className="font-amiri text-lg font-bold text-foreground">الأجزاء المفضلة</h2>
@@ -148,7 +148,7 @@ const Favorites = () => {
 
             {/* Favorite Athkar */}
             {showAthkar && favDhikrList.length > 0 && (
-              <section className="animate-fade-in">
+              <section>
                 <div className="flex items-center gap-2 mb-3">
                   <Shield size={18} className="text-accent" />
                   <h2 className="font-amiri text-lg font-bold text-foreground">الأذكار المفضلة</h2>
@@ -197,7 +197,7 @@ const Favorites = () => {
 
             {/* Favorite Recitations */}
             {showRecitations && favRecitationItems.length > 0 && (
-              <section className="animate-fade-in">
+              <section>
                 <div className="flex items-center gap-2 mb-3">
                   <Headphones size={18} className="text-accent" />
                   <h2 className="font-amiri text-lg font-bold text-foreground">التلاوات المفضلة</h2>

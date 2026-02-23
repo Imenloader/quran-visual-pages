@@ -91,7 +91,7 @@ const Settings = () => {
 
       <main className="container max-w-2xl mx-auto px-4 py-6 space-y-6">
         {/* Theme Selection */}
-        <section className="bg-card border border-border rounded-2xl p-5 shadow-soft animate-slide-up">
+        <section className="bg-card border border-border rounded-2xl p-5 shadow-soft">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl gradient-islamic flex items-center justify-center">
               <Palette size={18} className="text-primary-foreground" />
@@ -126,7 +126,7 @@ const Settings = () => {
         </section>
 
         {/* Font Size */}
-        <section className="bg-card border border-border rounded-2xl p-5 shadow-soft animate-slide-up" style={{ animationDelay: "80ms" }}>
+        <section className="bg-card border border-border rounded-2xl p-5 shadow-soft">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl gradient-gold flex items-center justify-center">
               <Type size={18} className="text-foreground" />
@@ -164,7 +164,7 @@ const Settings = () => {
         </section>
 
         {/* Notifications */}
-        <section className="bg-card border border-border rounded-2xl p-5 shadow-soft animate-slide-up" style={{ animationDelay: "120ms" }}>
+        <section className="bg-card border border-border rounded-2xl p-5 shadow-soft">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl gradient-gold flex items-center justify-center">
               <Bell size={18} className="text-foreground" />
@@ -321,7 +321,7 @@ const Settings = () => {
         </section>
 
         {/* Clear Downloads */}
-        <section className="bg-card border border-border rounded-2xl p-5 shadow-soft animate-slide-up" style={{ animationDelay: "140ms" }}>
+        <section className="bg-card border border-border rounded-2xl p-5 shadow-soft">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
               <Trash2 size={18} className="text-gold" />
@@ -344,7 +344,7 @@ const Settings = () => {
         </section>
 
         {/* App Info & Reset */}
-        <section className="bg-card border border-border rounded-2xl p-5 shadow-soft animate-slide-up" style={{ animationDelay: "160ms" }}>
+        <section className="bg-card border border-border rounded-2xl p-5 shadow-soft">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center">
               <RotateCcw size={18} className="text-destructive" />
@@ -369,8 +369,7 @@ const Settings = () => {
         {/* How to use */}
         <Link
           to="/how-to-use"
-          className="flex items-center gap-3 bg-card border border-border rounded-2xl p-5 shadow-soft animate-slide-up hover:border-accent/40 transition-all"
-          style={{ animationDelay: "200ms" }}
+          className="flex items-center gap-3 bg-card border border-border rounded-2xl p-5 shadow-soft hover:border-accent/40 transition-all"
         >
           <div className="w-10 h-10 rounded-xl gradient-gold flex items-center justify-center">
             <HelpCircle size={18} className="text-foreground" />
@@ -382,7 +381,7 @@ const Settings = () => {
         </Link>
 
         {/* About */}
-        <section className="text-center py-4 animate-slide-up" style={{ animationDelay: "240ms" }}>
+        <section className="text-center py-4">
           <p className="font-amiri text-gold text-lg">﷽</p>
           <p className="text-xs text-muted-foreground font-naskh mt-2">تطبيق القرآن الكريم • الإصدار ١.٠</p>
           <p className="text-[10px] text-muted-foreground font-naskh mt-1">مصحف المدينة المنورة</p>

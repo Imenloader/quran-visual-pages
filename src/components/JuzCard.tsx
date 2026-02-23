@@ -4,7 +4,7 @@ import { JuzInfo, toArabicNumber, getQuranPageImageUrl } from "@/data/quranData"
 import { Download, Check, Loader2, Wifi, WifiOff, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { useFavorites } from "@/hooks/useFavorites";
-import { motion } from "framer-motion";
+
 
 interface JuzCardProps {
   juz: JuzInfo;
@@ -137,15 +137,9 @@ const JuzCard = ({ juz, index, isBookmarked }: JuzCardProps) => {
     }
   }, []);
 
-  const MotionLink = motion(Link);
-
   return (
-    <MotionLink
+    <Link
       to={`/juz/${juz.number}`}
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-30px" }}
-      transition={{ duration: 0.4, delay: (index % 10) * 0.06, ease: "easeOut" }}
       className="group block"
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
@@ -272,7 +266,7 @@ const JuzCard = ({ juz, index, isBookmarked }: JuzCardProps) => {
           </p>
         )}
       </div>
-    </MotionLink>
+    </Link>
   );
 };
 
