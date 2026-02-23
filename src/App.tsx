@@ -24,8 +24,12 @@ const queryClient = new QueryClient();
 const ThemeInit = () => {
   useEffect(() => {
     const saved = localStorage.getItem("quran-theme");
-    document.documentElement.classList.remove("dark", "sepia");
-    if (saved === "dark" || saved === "sepia") {
+    document.documentElement.classList.remove("dark", "sepia", "night-reading");
+    if (saved === "dark") {
+      document.documentElement.classList.add("dark");
+    } else if (saved === "night") {
+      document.documentElement.classList.add("dark", "night-reading");
+    } else if (saved === "sepia") {
       document.documentElement.classList.add(saved);
     }
   }, []);
