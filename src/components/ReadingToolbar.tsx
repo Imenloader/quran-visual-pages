@@ -1,5 +1,6 @@
 import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen } from "lucide-react";
 import { toArabicNumber } from "@/data/quranData";
+import ShareButton from "./ShareButton";
 
 interface ReadingToolbarProps {
   zoom: number;
@@ -10,6 +11,7 @@ interface ReadingToolbarProps {
   onTogglePageNav: () => void;
   currentPage: number;
   bookmarked: boolean;
+  juzNumber: number;
 }
 
 const ReadingToolbar = ({
@@ -21,32 +23,25 @@ const ReadingToolbar = ({
   onTogglePageNav,
   currentPage,
   bookmarked,
+  juzNumber,
 }: ReadingToolbarProps) => {
   return (
     <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border">
-      <div className="container max-w-4xl mx-auto px-4 py-2 flex items-center justify-between gap-2">
+      <div className="container max-w-4xl mx-auto px-2 sm:px-4 py-2 flex items-center justify-between gap-1 sm:gap-2">
         {/* Zoom controls */}
-        <div className="flex items-center gap-1">
-          <button
-            onClick={onZoomOut}
-            className="toolbar-btn"
-            title="تصغير"
-          >
-            <ZoomOut size={18} />
+        <div className="flex items-center gap-0.5 sm:gap-1">
+          <button onClick={onZoomOut} className="toolbar-btn" title="تصغير">
+            <ZoomOut size={16} className="sm:w-[18px] sm:h-[18px]" />
           </button>
           <button
             onClick={onResetZoom}
-            className="toolbar-btn text-xs font-naskh min-w-[3rem]"
+            className="toolbar-btn text-xs font-naskh min-w-[2.5rem] sm:min-w-[3rem]"
             title="إعادة الحجم الأصلي"
           >
             {toArabicNumber(zoom)}%
           </button>
-          <button
-            onClick={onZoomIn}
-            className="toolbar-btn"
-            title="تكبير"
-          >
-            <ZoomIn size={18} />
+          <button onClick={onZoomIn} className="toolbar-btn" title="تكبير">
+            <ZoomIn size={16} className="sm:w-[18px] sm:h-[18px]" />
           </button>
         </div>
 
@@ -58,20 +53,17 @@ const ReadingToolbar = ({
         )}
 
         {/* Actions */}
-        <div className="flex items-center gap-1">
-          <button
-            onClick={onTogglePageNav}
-            className="toolbar-btn"
-            title="الانتقال لصفحة"
-          >
-            <BookOpen size={18} />
+        <div className="flex items-center gap-0.5 sm:gap-1">
+          <ShareButton juzNumber={juzNumber} currentPage={currentPage} />
+          <button onClick={onTogglePageNav} className="toolbar-btn" title="الانتقال لصفحة">
+            <BookOpen size={16} className="sm:w-[18px] sm:h-[18px]" />
           </button>
           <button
             onClick={onSaveBookmark}
             className={`toolbar-btn ${bookmarked ? "text-gold" : ""}`}
             title="حفظ موضع القراءة"
           >
-            <Bookmark size={18} fill={bookmarked ? "currentColor" : "none"} />
+            <Bookmark size={16} className="sm:w-[18px] sm:h-[18px]" fill={bookmarked ? "currentColor" : "none"} />
           </button>
         </div>
       </div>
