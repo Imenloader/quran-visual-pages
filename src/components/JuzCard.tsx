@@ -179,7 +179,7 @@ const JuzCard = ({ juz, index, isBookmarked }: JuzCardProps) => {
         <button
           onClick={downloadForOffline}
           title="تحميل للقراءة أوفلاين"
-          className={`absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center transition-all z-10 ${
+          className={`absolute ${isBookmarked ? "top-8" : "top-2"} right-2 w-7 h-7 rounded-full flex items-center justify-center transition-all z-10 ${
             downloadState === "done"
               ? "bg-primary text-primary-foreground"
               : downloadState === "downloading"
