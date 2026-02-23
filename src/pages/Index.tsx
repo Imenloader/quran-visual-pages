@@ -263,7 +263,7 @@ const Index = () => {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {filteredJuz.map((juz, index) => (
-              <JuzCard key={juz.number} juz={juz} index={index} />
+              <JuzCard key={juz.number} juz={juz} index={index} isBookmarked={bookmark?.juz === juz.number} />
             ))}
           </div>
         )}
