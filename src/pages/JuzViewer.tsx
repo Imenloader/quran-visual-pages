@@ -242,8 +242,8 @@ const JuzViewer = () => {
             ← السابق
           </Link>
         ) : <span />}
-        <span className="text-xs font-naskh text-muted-foreground">
-          صفحة {toArabicNumber(currentPage || juz.startPage)}
+        <span className="text-xs font-naskh text-muted-foreground font-bold">
+          {juz.nameAr} • صفحة {toArabicNumber(currentPage || juz.startPage)}
         </span>
         {num < 30 ? (
           <Link to={`/juz/${num + 1}`} className="text-sm font-naskh text-muted-foreground hover:text-gold transition-colors">
