@@ -229,22 +229,6 @@ const JuzViewer = () => {
         </div>
       </main>
 
-      {/* Bottom nav for mobile - positioned above the global BottomNav */}
-      <div className="sticky z-30 bg-background/95 backdrop-blur-sm border-t border-border py-2 px-4 flex justify-between items-center sm:hidden" style={{ bottom: 'calc(68px + env(safe-area-inset-bottom, 0px))' }}>
-        {num > 1 ? (
-          <Link to={`/juz/${num - 1}`} className="text-sm font-naskh text-muted-foreground hover:text-gold transition-colors">
-            ← السابق
-          </Link>
-        ) : <span />}
-        <span className="text-xs font-naskh text-muted-foreground font-bold">
-          {juz.nameAr} • صفحة {toArabicNumber(currentPage || juz.startPage)}
-        </span>
-        {num < 30 ? (
-          <Link to={`/juz/${num + 1}`} className="text-sm font-naskh text-muted-foreground hover:text-gold transition-colors">
-            التالي →
-          </Link>
-        ) : <span />}
-      </div>
 
       {/* Back to top - desktop only */}
       <div className="text-center pb-8 hidden sm:block">
