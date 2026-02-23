@@ -57,28 +57,6 @@ const EmbedView = () => {
 
   return (
     <div className="flex flex-col bg-background" style={{ height: 'calc(100vh - 68px - env(safe-area-inset-bottom, 0px))' }}>
-      {/* Top bar */}
-      <div className="shrink-0 flex items-center gap-3 px-4 py-2 bg-card border-b border-border">
-        <Link
-          to="/"
-          className="flex items-center gap-1.5 bg-gold text-foreground px-3 py-1.5 rounded-lg hover:opacity-90 transition-all font-naskh text-xs font-bold shadow-sm"
-        >
-          <Home size={14} />
-          الرئيسية
-        </Link>
-        <div className="flex-1 min-w-0 text-right">
-          <p className="font-naskh text-sm font-bold text-foreground truncate">{site.title}</p>
-        </div>
-        <a
-          href={site.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground font-naskh transition-colors"
-        >
-          فتح خارجياً
-          <ExternalLink size={12} />
-        </a>
-      </div>
 
       {/* iframe */}
       <div className="flex-1 relative">
