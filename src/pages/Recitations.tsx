@@ -411,7 +411,11 @@ const Recitations = () => {
       {/* Header */}
       <header className="gradient-islamic pattern-islamic px-4 text-center relative overflow-hidden">
         <div className="absolute bottom-0 left-0 right-0 h-1 gradient-gold" />
-        <div className="flex justify-end items-center pt-3 pb-1">
+        <div className="flex justify-end items-center gap-2 pt-3 pb-1">
+          <Link to="/favorites" className="flex items-center gap-1.5 bg-white/10 text-primary-foreground px-3 py-2 rounded-lg hover:bg-white/20 transition-all font-naskh text-xs font-bold">
+            <Heart size={14} />
+            المفضلة
+          </Link>
           <button
             onClick={() => { setShowPlaylist(!showPlaylist); setActiveTab("playlist"); }}
             className="flex items-center gap-1.5 bg-white/10 text-primary-foreground px-3 py-2 rounded-lg hover:bg-white/20 transition-all font-naskh text-xs font-bold"

@@ -101,7 +101,11 @@ const Athkar = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <header className="gradient-islamic pattern-islamic px-4 text-center relative overflow-hidden">
         <div className="absolute bottom-0 left-0 right-0 h-1 gradient-gold" />
-        <div className="flex justify-end items-center pt-3 pb-1">
+        <div className="flex justify-end items-center gap-2 pt-3 pb-1">
+          <Link to="/favorites" className="text-xs font-naskh text-primary-foreground/70 hover:text-primary-foreground transition-colors bg-white/10 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+            <Heart size={13} />
+            المفضلة
+          </Link>
           <button onClick={resetCounters} className="text-xs font-naskh text-primary-foreground/70 hover:text-primary-foreground transition-colors bg-white/10 px-3 py-1.5 rounded-lg">
             إعادة تعيين العدادات
           </button>
