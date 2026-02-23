@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { JuzInfo, toArabicNumber, getQuranPageImageUrl } from "@/data/quranData";
-import { Download, Check, Loader2, Wifi, WifiOff } from "lucide-react";
+import { Download, Check, Loader2, Wifi, WifiOff, Heart } from "lucide-react";
 import { toast } from "sonner";
+import { useFavorites } from "@/hooks/useFavorites";
 
 interface JuzCardProps {
   juz: JuzInfo;
@@ -32,6 +33,8 @@ const JuzCard = ({ juz, index }: JuzCardProps) => {
   const [progress, setProgress] = useState(0);
   const [cachedPercent, setCachedPercent] = useState<number | null>(wasDone ? 100 : null);
   const [longPressing, setLongPressing] = useState(false);
+  const { toggleFavorite, isFavorite } = useFavorites();
+  const isFav = isFavorite("juz", juz.number);
 
   const totalPages = juz.endPage - juz.startPage + 1;
 
@@ -140,6 +143,17 @@ const JuzCard = ({ juz, index }: JuzCardProps) => {
     >
       <div className="relative overflow-hidden rounded-lg border border-border bg-card p-5 transition-all duration-300 hover:shadow-islamic hover:border-gold-light hover:-translate-y-1 select-none">
         <div className="absolute top-0 left-0 w-12 h-12 gradient-gold opacity-20 rounded-br-full" />
+
+        {/* Favorite button */}
+        <button
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite({ type: "juz", id: juz.number }); }}
+          title={isFav ? "إزالة من المفضلة" : "إضافة للمفضلة"}
+          className={`absolute top-2 left-2 w-7 h-7 rounded-full flex items-center justify-center transition-all z-10 ${
+            isFav ? "bg-red-500/20 text-red-500" : "bg-muted text-muted-foreground hover:bg-red-500/10 hover:text-red-400"
+          }`}
+        >
+          <Heart size={14} fill={isFav ? "currentColor" : "none"} />
+        </button>
 
         {/* Download button */}
         <button
