@@ -36,7 +36,7 @@ const getCounters = (): Record<number, number> => {
 
 const Athkar = () => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>("morning");
-  const [counters, setCounters] = useState<Record<number, number>>(getCounters);
+  const [counters, setCounters] = useState<Record<number, number>>({});
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
