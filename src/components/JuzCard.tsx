@@ -9,6 +9,7 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 interface JuzCardProps {
   juz: JuzInfo;
   index: number;
+  isBookmarked?: boolean;
 }
 
 const STORAGE_KEY = "juz-download-state";
@@ -28,7 +29,7 @@ const setStoredState = (juzNumber: number, done: boolean) => {
   } catch { /* ignore */ }
 };
 
-const JuzCard = ({ juz, index }: JuzCardProps) => {
+const JuzCard = ({ juz, index, isBookmarked }: JuzCardProps) => {
   const wasDone = getStoredState(juz.number);
   const [downloadState, setDownloadState] = useState<"idle" | "downloading" | "done">(wasDone ? "done" : "idle");
   const [progress, setProgress] = useState(0);
@@ -153,7 +154,14 @@ const JuzCard = ({ juz, index }: JuzCardProps) => {
       onPointerLeave={handlePointerUp}
       onClick={handleClick}
     >
-      <div className="relative overflow-hidden rounded-lg border border-border bg-card p-5 transition-all duration-300 hover:shadow-islamic hover:border-gold-light hover:-translate-y-1 select-none">
+      <div className={`relative overflow-hidden rounded-lg border-2 bg-card p-5 transition-all duration-300 hover:shadow-islamic hover:border-gold-light hover:-translate-y-1 select-none ${
+        isBookmarked ? "border-gold shadow-[0_0_12px_rgba(196,167,82,0.3)]" : "border-border"
+      }`}>
+        {isBookmarked && (
+          <div className="absolute top-0 right-0 bg-gold text-foreground text-[9px] font-naskh font-bold px-2 py-0.5 rounded-bl-lg z-10">
+            📖 متوقف هنا
+          </div>
+        )}
         <div className="absolute top-0 left-0 w-12 h-12 gradient-gold opacity-20 rounded-br-full" />
 
         {/* Favorite button */}
