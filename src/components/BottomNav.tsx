@@ -37,7 +37,7 @@ const BottomNav = () => {
         }`}
         style={{ bottom: 0, paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
-        <div className="flex items-end justify-around max-w-lg mx-auto px-2">
+        <div className="flex items-end justify-around max-w-lg mx-auto px-1">
           {NAV_ITEMS.map(item => {
             const isActive = location.pathname === item.path;
             const Icon = item.icon;
@@ -49,12 +49,12 @@ const BottomNav = () => {
                   to={item.path}
                   className="flex flex-col items-center -mt-4 relative"
                 >
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all ${
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-all ${
                     isActive
                       ? "gradient-islamic shadow-islamic scale-110"
                       : "gradient-islamic opacity-85 hover:opacity-100"
                   }`}>
-                    <Icon size={22} className="text-primary-foreground" />
+                    <Icon size={18} className="text-primary-foreground" />
                   </div>
                   <span className={`font-naskh text-[10px] mt-1 font-bold transition-colors ${
                     isActive ? "text-accent" : "text-muted-foreground"
@@ -69,14 +69,14 @@ const BottomNav = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className="flex flex-col items-center py-2 px-1 min-w-[56px] group"
+                className="flex flex-col items-center py-2 px-0.5 min-w-[48px] group"
               >
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
                   isActive
                     ? "bg-accent/15 text-accent"
                     : "text-muted-foreground group-hover:text-foreground"
                 }`}>
-                  <Icon size={20} />
+                  <Icon size={17} />
                 </div>
                 <span className={`font-naskh text-[10px] mt-0.5 transition-colors ${
                   isActive ? "text-accent font-bold" : "text-muted-foreground"
