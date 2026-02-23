@@ -188,15 +188,14 @@ const JuzViewer = () => {
       </div>
 
       {/* Pages */}
-      <main className="container mx-auto px-2 sm:px-4 pb-12 flex flex-col items-center">
-        <div className="flex flex-col items-center gap-3 sm:gap-4 w-full">
+      <main className="mx-auto px-2 sm:px-4 pb-12 flex flex-col items-center overflow-x-auto">
+        <div className="flex flex-col items-center gap-3 sm:gap-4 w-full" style={{ maxWidth: `${maxWidth}px` }}>
           {pages.map((page) => (
             <div
               key={page}
               ref={(el) => { pageRefs.current[page] = el; }}
               id={`page-${page}`}
-              className="relative rounded-lg overflow-hidden border border-border bg-card shadow-sm transition-all duration-300"
-              style={{ width: "100%", maxWidth: `${maxWidth}px` }}
+              className="relative rounded-lg overflow-hidden border border-border bg-card shadow-sm transition-all duration-300 w-full"
             >
               <div className="absolute top-2 left-2 z-10 bg-primary/90 text-primary-foreground text-xs font-naskh px-2 py-1 rounded">
                 صفحة {toArabicNumber(page)}

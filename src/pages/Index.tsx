@@ -37,7 +37,8 @@ const Index = () => {
         juz.number.toString().includes(q) ||
         juz.nameAr.includes(q) ||
         juz.startSurah.includes(q) ||
-        toArabicNumber(juz.number).includes(q)
+        toArabicNumber(juz.number).includes(q) ||
+        juz.surahs.some((s) => s.includes(q))
     );
   }, [searchQuery]);
 
