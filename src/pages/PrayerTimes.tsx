@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import {
-  Home, MapPin, Clock, Bell, BellOff, Volume2, VolumeX,
+  MapPin, Clock, Bell, BellOff, Volume2, VolumeX,
   Settings, Loader2, RefreshCw, Edit3, Check, X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -93,16 +92,7 @@ const PrayerTimes = () => {
       {/* Header */}
       <header className="gradient-islamic pattern-islamic px-4 text-center relative overflow-hidden">
         <div className="absolute bottom-0 left-0 right-0 h-1 gradient-gold" />
-        <div className="flex justify-start pt-3 pb-1">
-          <Link
-            to="/"
-            className="flex items-center gap-1.5 bg-gold text-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-all font-naskh text-sm font-bold shadow-md"
-          >
-            <Home size={16} />
-            الرئيسية
-          </Link>
-        </div>
-        <div className="pb-6">
+        <div className="pb-6 pt-4">
           <p className="font-amiri text-gold text-lg mb-2">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
           <h1 className="font-amiri text-2xl sm:text-3xl font-bold text-primary-foreground">مواقيت الصلاة</h1>
           {settings.cityName && (
