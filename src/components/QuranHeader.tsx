@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Home } from "lucide-react";
 
 interface QuranHeaderProps {
   title?: string;
@@ -12,12 +13,15 @@ const QuranHeader = ({ title = "القرآن الكريم", showBack = false }: 
       <div className="absolute bottom-0 left-0 right-0 h-1 gradient-gold" />
       
       {showBack && (
-        <Link
-          to="/"
-          className="absolute top-4 right-4 text-primary-foreground/80 hover:text-gold transition-colors font-naskh text-sm"
-        >
-          ← العودة للأجزاء
-        </Link>
+        <div className="absolute top-4 right-4 flex items-center gap-2">
+          <Link
+            to="/"
+            className="flex items-center gap-1 text-primary-foreground/80 hover:text-gold transition-colors font-naskh text-sm"
+          >
+            <Home size={14} />
+            الرئيسية
+          </Link>
+        </div>
       )}
 
       {/* Bismillah */}

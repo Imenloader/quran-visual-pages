@@ -141,6 +141,41 @@ const Index = () => {
         )}
       </main>
 
+      {/* External links section */}
+      <section className="container max-w-5xl mx-auto px-4 pb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <a
+            href="https://quraaniat.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
+          >
+            <div className="flex items-center justify-center w-10 h-10 rounded-full gradient-islamic shrink-0">
+              <span className="text-primary-foreground text-lg">📖</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-naskh text-sm font-bold text-foreground group-hover:text-gold transition-colors">ختم القرآن وسماعه</p>
+              <p className="text-xs text-muted-foreground font-naskh">تابع ختمتك واستمع للتلاوات</p>
+            </div>
+          </a>
+
+          <a
+            href="https://www.mohammedhesham.site/aya"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
+          >
+            <div className="flex items-center justify-center w-10 h-10 rounded-full gradient-gold shrink-0">
+              <span className="text-foreground text-lg">🌙</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-naskh text-sm font-bold text-foreground group-hover:text-gold transition-colors">١٠٠ آية لقيام الليل</p>
+              <p className="text-xs text-muted-foreground font-naskh">آيات مختارة لصلاة القيام</p>
+            </div>
+          </a>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="text-center py-6 text-muted-foreground text-sm font-naskh border-t border-border">
         القرآن الكريم - مصحف المدينة المنورة
