@@ -120,11 +120,25 @@ export const usePlaylists = () => {
     });
   }, []);
 
+  const reorderTracks = useCallback((playlistId: string, fromIndex: number, toIndex: number) => {
+    setPlaylists(prev => {
+      const next = prev.map(p => {
+        if (p.id !== playlistId) return p;
+        const tracks = [...p.tracks];
+        const [moved] = tracks.splice(fromIndex, 1);
+        tracks.splice(toIndex, 0, moved);
+        return { ...p, tracks };
+      });
+      savePlaylists(next);
+      return next;
+    });
+  }, []);
+
   const isInPlaylist = useCallback((playlistId: string, surahId: number, reciterId: number, moshafId: number) => {
     const pl = playlists.find(p => p.id === playlistId);
     if (!pl) return false;
     return pl.tracks.some(t => t.surahId === surahId && t.reciterId === reciterId && t.moshafId === moshafId);
   }, [playlists]);
 
-  return { playlists, createPlaylist, deletePlaylist, addTrack, removeTrack, isInPlaylist };
+  return { playlists, createPlaylist, deletePlaylist, addTrack, removeTrack, reorderTracks, isInPlaylist };
 };

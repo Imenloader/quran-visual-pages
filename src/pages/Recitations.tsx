@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Home, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, Search, ChevronDown, Loader2, Music, Heart, ListMusic, X, Trash2, Clock, Download, Check, Square, Star, Plus, FolderPlus } from "lucide-react";
+import { Home, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, Search, ChevronDown, Loader2, Music, Heart, ListMusic, X, Trash2, Clock, Download, Check, Square, Star, Plus, FolderPlus, GripVertical } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { usePlaylists, PRESET_PLAYLISTS, type PlaylistTrack, type Playlist } from "@/hooks/usePlaylists";
 import { Slider } from "@/components/ui/slider";
@@ -124,7 +124,10 @@ const Recitations = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const saveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { toggleFavorite, isFavorite } = useFavorites();
-  const { playlists, createPlaylist, deletePlaylist, addTrack, removeTrack } = usePlaylists();
+  const { playlists, createPlaylist, deletePlaylist, addTrack, removeTrack, reorderTracks } = usePlaylists();
+  const dragState = useRef<{ playlistId: string; fromIndex: number; currentIndex: number } | null>(null);
+  const [dragPlaylistId, setDragPlaylistId] = useState<string | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number>(-1);
 
   // Load reciters
   useEffect(() => {
@@ -568,9 +571,66 @@ const Recitations = () => {
                         </button>
                       </div>
                       {pl.tracks.length > 0 && (
-                        <div className="border-t border-border max-h-40 overflow-y-auto divide-y divide-border">
+                        <div className="border-t border-border max-h-48 overflow-y-auto divide-y divide-border">
                           {pl.tracks.map((track, idx) => (
-                            <div key={idx} className="flex items-center gap-2 px-4 py-2 text-right">
+                            <div
+                              key={`${track.surahId}-${track.reciterId}-${idx}`}
+                              className={`flex items-center gap-2 px-4 py-2 text-right transition-colors ${
+                                dragPlaylistId === pl.id && dragOverIndex === idx ? "bg-accent/10" : ""
+                              }`}
+                              draggable
+                              onDragStart={(e) => {
+                                dragState.current = { playlistId: pl.id, fromIndex: idx, currentIndex: idx };
+                                setDragPlaylistId(pl.id);
+                                e.dataTransfer.effectAllowed = "move";
+                              }}
+                              onDragOver={(e) => {
+                                e.preventDefault();
+                                if (dragState.current?.playlistId === pl.id) {
+                                  setDragOverIndex(idx);
+                                  dragState.current.currentIndex = idx;
+                                }
+                              }}
+                              onDragEnd={() => {
+                                if (dragState.current && dragState.current.fromIndex !== dragState.current.currentIndex) {
+                                  reorderTracks(dragState.current.playlistId, dragState.current.fromIndex, dragState.current.currentIndex);
+                                }
+                                dragState.current = null;
+                                setDragPlaylistId(null);
+                                setDragOverIndex(-1);
+                              }}
+                              onTouchStart={(e) => {
+                                const grip = (e.target as HTMLElement).closest('[data-grip]');
+                                if (!grip) return;
+                                dragState.current = { playlistId: pl.id, fromIndex: idx, currentIndex: idx };
+                                setDragPlaylistId(pl.id);
+                              }}
+                              onTouchMove={(e) => {
+                                if (!dragState.current || dragState.current.playlistId !== pl.id) return;
+                                const touch = e.touches[0];
+                                const el = document.elementFromPoint(touch.clientX, touch.clientY);
+                                const row = el?.closest('[data-track-index]');
+                                if (row) {
+                                  const newIdx = parseInt(row.getAttribute('data-track-index') || '-1');
+                                  if (newIdx >= 0) {
+                                    setDragOverIndex(newIdx);
+                                    dragState.current.currentIndex = newIdx;
+                                  }
+                                }
+                              }}
+                              onTouchEnd={() => {
+                                if (dragState.current && dragState.current.fromIndex !== dragState.current.currentIndex) {
+                                  reorderTracks(dragState.current.playlistId, dragState.current.fromIndex, dragState.current.currentIndex);
+                                }
+                                dragState.current = null;
+                                setDragPlaylistId(null);
+                                setDragOverIndex(-1);
+                              }}
+                              data-track-index={idx}
+                            >
+                              <div data-grip className="cursor-grab active:cursor-grabbing text-muted-foreground/30 hover:text-muted-foreground touch-none shrink-0">
+                                <GripVertical size={14} />
+                              </div>
                               <button
                                 onClick={() => {
                                   const reciter = reciters.find(r => r.id === track.reciterId);
