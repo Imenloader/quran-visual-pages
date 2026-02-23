@@ -869,10 +869,21 @@ const Recitations = () => {
         </div>
       )}
 
+      {/* Restore player button - shown when minimized */}
+      {currentSurah && playerMinimized && (
+        <button
+          onClick={() => setPlayerMinimized(false)}
+          className="fixed bottom-[76px] right-3 z-[61] w-11 h-11 rounded-full gradient-islamic text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-all animate-fade-in"
+          title="إظهار المشغّل"
+        >
+          {isPlaying ? <Pause size={16} /> : <Play size={16} className="mr-[-1px]" />}
+        </button>
+      )}
+
       {/* Audio Player - Fixed Bottom */}
-      {currentSurah && (
+      {currentSurah && !playerMinimized && (
         <div
-          className={`fixed bottom-0 left-0 right-0 z-[60] bg-card/95 backdrop-blur-md border-t border-border shadow-lg pb-[env(safe-area-inset-bottom)] mb-[72px] transition-all duration-300`}
+          className="fixed bottom-0 left-0 right-0 z-[60] bg-card/95 backdrop-blur-md border-t border-border shadow-lg pb-[env(safe-area-inset-bottom)] mb-[72px] transition-all duration-300 animate-slide-up"
           onTouchStart={(e) => {
             const touch = e.touches[0];
             (e.currentTarget as any)._swipeStartY = touch.clientY;
@@ -885,45 +896,23 @@ const Recitations = () => {
             const endY = e.changedTouches[0].clientY;
             const diff = endY - startY;
             const elapsed = Date.now() - startTime;
-            if (elapsed < 400) {
-              if (diff > 40 && !playerMinimized) setPlayerMinimized(true);
-              else if (diff < -40 && playerMinimized) setPlayerMinimized(false);
-            }
+            if (elapsed < 400 && diff > 40) setPlayerMinimized(true);
           }}
         >
-          {/* Swipe handle bar */}
-          <div className="flex justify-center pt-1.5 pb-0.5">
+          {/* Swipe handle + close button */}
+          <div className="flex items-center justify-between px-4 pt-1.5 pb-0.5">
+            <button
+              onClick={() => setPlayerMinimized(true)}
+              className="p-1 rounded-md text-muted-foreground hover:text-foreground transition-colors"
+              title="إخفاء المشغّل"
+            >
+              <ChevronDown size={16} />
+            </button>
             <div className="w-10 h-1 rounded-full bg-border" />
+            <div className="w-6" />
           </div>
 
-          {/* Minimize/Maximize toggle */}
-          <button
-            onClick={() => setPlayerMinimized(prev => !prev)}
-            className="absolute -top-8 left-1/2 -translate-x-1/2 bg-card border border-border border-b-0 rounded-t-lg px-4 py-1 text-muted-foreground hover:text-foreground transition-colors z-10"
-            title={playerMinimized ? "إظهار المشغّل" : "إخفاء المشغّل"}
-          >
-            <ChevronDown size={16} className={`transition-transform duration-300 ${playerMinimized ? "rotate-180" : ""}`} />
-          </button>
-
-          {/* Mini bar shown when minimized */}
-          {playerMinimized && (
-            <div className="flex items-center gap-3 px-4 h-11">
-              <button
-                onClick={(e) => { e.stopPropagation(); togglePlay(); }}
-                className="w-7 h-7 rounded-full gradient-islamic flex items-center justify-center text-primary-foreground shrink-0"
-              >
-                {audioLoading ? <Loader2 size={12} className="animate-spin" /> : isPlaying ? <Pause size={12} /> : <Play size={12} className="mr-[-1px]" />}
-              </button>
-              <p className="font-naskh text-xs text-foreground truncate flex-1">
-                سورة {currentSurah.name} — {selectedReciter?.name}
-                {playlistQueue.length > 0 && activePlaylistName && (
-                  <span className="text-gold"> • {activePlaylistName} ({playlistQueueIndex + 1}/{playlistQueue.length})</span>
-                )}
-              </p>
-            </div>
-          )}
-
-          <div className={`${playerMinimized ? "hidden" : ""}`}>
+          <div>
             <div className="px-4 pt-2">
               <Slider value={[currentTime]} min={0} max={duration || 1} step={1} onValueChange={handleSeek} className="w-full" />
               <div className="flex justify-between text-xs text-muted-foreground font-naskh mt-1">
