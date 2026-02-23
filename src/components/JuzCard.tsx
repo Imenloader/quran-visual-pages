@@ -41,7 +41,6 @@ const JuzCard = ({ juz, index }: JuzCardProps) => {
     }
 
     setDownloadState("done");
-    setTimeout(() => setDownloadState("idle"), 4000);
   };
 
   return (
