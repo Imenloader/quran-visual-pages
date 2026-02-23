@@ -4,7 +4,7 @@ import { JuzInfo, toArabicNumber, getQuranPageImageUrl } from "@/data/quranData"
 import { Download, Check, Loader2, Wifi, WifiOff, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { useFavorites } from "@/hooks/useFavorites";
-import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { motion } from "framer-motion";
 
 interface JuzCardProps {
   juz: JuzInfo;
@@ -137,18 +137,16 @@ const JuzCard = ({ juz, index, isBookmarked }: JuzCardProps) => {
     }
   }, []);
 
-  const { ref: revealRef, isVisible } = useScrollReveal<HTMLAnchorElement>({ threshold: 0.1 });
+  const MotionLink = motion(Link);
 
   return (
-    <Link
+    <MotionLink
       to={`/juz/${juz.number}`}
-      ref={revealRef}
-      className={`group block transition-all duration-500 ${
-        isVisible
-          ? "opacity-100 translate-y-0"
-          : "opacity-0 translate-y-6"
-      }`}
-      style={{ transitionDelay: `${(index % 10) * 60}ms` }}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-30px" }}
+      transition={{ duration: 0.4, delay: (index % 10) * 0.06, ease: "easeOut" }}
+      className="group block"
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerUp}
@@ -274,7 +272,7 @@ const JuzCard = ({ juz, index, isBookmarked }: JuzCardProps) => {
           </p>
         )}
       </div>
-    </Link>
+    </MotionLink>
   );
 };
 

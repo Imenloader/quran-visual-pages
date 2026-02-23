@@ -1,4 +1,4 @@
-import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { motion } from "framer-motion";
 import { ReactNode } from "react";
 
 interface ScrollRevealProps {
@@ -7,20 +7,16 @@ interface ScrollRevealProps {
   className?: string;
 }
 
-const ScrollReveal = ({ children, index = 0, className = "" }: ScrollRevealProps) => {
-  const { ref, isVisible } = useScrollReveal({ threshold: 0.1 });
-
-  return (
-    <div
-      ref={ref}
-      className={`transition-all duration-500 ${
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-      } ${className}`}
-      style={{ transitionDelay: `${(index % 10) * 60}ms` }}
-    >
-      {children}
-    </div>
-  );
-};
+const ScrollReveal = ({ children, index = 0, className = "" }: ScrollRevealProps) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: "-40px" }}
+    transition={{ duration: 0.4, delay: (index % 10) * 0.06, ease: "easeOut" }}
+    className={className}
+  >
+    {children}
+  </motion.div>
+);
 
 export default ScrollReveal;

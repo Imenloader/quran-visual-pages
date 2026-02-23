@@ -2,10 +2,12 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, lazy, Suspense } from "react";
+import { AnimatePresence } from "framer-motion";
 import NetworkStatus from "./components/NetworkStatus";
 import BottomNav from "./components/BottomNav";
+import PageTransition from "./components/PageTransition";
 
 // Lazy load all pages
 const Index = lazy(() => import("./pages/Index"));
@@ -39,6 +41,30 @@ const PageLoader = () => (
   </div>
 );
 
+const AnimatedRoutes = () => {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Suspense fallback={<PageLoader />} key={location.pathname}>
+        <Routes location={location}>
+          <Route path="/" element={<PageTransition><Index /></PageTransition>} />
+          <Route path="/juz/:juzNumber" element={<PageTransition><JuzViewer /></PageTransition>} />
+          <Route path="/install" element={<PageTransition><Install /></PageTransition>} />
+          <Route path="/recitations" element={<PageTransition><Recitations /></PageTransition>} />
+          <Route path="/athkar" element={<PageTransition><Athkar /></PageTransition>} />
+          <Route path="/favorites" element={<PageTransition><Favorites /></PageTransition>} />
+          <Route path="/settings" element={<PageTransition><Settings /></PageTransition>} />
+          <Route path="/prayer-times" element={<PageTransition><PrayerTimes /></PageTransition>} />
+          <Route path="/how-to-use" element={<PageTransition><HowToUse /></PageTransition>} />
+          <Route path="/embed/:siteId" element={<PageTransition><EmbedView /></PageTransition>} />
+          <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+        </Routes>
+      </Suspense>
+    </AnimatePresence>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -47,21 +73,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/juz/:juzNumber" element={<JuzViewer />} />
-            <Route path="/install" element={<Install />} />
-            <Route path="/recitations" element={<Recitations />} />
-            <Route path="/athkar" element={<Athkar />} />
-            <Route path="/favorites" element={<Favorites />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/prayer-times" element={<PrayerTimes />} />
-            <Route path="/how-to-use" element={<HowToUse />} />
-            <Route path="/embed/:siteId" element={<EmbedView />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
+        <AnimatedRoutes />
         <BottomNav />
       </BrowserRouter>
     </TooltipProvider>
