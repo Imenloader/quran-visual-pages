@@ -3,7 +3,8 @@ import { useState, useCallback, useEffect } from "react";
 export type FavoriteItem =
   | { type: "juz"; id: number }
   | { type: "dhikr"; id: number; categoryId: string }
-  | { type: "recitation"; id: number; surahName: string; reciterId: number; reciterName: string; moshafId: number; moshafServer: string };
+  | { type: "recitation"; id: number; surahName: string; reciterId: number; reciterName: string; moshafId: number; moshafServer: string }
+  | { type: "reciter"; id: number; name: string };
 
 const STORAGE_KEY = "quran-favorites";
 
@@ -38,6 +39,8 @@ export const useFavorites = () => {
         exists = prev.some(
           f => f.type === "recitation" && f.id === item.id && f.reciterId === item.reciterId && f.moshafId === item.moshafId
         );
+      } else if (item.type === "reciter") {
+        exists = prev.some(f => f.type === "reciter" && f.id === item.id);
       } else {
         exists = prev.some(f => f.type === item.type && f.id === item.id);
       }
@@ -46,6 +49,8 @@ export const useFavorites = () => {
       if (exists) {
         if (item.type === "recitation") {
           next = prev.filter(f => !(f.type === "recitation" && f.id === item.id && f.reciterId === item.reciterId && f.moshafId === item.moshafId));
+        } else if (item.type === "reciter") {
+          next = prev.filter(f => !(f.type === "reciter" && f.id === item.id));
         } else {
           next = prev.filter(f => !(f.type === item.type && f.id === item.id));
         }
@@ -61,6 +66,9 @@ export const useFavorites = () => {
     (type: FavoriteItem["type"], id: number, reciterId?: number, moshafId?: number) => {
       if (type === "recitation" && reciterId !== undefined && moshafId !== undefined) {
         return favorites.some(f => f.type === "recitation" && f.id === id && f.reciterId === reciterId && f.moshafId === moshafId);
+      }
+      if (type === "reciter") {
+        return favorites.some(f => f.type === "reciter" && f.id === id);
       }
       return favorites.some(f => f.type === type && f.id === id);
     },

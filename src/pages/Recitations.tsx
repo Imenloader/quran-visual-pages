@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Home, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, Search, ChevronDown, Loader2, Music, Heart, ListMusic, X, Trash2, Clock, Download, Check, Square } from "lucide-react";
+import { Home, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, Search, ChevronDown, Loader2, Music, Heart, ListMusic, X, Trash2, Clock, Download, Check, Square, Star, Plus, FolderPlus } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
+import { usePlaylists, PRESET_PLAYLISTS, type PlaylistTrack, type Playlist } from "@/hooks/usePlaylists";
 import { Slider } from "@/components/ui/slider";
+import { toast } from "sonner";
 
 interface Reciter {
   id: number;
@@ -22,15 +24,6 @@ interface Moshaf {
 interface Surah {
   id: number;
   name: string;
-}
-
-interface PlaylistItem {
-  surahId: number;
-  surahName: string;
-  reciterId: number;
-  reciterName: string;
-  moshafId: number;
-  moshafServer: string;
 }
 
 interface LastPlayed {
@@ -87,7 +80,6 @@ const SURAHS: Surah[] = [
 ];
 
 const LAST_PLAYED_KEY = "quran-last-played";
-const PLAYLIST_KEY = "quran-playlist";
 
 const formatTime = (seconds: number): string => {
   if (isNaN(seconds) || !isFinite(seconds)) return "٠٠:٠٠";
@@ -98,10 +90,6 @@ const formatTime = (seconds: number): string => {
 
 const getLastPlayed = (): LastPlayed | null => {
   try { return JSON.parse(localStorage.getItem(LAST_PLAYED_KEY) || "null"); } catch { return null; }
-};
-
-const getPlaylist = (): PlaylistItem[] => {
-  try { return JSON.parse(localStorage.getItem(PLAYLIST_KEY) || "[]"); } catch { return []; }
 };
 
 const Recitations = () => {
@@ -125,12 +113,16 @@ const Recitations = () => {
   const [isShuffle, setIsShuffle] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
   const [showReciters, setShowReciters] = useState(true);
-  const [playlist, setPlaylist] = useState<PlaylistItem[]>(getPlaylist);
-  const [showPlaylist, setShowPlaylist] = useState(false);
-  const [activeTab, setActiveTab] = useState<"reciters" | "playlist">("reciters");
+  const [activeTab, setActiveTab] = useState<"reciters" | "playlists">("reciters");
+  const [showAddToPlaylist, setShowAddToPlaylist] = useState<Surah | null>(null);
+  const [newPlaylistName, setNewPlaylistName] = useState("");
+  const [activePlaylist, setActivePlaylist] = useState<Playlist | null>(null);
+  const [playlistQueue, setPlaylistQueue] = useState<PlaylistTrack[]>([]);
+  const [playlistQueueIndex, setPlaylistQueueIndex] = useState(-1);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const saveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { toggleFavorite, isFavorite } = useFavorites();
+  const { playlists, createPlaylist, deletePlaylist, addTrack, removeTrack } = usePlaylists();
 
   // Load reciters
   useEffect(() => {
@@ -202,9 +194,7 @@ const Recitations = () => {
         const match = await cache.match(url);
         if (match) cached.add(surah.id);
       }
-    } catch {
-      // Cache API not available
-    }
+    } catch { /* Cache API not available */ }
     setCachedSurahs(cached);
   }, [selectedMoshaf, getAvailableSurahs]);
 
@@ -243,6 +233,17 @@ const Recitations = () => {
       audioRef.current.currentTime = 0;
       audioRef.current.play();
       return;
+    }
+    // If playing from playlist queue
+    if (playlistQueue.length > 0 && playlistQueueIndex >= 0) {
+      const nextIdx = playlistQueueIndex + 1;
+      if (nextIdx < playlistQueue.length) {
+        setPlaylistQueueIndex(nextIdx);
+        const track = playlistQueue[nextIdx];
+        const surah = SURAHS.find(s => s.id === track.surahId);
+        if (surah) playSurah(surah, undefined, track.moshafServer);
+        return;
+      }
     }
     playNextSurah();
   };
@@ -293,48 +294,6 @@ const Recitations = () => {
     setShowReciters(false);
   };
 
-  // Playlist functions
-  const addToPlaylist = (surah: Surah) => {
-    if (!selectedReciter || !selectedMoshaf) return;
-    const item: PlaylistItem = {
-      surahId: surah.id,
-      surahName: surah.name,
-      reciterId: selectedReciter.id,
-      reciterName: selectedReciter.name,
-      moshafId: selectedMoshaf.id,
-      moshafServer: selectedMoshaf.server,
-    };
-    const exists = playlist.some(p => p.surahId === surah.id && p.reciterId === selectedReciter.id && p.moshafId === selectedMoshaf.id);
-    if (exists) return;
-    const updated = [...playlist, item];
-    setPlaylist(updated);
-    localStorage.setItem(PLAYLIST_KEY, JSON.stringify(updated));
-  };
-
-  const removeFromPlaylist = (index: number) => {
-    const updated = playlist.filter((_, i) => i !== index);
-    setPlaylist(updated);
-    localStorage.setItem(PLAYLIST_KEY, JSON.stringify(updated));
-  };
-
-  const playFromPlaylist = (item: PlaylistItem) => {
-    const reciter = reciters.find(r => r.id === item.reciterId);
-    if (reciter) {
-      setSelectedReciter(reciter);
-      const moshaf = reciter.moshaf.find(m => m.id === item.moshafId);
-      if (moshaf) setSelectedMoshaf(moshaf);
-    }
-    setShowPlaylist(false);
-    setShowReciters(false);
-    const surah = SURAHS.find(s => s.id === item.surahId);
-    if (surah) playSurah(surah, undefined, item.moshafServer);
-  };
-
-  const isInPlaylist = (surahId: number) => {
-    if (!selectedReciter || !selectedMoshaf) return false;
-    return playlist.some(p => p.surahId === surahId && p.reciterId === selectedReciter.id && p.moshafId === selectedMoshaf.id);
-  };
-
   const resumeLastPlayed = () => {
     const last = getLastPlayed();
     if (!last) return;
@@ -349,6 +308,63 @@ const Recitations = () => {
     }
     const surah = SURAHS.find(s => s.id === last.surahId);
     if (surah) playSurah(surah, last.currentTime, last.moshafServer);
+  };
+
+  const playPlaylist = (pl: Playlist) => {
+    if (pl.tracks.length === 0) {
+      toast("القائمة فارغة", { description: "أضف سوراً أولاً" });
+      return;
+    }
+    setActivePlaylist(pl);
+    setPlaylistQueue(pl.tracks);
+    setPlaylistQueueIndex(0);
+    const track = pl.tracks[0];
+    // Set reciter context
+    const reciter = reciters.find(r => r.id === track.reciterId);
+    if (reciter) {
+      setSelectedReciter(reciter);
+      const moshaf = reciter.moshaf.find(m => m.id === track.moshafId);
+      if (moshaf) setSelectedMoshaf(moshaf);
+    }
+    setShowReciters(false);
+    setActiveTab("reciters");
+    const surah = SURAHS.find(s => s.id === track.surahId);
+    if (surah) playSurah(surah, undefined, track.moshafServer);
+  };
+
+  const playPresetPlaylist = (preset: typeof PRESET_PLAYLISTS[0]) => {
+    if (!selectedReciter || !selectedMoshaf) {
+      toast("اختر قارئاً أولاً", { description: "يجب اختيار قارئ لتشغيل القائمة الجاهزة" });
+      return;
+    }
+    const available = selectedMoshaf.surah_list.split(",").map(Number);
+    const tracks: PlaylistTrack[] = preset.surahIds
+      .filter(id => available.includes(id))
+      .map(id => ({
+        surahId: id,
+        surahName: SURAHS.find(s => s.id === id)?.name || "",
+        reciterId: selectedReciter.id,
+        reciterName: selectedReciter.name,
+        moshafId: selectedMoshaf.id,
+        moshafServer: selectedMoshaf.server,
+      }));
+    if (tracks.length === 0) {
+      toast("لا توجد سور متاحة", { description: "القارئ لا يملك هذه السور" });
+      return;
+    }
+    setPlaylistQueue(tracks);
+    setPlaylistQueueIndex(0);
+    setActiveTab("reciters");
+    const surah = SURAHS.find(s => s.id === tracks[0].surahId);
+    if (surah) playSurah(surah, undefined, tracks[0].moshafServer);
+    toast.success(`تشغيل: ${preset.name}`, { description: `${tracks.length} سور` });
+  };
+
+  const handleCreatePlaylist = () => {
+    if (!newPlaylistName.trim()) return;
+    createPlaylist(newPlaylistName.trim());
+    setNewPlaylistName("");
+    toast.success("تم إنشاء القائمة");
   };
 
   const downloadAllSurahs = async () => {
@@ -387,16 +403,8 @@ const Recitations = () => {
     } catch { /* aborted */ }
   };
 
-  const pauseDl = () => {
-    dlAbortRef.current?.abort();
-    setDlState("paused");
-  };
-
-  const cancelDl = () => {
-    dlLoadedRef.current = 0;
-    setDlProgress(0);
-    setDlState("idle");
-  };
+  const pauseDl = () => { dlAbortRef.current?.abort(); setDlState("paused"); };
+  const cancelDl = () => { dlLoadedRef.current = 0; setDlProgress(0); setDlState("idle"); };
 
   const filteredReciters = reciters.filter((r) => r.name.includes(searchQuery));
   const lastPlayed = getLastPlayed();
@@ -416,13 +424,6 @@ const Recitations = () => {
             <Heart size={14} />
             المفضلة
           </Link>
-          <button
-            onClick={() => { setShowPlaylist(!showPlaylist); setActiveTab("playlist"); }}
-            className="flex items-center gap-1.5 bg-white/10 text-primary-foreground px-3 py-2 rounded-lg hover:bg-white/20 transition-all font-naskh text-xs font-bold"
-          >
-            <ListMusic size={14} />
-            قائمتي ({playlist.length})
-          </button>
         </div>
         <div className="pb-6">
           <p className="font-amiri text-gold text-lg mb-2">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
@@ -431,244 +432,427 @@ const Recitations = () => {
         </div>
       </header>
 
-      <main className="flex-1 container max-w-4xl mx-auto px-4 py-4">
-        {/* Resume last played banner */}
-        {lastPlayed && !currentSurah && (
-          <button
-            onClick={resumeLastPlayed}
-            className="w-full mb-4 flex items-center gap-3 bg-primary/10 border border-primary/30 rounded-xl px-4 py-3 text-right hover:bg-primary/15 transition-colors group"
-          >
-            <div className="w-10 h-10 rounded-full gradient-islamic flex items-center justify-center shrink-0">
-              <Clock size={18} className="text-primary-foreground" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-naskh text-sm font-bold text-foreground">استئناف آخر تلاوة</p>
-              <p className="text-xs text-muted-foreground font-naskh truncate">
-                سورة {lastPlayed.surahName} - {lastPlayed.reciterName}
-              </p>
-            </div>
-            <Play size={18} className="text-primary shrink-0" />
-          </button>
-        )}
+      {/* Tabs: Reciters / Playlists */}
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border">
+        <div className="container max-w-4xl mx-auto px-4">
+          <div className="flex gap-1 py-2">
+            <button
+              onClick={() => setActiveTab("reciters")}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-naskh font-bold transition-all ${
+                activeTab === "reciters" ? "gradient-gold text-foreground shadow-sm" : "text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              <Music size={14} />
+              القراء والسور
+            </button>
+            <button
+              onClick={() => setActiveTab("playlists")}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-naskh font-bold transition-all ${
+                activeTab === "playlists" ? "gradient-gold text-foreground shadow-sm" : "text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              <ListMusic size={14} />
+              قوائم التشغيل
+              {playlists.length > 0 && (
+                <span className={`min-w-[18px] h-[18px] rounded-full text-[10px] flex items-center justify-center ${
+                  activeTab === "playlists" ? "bg-foreground/20" : "bg-muted"
+                }`}>{playlists.length}</span>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
 
-        {/* Playlist Panel */}
-        {showPlaylist && (
-          <div className="mb-4 bg-card border border-border rounded-xl overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-              <h3 className="font-naskh text-sm font-bold text-foreground flex items-center gap-2">
+      <main className="flex-1 container max-w-4xl mx-auto px-4 py-4">
+        {activeTab === "playlists" ? (
+          <div className="space-y-4">
+            {/* Preset playlists */}
+            <div>
+              <h3 className="font-naskh text-sm font-bold text-foreground mb-3 flex items-center gap-2">
                 <ListMusic size={16} className="text-gold" />
-                قائمة التشغيل المخصصة
+                قوائم جاهزة
               </h3>
-              <button onClick={() => setShowPlaylist(false)} className="p-1 rounded-md hover:bg-muted transition-colors text-muted-foreground">
-                <X size={16} />
-              </button>
-            </div>
-            {playlist.length === 0 ? (
-              <div className="px-4 py-8 text-center">
-                <Heart size={32} className="mx-auto text-muted-foreground/30 mb-2" />
-                <p className="text-sm text-muted-foreground font-naskh">لم تضف أي سور بعد</p>
-                <p className="text-xs text-muted-foreground/70 font-naskh mt-1">اضغط على ♡ بجانب أي سورة لإضافتها</p>
+              <div className="grid grid-cols-2 gap-2">
+                {PRESET_PLAYLISTS.map(preset => (
+                  <button
+                    key={preset.id}
+                    onClick={() => playPresetPlaylist(preset)}
+                    className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 hover:border-gold/50 hover:shadow-islamic transition-all text-right"
+                  >
+                    <span className="text-2xl">{preset.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-naskh text-sm font-bold text-foreground">{preset.name}</p>
+                      <p className="text-xs text-muted-foreground font-naskh">{preset.surahIds.length} سور</p>
+                    </div>
+                    <Play size={14} className="text-muted-foreground shrink-0" />
+                  </button>
+                ))}
               </div>
-            ) : (
-              <div className="max-h-60 overflow-y-auto divide-y divide-border">
-                {playlist.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors">
-                    <button onClick={() => playFromPlaylist(item)} className="flex-1 text-right min-w-0">
-                      <p className="font-naskh text-sm text-foreground truncate">سورة {item.surahName}</p>
-                      <p className="text-xs text-muted-foreground font-naskh truncate">{item.reciterName}</p>
+              {!selectedReciter && (
+                <p className="text-xs text-muted-foreground font-naskh mt-2 text-center">
+                  💡 اختر قارئاً أولاً من تبويب "القراء والسور" لتشغيل القوائم الجاهزة
+                </p>
+              )}
+            </div>
+
+            {/* Custom playlists */}
+            <div>
+              <h3 className="font-naskh text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+                <FolderPlus size={16} className="text-gold" />
+                قوائمي المخصصة
+              </h3>
+
+              {/* Create new playlist */}
+              <div className="flex gap-2 mb-3">
+                <input
+                  type="text"
+                  value={newPlaylistName}
+                  onChange={(e) => setNewPlaylistName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleCreatePlaylist()}
+                  placeholder="اسم القائمة الجديدة..."
+                  className="flex-1 bg-card border border-border rounded-lg px-3 py-2 text-sm font-naskh text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+                <button
+                  onClick={handleCreatePlaylist}
+                  disabled={!newPlaylistName.trim()}
+                  className="px-4 py-2 rounded-lg gradient-gold text-foreground font-naskh text-sm font-bold disabled:opacity-40 transition-opacity"
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
+
+              {playlists.length === 0 ? (
+                <div className="text-center py-8 bg-card border border-border rounded-xl">
+                  <ListMusic size={32} className="mx-auto text-muted-foreground/30 mb-2" />
+                  <p className="text-sm text-muted-foreground font-naskh">لا توجد قوائم مخصصة بعد</p>
+                  <p className="text-xs text-muted-foreground/70 font-naskh mt-1">أنشئ قائمة وأضف إليها سوراً من أي قارئ</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {playlists.map(pl => (
+                    <div key={pl.id} className="bg-card border border-border rounded-xl overflow-hidden">
+                      <div className="flex items-center gap-3 px-4 py-3">
+                        <span className="text-xl">{pl.icon}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-naskh text-sm font-bold text-foreground">{pl.name}</p>
+                          <p className="text-xs text-muted-foreground font-naskh">{pl.tracks.length} تلاوة</p>
+                        </div>
+                        <button
+                          onClick={() => playPlaylist(pl)}
+                          disabled={pl.tracks.length === 0}
+                          className="p-2 rounded-lg gradient-islamic text-primary-foreground disabled:opacity-40 transition-opacity"
+                          title="تشغيل القائمة"
+                        >
+                          <Play size={14} />
+                        </button>
+                        <button
+                          onClick={() => { deletePlaylist(pl.id); toast("تم حذف القائمة"); }}
+                          className="p-2 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                      {pl.tracks.length > 0 && (
+                        <div className="border-t border-border max-h-40 overflow-y-auto divide-y divide-border">
+                          {pl.tracks.map((track, idx) => (
+                            <div key={idx} className="flex items-center gap-2 px-4 py-2 text-right">
+                              <button
+                                onClick={() => {
+                                  const reciter = reciters.find(r => r.id === track.reciterId);
+                                  if (reciter) {
+                                    setSelectedReciter(reciter);
+                                    const moshaf = reciter.moshaf.find(m => m.id === track.moshafId);
+                                    if (moshaf) setSelectedMoshaf(moshaf);
+                                  }
+                                  setShowReciters(false);
+                                  setActiveTab("reciters");
+                                  const s = SURAHS.find(su => su.id === track.surahId);
+                                  if (s) playSurah(s, undefined, track.moshafServer);
+                                }}
+                                className="flex-1 min-w-0 text-right"
+                              >
+                                <p className="font-naskh text-xs text-foreground truncate">سورة {track.surahName}</p>
+                                <p className="text-[10px] text-muted-foreground font-naskh truncate">{track.reciterName}</p>
+                              </button>
+                              <button
+                                onClick={() => removeTrack(pl.id, track.surahId, track.reciterId, track.moshafId)}
+                                className="p-1 rounded text-muted-foreground/40 hover:text-destructive transition-colors shrink-0"
+                              >
+                                <X size={12} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Resume last played banner */}
+            {lastPlayed && !currentSurah && (
+              <button
+                onClick={resumeLastPlayed}
+                className="w-full mb-4 flex items-center gap-3 bg-primary/10 border border-primary/30 rounded-xl px-4 py-3 text-right hover:bg-primary/15 transition-colors group"
+              >
+                <div className="w-10 h-10 rounded-full gradient-islamic flex items-center justify-center shrink-0">
+                  <Clock size={18} className="text-primary-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-naskh text-sm font-bold text-foreground">استئناف آخر تلاوة</p>
+                  <p className="text-xs text-muted-foreground font-naskh truncate">
+                    سورة {lastPlayed.surahName} - {lastPlayed.reciterName}
+                  </p>
+                </div>
+                <Play size={18} className="text-primary shrink-0" />
+              </button>
+            )}
+
+            {/* Reciter Selection */}
+            {selectedReciter && !showReciters && (
+              <button
+                onClick={() => setShowReciters(true)}
+                className="w-full mb-4 flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 hover:bg-muted transition-colors"
+              >
+                <div className="w-10 h-10 rounded-full gradient-islamic flex items-center justify-center shrink-0">
+                  <Music size={18} className="text-primary-foreground" />
+                </div>
+                <div className="flex-1 text-right">
+                  <p className="font-naskh text-sm font-bold text-foreground">{selectedReciter.name}</p>
+                  {selectedMoshaf && <p className="text-xs text-muted-foreground font-naskh">{selectedMoshaf.name}</p>}
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite({ type: "reciter", id: selectedReciter.id, name: selectedReciter.name });
+                  }}
+                  className={`p-2 rounded-lg transition-colors shrink-0 ${
+                    isFavorite("reciter", selectedReciter.id) ? "text-gold" : "text-muted-foreground hover:text-gold"
+                  }`}
+                  title="تفضيل القارئ"
+                >
+                  <Star size={16} fill={isFavorite("reciter", selectedReciter.id) ? "currentColor" : "none"} />
+                </button>
+                <ChevronDown size={16} className="text-muted-foreground" />
+              </button>
+            )}
+
+            {showReciters && (
+              <>
+                <div className="relative mb-4">
+                  <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="ابحث عن قارئ..."
+                    className="w-full bg-card border border-border rounded-lg pr-10 pl-4 py-2.5 text-sm font-naskh text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </div>
+
+                {loading ? (
+                  <div className="flex justify-center py-12">
+                    <Loader2 className="animate-spin text-primary" size={32} />
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[60vh] overflow-y-auto mb-4">
+                    {filteredReciters.map((reciter) => (
+                      <div
+                        key={reciter.id}
+                        className={`flex items-center gap-3 bg-card border rounded-xl px-4 py-3 hover:border-gold/50 hover:shadow-islamic transition-all text-right ${
+                          selectedReciter?.id === reciter.id ? "border-gold shadow-islamic" : "border-border"
+                        }`}
+                      >
+                        <button onClick={() => selectReciter(reciter)} className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="w-9 h-9 rounded-full gradient-islamic flex items-center justify-center shrink-0">
+                            <Music size={14} className="text-primary-foreground" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-naskh text-sm font-bold text-foreground truncate">{reciter.name}</p>
+                            <p className="text-xs text-muted-foreground font-naskh">{reciter.moshaf.length > 0 ? reciter.moshaf[0].name : ""}</p>
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => toggleFavorite({ type: "reciter", id: reciter.id, name: reciter.name })}
+                          className={`p-1.5 rounded-md transition-colors shrink-0 ${
+                            isFavorite("reciter", reciter.id) ? "text-gold" : "text-muted-foreground/30 hover:text-gold"
+                          }`}
+                          title="تفضيل القارئ"
+                        >
+                          <Star size={14} fill={isFavorite("reciter", reciter.id) ? "currentColor" : "none"} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Moshaf selection */}
+            {selectedReciter && selectedReciter.moshaf.length > 1 && !showReciters && (
+              <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
+                {selectedReciter.moshaf.map((m) => (
+                  <button
+                    key={m.id}
+                    onClick={() => setSelectedMoshaf(m)}
+                    className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-naskh border transition-colors ${
+                      selectedMoshaf?.id === m.id
+                        ? "gradient-gold text-foreground border-transparent font-bold"
+                        : "bg-card border-border text-foreground hover:bg-muted"
+                    }`}
+                  >
+                    {m.name}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Download all surahs button */}
+            {selectedMoshaf && !showReciters && (
+              <div className="w-full mb-4 flex items-center gap-2">
+                <button
+                  onClick={dlState === "downloading" ? pauseDl : downloadAllSurahs}
+                  className={`flex-1 flex items-center gap-3 border rounded-xl px-4 py-3 transition-all font-naskh text-sm ${
+                    dlState === "done" ? "bg-primary/10 border-primary/30"
+                      : dlState === "downloading" ? "bg-gold/10 border-gold/30"
+                      : dlState === "paused" ? "bg-accent border-gold/40"
+                      : "bg-card border-border hover:border-gold/50 hover:shadow-islamic"
+                  }`}
+                >
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${dlState === "done" ? "bg-primary/20" : "gradient-gold"}`}>
+                    {dlState === "downloading" ? <Pause size={16} className="text-foreground" /> : dlState === "done" ? <Check size={16} className="text-primary" /> : dlState === "paused" ? <Play size={16} className="text-foreground" /> : <Download size={16} className="text-foreground" />}
+                  </div>
+                  <div className="flex-1 text-right min-w-0">
+                    <p className="font-bold text-foreground">
+                      {dlState === "done" ? "✓ تم تحميل جميع التلاوات" : dlState === "downloading" ? `جاري التحميل... ${dlProgress}%` : dlState === "paused" ? `متوقف مؤقتاً - ${dlProgress}%` : "تحميل جميع التلاوات للأوفلاين"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {dlState === "downloading" || dlState === "paused"
+                        ? `${Math.round((dlProgress / 100) * getAvailableSurahs().length)} من ${getAvailableSurahs().length} سورة`
+                        : `${getAvailableSurahs().length} سورة - ${selectedReciter?.name}`}
+                    </p>
+                  </div>
+                </button>
+                {dlState === "paused" && (
+                  <button onClick={cancelDl} className="w-9 h-9 rounded-xl border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-destructive hover:border-destructive/50 transition-colors shrink-0" title="إلغاء التحميل">
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+            )}
+
+            {(dlState === "downloading" || dlState === "paused") && (
+              <div className="w-full mb-4 h-2 bg-muted rounded-full overflow-hidden">
+                <div className="h-full gradient-gold transition-all duration-300 rounded-full" style={{ width: `${dlProgress}%` }} />
+              </div>
+            )}
+
+            {/* Surah list */}
+            {selectedMoshaf && !showReciters && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-24">
+                {getAvailableSurahs().map((surah) => (
+                  <div
+                    key={surah.id}
+                    className={`flex items-center gap-1.5 bg-card border rounded-lg px-2.5 py-2.5 hover:border-gold/50 transition-all text-right ${
+                      currentSurah?.id === surah.id ? "border-gold shadow-islamic" : "border-border"
+                    }`}
+                  >
+                    <button onClick={() => playSurah(surah)} className="flex items-center gap-2 flex-1 min-w-0">
+                      <span className="w-7 h-7 rounded-full gradient-islamic flex items-center justify-center text-xs text-primary-foreground font-bold shrink-0">
+                        {surah.id}
+                      </span>
+                      <span className="font-naskh text-sm text-foreground truncate">{surah.name}</span>
+                      {cachedSurahs.has(surah.id) && (
+                        <span className="w-2 h-2 rounded-full bg-primary shrink-0" title="محملة أوفلاين" />
+                      )}
+                      {currentSurah?.id === surah.id && isPlaying && (
+                        <span className="mr-auto text-gold"><Volume2 size={14} /></span>
+                      )}
                     </button>
-                    <button onClick={() => removeFromPlaylist(idx)} className="p-1.5 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors shrink-0">
-                      <Trash2 size={14} />
+                    {/* Favorite button */}
+                    <button
+                      onClick={() => {
+                        if (!selectedReciter || !selectedMoshaf) return;
+                        toggleFavorite({
+                          type: "recitation", id: surah.id, surahName: surah.name,
+                          reciterId: selectedReciter.id, reciterName: selectedReciter.name,
+                          moshafId: selectedMoshaf.id, moshafServer: selectedMoshaf.server,
+                        });
+                      }}
+                      className={`p-1 rounded transition-colors shrink-0 ${
+                        selectedReciter && selectedMoshaf && isFavorite("recitation", surah.id, selectedReciter.id, selectedMoshaf.id)
+                          ? "text-gold" : "text-muted-foreground/30 hover:text-gold"
+                      }`}
+                      title="إضافة للمفضلة"
+                    >
+                      <Heart size={13} fill={selectedReciter && selectedMoshaf && isFavorite("recitation", surah.id, selectedReciter.id, selectedMoshaf.id) ? "currentColor" : "none"} />
+                    </button>
+                    {/* Add to playlist button */}
+                    <button
+                      onClick={() => setShowAddToPlaylist(surah)}
+                      className="p-1 rounded text-muted-foreground/30 hover:text-accent transition-colors shrink-0"
+                      title="إضافة لقائمة تشغيل"
+                    >
+                      <Plus size={13} />
                     </button>
                   </div>
                 ))}
               </div>
             )}
-          </div>
-        )}
-
-        {/* Reciter Selection */}
-        {selectedReciter && !showReciters && (
-          <button
-            onClick={() => setShowReciters(true)}
-            className="w-full mb-4 flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 hover:bg-muted transition-colors"
-          >
-            <div className="w-10 h-10 rounded-full gradient-islamic flex items-center justify-center shrink-0">
-              <Music size={18} className="text-primary-foreground" />
-            </div>
-            <div className="flex-1 text-right">
-              <p className="font-naskh text-sm font-bold text-foreground">{selectedReciter.name}</p>
-              {selectedMoshaf && <p className="text-xs text-muted-foreground font-naskh">{selectedMoshaf.name}</p>}
-            </div>
-            <ChevronDown size={16} className="text-muted-foreground" />
-          </button>
-        )}
-
-        {showReciters && (
-          <>
-            <div className="relative mb-4">
-              <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="ابحث عن قارئ..."
-                className="w-full bg-card border border-border rounded-lg pr-10 pl-4 py-2.5 text-sm font-naskh text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-            </div>
-
-            {loading ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="animate-spin text-primary" size={32} />
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[60vh] overflow-y-auto mb-4">
-                {filteredReciters.map((reciter) => (
-                  <button
-                    key={reciter.id}
-                    onClick={() => selectReciter(reciter)}
-                    className={`flex items-center gap-3 bg-card border rounded-xl px-4 py-3 hover:border-gold/50 hover:shadow-islamic transition-all text-right ${
-                      selectedReciter?.id === reciter.id ? "border-gold shadow-islamic" : "border-border"
-                    }`}
-                  >
-                    <div className="w-9 h-9 rounded-full gradient-islamic flex items-center justify-center shrink-0">
-                      <Music size={14} className="text-primary-foreground" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-naskh text-sm font-bold text-foreground truncate">{reciter.name}</p>
-                      <p className="text-xs text-muted-foreground font-naskh">{reciter.moshaf.length > 0 ? reciter.moshaf[0].name : ""}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
           </>
         )}
-
-        {/* Moshaf selection */}
-        {selectedReciter && selectedReciter.moshaf.length > 1 && !showReciters && (
-          <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
-            {selectedReciter.moshaf.map((m) => (
-              <button
-                key={m.id}
-                onClick={() => setSelectedMoshaf(m)}
-                className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-naskh border transition-colors ${
-                  selectedMoshaf?.id === m.id
-                    ? "gradient-gold text-foreground border-transparent font-bold"
-                    : "bg-card border-border text-foreground hover:bg-muted"
-                }`}
-              >
-                {m.name}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Download all surahs button */}
-        {selectedMoshaf && !showReciters && (
-          <div className="w-full mb-4 flex items-center gap-2">
-            <button
-              onClick={dlState === "downloading" ? pauseDl : downloadAllSurahs}
-              className={`flex-1 flex items-center gap-3 border rounded-xl px-4 py-3 transition-all font-naskh text-sm ${
-                dlState === "done"
-                  ? "bg-primary/10 border-primary/30"
-                  : dlState === "downloading"
-                  ? "bg-gold/10 border-gold/30"
-                  : dlState === "paused"
-                  ? "bg-accent border-gold/40"
-                  : "bg-card border-border hover:border-gold/50 hover:shadow-islamic"
-              }`}
-            >
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${dlState === "done" ? "bg-primary/20" : "gradient-gold"}`}>
-                {dlState === "downloading" ? <Pause size={16} className="text-foreground" /> : dlState === "done" ? <Check size={16} className="text-primary" /> : dlState === "paused" ? <Play size={16} className="text-foreground" /> : <Download size={16} className="text-foreground" />}
-              </div>
-              <div className="flex-1 text-right min-w-0">
-                <p className="font-bold text-foreground">
-                  {dlState === "done" ? "✓ تم تحميل جميع التلاوات" : dlState === "downloading" ? `جاري التحميل... ${dlProgress}%` : dlState === "paused" ? `متوقف مؤقتاً - ${dlProgress}%` : "تحميل جميع التلاوات للأوفلاين"}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {dlState === "downloading" || dlState === "paused"
-                    ? `${Math.round((dlProgress / 100) * getAvailableSurahs().length)} من ${getAvailableSurahs().length} سورة`
-                    : `${getAvailableSurahs().length} سورة - ${selectedReciter?.name}`}
-                </p>
-              </div>
-            </button>
-            {dlState === "paused" && (
-              <button
-                onClick={cancelDl}
-                className="w-9 h-9 rounded-xl border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-destructive hover:border-destructive/50 transition-colors shrink-0"
-                title="إلغاء التحميل"
-              >
-                <X size={16} />
-              </button>
-            )}
-          </div>
-        )}
-
-        {(dlState === "downloading" || dlState === "paused") && (
-          <div className="w-full mb-4 h-2 bg-muted rounded-full overflow-hidden">
-            <div className="h-full gradient-gold transition-all duration-300 rounded-full" style={{ width: `${dlProgress}%` }} />
-          </div>
-        )}
-
-        {/* Surah list */}
-        {selectedMoshaf && !showReciters && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-24">
-            {getAvailableSurahs().map((surah) => (
-              <div
-                key={surah.id}
-                className={`flex items-center gap-2 bg-card border rounded-lg px-3 py-2.5 hover:border-gold/50 transition-all text-right ${
-                  currentSurah?.id === surah.id ? "border-gold shadow-islamic" : "border-border"
-                }`}
-              >
-                <button onClick={() => playSurah(surah)} className="flex items-center gap-2 flex-1 min-w-0">
-                  <span className="w-7 h-7 rounded-full gradient-islamic flex items-center justify-center text-xs text-primary-foreground font-bold shrink-0">
-                    {surah.id}
-                  </span>
-                  <span className="font-naskh text-sm text-foreground truncate">{surah.name}</span>
-                  {cachedSurahs.has(surah.id) && (
-                    <span className="w-2 h-2 rounded-full bg-primary shrink-0" title="محملة أوفلاين" />
-                  )}
-                  {currentSurah?.id === surah.id && isPlaying && (
-                    <span className="mr-auto text-gold"><Volume2 size={14} /></span>
-                  )}
-                </button>
-                <button
-                  onClick={() => {
-                    if (!selectedReciter || !selectedMoshaf) return;
-                    const favItem = {
-                      type: "recitation" as const,
-                      id: surah.id,
-                      surahName: surah.name,
-                      reciterId: selectedReciter.id,
-                      reciterName: selectedReciter.name,
-                      moshafId: selectedMoshaf.id,
-                      moshafServer: selectedMoshaf.server,
-                    };
-                    toggleFavorite(favItem);
-                    // Also sync with playlist
-                    if (isFavorite("recitation", surah.id, selectedReciter.id, selectedMoshaf.id)) {
-                      // Was favorite, now removing — also remove from playlist
-                      const idx = playlist.findIndex(p => p.surahId === surah.id && p.reciterId === selectedReciter.id && p.moshafId === selectedMoshaf.id);
-                      if (idx !== -1) removeFromPlaylist(idx);
-                    } else {
-                      // Adding — also add to playlist
-                      addToPlaylist(surah);
-                    }
-                  }}
-                  className={`p-1.5 rounded-md transition-colors shrink-0 ${
-                    selectedReciter && selectedMoshaf && isFavorite("recitation", surah.id, selectedReciter.id, selectedMoshaf.id)
-                      ? "text-gold"
-                      : "text-muted-foreground/40 hover:text-gold"
-                  }`}
-                >
-                  <Heart size={14} fill={selectedReciter && selectedMoshaf && isFavorite("recitation", surah.id, selectedReciter.id, selectedMoshaf.id) ? "currentColor" : "none"} />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
       </main>
+
+      {/* Add to Playlist Modal */}
+      {showAddToPlaylist && selectedReciter && selectedMoshaf && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4" onClick={() => setShowAddToPlaylist(null)}>
+          <div className="bg-card border border-border rounded-2xl w-full max-w-sm shadow-xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+              <h3 className="font-naskh text-sm font-bold text-foreground">إضافة سورة {showAddToPlaylist.name} إلى:</h3>
+              <button onClick={() => setShowAddToPlaylist(null)} className="p-1 rounded-md hover:bg-muted text-muted-foreground"><X size={16} /></button>
+            </div>
+            <div className="p-3 max-h-60 overflow-y-auto space-y-1.5">
+              {playlists.length === 0 ? (
+                <p className="text-center text-sm text-muted-foreground font-naskh py-4">لا توجد قوائم — أنشئ واحدة أولاً من تبويب "قوائم التشغيل"</p>
+              ) : (
+                playlists.map(pl => {
+                  const isIn = pl.tracks.some(
+                    t => t.surahId === showAddToPlaylist.id && t.reciterId === selectedReciter.id && t.moshafId === selectedMoshaf.id
+                  );
+                  return (
+                    <button
+                      key={pl.id}
+                      onClick={() => {
+                        if (isIn) {
+                          removeTrack(pl.id, showAddToPlaylist.id, selectedReciter.id, selectedMoshaf.id);
+                          toast("تم الإزالة من " + pl.name);
+                        } else {
+                          addTrack(pl.id, {
+                            surahId: showAddToPlaylist.id, surahName: showAddToPlaylist.name,
+                            reciterId: selectedReciter.id, reciterName: selectedReciter.name,
+                            moshafId: selectedMoshaf.id, moshafServer: selectedMoshaf.server,
+                          });
+                          toast.success("تمت الإضافة إلى " + pl.name);
+                        }
+                      }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-right ${
+                        isIn ? "border-gold bg-gold/10" : "border-border hover:border-gold/40"
+                      }`}
+                    >
+                      <span className="text-lg">{pl.icon}</span>
+                      <span className="flex-1 font-naskh text-sm text-foreground">{pl.name}</span>
+                      {isIn ? <Check size={14} className="text-gold" /> : <Plus size={14} className="text-muted-foreground" />}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Audio Player - Fixed Bottom */}
       {currentSurah && (
@@ -684,7 +868,10 @@ const Recitations = () => {
           <div className="px-4 pb-3 flex items-center gap-3">
             <div className="flex-1 min-w-0 text-right">
               <p className="font-naskh text-sm font-bold text-foreground truncate">سورة {currentSurah.name}</p>
-              <p className="text-xs text-muted-foreground font-naskh truncate">{selectedReciter?.name}</p>
+              <p className="text-xs text-muted-foreground font-naskh truncate">
+                {selectedReciter?.name}
+                {playlistQueue.length > 0 && ` • ${playlistQueueIndex + 1}/${playlistQueue.length}`}
+              </p>
             </div>
 
             <div className="flex items-center gap-1">
