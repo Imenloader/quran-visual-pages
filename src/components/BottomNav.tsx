@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { path: "/prayer-times", label: "الصلاة", icon: Clock },
   { path: "/", label: "الرئيسية", icon: Home, isCenter: true },
   { path: "/athkar", label: "الأذكار", icon: Shield },
+  { path: "/favorites", label: "المفضلة", icon: Heart },
   { path: "/recitations", label: "التلاوات", icon: Headphones },
 ];
 
