@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Home, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, Search, ChevronDown, Loader2, Music, Heart, ListMusic, X, Trash2, Clock, Download, Check, Square } from "lucide-react";
+import { useFavorites } from "@/hooks/useFavorites";
 import { Slider } from "@/components/ui/slider";
 
 interface Reciter {
@@ -129,6 +130,7 @@ const Recitations = () => {
   const [activeTab, setActiveTab] = useState<"reciters" | "playlist">("reciters");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const saveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const { toggleFavorite, isFavorite } = useFavorites();
 
   // Load reciters
   useEffect(() => {
@@ -628,10 +630,35 @@ const Recitations = () => {
                   )}
                 </button>
                 <button
-                  onClick={() => isInPlaylist(surah.id) ? undefined : addToPlaylist(surah)}
-                  className={`p-1 rounded-md transition-colors shrink-0 ${isInPlaylist(surah.id) ? "text-gold" : "text-muted-foreground/40 hover:text-gold"}`}
+                  onClick={() => {
+                    if (!selectedReciter || !selectedMoshaf) return;
+                    const favItem = {
+                      type: "recitation" as const,
+                      id: surah.id,
+                      surahName: surah.name,
+                      reciterId: selectedReciter.id,
+                      reciterName: selectedReciter.name,
+                      moshafId: selectedMoshaf.id,
+                      moshafServer: selectedMoshaf.server,
+                    };
+                    toggleFavorite(favItem);
+                    // Also sync with playlist
+                    if (isFavorite("recitation", surah.id, selectedReciter.id, selectedMoshaf.id)) {
+                      // Was favorite, now removing — also remove from playlist
+                      const idx = playlist.findIndex(p => p.surahId === surah.id && p.reciterId === selectedReciter.id && p.moshafId === selectedMoshaf.id);
+                      if (idx !== -1) removeFromPlaylist(idx);
+                    } else {
+                      // Adding — also add to playlist
+                      addToPlaylist(surah);
+                    }
+                  }}
+                  className={`p-1.5 rounded-md transition-colors shrink-0 ${
+                    selectedReciter && selectedMoshaf && isFavorite("recitation", surah.id, selectedReciter.id, selectedMoshaf.id)
+                      ? "text-gold"
+                      : "text-muted-foreground/40 hover:text-gold"
+                  }`}
                 >
-                  <Heart size={14} fill={isInPlaylist(surah.id) ? "currentColor" : "none"} />
+                  <Heart size={14} fill={selectedReciter && selectedMoshaf && isFavorite("recitation", surah.id, selectedReciter.id, selectedMoshaf.id) ? "currentColor" : "none"} />
                 </button>
               </div>
             ))}
