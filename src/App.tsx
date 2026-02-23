@@ -3,20 +3,22 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useEffect } from "react";
-import Index from "./pages/Index";
-import JuzViewer from "./pages/JuzViewer";
-import Install from "./pages/Install";
-import Recitations from "./pages/Recitations";
-import EmbedView from "./pages/EmbedView";
-import Athkar from "./pages/Athkar";
-import Favorites from "./pages/Favorites";
-import Settings from "./pages/Settings";
-import PrayerTimes from "./pages/PrayerTimes";
-import HowToUse from "./pages/HowToUse";
-import NotFound from "./pages/NotFound";
+import { useEffect, lazy, Suspense } from "react";
 import NetworkStatus from "./components/NetworkStatus";
 import BottomNav from "./components/BottomNav";
+
+// Lazy load all pages
+const Index = lazy(() => import("./pages/Index"));
+const JuzViewer = lazy(() => import("./pages/JuzViewer"));
+const Install = lazy(() => import("./pages/Install"));
+const Recitations = lazy(() => import("./pages/Recitations"));
+const EmbedView = lazy(() => import("./pages/EmbedView"));
+const Athkar = lazy(() => import("./pages/Athkar"));
+const Favorites = lazy(() => import("./pages/Favorites"));
+const Settings = lazy(() => import("./pages/Settings"));
+const PrayerTimes = lazy(() => import("./pages/PrayerTimes"));
+const HowToUse = lazy(() => import("./pages/HowToUse"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
@@ -31,6 +33,12 @@ const ThemeInit = () => {
   return null;
 };
 
+const PageLoader = () => (
+  <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+  </div>
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -39,19 +47,21 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/juz/:juzNumber" element={<JuzViewer />} />
-          <Route path="/install" element={<Install />} />
-          <Route path="/recitations" element={<Recitations />} />
-          <Route path="/athkar" element={<Athkar />} />
-          <Route path="/favorites" element={<Favorites />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/prayer-times" element={<PrayerTimes />} />
-          <Route path="/how-to-use" element={<HowToUse />} />
-          <Route path="/embed/:siteId" element={<EmbedView />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/juz/:juzNumber" element={<JuzViewer />} />
+            <Route path="/install" element={<Install />} />
+            <Route path="/recitations" element={<Recitations />} />
+            <Route path="/athkar" element={<Athkar />} />
+            <Route path="/favorites" element={<Favorites />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/prayer-times" element={<PrayerTimes />} />
+            <Route path="/how-to-use" element={<HowToUse />} />
+            <Route path="/embed/:siteId" element={<EmbedView />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
         <BottomNav />
       </BrowserRouter>
     </TooltipProvider>
