@@ -4,7 +4,7 @@ import { juzData, toArabicNumber, getQuranPageImageUrl } from "@/data/quranData"
 import JuzCard from "@/components/JuzCard";
 import JuzIndex from "@/components/JuzIndex";
 import QuranHeader from "@/components/QuranHeader";
-import { Search, Bookmark, List, Download, Headphones, BookOpen, MoonStar, Shield, Loader2, Check, X, Pause, Play, Settings } from "lucide-react";
+import { Search, Bookmark, List, Download, Headphones, BookOpen, MoonStar, Shield, Loader2, Check, X, Pause, Play, Settings, Moon, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const BOOKMARK_KEY = "quran-bookmark";
@@ -224,6 +224,34 @@ const Index = () => {
             />
           </div>
         )}
+
+        {/* Quick Access Cards */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <Link
+            to="/embed/qiyam"
+            className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3.5 hover:border-gold/50 hover:shadow-islamic transition-all group"
+          >
+            <div className="w-10 h-10 rounded-full bg-indigo-500/15 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <Moon size={18} className="text-indigo-500" />
+            </div>
+            <div className="flex-1 min-w-0 text-right">
+              <p className="font-naskh text-sm font-bold text-foreground">١٠٠ آية</p>
+              <p className="text-[11px] text-muted-foreground font-naskh">لقيام الليل</p>
+            </div>
+          </Link>
+          <Link
+            to="/embed/khatma"
+            className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3.5 hover:border-gold/50 hover:shadow-islamic transition-all group"
+          >
+            <div className="w-10 h-10 rounded-full bg-amber-500/15 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <Award size={18} className="text-amber-500" />
+            </div>
+            <div className="flex-1 min-w-0 text-right">
+              <p className="font-naskh text-sm font-bold text-foreground">ختمة القرآن</p>
+              <p className="text-[11px] text-muted-foreground font-naskh">جدول الختمة</p>
+            </div>
+          </Link>
+        </div>
 
         {/* Results */}
         {filteredJuz.length === 0 ? (
