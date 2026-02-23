@@ -31,14 +31,13 @@ const JuzCard = ({ juz, index }: JuzCardProps) => {
   const [downloadState, setDownloadState] = useState<"idle" | "downloading" | "done">(wasDone ? "done" : "idle");
   const [progress, setProgress] = useState(0);
   const [cachedPercent, setCachedPercent] = useState<number | null>(wasDone ? 100 : null);
+  const [longPressing, setLongPressing] = useState(false);
 
   const totalPages = juz.endPage - juz.startPage + 1;
 
   // Check how many pages are cached on mount
   useEffect(() => {
-    // If already marked done in localStorage, trust it and skip cache check
     if (wasDone) return;
-
     let cancelled = false;
     const checkCache = async () => {
       try {
@@ -102,17 +101,21 @@ const JuzCard = ({ juz, index }: JuzCardProps) => {
 
   const handlePointerDown = useCallback(() => {
     isLongPress.current = false;
+    if (downloadState === "idle") {
+      setLongPressing(true);
+    }
     longPressTimer.current = setTimeout(() => {
       isLongPress.current = true;
+      setLongPressing(false);
       if (downloadState === "idle") {
         toast.info(`جاري تحميل ${juz.nameAr} للأوفلاين...`);
-        // Trigger download directly
         downloadForOffline({ preventDefault: () => {}, stopPropagation: () => {} } as React.MouseEvent);
       }
     }, 600);
   }, [downloadState, juz.nameAr]);
 
   const handlePointerUp = useCallback(() => {
+    setLongPressing(false);
     if (longPressTimer.current) {
       clearTimeout(longPressTimer.current);
       longPressTimer.current = null;
@@ -166,10 +169,28 @@ const JuzCard = ({ juz, index }: JuzCardProps) => {
           </div>
         )}
 
-        <div className="flex items-center justify-center w-12 h-12 mx-auto mb-3 rounded-full gradient-islamic">
-          <span className="text-lg font-bold font-amiri text-primary-foreground">
-            {toArabicNumber(juz.number)}
-          </span>
+        <div className="relative flex items-center justify-center w-14 h-14 mx-auto mb-3">
+          {/* Long-press progress ring */}
+          <svg
+            className={`absolute inset-0 w-14 h-14 -rotate-90 transition-opacity ${longPressing ? "opacity-100" : "opacity-0"}`}
+            viewBox="0 0 56 56"
+          >
+            <circle cx="28" cy="28" r="25" fill="none" stroke="hsl(var(--gold))" strokeWidth="3" strokeOpacity="0.2" />
+            <circle
+              cx="28" cy="28" r="25" fill="none"
+              stroke="hsl(var(--gold))"
+              strokeWidth="3"
+              strokeDasharray={`${2 * Math.PI * 25}`}
+              strokeDashoffset={`${2 * Math.PI * 25}`}
+              strokeLinecap="round"
+              className={longPressing ? "animate-long-press-ring" : ""}
+            />
+          </svg>
+          <div className={`flex items-center justify-center w-12 h-12 rounded-full gradient-islamic transition-transform ${longPressing ? "scale-90" : ""}`}>
+            <span className="text-lg font-bold font-amiri text-primary-foreground">
+              {toArabicNumber(juz.number)}
+            </span>
+          </div>
         </div>
 
         <h3 className="text-center font-amiri text-lg font-bold text-foreground mb-1 group-hover:text-gold-dark transition-colors">

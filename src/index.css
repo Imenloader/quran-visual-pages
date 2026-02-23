@@ -238,3 +238,16 @@
     background: hsl(var(--muted-foreground) / 0.3);
   }
 }
+
+@keyframes long-press-ring {
+  from {
+    stroke-dashoffset: 157;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-long-press-ring {
+  animation: long-press-ring 0.6s linear forwards;
+}
