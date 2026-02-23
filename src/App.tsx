@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import JuzViewer from "./pages/JuzViewer";
 import Install from "./pages/Install";
+import Recitations from "./pages/Recitations";
+import EmbedView from "./pages/EmbedView";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +22,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/juz/:juzNumber" element={<JuzViewer />} />
           <Route path="/install" element={<Install />} />
+          <Route path="/recitations" element={<Recitations />} />
+          <Route path="/embed/:siteId" element={<EmbedView />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
