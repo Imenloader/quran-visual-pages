@@ -1,6 +1,6 @@
 import { Link, useParams } from "react-router-dom";
-import { Home, ExternalLink, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { Home, ExternalLink, Loader2, WifiOff } from "lucide-react";
+import { useState, useEffect } from "react";
 
 const SITES: Record<string, { title: string; url: string; description: string }> = {
   quraaniat: {
@@ -18,7 +18,26 @@ const SITES: Record<string, { title: string; url: string; description: string }>
 const EmbedView = () => {
   const { siteId } = useParams<{ siteId: string }>();
   const [loading, setLoading] = useState(true);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const site = siteId ? SITES[siteId] : null;
+
+  useEffect(() => {
+    const goOnline = () => setIsOffline(false);
+    const goOffline = () => setIsOffline(true);
+    window.addEventListener("online", goOnline);
+    window.addEventListener("offline", goOffline);
+    return () => {
+      window.removeEventListener("online", goOnline);
+      window.removeEventListener("offline", goOffline);
+    };
+  }, []);
+
+  // Pre-cache the site URL
+  useEffect(() => {
+    if (site) {
+      fetch(site.url, { mode: "no-cors", cache: "force-cache" }).catch(() => {});
+    }
+  }, [site]);
 
   if (!site) {
     return (
