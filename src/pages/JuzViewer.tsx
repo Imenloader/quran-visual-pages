@@ -73,7 +73,7 @@ const JuzViewer = () => {
 
               {/* Loading skeleton */}
               {loadingStates[page] !== false && !errorStates[page] && (
-                <div className="w-full aspect-[3/4] bg-muted animate-pulse flex items-center justify-center">
+                <div className="absolute inset-0 w-full h-full bg-muted animate-pulse flex items-center justify-center z-[5]">
                   <span className="text-muted-foreground font-naskh text-sm">جاري التحميل...</span>
                 </div>
               )}
@@ -92,7 +92,7 @@ const JuzViewer = () => {
                 <img
                   src={getQuranPageImageUrl(page)}
                   alt={`صفحة ${toArabicNumber(page)} من المصحف الشريف`}
-                  className={`w-full h-auto ${loadingStates[page] !== false ? "hidden" : "block"}`}
+                  className="w-full h-auto block"
                   loading="lazy"
                   onLoad={() => handleImageLoad(page)}
                   onError={() => handleImageError(page)}
