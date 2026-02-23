@@ -113,56 +113,6 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <QuranHeader />
 
-      {/* Quick action buttons in header area */}
-      <div className="container max-w-5xl mx-auto px-4 -mt-5 relative z-10 mb-2">
-        <div className="grid grid-cols-5 gap-2">
-          <Link
-            to="/recitations"
-            className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-1 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
-          >
-            <div className="w-9 h-9 rounded-full gradient-islamic flex items-center justify-center">
-              <Headphones size={16} className="text-primary-foreground" />
-            </div>
-            <span className="font-naskh text-[10px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">التلاوات</span>
-          </Link>
-          <Link
-            to="/athkar"
-            className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-1 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
-          >
-            <div className="w-9 h-9 rounded-full gradient-gold flex items-center justify-center">
-              <Shield size={16} className="text-foreground" />
-            </div>
-            <span className="font-naskh text-[10px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">الأذكار</span>
-          </Link>
-          <button
-            onClick={() => cacheAndNavigate("quraaniat", "https://quraaniat.vercel.app")}
-            className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-1 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
-          >
-            <div className="w-9 h-9 rounded-full gradient-islamic flex items-center justify-center">
-              {cachingEmbed["quraaniat"] ? <Loader2 size={16} className="text-primary-foreground animate-spin" /> : <BookOpen size={16} className="text-primary-foreground" />}
-            </div>
-            <span className="font-naskh text-[10px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">ختم القرآن</span>
-          </button>
-          <button
-            onClick={() => cacheAndNavigate("qiyam", "https://www.mohammedhesham.site/aya")}
-            className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-1 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
-          >
-            <div className="w-9 h-9 rounded-full gradient-gold flex items-center justify-center">
-              {cachingEmbed["qiyam"] ? <Loader2 size={16} className="text-foreground animate-spin" /> : <MoonStar size={16} className="text-foreground" />}
-            </div>
-            <span className="font-naskh text-[10px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">قيام الليل</span>
-          </button>
-          <Link
-            to="/settings"
-            className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-1 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
-          >
-            <div className="w-9 h-9 rounded-full gradient-islamic flex items-center justify-center">
-              <Settings size={16} className="text-primary-foreground" />
-            </div>
-            <span className="font-naskh text-[10px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">الإعدادات</span>
-          </Link>
-        </div>
-      </div>
 
       <main className="container max-w-5xl mx-auto px-4 py-4">
         {/* Bookmark resume banner */}

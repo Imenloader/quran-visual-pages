@@ -647,7 +647,7 @@ const Recitations = () => {
 
       {/* Audio Player - Fixed Bottom */}
       {currentSurah && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border shadow-lg">
+        <div className="fixed bottom-0 left-0 right-0 z-[60] bg-card/95 backdrop-blur-md border-t border-border shadow-lg pb-[env(safe-area-inset-bottom)] mb-[72px]">
           <div className="px-4 pt-2">
             <Slider value={[currentTime]} min={0} max={duration || 1} step={1} onValueChange={handleSeek} className="w-full" />
             <div className="flex justify-between text-xs text-muted-foreground font-naskh mt-1">
