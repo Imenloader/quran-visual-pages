@@ -272,7 +272,17 @@
   }
 
   .sepia .quran-page-img {
-    filter: sepia(0.15) brightness(0.95);
+    filter: sepia(0.15) brightness(var(--page-brightness, 0.95));
+  }
+
+  .sepia .page-dimming-overlay {
+    position: fixed;
+    inset: 0;
+    background: hsl(25 20% 10%);
+    opacity: var(--page-dimming-opacity, 0);
+    pointer-events: none;
+    z-index: 1;
+    transition: opacity 0.3s ease;
   }
 
   /* Smooth animations */
