@@ -193,7 +193,7 @@ const JuzViewer = () => {
       </div>
 
       {/* Pages */}
-      <main className="mx-auto px-2 sm:px-4 pb-12 flex flex-col items-center overflow-x-auto">
+      <main className="mx-auto px-2 sm:px-4 pb-32 sm:pb-12 flex flex-col items-center overflow-x-auto">
         <div className="flex flex-col items-center gap-3 sm:gap-4 w-full" style={{ maxWidth: `${maxWidth}px` }}>
           {pages.map((page) => (
             <div
@@ -235,8 +235,8 @@ const JuzViewer = () => {
         </div>
       </main>
 
-      {/* Bottom nav for mobile */}
-      <div className="sticky bottom-0 z-30 bg-background/95 backdrop-blur-sm border-t border-border py-2 px-4 flex justify-between items-center sm:hidden">
+      {/* Bottom nav for mobile - positioned above the global BottomNav */}
+      <div className="sticky z-30 bg-background/95 backdrop-blur-sm border-t border-border py-2 px-4 flex justify-between items-center sm:hidden" style={{ bottom: 'calc(68px + env(safe-area-inset-bottom, 0px))' }}>
         {num > 1 ? (
           <Link to={`/juz/${num - 1}`} className="text-sm font-naskh text-muted-foreground hover:text-gold transition-colors">
             ← السابق
