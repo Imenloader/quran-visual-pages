@@ -8,6 +8,7 @@ import PageNavigator from "@/components/PageNavigator";
 import JuzIndex from "@/components/JuzIndex";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { ChevronRight, ChevronLeft, ArrowUp } from "lucide-react";
+import LazyImage from "@/components/LazyImage";
 
 const BOOKMARK_KEY = "quran-bookmark";
 
@@ -206,12 +207,6 @@ const JuzViewer = () => {
                 صفحة {toArabicNumber(page)}
               </div>
 
-              {loadingStates[page] !== false && !errorStates[page] && (
-                <div className="absolute inset-0 w-full h-full bg-muted animate-pulse flex items-center justify-center z-[5]">
-                  <span className="text-muted-foreground font-naskh text-sm">جاري التحميل...</span>
-                </div>
-              )}
-
               {errorStates[page] && (
                 <div className="w-full aspect-[3/4] bg-muted flex items-center justify-center">
                   <span className="text-muted-foreground font-naskh text-sm">
@@ -221,11 +216,10 @@ const JuzViewer = () => {
               )}
 
               {!errorStates[page] && (
-                <img
+                <LazyImage
                   src={getQuranPageImageUrl(page)}
                   alt={`صفحة ${toArabicNumber(page)} من المصحف الشريف`}
-                  className="w-full h-auto block quran-page-img"
-                  loading="lazy"
+                  className="quran-page-img"
                   onLoad={() => handleImageLoad(page)}
                   onError={() => handleImageError(page)}
                 />
