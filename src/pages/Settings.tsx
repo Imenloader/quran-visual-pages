@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Home, Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2 } from "lucide-react";
+import { Home, Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff, Clock, Send } from "lucide-react";
 import { toast } from "sonner";
+import { useNotifications } from "@/hooks/useNotifications";
 
 type ThemeMode = "light" | "dark" | "sepia";
 
@@ -30,6 +31,8 @@ const applyTheme = (theme: ThemeMode) => {
 };
 
 const Settings = () => {
+  const { settings: notifSettings, updateSettings: updateNotif, permissionState, requestPermission, testNotification, isSupported } = useNotifications();
+
   const [theme, setTheme] = useState<ThemeMode>(() => {
     const saved = localStorage.getItem(THEME_KEY) as ThemeMode;
     if (saved === "dark" || saved === "sepia") return saved;
@@ -167,6 +170,163 @@ const Settings = () => {
             </p>
             <p className="text-xs text-muted-foreground font-naskh mt-2">معاينة حجم الخط</p>
           </div>
+        </section>
+
+        {/* Notifications */}
+        <section className="bg-card border border-border rounded-2xl p-5 shadow-soft animate-slide-up" style={{ animationDelay: "120ms" }}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl gradient-gold flex items-center justify-center">
+              <Bell size={18} className="text-foreground" />
+            </div>
+            <div>
+              <h2 className="font-naskh text-base font-bold text-foreground">التنبيهات</h2>
+              <p className="text-xs text-muted-foreground font-naskh">تذكيرات الأذكار وورد القرآن</p>
+            </div>
+          </div>
+
+          {!isSupported ? (
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-destructive/10 border border-destructive/20">
+              <BellOff size={16} className="text-destructive shrink-0" />
+              <p className="text-xs font-naskh text-destructive">متصفحك لا يدعم التنبيهات</p>
+            </div>
+          ) : permissionState === "denied" ? (
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-destructive/10 border border-destructive/20">
+              <BellOff size={16} className="text-destructive shrink-0" />
+              <p className="text-xs font-naskh text-destructive">تم رفض إذن التنبيهات. يرجى تفعيلها من إعدادات المتصفح</p>
+            </div>
+          ) : permissionState !== "granted" ? (
+            <button
+              onClick={async () => {
+                const granted = await requestPermission();
+                if (granted) toast.success("تم تفعيل التنبيهات بنجاح");
+                else toast.error("تم رفض إذن التنبيهات");
+              }}
+              className="w-full py-3 rounded-xl border-2 border-accent/30 text-accent font-naskh text-sm font-bold hover:bg-accent/10 transition-all flex items-center justify-center gap-2"
+            >
+              <Bell size={16} />
+              تفعيل التنبيهات
+            </button>
+          ) : (
+            <div className="space-y-3">
+              {/* Athkar Morning */}
+              <div className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/30">
+                <div className="flex-1 min-w-0">
+                  <p className="font-naskh text-sm font-bold text-foreground">🌅 أذكار الصباح</p>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <Clock size={12} className="text-muted-foreground" />
+                    <input
+                      type="time"
+                      value={notifSettings.athkarMorningTime}
+                      onChange={(e) => updateNotif({ athkarMorningTime: e.target.value })}
+                      className="text-xs font-naskh text-muted-foreground bg-transparent border-none outline-none"
+                      disabled={!notifSettings.athkarMorning}
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {notifSettings.athkarMorning && (
+                    <button
+                      onClick={() => testNotification("athkarMorning")}
+                      className="w-7 h-7 rounded-lg bg-accent/10 flex items-center justify-center text-accent hover:bg-accent/20 transition-colors"
+                      title="إرسال تنبيه تجريبي"
+                    >
+                      <Send size={12} />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => updateNotif({ athkarMorning: !notifSettings.athkarMorning })}
+                    className={`w-12 h-7 rounded-full transition-all relative ${
+                      notifSettings.athkarMorning ? "bg-accent" : "bg-muted border border-border"
+                    }`}
+                  >
+                    <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-card shadow-sm transition-all ${
+                      notifSettings.athkarMorning ? "left-0.5" : "left-[calc(100%-1.625rem)]"
+                    }`} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Athkar Evening */}
+              <div className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/30">
+                <div className="flex-1 min-w-0">
+                  <p className="font-naskh text-sm font-bold text-foreground">🌙 أذكار المساء</p>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <Clock size={12} className="text-muted-foreground" />
+                    <input
+                      type="time"
+                      value={notifSettings.athkarEveningTime}
+                      onChange={(e) => updateNotif({ athkarEveningTime: e.target.value })}
+                      className="text-xs font-naskh text-muted-foreground bg-transparent border-none outline-none"
+                      disabled={!notifSettings.athkarEvening}
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {notifSettings.athkarEvening && (
+                    <button
+                      onClick={() => testNotification("athkarEvening")}
+                      className="w-7 h-7 rounded-lg bg-accent/10 flex items-center justify-center text-accent hover:bg-accent/20 transition-colors"
+                      title="إرسال تنبيه تجريبي"
+                    >
+                      <Send size={12} />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => updateNotif({ athkarEvening: !notifSettings.athkarEvening })}
+                    className={`w-12 h-7 rounded-full transition-all relative ${
+                      notifSettings.athkarEvening ? "bg-accent" : "bg-muted border border-border"
+                    }`}
+                  >
+                    <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-card shadow-sm transition-all ${
+                      notifSettings.athkarEvening ? "left-0.5" : "left-[calc(100%-1.625rem)]"
+                    }`} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Quran Reading */}
+              <div className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/30">
+                <div className="flex-1 min-w-0">
+                  <p className="font-naskh text-sm font-bold text-foreground">📖 ورد القرآن اليومي</p>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <Clock size={12} className="text-muted-foreground" />
+                    <input
+                      type="time"
+                      value={notifSettings.quranReadingTime}
+                      onChange={(e) => updateNotif({ quranReadingTime: e.target.value })}
+                      className="text-xs font-naskh text-muted-foreground bg-transparent border-none outline-none"
+                      disabled={!notifSettings.quranReading}
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {notifSettings.quranReading && (
+                    <button
+                      onClick={() => testNotification("quranReading")}
+                      className="w-7 h-7 rounded-lg bg-accent/10 flex items-center justify-center text-accent hover:bg-accent/20 transition-colors"
+                      title="إرسال تنبيه تجريبي"
+                    >
+                      <Send size={12} />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => updateNotif({ quranReading: !notifSettings.quranReading })}
+                    className={`w-12 h-7 rounded-full transition-all relative ${
+                      notifSettings.quranReading ? "bg-accent" : "bg-muted border border-border"
+                    }`}
+                  >
+                    <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-card shadow-sm transition-all ${
+                      notifSettings.quranReading ? "left-0.5" : "left-[calc(100%-1.625rem)]"
+                    }`} />
+                  </button>
+                </div>
+              </div>
+
+              <p className="text-[10px] text-muted-foreground font-naskh text-center">
+                التنبيهات تعمل عندما يكون التطبيق مفتوحاً أو مثبتاً كـ PWA
+              </p>
+            </div>
+          )}
         </section>
 
         {/* Clear Downloads */}
