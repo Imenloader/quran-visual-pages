@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Home, Sun, Moon, Shield, BookOpen, ChevronDown, ChevronUp, Copy, Check, Sunrise, Sunset, AlarmClock, Building, House, UtensilsCrossed, Plane, Shirt, Volume2, Heart, Stethoscope, Compass, Droplets, DoorOpen, Cloud } from "lucide-react";
+import { Home, Search, X, Shield, BookOpen, ChevronDown, ChevronUp, Copy, Check, Sunrise, Sunset, Moon, AlarmClock, Building, House, UtensilsCrossed, Plane, Shirt, Volume2, Heart, Stethoscope, Compass, Droplets, DoorOpen, Cloud } from "lucide-react";
 import { ATHKAR_DATA, type AthkarCategory } from "@/data/athkarData";
 
 const ICON_MAP: Record<string, React.ReactNode> = {
@@ -38,6 +38,24 @@ const Athkar = () => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>("morning");
   const [counters, setCounters] = useState<Record<number, number>>(getCounters);
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Filter athkar by search
+  const filteredData = useMemo(() => {
+    const q = searchQuery.trim();
+    if (!q) return ATHKAR_DATA;
+    return ATHKAR_DATA.map(cat => {
+      const matchingAthkar = cat.athkar.filter(
+        d => d.text.includes(q) || d.reference.includes(q) || (d.virtue && d.virtue.includes(q))
+      );
+      const categoryMatches = cat.title.includes(q) || cat.description.includes(q);
+      if (categoryMatches) return cat; // show full category
+      if (matchingAthkar.length === 0) return null;
+      return { ...cat, athkar: matchingAthkar };
+    }).filter(Boolean) as AthkarCategory[];
+  }, [searchQuery]);
+
+  const isSearching = searchQuery.trim().length > 0;
 
   const incrementCounter = (dhikrId: number) => {
     setCounters(prev => {
@@ -86,7 +104,32 @@ const Athkar = () => {
       </header>
 
       <main className="flex-1 container max-w-3xl mx-auto px-4 py-4 space-y-3">
-        {ATHKAR_DATA.map(category => (
+        {/* Search */}
+        <div className="relative">
+          <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="ابحث في الأذكار والأدعية..."
+            className="w-full bg-card border border-border rounded-xl pr-10 pl-10 py-3 text-sm font-naskh text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
+          />
+          {searchQuery && (
+            <button onClick={() => setSearchQuery("")} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <X size={16} />
+            </button>
+          )}
+        </div>
+
+        {isSearching && (
+          <p className="text-xs text-muted-foreground font-naskh">
+            {filteredData.length > 0
+              ? `${filteredData.reduce((s, c) => s + c.athkar.length, 0)} نتيجة في ${filteredData.length} قسم`
+              : `لا توجد نتائج لـ "${searchQuery}"`}
+          </p>
+        )}
+
+        {filteredData.map(category => (
           <div key={category.id} className="bg-card border border-border rounded-xl overflow-hidden">
             <button
               onClick={() => toggleCategory(category.id)}
@@ -102,7 +145,7 @@ const Athkar = () => {
               {expandedCategory === category.id ? <ChevronUp size={18} className="text-muted-foreground" /> : <ChevronDown size={18} className="text-muted-foreground" />}
             </button>
 
-            {expandedCategory === category.id && (
+            {(isSearching || expandedCategory === category.id) && (
               <div className="border-t border-border divide-y divide-border">
                 {category.athkar.map(dhikr => {
                   const currentCount = counters[dhikr.id] || 0;
