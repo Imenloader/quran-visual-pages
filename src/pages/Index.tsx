@@ -163,7 +163,7 @@ const Index = () => {
               className="flex items-center gap-2 bg-card border border-border px-4 py-2.5 rounded-lg text-sm font-naskh text-foreground hover:bg-muted transition-colors"
             >
               <List size={16} />
-              <span className="hidden sm:inline">الفهرس</span>
+              فهرس الأجزاء
             </button>
           </div>
         </div>
