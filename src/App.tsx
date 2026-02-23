@@ -8,6 +8,7 @@ import JuzViewer from "./pages/JuzViewer";
 import Install from "./pages/Install";
 import Recitations from "./pages/Recitations";
 import EmbedView from "./pages/EmbedView";
+import Athkar from "./pages/Athkar";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/juz/:juzNumber" element={<JuzViewer />} />
           <Route path="/install" element={<Install />} />
           <Route path="/recitations" element={<Recitations />} />
+          <Route path="/athkar" element={<Athkar />} />
           <Route path="/embed/:siteId" element={<EmbedView />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

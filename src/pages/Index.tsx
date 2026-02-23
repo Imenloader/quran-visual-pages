@@ -4,7 +4,7 @@ import { juzData, toArabicNumber } from "@/data/quranData";
 import JuzCard from "@/components/JuzCard";
 import JuzIndex from "@/components/JuzIndex";
 import QuranHeader from "@/components/QuranHeader";
-import { Search, Bookmark, Moon, Sun, List, Download, Headphones, BookOpen, MoonStar } from "lucide-react";
+import { Search, Bookmark, Moon, Sun, List, Download, Headphones, BookOpen, MoonStar, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const BOOKMARK_KEY = "quran-bookmark";
@@ -71,42 +71,51 @@ const Index = () => {
 
       {/* Quick action buttons in header area */}
       <div className="container max-w-5xl mx-auto px-4 -mt-5 relative z-10 mb-2">
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-5 gap-2">
           <Link
             to="/recitations"
-            className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-2 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
+            className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-1 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
           >
             <div className="w-9 h-9 rounded-full gradient-islamic flex items-center justify-center">
               <Headphones size={16} className="text-primary-foreground" />
             </div>
-            <span className="font-naskh text-[11px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">التلاوات</span>
+            <span className="font-naskh text-[10px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">التلاوات</span>
+          </Link>
+          <Link
+            to="/athkar"
+            className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-1 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
+          >
+            <div className="w-9 h-9 rounded-full gradient-gold flex items-center justify-center">
+              <Shield size={16} className="text-foreground" />
+            </div>
+            <span className="font-naskh text-[10px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">الأذكار</span>
           </Link>
           <Link
             to="/embed/quraaniat"
-            className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-2 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
+            className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-1 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
           >
-            <div className="w-9 h-9 rounded-full gradient-gold flex items-center justify-center">
-              <BookOpen size={16} className="text-foreground" />
+            <div className="w-9 h-9 rounded-full gradient-islamic flex items-center justify-center">
+              <BookOpen size={16} className="text-primary-foreground" />
             </div>
-            <span className="font-naskh text-[11px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">ختم القرآن</span>
+            <span className="font-naskh text-[10px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">ختم القرآن</span>
           </Link>
           <Link
             to="/embed/qiyam"
-            className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-2 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
+            className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-1 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
           >
-            <div className="w-9 h-9 rounded-full gradient-islamic flex items-center justify-center">
-              <MoonStar size={16} className="text-primary-foreground" />
+            <div className="w-9 h-9 rounded-full gradient-gold flex items-center justify-center">
+              <MoonStar size={16} className="text-foreground" />
             </div>
-            <span className="font-naskh text-[11px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">قيام الليل</span>
+            <span className="font-naskh text-[10px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">قيام الليل</span>
           </Link>
           <Link
             to="/install"
-            className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-2 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
+            className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-1 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
           >
-            <div className="w-9 h-9 rounded-full gradient-gold flex items-center justify-center">
-              <Download size={16} className="text-foreground" />
+            <div className="w-9 h-9 rounded-full gradient-islamic flex items-center justify-center">
+              <Download size={16} className="text-primary-foreground" />
             </div>
-            <span className="font-naskh text-[11px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">تثبيت</span>
+            <span className="font-naskh text-[10px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">تثبيت</span>
           </Link>
         </div>
       </div>
@@ -135,12 +144,8 @@ const Index = () => {
 
         {/* Top bar: search + actions */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
-          {/* Search */}
           <div className="relative flex-1">
-            <Search
-              size={18}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
-            />
+            <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
@@ -151,7 +156,6 @@ const Index = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Juz Index button */}
             <button
               onClick={() => setShowIndex(true)}
               className="flex items-center gap-2 bg-card border border-border px-4 py-2.5 rounded-lg text-sm font-naskh text-foreground hover:bg-muted transition-colors"
@@ -160,7 +164,6 @@ const Index = () => {
               <span className="hidden sm:inline">الفهرس</span>
             </button>
 
-            {/* Dark mode toggle */}
             <button
               onClick={toggleDarkMode}
               className="flex items-center justify-center w-10 h-10 bg-card border border-border rounded-lg text-foreground hover:bg-muted transition-colors"
@@ -185,12 +188,10 @@ const Index = () => {
         )}
       </main>
 
-      {/* Footer */}
       <footer className="text-center py-6 text-muted-foreground text-sm font-naskh border-t border-border">
         القرآن الكريم - مصحف المدينة المنورة
       </footer>
 
-      {/* Juz Index Modal */}
       {showIndex && <JuzIndex onClose={() => setShowIndex(false)} />}
     </div>
   );
