@@ -1,17 +1,18 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff, Clock, Send } from "lucide-react";
+import { Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff, Clock, Send, Eclipse } from "lucide-react";
 import { toast } from "sonner";
 import { useNotifications } from "@/hooks/useNotifications";
 
-type ThemeMode = "light" | "dark" | "sepia";
+type ThemeMode = "light" | "dark" | "sepia" | "night";
 
 const THEME_KEY = "quran-theme";
 const FONT_SIZE_KEY = "quran-font-size";
 
 const THEME_OPTIONS: { id: ThemeMode; label: string; icon: React.ReactNode; preview: string }[] = [
   { id: "light", label: "فاتح", icon: <Sun size={18} />, preview: "bg-[hsl(42,32%,97%)]" },
-  { id: "dark", label: "داكن", icon: <Moon size={18} />, preview: "bg-[hsl(200,15%,8%)]" },
+  { id: "dark", label: "داكن", icon: <Moon size={18} />, preview: "bg-[hsl(220,20%,4%)]" },
+  { id: "night", label: "قراءة ليلية", icon: <Eclipse size={18} />, preview: "bg-[hsl(0,0%,0%)]" },
   { id: "sepia", label: "بني دافئ", icon: <Palette size={18} />, preview: "bg-[hsl(35,40%,93%)]" },
 ];
 
@@ -23,9 +24,13 @@ const FONT_SIZES = [
 ];
 
 const applyTheme = (theme: ThemeMode) => {
-  document.documentElement.classList.remove("dark", "sepia");
-  if (theme !== "light") {
-    document.documentElement.classList.add(theme);
+  document.documentElement.classList.remove("dark", "sepia", "night-reading");
+  if (theme === "dark") {
+    document.documentElement.classList.add("dark");
+  } else if (theme === "night") {
+    document.documentElement.classList.add("dark", "night-reading");
+  } else if (theme === "sepia") {
+    document.documentElement.classList.add("sepia");
   }
   localStorage.setItem(THEME_KEY, theme);
 };
@@ -35,7 +40,8 @@ const Settings = () => {
 
   const [theme, setTheme] = useState<ThemeMode>(() => {
     const saved = localStorage.getItem(THEME_KEY) as ThemeMode;
-    if (saved === "dark" || saved === "sepia") return saved;
+    if (saved === "dark" || saved === "sepia" || saved === "night") return saved;
+    if (document.documentElement.classList.contains("night-reading")) return "night";
     if (document.documentElement.classList.contains("dark")) return "dark";
     if (document.documentElement.classList.contains("sepia")) return "sepia";
     return "light";
@@ -102,7 +108,7 @@ const Settings = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-4 gap-2">
             {THEME_OPTIONS.map(opt => (
               <button
                 key={opt.id}

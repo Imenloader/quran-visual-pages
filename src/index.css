@@ -61,35 +61,66 @@
   }
 
   .dark {
-    --background: 220 16% 7%;
-    --foreground: 40 20% 92%;
-    --card: 220 14% 10%;
-    --card-foreground: 40 20% 92%;
-    --popover: 220 14% 10%;
-    --popover-foreground: 40 20% 92%;
-    --primary: 158 55% 28%;
-    --primary-foreground: 40 20% 95%;
-    --secondary: 220 12% 14%;
-    --secondary-foreground: 40 20% 92%;
-    --muted: 220 10% 13%;
-    --muted-foreground: 40 10% 50%;
-    --accent: 43 68% 46%;
-    --accent-foreground: 220 16% 7%;
-    --destructive: 0 60% 40%;
+    --background: 220 20% 4%;
+    --foreground: 40 15% 88%;
+    --card: 220 18% 7%;
+    --card-foreground: 40 15% 88%;
+    --popover: 220 18% 7%;
+    --popover-foreground: 40 15% 88%;
+    --primary: 158 50% 24%;
+    --primary-foreground: 40 15% 95%;
+    --secondary: 220 14% 10%;
+    --secondary-foreground: 40 15% 88%;
+    --muted: 220 12% 9%;
+    --muted-foreground: 40 8% 50%;
+    --accent: 43 65% 44%;
+    --accent-foreground: 220 20% 4%;
+    --destructive: 0 55% 38%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 12% 16%;
-    --input: 220 12% 16%;
-    --ring: 43 68% 46%;
+    --border: 220 14% 12%;
+    --input: 220 14% 12%;
+    --ring: 43 65% 44%;
 
-    --gold: 43 68% 46%;
-    --gold-light: 43 50% 58%;
-    --gold-dark: 43 75% 34%;
-    --emerald-deep: 158 55% 12%;
-    --emerald: 158 55% 28%;
-    --emerald-light: 158 40% 38%;
+    --gold: 43 65% 44%;
+    --gold-light: 43 45% 55%;
+    --gold-dark: 43 70% 32%;
+    --emerald-deep: 158 50% 8%;
+    --emerald: 158 50% 24%;
+    --emerald-light: 158 38% 34%;
 
-    --glass-bg: 220 16% 7% / 0.88;
-    --glass-border: 220 12% 20% / 0.6;
+    --glass-bg: 220 20% 4% / 0.92;
+    --glass-border: 220 14% 14% / 0.6;
+  }
+
+  /* Night reading mode — extra warm, AMOLED-friendly */
+  .dark.night-reading {
+    --background: 0 0% 0%;
+    --foreground: 35 25% 82%;
+    --card: 25 10% 5%;
+    --card-foreground: 35 25% 82%;
+    --popover: 25 10% 5%;
+    --popover-foreground: 35 25% 82%;
+    --primary: 158 40% 20%;
+    --primary-foreground: 35 25% 92%;
+    --secondary: 25 8% 8%;
+    --secondary-foreground: 35 25% 82%;
+    --muted: 25 6% 6%;
+    --muted-foreground: 35 12% 45%;
+    --accent: 40 55% 40%;
+    --accent-foreground: 0 0% 0%;
+    --border: 25 8% 10%;
+    --input: 25 8% 10%;
+    --ring: 40 55% 40%;
+
+    --gold: 40 55% 40%;
+    --gold-light: 40 40% 52%;
+    --gold-dark: 40 60% 28%;
+    --emerald-deep: 158 40% 6%;
+    --emerald: 158 40% 20%;
+    --emerald-light: 158 30% 28%;
+
+    --glass-bg: 0 0% 0% / 0.95;
+    --glass-border: 25 8% 12% / 0.6;
   }
 
   /* Sepia theme */
@@ -227,7 +258,11 @@
   }
 
   .dark .quran-page-img {
-    filter: brightness(0.85) contrast(1.1);
+    filter: brightness(0.82) contrast(1.08) sepia(0.08);
+  }
+
+  .dark.night-reading .quran-page-img {
+    filter: brightness(0.65) contrast(1.1) sepia(0.2) saturate(0.9);
   }
 
   .sepia .quran-page-img {
