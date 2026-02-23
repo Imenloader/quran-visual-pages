@@ -136,10 +136,25 @@
   }
 
   .toolbar-btn {
-    @apply flex items-center justify-center w-9 h-9 rounded-md text-foreground bg-card border border-border hover:bg-muted transition-colors;
+    @apply flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-md text-foreground bg-card border border-border hover:bg-muted transition-colors;
   }
 
   .dark .quran-page-img {
     filter: brightness(0.85) contrast(1.1);
+  }
+
+  /* Smooth animations */
+  .animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* systeme.io embed compatibility */
+  .systeme-embed {
+    all: unset;
   }
 }

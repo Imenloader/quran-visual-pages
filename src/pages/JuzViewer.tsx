@@ -5,7 +5,8 @@ import QuranHeader from "@/components/QuranHeader";
 import ReadingToolbar from "@/components/ReadingToolbar";
 import ProgressBar from "@/components/ProgressBar";
 import PageNavigator from "@/components/PageNavigator";
-import { Bookmark, ChevronRight, ChevronLeft, ArrowUp } from "lucide-react";
+import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
+import { ChevronRight, ChevronLeft, ArrowUp } from "lucide-react";
 
 const BOOKMARK_KEY = "quran-bookmark";
 
@@ -40,6 +41,8 @@ const JuzViewer = () => {
   const [savedBookmark, setSavedBookmark] = useState<BookmarkData | null>(null);
   const pageRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
+  const { onTouchStart, onTouchMove, onTouchEnd } = useSwipeNavigation({ juzNumber: num });
+
   useEffect(() => {
     setSavedBookmark(getBookmark());
     const hash = window.location.hash;
@@ -53,14 +56,12 @@ const JuzViewer = () => {
     }
   }, []);
 
-  // Scroll tracking for progress
   const handleScroll = useCallback(() => {
     if (!juz) return;
     const pages = Array.from(
       { length: juz.endPage - juz.startPage + 1 },
       (_, i) => juz.startPage + i
     );
-
     let visiblePage = pages[0];
     for (const page of pages) {
       const el = pageRefs.current[page];
@@ -116,13 +117,15 @@ const JuzViewer = () => {
   const maxWidth = Math.round(672 * (zoom / 100));
 
   return (
-    <div className="min-h-screen bg-background">
+    <div
+      className="min-h-screen bg-background"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       <QuranHeader title={juz.nameAr} showBack />
-
-      {/* Progress bar */}
       <ProgressBar progress={progress} currentPage={currentPage} totalPages={pages.length} startPage={juz.startPage} />
 
-      {/* Toolbar: zoom, bookmark, page nav */}
       <ReadingToolbar
         zoom={zoom}
         onZoomIn={() => setZoom((z) => Math.min(z + 20, 200))}
@@ -132,9 +135,9 @@ const JuzViewer = () => {
         onTogglePageNav={() => setShowPageNav((v) => !v)}
         currentPage={currentPage}
         bookmarked={savedBookmark?.juz === num && savedBookmark?.page === currentPage}
+        juzNumber={num}
       />
 
-      {/* Page navigator */}
       {showPageNav && (
         <PageNavigator
           pages={pages}
@@ -176,9 +179,14 @@ const JuzViewer = () => {
         )}
       </div>
 
+      {/* Swipe hint on mobile */}
+      <div className="text-center text-xs text-muted-foreground font-naskh pb-2 sm:hidden">
+        ← اسحب للتنقل بين الأجزاء →
+      </div>
+
       {/* Pages */}
-      <main className="container mx-auto px-4 pb-12 flex flex-col items-center">
-        <div className="flex flex-col items-center gap-4 w-full">
+      <main className="container mx-auto px-2 sm:px-4 pb-12 flex flex-col items-center">
+        <div className="flex flex-col items-center gap-3 sm:gap-4 w-full">
           {pages.map((page) => (
             <div
               key={page}
@@ -187,19 +195,16 @@ const JuzViewer = () => {
               className="relative rounded-lg overflow-hidden border border-border bg-card shadow-sm transition-all duration-300"
               style={{ width: "100%", maxWidth: `${maxWidth}px` }}
             >
-              {/* Page number badge */}
               <div className="absolute top-2 left-2 z-10 bg-primary/90 text-primary-foreground text-xs font-naskh px-2 py-1 rounded">
                 صفحة {toArabicNumber(page)}
               </div>
 
-              {/* Loading skeleton */}
               {loadingStates[page] !== false && !errorStates[page] && (
                 <div className="absolute inset-0 w-full h-full bg-muted animate-pulse flex items-center justify-center z-[5]">
                   <span className="text-muted-foreground font-naskh text-sm">جاري التحميل...</span>
                 </div>
               )}
 
-              {/* Error state */}
               {errorStates[page] && (
                 <div className="w-full aspect-[3/4] bg-muted flex items-center justify-center">
                   <span className="text-muted-foreground font-naskh text-sm">
@@ -208,7 +213,6 @@ const JuzViewer = () => {
                 </div>
               )}
 
-              {/* Image */}
               {!errorStates[page] && (
                 <img
                   src={getQuranPageImageUrl(page)}
@@ -224,8 +228,25 @@ const JuzViewer = () => {
         </div>
       </main>
 
-      {/* Back to top */}
-      <div className="text-center pb-8">
+      {/* Bottom nav for mobile */}
+      <div className="sticky bottom-0 z-30 bg-background/95 backdrop-blur-sm border-t border-border py-2 px-4 flex justify-between items-center sm:hidden">
+        {num > 1 ? (
+          <Link to={`/juz/${num - 1}`} className="text-sm font-naskh text-muted-foreground hover:text-gold transition-colors">
+            ← السابق
+          </Link>
+        ) : <span />}
+        <span className="text-xs font-naskh text-muted-foreground">
+          صفحة {toArabicNumber(currentPage || juz.startPage)}
+        </span>
+        {num < 30 ? (
+          <Link to={`/juz/${num + 1}`} className="text-sm font-naskh text-muted-foreground hover:text-gold transition-colors">
+            التالي →
+          </Link>
+        ) : <span />}
+      </div>
+
+      {/* Back to top - desktop only */}
+      <div className="text-center pb-8 hidden sm:block">
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           className="inline-flex items-center gap-1 text-sm font-naskh text-muted-foreground hover:text-gold transition-colors"
