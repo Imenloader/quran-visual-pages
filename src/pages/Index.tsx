@@ -1,10 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { juzData, toArabicNumber } from "@/data/quranData";
+import { juzData, toArabicNumber, getQuranPageImageUrl } from "@/data/quranData";
 import JuzCard from "@/components/JuzCard";
 import JuzIndex from "@/components/JuzIndex";
 import QuranHeader from "@/components/QuranHeader";
-import { Search, Bookmark, Moon, Sun, List, Download, Headphones, BookOpen, MoonStar, Shield } from "lucide-react";
+import { Search, Bookmark, Moon, Sun, List, Download, Headphones, BookOpen, MoonStar, Shield, Loader2, Check, X } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const BOOKMARK_KEY = "quran-bookmark";
@@ -27,8 +27,35 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
   const [showIndex, setShowIndex] = useState(false);
+  const [downloadAllState, setDownloadAllState] = useState<"idle" | "downloading" | "done">("idle");
+  const [downloadAllProgress, setDownloadAllProgress] = useState(0);
   const navigate = useNavigate();
   const bookmark = getBookmark();
+
+  const totalPages = 604;
+
+  const downloadAll = useCallback(async () => {
+    if (downloadAllState === "downloading") return;
+    setDownloadAllState("downloading");
+    setDownloadAllProgress(0);
+    let loaded = 0;
+    const batchSize = 6;
+    for (let i = 1; i <= totalPages; i += batchSize) {
+      const batch = Array.from({ length: Math.min(batchSize, totalPages - i + 1) }, (_, k) => i + k);
+      await Promise.all(
+        batch.map(async (page) => {
+          try {
+            const res = await fetch(getQuranPageImageUrl(page), { cache: "force-cache" });
+            if (res.ok) await res.blob();
+          } catch { /* skip */ }
+          loaded++;
+          setDownloadAllProgress(Math.round((loaded / totalPages) * 100));
+        })
+      );
+    }
+    setDownloadAllState("done");
+    setTimeout(() => setDownloadAllState("idle"), 5000);
+  }, [downloadAllState]);
 
   const filteredJuz = useMemo(() => {
     if (!searchQuery.trim()) return juzData;
@@ -173,6 +200,55 @@ const Index = () => {
             </button>
           </div>
         </div>
+
+        {/* Download All Button */}
+        <button
+          onClick={downloadAll}
+          disabled={downloadAllState === "downloading"}
+          className={`w-full mb-4 flex items-center gap-3 border rounded-xl px-4 py-3 transition-all font-naskh text-sm ${
+            downloadAllState === "done"
+              ? "bg-primary/10 border-primary/30 text-primary"
+              : downloadAllState === "downloading"
+              ? "bg-gold/10 border-gold/30 text-foreground"
+              : "bg-card border-border text-foreground hover:border-gold/50 hover:shadow-islamic"
+          }`}
+        >
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+            downloadAllState === "done" ? "bg-primary/20" : "gradient-gold"
+          }`}>
+            {downloadAllState === "downloading" ? (
+              <Loader2 size={18} className="animate-spin text-foreground" />
+            ) : downloadAllState === "done" ? (
+              <Check size={18} className="text-primary" />
+            ) : (
+              <Download size={18} className="text-foreground" />
+            )}
+          </div>
+          <div className="flex-1 text-right min-w-0">
+            <p className="font-bold">
+              {downloadAllState === "done"
+                ? "✓ تم تحميل المصحف كاملاً"
+                : downloadAllState === "downloading"
+                ? `جاري التحميل... ${downloadAllProgress}%`
+                : "تحميل المصحف كاملاً للأوفلاين"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {downloadAllState === "downloading"
+                ? `${Math.round((downloadAllProgress / 100) * 604)} من 604 صفحة`
+                : "604 صفحة - للقراءة بدون إنترنت"}
+            </p>
+          </div>
+        </button>
+
+        {/* Download progress bar */}
+        {downloadAllState === "downloading" && (
+          <div className="w-full mb-4 h-2 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full gradient-gold transition-all duration-300 rounded-full"
+              style={{ width: `${downloadAllProgress}%` }}
+            />
+          </div>
+        )}
 
         {/* Results */}
         {filteredJuz.length === 0 ? (
