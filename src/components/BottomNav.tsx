@@ -14,10 +14,7 @@ const BottomNav = () => {
   const location = useLocation();
   const [isHidden, setIsHidden] = useState(false);
 
-  // Hide on embed pages only
-  if (location.pathname.startsWith("/embed/")) {
-    return null;
-  }
+  // No longer hide on embed pages
 
   return (
     <>
