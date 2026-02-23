@@ -234,7 +234,11 @@ const Recitations = () => {
       audioRef.current.play();
       return;
     }
-    // If playing from playlist queue
+    playNextSurah();
+  };
+
+  const playNextSurah = () => {
+    // If playing from playlist queue, navigate within the queue
     if (playlistQueue.length > 0 && playlistQueueIndex >= 0) {
       const nextIdx = playlistQueueIndex + 1;
       if (nextIdx < playlistQueue.length) {
@@ -242,13 +246,9 @@ const Recitations = () => {
         const track = playlistQueue[nextIdx];
         const surah = SURAHS.find(s => s.id === track.surahId);
         if (surah) playSurah(surah, undefined, track.moshafServer);
-        return;
       }
+      return;
     }
-    playNextSurah();
-  };
-
-  const playNextSurah = () => {
     const available = getAvailableSurahs();
     if (!currentSurah || available.length === 0) return;
     if (isShuffle) {
@@ -261,6 +261,17 @@ const Recitations = () => {
   };
 
   const playPrevSurah = () => {
+    // If playing from playlist queue, navigate within the queue
+    if (playlistQueue.length > 0 && playlistQueueIndex >= 0) {
+      const prevIdx = playlistQueueIndex - 1;
+      if (prevIdx >= 0) {
+        setPlaylistQueueIndex(prevIdx);
+        const track = playlistQueue[prevIdx];
+        const surah = SURAHS.find(s => s.id === track.surahId);
+        if (surah) playSurah(surah, undefined, track.moshafServer);
+      }
+      return;
+    }
     const available = getAvailableSurahs();
     if (!currentSurah || available.length === 0) return;
     const idx = available.findIndex((s) => s.id === currentSurah.id);
