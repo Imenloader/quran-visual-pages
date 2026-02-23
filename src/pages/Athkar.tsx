@@ -40,16 +40,18 @@ const Athkar = () => {
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Filter athkar by search
+  // Strip Arabic diacritics for search
+  const stripDiacritics = (s: string) => s.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED]/g, "");
+
   const filteredData = useMemo(() => {
-    const q = searchQuery.trim();
+    const q = stripDiacritics(searchQuery.trim());
     if (!q) return ATHKAR_DATA;
     return ATHKAR_DATA.map(cat => {
       const matchingAthkar = cat.athkar.filter(
-        d => d.text.includes(q) || d.reference.includes(q) || (d.virtue && d.virtue.includes(q))
+        d => stripDiacritics(d.text).includes(q) || d.reference.includes(q) || (d.virtue && stripDiacritics(d.virtue).includes(q))
       );
       const categoryMatches = cat.title.includes(q) || cat.description.includes(q);
-      if (categoryMatches) return cat; // show full category
+      if (categoryMatches) return cat;
       if (matchingAthkar.length === 0) return null;
       return { ...cat, athkar: matchingAthkar };
     }).filter(Boolean) as AthkarCategory[];
