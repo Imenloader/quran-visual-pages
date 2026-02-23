@@ -62,7 +62,7 @@ const Settings = () => {
 
   useEffect(() => {
     applyTheme(theme);
-    if (theme === "dark") applyDimming(dimming);
+    if (theme === "dark" || theme === "sepia") applyDimming(dimming);
     else {
       document.documentElement.style.removeProperty("--page-brightness");
       document.documentElement.style.removeProperty("--page-dimming-opacity");
@@ -70,7 +70,7 @@ const Settings = () => {
   }, [theme]);
 
   useEffect(() => {
-    if (theme === "dark") applyDimming(dimming);
+    if (theme === "dark" || theme === "sepia") applyDimming(dimming);
   }, [dimming, theme]);
 
   useEffect(() => {
@@ -148,8 +148,8 @@ const Settings = () => {
             ))}
           </div>
 
-          {/* Dimming slider - only in dark mode */}
-          {theme === "dark" && (
+          {/* Dimming slider - dark & sepia modes */}
+          {(theme === "dark" || theme === "sepia") && (
             <div className="mt-4 p-4 bg-muted/50 rounded-xl border border-border space-y-3">
               <div className="flex items-center justify-between">
                 <span className="font-naskh text-sm font-bold text-foreground flex items-center gap-2">
