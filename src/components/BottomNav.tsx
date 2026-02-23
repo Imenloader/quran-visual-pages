@@ -1,0 +1,79 @@
+import { Link, useLocation } from "react-router-dom";
+import { BookOpen, Headphones, Shield, Settings, Home } from "lucide-react";
+
+const NAV_ITEMS = [
+  { path: "/settings", label: "الإعدادات", icon: Settings },
+  { path: "/athkar", label: "الأذكار", icon: Shield },
+  { path: "/", label: "الرئيسية", icon: Home, isCenter: true },
+  { path: "/recitations", label: "التلاوات", icon: Headphones },
+  { path: "/install", label: "التطبيق", icon: BookOpen },
+];
+
+const BottomNav = () => {
+  const location = useLocation();
+
+  // Hide on juz viewer and embed pages
+  if (location.pathname.startsWith("/juz/") || location.pathname.startsWith("/embed/")) {
+    return null;
+  }
+
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-border safe-bottom">
+      <div className="flex items-end justify-around max-w-lg mx-auto px-2">
+        {NAV_ITEMS.map(item => {
+          const isActive = location.pathname === item.path;
+          const Icon = item.icon;
+
+          if (item.isCenter) {
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className="flex flex-col items-center -mt-4 relative"
+              >
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all ${
+                  isActive
+                    ? "gradient-islamic shadow-islamic scale-110"
+                    : "gradient-islamic opacity-85 hover:opacity-100"
+                }`}>
+                  <Icon size={22} className="text-primary-foreground" />
+                </div>
+                <span className={`font-naskh text-[10px] mt-1 font-bold transition-colors ${
+                  isActive ? "text-accent" : "text-muted-foreground"
+                }`}>
+                  {item.label}
+                </span>
+              </Link>
+            );
+          }
+
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className="flex flex-col items-center py-2 px-1 min-w-[56px] group"
+            >
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                isActive
+                  ? "bg-accent/15 text-accent"
+                  : "text-muted-foreground group-hover:text-foreground"
+              }`}>
+                <Icon size={20} />
+              </div>
+              <span className={`font-naskh text-[10px] mt-0.5 transition-colors ${
+                isActive ? "text-accent font-bold" : "text-muted-foreground"
+              }`}>
+                {item.label}
+              </span>
+              {isActive && (
+                <div className="w-1 h-1 rounded-full bg-accent mt-0.5" />
+              )}
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+};
+
+export default BottomNav;

@@ -4,7 +4,7 @@ import { juzData, toArabicNumber, getQuranPageImageUrl } from "@/data/quranData"
 import JuzCard from "@/components/JuzCard";
 import JuzIndex from "@/components/JuzIndex";
 import QuranHeader from "@/components/QuranHeader";
-import { Search, Bookmark, Moon, Sun, List, Download, Headphones, BookOpen, MoonStar, Shield, Loader2, Check, X, Pause, Play } from "lucide-react";
+import { Search, Bookmark, List, Download, Headphones, BookOpen, MoonStar, Shield, Loader2, Check, X, Pause, Play, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const BOOKMARK_KEY = "quran-bookmark";
@@ -25,7 +25,6 @@ const getBookmark = (): BookmarkData | null => {
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
   const [showIndex, setShowIndex] = useState(false);
   const [downloadAllState, setDownloadAllState] = useState<"idle" | "downloading" | "paused" | "done">("idle");
   const [downloadAllProgress, setDownloadAllProgress] = useState(0);
@@ -98,17 +97,7 @@ const Index = () => {
     );
   }, [searchQuery]);
 
-  const toggleDarkMode = () => {
-    const newDark = !isDark;
-    setIsDark(newDark);
-    if (newDark) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("quran-theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("quran-theme", "light");
-    }
-  };
+  // removed toggleDarkMode - now handled in Settings page
 
   const handleResumeReading = () => {
     if (bookmark) {
@@ -164,13 +153,13 @@ const Index = () => {
             <span className="font-naskh text-[10px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">قيام الليل</span>
           </button>
           <Link
-            to="/install"
+            to="/settings"
             className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-1 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
           >
             <div className="w-9 h-9 rounded-full gradient-islamic flex items-center justify-center">
-              <Download size={16} className="text-primary-foreground" />
+              <Settings size={16} className="text-primary-foreground" />
             </div>
-            <span className="font-naskh text-[10px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">تثبيت</span>
+            <span className="font-naskh text-[10px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">الإعدادات</span>
           </Link>
         </div>
       </div>
@@ -217,14 +206,6 @@ const Index = () => {
             >
               <List size={16} />
               <span className="hidden sm:inline">الفهرس</span>
-            </button>
-
-            <button
-              onClick={toggleDarkMode}
-              className="flex items-center justify-center w-10 h-10 bg-card border border-border rounded-lg text-foreground hover:bg-muted transition-colors"
-              title={isDark ? "الوضع النهاري" : "الوضع الليلي"}
-            >
-              {isDark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
           </div>
         </div>
@@ -308,7 +289,7 @@ const Index = () => {
         )}
       </main>
 
-      <footer className="text-center py-6 text-muted-foreground text-sm font-naskh border-t border-border">
+      <footer className="text-center py-6 pb-24 text-muted-foreground text-sm font-naskh border-t border-border">
         القرآن الكريم - مصحف المدينة المنورة
       </footer>
 
