@@ -1,10 +1,10 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { juzData, toArabicNumber, getQuranPageImageUrl } from "@/data/quranData";
 import JuzCard from "@/components/JuzCard";
 import JuzIndex from "@/components/JuzIndex";
 import QuranHeader from "@/components/QuranHeader";
-import { Search, Bookmark, Moon, Sun, List, Download, Headphones, BookOpen, MoonStar, Shield, Loader2, Check, X } from "lucide-react";
+import { Search, Bookmark, Moon, Sun, List, Download, Headphones, BookOpen, MoonStar, Shield, Loader2, Check, X, Pause, Play } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const BOOKMARK_KEY = "quran-bookmark";
@@ -27,8 +27,10 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
   const [showIndex, setShowIndex] = useState(false);
-  const [downloadAllState, setDownloadAllState] = useState<"idle" | "downloading" | "done">("idle");
+  const [downloadAllState, setDownloadAllState] = useState<"idle" | "downloading" | "paused" | "done">("idle");
   const [downloadAllProgress, setDownloadAllProgress] = useState(0);
+  const dlAbortRef = useRef<AbortController | null>(null);
+  const dlLoadedRef = useRef(0);
   const navigate = useNavigate();
   const bookmark = getBookmark();
 
@@ -36,26 +38,41 @@ const Index = () => {
 
   const downloadAll = useCallback(async () => {
     if (downloadAllState === "downloading") return;
+    const startFrom = dlLoadedRef.current;
     setDownloadAllState("downloading");
-    setDownloadAllProgress(0);
-    let loaded = 0;
+    const controller = new AbortController();
+    dlAbortRef.current = controller;
+    let loaded = startFrom;
+    setDownloadAllProgress(Math.round((loaded / totalPages) * 100));
     const batchSize = 6;
-    for (let i = 1; i <= totalPages; i += batchSize) {
-      const batch = Array.from({ length: Math.min(batchSize, totalPages - i + 1) }, (_, k) => i + k);
-      await Promise.all(
-        batch.map(async (page) => {
-          try {
-            const res = await fetch(getQuranPageImageUrl(page), { cache: "force-cache" });
-            if (res.ok) await res.blob();
-          } catch { /* skip */ }
-          loaded++;
-          setDownloadAllProgress(Math.round((loaded / totalPages) * 100));
-        })
-      );
-    }
-    setDownloadAllState("done");
-    setTimeout(() => setDownloadAllState("idle"), 5000);
+    try {
+      for (let i = startFrom + 1; i <= totalPages; i += batchSize) {
+        if (controller.signal.aborted) break;
+        const batch = Array.from({ length: Math.min(batchSize, totalPages - i + 1) }, (_, k) => i + k);
+        await Promise.all(
+          batch.map(async (page) => {
+            try {
+              const res = await fetch(getQuranPageImageUrl(page), { cache: "force-cache" });
+              if (res.ok) await res.blob();
+            } catch { /* skip */ }
+            loaded++;
+            dlLoadedRef.current = loaded;
+            setDownloadAllProgress(Math.round((loaded / totalPages) * 100));
+          })
+        );
+      }
+      if (!controller.signal.aborted) {
+        setDownloadAllState("done");
+        dlLoadedRef.current = 0;
+        setTimeout(() => setDownloadAllState("idle"), 5000);
+      }
+    } catch { /* aborted */ }
   }, [downloadAllState]);
+
+  const pauseDownload = useCallback(() => {
+    dlAbortRef.current?.abort();
+    setDownloadAllState("paused");
+  }, []);
 
   const filteredJuz = useMemo(() => {
     if (!searchQuery.trim()) return juzData;
@@ -202,46 +219,62 @@ const Index = () => {
         </div>
 
         {/* Download All Button */}
-        <button
-          onClick={downloadAll}
-          disabled={downloadAllState === "downloading"}
-          className={`w-full mb-4 flex items-center gap-3 border rounded-xl px-4 py-3 transition-all font-naskh text-sm ${
-            downloadAllState === "done"
-              ? "bg-primary/10 border-primary/30 text-primary"
-              : downloadAllState === "downloading"
-              ? "bg-gold/10 border-gold/30 text-foreground"
-              : "bg-card border-border text-foreground hover:border-gold/50 hover:shadow-islamic"
-          }`}
-        >
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-            downloadAllState === "done" ? "bg-primary/20" : "gradient-gold"
-          }`}>
-            {downloadAllState === "downloading" ? (
-              <Loader2 size={18} className="animate-spin text-foreground" />
-            ) : downloadAllState === "done" ? (
-              <Check size={18} className="text-primary" />
-            ) : (
-              <Download size={18} className="text-foreground" />
-            )}
-          </div>
-          <div className="flex-1 text-right min-w-0">
-            <p className="font-bold">
-              {downloadAllState === "done"
-                ? "✓ تم تحميل المصحف كاملاً"
+        <div className="w-full mb-4 flex items-center gap-2">
+          <button
+            onClick={downloadAllState === "downloading" ? pauseDownload : downloadAll}
+            className={`flex-1 flex items-center gap-3 border rounded-xl px-4 py-3 transition-all font-naskh text-sm ${
+              downloadAllState === "done"
+                ? "bg-primary/10 border-primary/30 text-primary"
                 : downloadAllState === "downloading"
-                ? `جاري التحميل... ${downloadAllProgress}%`
-                : "تحميل المصحف كاملاً للأوفلاين"}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {downloadAllState === "downloading"
-                ? `${Math.round((downloadAllProgress / 100) * 604)} من 604 صفحة`
-                : "604 صفحة - للقراءة بدون إنترنت"}
-            </p>
-          </div>
-        </button>
+                ? "bg-gold/10 border-gold/30 text-foreground"
+                : downloadAllState === "paused"
+                ? "bg-accent border-gold/40 text-foreground"
+                : "bg-card border-border text-foreground hover:border-gold/50 hover:shadow-islamic"
+            }`}
+          >
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+              downloadAllState === "done" ? "bg-primary/20" : "gradient-gold"
+            }`}>
+              {downloadAllState === "downloading" ? (
+                <Pause size={18} className="text-foreground" />
+              ) : downloadAllState === "done" ? (
+                <Check size={18} className="text-primary" />
+              ) : downloadAllState === "paused" ? (
+                <Play size={18} className="text-foreground" />
+              ) : (
+                <Download size={18} className="text-foreground" />
+              )}
+            </div>
+            <div className="flex-1 text-right min-w-0">
+              <p className="font-bold">
+                {downloadAllState === "done"
+                  ? "✓ تم تحميل المصحف كاملاً"
+                  : downloadAllState === "downloading"
+                  ? `جاري التحميل... ${downloadAllProgress}%`
+                  : downloadAllState === "paused"
+                  ? `متوقف مؤقتاً - ${downloadAllProgress}%`
+                  : "تحميل المصحف كاملاً للأوفلاين"}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {downloadAllState === "downloading" || downloadAllState === "paused"
+                  ? `${Math.round((downloadAllProgress / 100) * 604)} من 604 صفحة`
+                  : "604 صفحة - للقراءة بدون إنترنت"}
+              </p>
+            </div>
+          </button>
+          {downloadAllState === "paused" && (
+            <button
+              onClick={() => { dlLoadedRef.current = 0; setDownloadAllProgress(0); setDownloadAllState("idle"); }}
+              className="w-10 h-10 rounded-xl border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-destructive hover:border-destructive/50 transition-colors shrink-0"
+              title="إلغاء التحميل"
+            >
+              <X size={18} />
+            </button>
+          )}
+        </div>
 
         {/* Download progress bar */}
-        {downloadAllState === "downloading" && (
+        {(downloadAllState === "downloading" || downloadAllState === "paused") && (
           <div className="w-full mb-4 h-2 bg-muted rounded-full overflow-hidden">
             <div
               className="h-full gradient-gold transition-all duration-300 rounded-full"
