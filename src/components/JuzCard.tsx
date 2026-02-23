@@ -110,6 +110,10 @@ const JuzCard = ({ juz, index }: JuzCardProps) => {
     longPressTimer.current = setTimeout(() => {
       isLongPress.current = true;
       setLongPressing(false);
+      // Haptic feedback
+      if (navigator.vibrate) {
+        navigator.vibrate(30);
+      }
       if (downloadState === "idle") {
         toast.info(`جاري تحميل ${juz.nameAr} للأوفلاين...`);
         downloadForOffline({ preventDefault: () => {}, stopPropagation: () => {} } as React.MouseEvent);
