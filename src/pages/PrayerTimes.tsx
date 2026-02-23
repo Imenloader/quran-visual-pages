@@ -45,7 +45,7 @@ const NextPrayerCountdown = ({
   const pad = (n: number) => String(n).padStart(2, "0");
 
   return (
-    <section className="bg-card border-2 border-gold rounded-2xl p-5 shadow-gold-glow animate-slide-up">
+    <section className="bg-card border-2 border-gold rounded-2xl p-5 shadow-gold-glow">
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-naskh text-muted-foreground">الصلاة القادمة</span>
         <span className="text-xs font-naskh text-gold">{PRAYER_NAMES[prayerName]}</span>
@@ -66,7 +66,7 @@ const NextPrayerCountdown = ({
             ].map((unit, i) => (
               <div key={i} className="flex items-center gap-1.5">
                 {i > 0 && (
-                  <span className="text-gold font-bold text-lg animate-pulse">:</span>
+                  <span className="text-gold font-bold text-lg">:</span>
                 )}
                 <div className="flex flex-col items-center">
                   <span className="bg-muted border border-border rounded-lg px-2.5 py-1 font-mono text-lg font-bold text-foreground tabular-nums min-w-[2.5rem] text-center transition-all">
@@ -178,7 +178,7 @@ const PrayerTimes = () => {
       <main className="container max-w-2xl mx-auto px-4 py-6 space-y-5">
         {/* Location setup */}
         {!settings.latitude ? (
-          <section className="bg-card border border-border rounded-2xl p-6 text-center shadow-soft animate-slide-up">
+          <section className="bg-card border border-border rounded-2xl p-6 text-center shadow-soft">
             <div className="w-16 h-16 rounded-full gradient-islamic flex items-center justify-center mx-auto mb-4">
               <MapPin size={28} className="text-primary-foreground" />
             </div>
@@ -214,7 +214,7 @@ const PrayerTimes = () => {
             )}
 
             {/* Prayer times list */}
-            <section className="bg-card border border-border rounded-2xl overflow-hidden shadow-soft animate-slide-up" style={{ animationDelay: "80ms" }}>
+            <section className="bg-card border border-border rounded-2xl overflow-hidden shadow-soft">
               <div className="flex items-center justify-between px-5 py-3 border-b border-border">
                 <h2 className="font-naskh text-base font-bold text-foreground">مواقيت اليوم</h2>
                 <button
@@ -317,7 +317,7 @@ const PrayerTimes = () => {
             </section>
 
             {/* Notifications toggle */}
-            <section className="bg-card border border-border rounded-2xl p-5 shadow-soft animate-slide-up" style={{ animationDelay: "120ms" }}>
+            <section className="bg-card border border-border rounded-2xl p-5 shadow-soft">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl gradient-gold flex items-center justify-center">
                   <Bell size={18} className="text-foreground" />
@@ -340,7 +340,7 @@ const PrayerTimes = () => {
             </section>
 
             {/* Adhan sound selector */}
-            <section className="bg-card border border-border rounded-2xl p-5 shadow-soft animate-slide-up" style={{ animationDelay: "160ms" }}>
+            <section className="bg-card border border-border rounded-2xl p-5 shadow-soft">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl gradient-islamic flex items-center justify-center">
                   <Volume2 size={18} className="text-primary-foreground" />
@@ -388,8 +388,7 @@ const PrayerTimes = () => {
             {/* Settings */}
             <button
               onClick={() => setShowSettings(!showSettings)}
-              className="w-full flex items-center gap-3 bg-card border border-border rounded-2xl p-5 shadow-soft animate-slide-up hover:border-accent/40 transition-all"
-              style={{ animationDelay: "200ms" }}
+              className="w-full flex items-center gap-3 bg-card border border-border rounded-2xl p-5 shadow-soft hover:border-accent/40 transition-all"
             >
               <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
                 <Settings size={18} className="text-muted-foreground" />
@@ -401,7 +400,7 @@ const PrayerTimes = () => {
             </button>
 
             {showSettings && (
-              <section className="bg-card border border-border rounded-2xl p-5 shadow-soft animate-fade-in space-y-4">
+              <section className="bg-card border border-border rounded-2xl p-5 shadow-soft space-y-4">
                 {/* Calculation method */}
                 <div>
                   <label className="font-naskh text-sm font-bold text-foreground mb-2 block">طريقة الحساب</label>

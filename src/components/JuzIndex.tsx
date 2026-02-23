@@ -11,7 +11,7 @@ const JuzIndex = ({ onClose, currentJuz }: JuzIndexProps) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="bg-card border border-border rounded-xl shadow-xl w-[85vw] max-w-sm max-h-[60vh] flex flex-col animate-fade-in"
+        className="bg-card border border-border rounded-xl shadow-xl w-[85vw] max-w-sm max-h-[60vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

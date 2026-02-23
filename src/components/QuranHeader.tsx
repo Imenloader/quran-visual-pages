@@ -27,7 +27,7 @@ const QuranHeader = ({ title = "القرآن الكريم" }: QuranHeaderProps) 
 
           {/* Ornamental star/icon */}
           <div className="relative">
-            <div className="absolute inset-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gold/20 blur-xl animate-pulse" />
+            <div className="absolute inset-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gold/20 blur-xl" />
             <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl gradient-gold flex items-center justify-center shadow-lg shadow-gold/25">
               <BookOpen className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-deep" />
             </div>

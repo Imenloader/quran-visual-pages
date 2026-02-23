@@ -453,7 +453,7 @@ const Recitations = () => {
 
         {/* Playlist Panel */}
         {showPlaylist && (
-          <div className="mb-4 bg-card border border-border rounded-xl overflow-hidden animate-fade-in">
+          <div className="mb-4 bg-card border border-border rounded-xl overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-border">
               <h3 className="font-naskh text-sm font-bold text-foreground flex items-center gap-2">
                 <ListMusic size={16} className="text-gold" />

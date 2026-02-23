@@ -60,8 +60,7 @@ const HowToUse = () => {
         {steps.map((step, i) => (
           <div
             key={i}
-            className="flex gap-4 bg-card border border-border rounded-2xl p-4 shadow-soft animate-slide-up"
-            style={{ animationDelay: `${i * 60}ms` }}
+            className="flex gap-4 bg-card border border-border rounded-2xl p-4 shadow-soft"
           >
             <div className="w-11 h-11 rounded-xl gradient-islamic flex items-center justify-center shrink-0 text-primary-foreground">
               {step.icon}
