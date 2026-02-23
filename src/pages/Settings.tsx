@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Home, Sun, Moon, Palette, Type, RotateCcw, HelpCircle } from "lucide-react";
+import { Home, Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 type ThemeMode = "light" | "dark" | "sepia";
 
@@ -55,6 +56,22 @@ const Settings = () => {
     setFontSize(16);
     localStorage.removeItem("athkar-counters");
     localStorage.removeItem("quran-bookmark");
+  };
+
+  const clearDownloadData = async () => {
+    // Clear localStorage download state
+    localStorage.removeItem("juz-download-state");
+    // Clear cache if available
+    try {
+      const deleted = await caches.delete("workbox-runtime");
+      if (deleted) {
+        toast.success("تم حذف جميع بيانات التحميل بنجاح");
+      } else {
+        toast.success("تم مسح حالة التحميل");
+      }
+    } catch {
+      toast.success("تم مسح حالة التحميل");
+    }
   };
 
   return (
@@ -150,6 +167,29 @@ const Settings = () => {
             </p>
             <p className="text-xs text-muted-foreground font-naskh mt-2">معاينة حجم الخط</p>
           </div>
+        </section>
+
+        {/* Clear Downloads */}
+        <section className="bg-card border border-border rounded-2xl p-5 shadow-soft animate-slide-up" style={{ animationDelay: "140ms" }}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
+              <Trash2 size={18} className="text-gold" />
+            </div>
+            <div>
+              <h2 className="font-naskh text-base font-bold text-foreground">بيانات التحميل</h2>
+              <p className="text-xs text-muted-foreground font-naskh">حذف الأجزاء المحمّلة للقراءة أوفلاين</p>
+            </div>
+          </div>
+
+          <button
+            onClick={clearDownloadData}
+            className="w-full py-3 rounded-xl border-2 border-gold/30 text-gold font-naskh text-sm font-bold hover:bg-gold/10 transition-all active:scale-[0.98]"
+          >
+            حذف بيانات التحميل
+          </button>
+          <p className="text-[10px] text-muted-foreground font-naskh mt-2 text-center">
+            سيتم حذف جميع الصفحات المحمّلة وإعادة حالة التحميل
+          </p>
         </section>
 
         {/* App Info & Reset */}
