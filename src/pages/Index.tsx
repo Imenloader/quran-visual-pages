@@ -31,6 +31,7 @@ const Index = () => {
   const [downloadAllProgress, setDownloadAllProgress] = useState(0);
   const dlAbortRef = useRef<AbortController | null>(null);
   const dlLoadedRef = useRef(0);
+  const [cachingEmbed, setCachingEmbed] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
   const bookmark = getBookmark();
 
@@ -73,6 +74,16 @@ const Index = () => {
     dlAbortRef.current?.abort();
     setDownloadAllState("paused");
   }, []);
+
+  const cacheAndNavigate = useCallback(async (siteId: string, url: string) => {
+    setCachingEmbed(prev => ({ ...prev, [siteId]: true }));
+    try {
+      // Pre-fetch the site to browser cache
+      await fetch(url, { mode: "no-cors", cache: "force-cache" }).catch(() => {});
+    } catch { /* ignore */ }
+    setCachingEmbed(prev => ({ ...prev, [siteId]: false }));
+    navigate(`/embed/${siteId}`);
+  }, [navigate]);
 
   const filteredJuz = useMemo(() => {
     if (!searchQuery.trim()) return juzData;
@@ -134,24 +145,24 @@ const Index = () => {
             </div>
             <span className="font-naskh text-[10px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">الأذكار</span>
           </Link>
-          <Link
-            to="/embed/quraaniat"
+          <button
+            onClick={() => cacheAndNavigate("quraaniat", "https://quraaniat.vercel.app")}
             className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-1 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
           >
             <div className="w-9 h-9 rounded-full gradient-islamic flex items-center justify-center">
-              <BookOpen size={16} className="text-primary-foreground" />
+              {cachingEmbed["quraaniat"] ? <Loader2 size={16} className="text-primary-foreground animate-spin" /> : <BookOpen size={16} className="text-primary-foreground" />}
             </div>
             <span className="font-naskh text-[10px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">ختم القرآن</span>
-          </Link>
-          <Link
-            to="/embed/qiyam"
+          </button>
+          <button
+            onClick={() => cacheAndNavigate("qiyam", "https://www.mohammedhesham.site/aya")}
             className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-1 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
           >
             <div className="w-9 h-9 rounded-full gradient-gold flex items-center justify-center">
-              <MoonStar size={16} className="text-foreground" />
+              {cachingEmbed["qiyam"] ? <Loader2 size={16} className="text-foreground animate-spin" /> : <MoonStar size={16} className="text-foreground" />}
             </div>
             <span className="font-naskh text-[10px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">قيام الليل</span>
-          </Link>
+          </button>
           <Link
             to="/install"
             className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-1 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
