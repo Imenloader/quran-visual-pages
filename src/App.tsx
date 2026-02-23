@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect, lazy, Suspense } from "react";
 import NetworkStatus from "./components/NetworkStatus";
 import BottomNav from "./components/BottomNav";
+import GlobalAudioPlayer from "./components/GlobalAudioPlayer";
+import { AudioPlayerProvider } from "./contexts/AudioPlayerContext";
 
 const Index = lazy(() => import("./pages/Index"));
 const JuzViewer = lazy(() => import("./pages/JuzViewer"));
@@ -52,29 +54,32 @@ const PageLoader = () => (
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <ThemeInit />
-      <NetworkStatus />
-      <div className="page-dimming-overlay" />
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/juz/:juzNumber" element={<JuzViewer />} />
-            <Route path="/install" element={<Install />} />
-            <Route path="/recitations" element={<Recitations />} />
-            <Route path="/athkar" element={<Athkar />} />
-            <Route path="/favorites" element={<Favorites />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/prayer-times" element={<PrayerTimes />} />
-            <Route path="/how-to-use" element={<HowToUse />} />
-            <Route path="/embed/:siteId" element={<EmbedView />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-        <BottomNav />
-      </BrowserRouter>
+      <AudioPlayerProvider>
+        <ThemeInit />
+        <NetworkStatus />
+        <div className="page-dimming-overlay" />
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/juz/:juzNumber" element={<JuzViewer />} />
+              <Route path="/install" element={<Install />} />
+              <Route path="/recitations" element={<Recitations />} />
+              <Route path="/athkar" element={<Athkar />} />
+              <Route path="/favorites" element={<Favorites />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/prayer-times" element={<PrayerTimes />} />
+              <Route path="/how-to-use" element={<HowToUse />} />
+              <Route path="/embed/:siteId" element={<EmbedView />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+          <GlobalAudioPlayer />
+          <BottomNav />
+        </BrowserRouter>
+      </AudioPlayerProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
