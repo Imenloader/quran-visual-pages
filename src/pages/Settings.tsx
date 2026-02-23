@@ -36,6 +36,7 @@ const applyTheme = (theme: ThemeMode) => {
 
 const applyDimming = (value: number) => {
   document.documentElement.style.setProperty("--page-brightness", `${value / 100}`);
+  document.documentElement.style.setProperty("--page-dimming-opacity", `${(100 - value) / 100}`);
   localStorage.setItem(DIMMING_KEY, value.toString());
 };
 
@@ -62,7 +63,10 @@ const Settings = () => {
   useEffect(() => {
     applyTheme(theme);
     if (theme === "dark") applyDimming(dimming);
-    else document.documentElement.style.removeProperty("--page-brightness");
+    else {
+      document.documentElement.style.removeProperty("--page-brightness");
+      document.documentElement.style.removeProperty("--page-dimming-opacity");
+    }
   }, [theme]);
 
   useEffect(() => {

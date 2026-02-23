@@ -261,6 +261,16 @@
     filter: brightness(var(--page-brightness, 0.82)) contrast(1.08) sepia(0.08);
   }
 
+  .dark .page-dimming-overlay {
+    position: fixed;
+    inset: 0;
+    background: black;
+    opacity: var(--page-dimming-opacity, 0);
+    pointer-events: none;
+    z-index: 1;
+    transition: opacity 0.3s ease;
+  }
+
   .sepia .quran-page-img {
     filter: sepia(0.15) brightness(0.95);
   }

@@ -27,10 +27,11 @@ const ThemeInit = () => {
     document.documentElement.classList.remove("dark", "sepia", "night-reading");
     if (saved === "dark" || saved === "night") {
       document.documentElement.classList.add("dark");
-      // Migrate old "night" to "dark"
       if (saved === "night") localStorage.setItem("quran-theme", "dark");
       const dimming = localStorage.getItem("quran-page-dimming") || "80";
-      document.documentElement.style.setProperty("--page-brightness", `${parseInt(dimming) / 100}`);
+      const val = parseInt(dimming);
+      document.documentElement.style.setProperty("--page-brightness", `${val / 100}`);
+      document.documentElement.style.setProperty("--page-dimming-opacity", `${(100 - val) / 100}`);
     } else if (saved === "sepia") {
       document.documentElement.classList.add("sepia");
     }
@@ -49,6 +50,7 @@ const App = () => (
     <TooltipProvider>
       <ThemeInit />
       <NetworkStatus />
+      <div className="page-dimming-overlay" />
       <Toaster />
       <Sonner />
       <BrowserRouter>
