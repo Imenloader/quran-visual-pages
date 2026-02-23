@@ -4,7 +4,7 @@ import { juzData, toArabicNumber } from "@/data/quranData";
 import JuzCard from "@/components/JuzCard";
 import JuzIndex from "@/components/JuzIndex";
 import QuranHeader from "@/components/QuranHeader";
-import { Search, Bookmark, Moon, Sun, List, Download } from "lucide-react";
+import { Search, Bookmark, Moon, Sun, List, Download, Headphones, BookOpen, MoonStar } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const BOOKMARK_KEY = "quran-bookmark";
@@ -69,7 +69,49 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <QuranHeader />
 
-      <main className="container max-w-5xl mx-auto px-4 py-6">
+      {/* Quick action buttons in header area */}
+      <div className="container max-w-5xl mx-auto px-4 -mt-5 relative z-10 mb-2">
+        <div className="grid grid-cols-4 gap-2">
+          <Link
+            to="/recitations"
+            className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-2 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
+          >
+            <div className="w-9 h-9 rounded-full gradient-islamic flex items-center justify-center">
+              <Headphones size={16} className="text-primary-foreground" />
+            </div>
+            <span className="font-naskh text-[11px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">التلاوات</span>
+          </Link>
+          <Link
+            to="/embed/quraaniat"
+            className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-2 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
+          >
+            <div className="w-9 h-9 rounded-full gradient-gold flex items-center justify-center">
+              <BookOpen size={16} className="text-foreground" />
+            </div>
+            <span className="font-naskh text-[11px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">ختم القرآن</span>
+          </Link>
+          <Link
+            to="/embed/qiyam"
+            className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-2 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
+          >
+            <div className="w-9 h-9 rounded-full gradient-islamic flex items-center justify-center">
+              <MoonStar size={16} className="text-primary-foreground" />
+            </div>
+            <span className="font-naskh text-[11px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">قيام الليل</span>
+          </Link>
+          <Link
+            to="/install"
+            className="flex flex-col items-center gap-1.5 bg-card border border-border rounded-xl px-2 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
+          >
+            <div className="w-9 h-9 rounded-full gradient-gold flex items-center justify-center">
+              <Download size={16} className="text-foreground" />
+            </div>
+            <span className="font-naskh text-[11px] sm:text-xs font-bold text-foreground group-hover:text-gold transition-colors text-center leading-tight">تثبيت</span>
+          </Link>
+        </div>
+      </div>
+
+      <main className="container max-w-5xl mx-auto px-4 py-4">
         {/* Bookmark resume banner */}
         {bookmark && (
           <button
@@ -142,54 +184,6 @@ const Index = () => {
           </div>
         )}
       </main>
-
-      {/* External links section */}
-      <section className="container max-w-5xl mx-auto px-4 pb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <Link
-            to="/install"
-            className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
-          >
-            <div className="flex items-center justify-center w-10 h-10 rounded-full gradient-gold shrink-0">
-              <Download size={18} className="text-foreground" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-naskh text-sm font-bold text-foreground group-hover:text-gold transition-colors">تثبيت التطبيق</p>
-              <p className="text-xs text-muted-foreground font-naskh">ثبّته على هاتفك للوصول السريع</p>
-            </div>
-          </Link>
-
-          <a
-            href="https://quraaniat.vercel.app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
-          >
-            <div className="flex items-center justify-center w-10 h-10 rounded-full gradient-islamic shrink-0">
-              <span className="text-primary-foreground text-lg">📖</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-naskh text-sm font-bold text-foreground group-hover:text-gold transition-colors">ختم القرآن وسماعه</p>
-              <p className="text-xs text-muted-foreground font-naskh">تابع ختمتك واستمع للتلاوات</p>
-            </div>
-          </a>
-
-          <a
-            href="https://www.mohammedhesham.site/aya"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
-          >
-            <div className="flex items-center justify-center w-10 h-10 rounded-full gradient-gold shrink-0">
-              <span className="text-foreground text-lg">🌙</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-naskh text-sm font-bold text-foreground group-hover:text-gold transition-colors">١٠٠ آية لقيام الليل</p>
-              <p className="text-xs text-muted-foreground font-naskh">آيات مختارة لصلاة القيام</p>
-            </div>
-          </a>
-        </div>
-      </section>
 
       {/* Footer */}
       <footer className="text-center py-6 text-muted-foreground text-sm font-naskh border-t border-border">

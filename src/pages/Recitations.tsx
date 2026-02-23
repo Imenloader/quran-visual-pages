@@ -1,0 +1,423 @@
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Link } from "react-router-dom";
+import { Home, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, Search, ChevronDown, Loader2, Music } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+
+interface Reciter {
+  id: number;
+  name: string;
+  letter: string;
+  moshaf: Moshaf[];
+}
+
+interface Moshaf {
+  id: number;
+  name: string;
+  server: string;
+  surah_total: number;
+  surah_list: string;
+}
+
+interface Surah {
+  id: number;
+  name: string;
+}
+
+const SURAHS: Surah[] = [
+  { id: 1, name: "الفاتحة" }, { id: 2, name: "البقرة" }, { id: 3, name: "آل عمران" },
+  { id: 4, name: "النساء" }, { id: 5, name: "المائدة" }, { id: 6, name: "الأنعام" },
+  { id: 7, name: "الأعراف" }, { id: 8, name: "الأنفال" }, { id: 9, name: "التوبة" },
+  { id: 10, name: "يونس" }, { id: 11, name: "هود" }, { id: 12, name: "يوسف" },
+  { id: 13, name: "الرعد" }, { id: 14, name: "إبراهيم" }, { id: 15, name: "الحجر" },
+  { id: 16, name: "النحل" }, { id: 17, name: "الإسراء" }, { id: 18, name: "الكهف" },
+  { id: 19, name: "مريم" }, { id: 20, name: "طه" }, { id: 21, name: "الأنبياء" },
+  { id: 22, name: "الحج" }, { id: 23, name: "المؤمنون" }, { id: 24, name: "النور" },
+  { id: 25, name: "الفرقان" }, { id: 26, name: "الشعراء" }, { id: 27, name: "النمل" },
+  { id: 28, name: "القصص" }, { id: 29, name: "العنكبوت" }, { id: 30, name: "الروم" },
+  { id: 31, name: "لقمان" }, { id: 32, name: "السجدة" }, { id: 33, name: "الأحزاب" },
+  { id: 34, name: "سبأ" }, { id: 35, name: "فاطر" }, { id: 36, name: "يس" },
+  { id: 37, name: "الصافات" }, { id: 38, name: "ص" }, { id: 39, name: "الزمر" },
+  { id: 40, name: "غافر" }, { id: 41, name: "فصلت" }, { id: 42, name: "الشورى" },
+  { id: 43, name: "الزخرف" }, { id: 44, name: "الدخان" }, { id: 45, name: "الجاثية" },
+  { id: 46, name: "الأحقاف" }, { id: 47, name: "محمد" }, { id: 48, name: "الفتح" },
+  { id: 49, name: "الحجرات" }, { id: 50, name: "ق" }, { id: 51, name: "الذاريات" },
+  { id: 52, name: "الطور" }, { id: 53, name: "النجم" }, { id: 54, name: "القمر" },
+  { id: 55, name: "الرحمن" }, { id: 56, name: "الواقعة" }, { id: 57, name: "الحديد" },
+  { id: 58, name: "المجادلة" }, { id: 59, name: "الحشر" }, { id: 60, name: "الممتحنة" },
+  { id: 61, name: "الصف" }, { id: 62, name: "الجمعة" }, { id: 63, name: "المنافقون" },
+  { id: 64, name: "التغابن" }, { id: 65, name: "الطلاق" }, { id: 66, name: "التحريم" },
+  { id: 67, name: "الملك" }, { id: 68, name: "القلم" }, { id: 69, name: "الحاقة" },
+  { id: 70, name: "المعارج" }, { id: 71, name: "نوح" }, { id: 72, name: "الجن" },
+  { id: 73, name: "المزمل" }, { id: 74, name: "المدثر" }, { id: 75, name: "القيامة" },
+  { id: 76, name: "الإنسان" }, { id: 77, name: "المرسلات" }, { id: 78, name: "النبأ" },
+  { id: 79, name: "النازعات" }, { id: 80, name: "عبس" }, { id: 81, name: "التكوير" },
+  { id: 82, name: "الانفطار" }, { id: 83, name: "المطففين" }, { id: 84, name: "الانشقاق" },
+  { id: 85, name: "البروج" }, { id: 86, name: "الطارق" }, { id: 87, name: "الأعلى" },
+  { id: 88, name: "الغاشية" }, { id: 89, name: "الفجر" }, { id: 90, name: "البلد" },
+  { id: 91, name: "الشمس" }, { id: 92, name: "الليل" }, { id: 93, name: "الضحى" },
+  { id: 94, name: "الشرح" }, { id: 95, name: "التين" }, { id: 96, name: "العلق" },
+  { id: 97, name: "القدر" }, { id: 98, name: "البينة" }, { id: 99, name: "الزلزلة" },
+  { id: 100, name: "العاديات" }, { id: 101, name: "القارعة" }, { id: 102, name: "التكاثر" },
+  { id: 103, name: "العصر" }, { id: 104, name: "الهمزة" }, { id: 105, name: "الفيل" },
+  { id: 106, name: "قريش" }, { id: 107, name: "الماعون" }, { id: 108, name: "الكوثر" },
+  { id: 109, name: "الكافرون" }, { id: 110, name: "النصر" }, { id: 111, name: "المسد" },
+  { id: 112, name: "الإخلاص" }, { id: 113, name: "الفلق" }, { id: 114, name: "الناس" },
+];
+
+const formatTime = (seconds: number): string => {
+  if (isNaN(seconds) || !isFinite(seconds)) return "٠٠:٠٠";
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+};
+
+const Recitations = () => {
+  const [reciters, setReciters] = useState<Reciter[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedReciter, setSelectedReciter] = useState<Reciter | null>(null);
+  const [selectedMoshaf, setSelectedMoshaf] = useState<Moshaf | null>(null);
+  const [currentSurah, setCurrentSurah] = useState<Surah | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(80);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isRepeat, setIsRepeat] = useState(false);
+  const [isShuffle, setIsShuffle] = useState(false);
+  const [audioLoading, setAudioLoading] = useState(false);
+  const [showReciters, setShowReciters] = useState(true);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    fetch("https://mp3quran.net/api/v3/reciters?language=ar")
+      .then((res) => res.json())
+      .then((data) => {
+        setReciters(data.reciters || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const getAvailableSurahs = useCallback((): Surah[] => {
+    if (!selectedMoshaf) return [];
+    const ids = selectedMoshaf.surah_list.split(",").map(Number);
+    return SURAHS.filter((s) => ids.includes(s.id));
+  }, [selectedMoshaf]);
+
+  const getAudioUrl = (moshaf: Moshaf, surahId: number): string => {
+    const padded = surahId.toString().padStart(3, "0");
+    return `${moshaf.server}${padded}.mp3`;
+  };
+
+  const playSurah = (surah: Surah) => {
+    if (!selectedMoshaf) return;
+    setCurrentSurah(surah);
+    setAudioLoading(true);
+    const url = getAudioUrl(selectedMoshaf, surah.id);
+
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    const audio = new Audio(url);
+    audioRef.current = audio;
+    audio.volume = isMuted ? 0 : volume / 100;
+
+    audio.addEventListener("loadedmetadata", () => {
+      setDuration(audio.duration);
+      setAudioLoading(false);
+    });
+    audio.addEventListener("timeupdate", () => setCurrentTime(audio.currentTime));
+    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener("error", () => setAudioLoading(false));
+
+    audio.play().then(() => setIsPlaying(true)).catch(() => setAudioLoading(false));
+  };
+
+  const handleEnded = () => {
+    if (isRepeat && audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play();
+      return;
+    }
+    playNextSurah();
+  };
+
+  const playNextSurah = () => {
+    const available = getAvailableSurahs();
+    if (!currentSurah || available.length === 0) return;
+    if (isShuffle) {
+      const rand = available[Math.floor(Math.random() * available.length)];
+      playSurah(rand);
+      return;
+    }
+    const idx = available.findIndex((s) => s.id === currentSurah.id);
+    if (idx < available.length - 1) {
+      playSurah(available[idx + 1]);
+    }
+  };
+
+  const playPrevSurah = () => {
+    const available = getAvailableSurahs();
+    if (!currentSurah || available.length === 0) return;
+    const idx = available.findIndex((s) => s.id === currentSurah.id);
+    if (idx > 0) {
+      playSurah(available[idx - 1]);
+    }
+  };
+
+  const togglePlay = () => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.play();
+      setIsPlaying(true);
+    }
+  };
+
+  const handleSeek = (val: number[]) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = val[0];
+      setCurrentTime(val[0]);
+    }
+  };
+
+  const handleVolume = (val: number[]) => {
+    setVolume(val[0]);
+    setIsMuted(false);
+    if (audioRef.current) audioRef.current.volume = val[0] / 100;
+  };
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+    if (audioRef.current) audioRef.current.volume = isMuted ? volume / 100 : 0;
+  };
+
+  const selectReciter = (reciter: Reciter) => {
+    setSelectedReciter(reciter);
+    setSelectedMoshaf(reciter.moshaf[0] || null);
+    setShowReciters(false);
+  };
+
+  const filteredReciters = reciters.filter((r) =>
+    r.name.includes(searchQuery)
+  );
+
+  // cleanup
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) audioRef.current.pause();
+    };
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header */}
+      <header className="gradient-islamic pattern-islamic px-4 text-center relative overflow-hidden">
+        <div className="absolute bottom-0 left-0 right-0 h-1 gradient-gold" />
+        <div className="flex justify-start pt-3 pb-1">
+          <Link
+            to="/"
+            className="flex items-center gap-1.5 bg-gold text-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-all font-naskh text-sm font-bold shadow-md"
+          >
+            <Home size={16} />
+            الرئيسية
+          </Link>
+        </div>
+        <div className="pb-6">
+          <p className="font-amiri text-gold text-lg mb-2">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
+          <h1 className="font-amiri text-2xl sm:text-3xl font-bold text-primary-foreground">
+            سماع التلاوات
+          </h1>
+          <p className="font-naskh text-primary-foreground/70 text-sm mt-2">
+            استمع لأشهر القراء والمشايخ
+          </p>
+        </div>
+      </header>
+
+      <main className="flex-1 container max-w-4xl mx-auto px-4 py-4">
+        {/* Reciter Selection */}
+        {selectedReciter && !showReciters && (
+          <button
+            onClick={() => setShowReciters(true)}
+            className="w-full mb-4 flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 hover:bg-muted transition-colors"
+          >
+            <div className="w-10 h-10 rounded-full gradient-islamic flex items-center justify-center shrink-0">
+              <Music size={18} className="text-primary-foreground" />
+            </div>
+            <div className="flex-1 text-right">
+              <p className="font-naskh text-sm font-bold text-foreground">{selectedReciter.name}</p>
+              {selectedMoshaf && (
+                <p className="text-xs text-muted-foreground font-naskh">{selectedMoshaf.name}</p>
+              )}
+            </div>
+            <ChevronDown size={16} className="text-muted-foreground" />
+          </button>
+        )}
+
+        {showReciters && (
+          <>
+            {/* Search reciters */}
+            <div className="relative mb-4">
+              <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="ابحث عن قارئ..."
+                className="w-full bg-card border border-border rounded-lg pr-10 pl-4 py-2.5 text-sm font-naskh text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <Loader2 className="animate-spin text-primary" size={32} />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[60vh] overflow-y-auto mb-4">
+                {filteredReciters.map((reciter) => (
+                  <button
+                    key={reciter.id}
+                    onClick={() => selectReciter(reciter)}
+                    className={`flex items-center gap-3 bg-card border rounded-xl px-4 py-3 hover:border-gold/50 hover:shadow-islamic transition-all text-right ${
+                      selectedReciter?.id === reciter.id ? "border-gold shadow-islamic" : "border-border"
+                    }`}
+                  >
+                    <div className="w-9 h-9 rounded-full gradient-islamic flex items-center justify-center shrink-0">
+                      <Music size={14} className="text-primary-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-naskh text-sm font-bold text-foreground truncate">{reciter.name}</p>
+                      <p className="text-xs text-muted-foreground font-naskh">
+                        {reciter.moshaf.length > 0 ? reciter.moshaf[0].name : ""}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Moshaf selection */}
+        {selectedReciter && selectedReciter.moshaf.length > 1 && !showReciters && (
+          <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
+            {selectedReciter.moshaf.map((m) => (
+              <button
+                key={m.id}
+                onClick={() => setSelectedMoshaf(m)}
+                className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-naskh border transition-colors ${
+                  selectedMoshaf?.id === m.id
+                    ? "gradient-gold text-foreground border-transparent font-bold"
+                    : "bg-card border-border text-foreground hover:bg-muted"
+                }`}
+              >
+                {m.name}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Surah list */}
+        {selectedMoshaf && !showReciters && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-24">
+            {getAvailableSurahs().map((surah) => (
+              <button
+                key={surah.id}
+                onClick={() => playSurah(surah)}
+                className={`flex items-center gap-2 bg-card border rounded-lg px-3 py-2.5 hover:border-gold/50 transition-all text-right ${
+                  currentSurah?.id === surah.id ? "border-gold shadow-islamic" : "border-border"
+                }`}
+              >
+                <span className="w-7 h-7 rounded-full gradient-islamic flex items-center justify-center text-xs text-primary-foreground font-bold shrink-0">
+                  {surah.id}
+                </span>
+                <span className="font-naskh text-sm text-foreground truncate">{surah.name}</span>
+                {currentSurah?.id === surah.id && isPlaying && (
+                  <span className="mr-auto text-gold">
+                    <Volume2 size={14} />
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+      </main>
+
+      {/* Audio Player - Fixed Bottom */}
+      {currentSurah && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border shadow-lg">
+          {/* Progress bar */}
+          <div className="px-4 pt-2">
+            <Slider
+              value={[currentTime]}
+              min={0}
+              max={duration || 1}
+              step={1}
+              onValueChange={handleSeek}
+              className="w-full"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground font-naskh mt-1">
+              <span>{formatTime(duration)}</span>
+              <span>{formatTime(currentTime)}</span>
+            </div>
+          </div>
+
+          {/* Controls */}
+          <div className="px-4 pb-3 flex items-center gap-3">
+            {/* Surah info */}
+            <div className="flex-1 min-w-0 text-right">
+              <p className="font-naskh text-sm font-bold text-foreground truncate">
+                سورة {currentSurah.name}
+              </p>
+              <p className="text-xs text-muted-foreground font-naskh truncate">
+                {selectedReciter?.name}
+              </p>
+            </div>
+
+            {/* Playback controls */}
+            <div className="flex items-center gap-1">
+              <button onClick={() => setIsShuffle(!isShuffle)} className={`p-2 rounded-full transition-colors ${isShuffle ? "text-gold" : "text-muted-foreground hover:text-foreground"}`}>
+                <Shuffle size={16} />
+              </button>
+              <button onClick={playPrevSurah} className="p-2 rounded-full text-foreground hover:bg-muted transition-colors">
+                <SkipForward size={18} />
+              </button>
+              <button
+                onClick={togglePlay}
+                className="w-11 h-11 rounded-full gradient-islamic flex items-center justify-center text-primary-foreground shadow-md hover:opacity-90 transition-opacity"
+                disabled={audioLoading}
+              >
+                {audioLoading ? (
+                  <Loader2 size={20} className="animate-spin" />
+                ) : isPlaying ? (
+                  <Pause size={20} />
+                ) : (
+                  <Play size={20} className="mr-[-2px]" />
+                )}
+              </button>
+              <button onClick={playNextSurah} className="p-2 rounded-full text-foreground hover:bg-muted transition-colors">
+                <SkipBack size={18} />
+              </button>
+              <button onClick={() => setIsRepeat(!isRepeat)} className={`p-2 rounded-full transition-colors ${isRepeat ? "text-gold" : "text-muted-foreground hover:text-foreground"}`}>
+                <Repeat size={16} />
+              </button>
+            </div>
+
+            {/* Volume */}
+            <div className="hidden sm:flex items-center gap-2 w-28">
+              <button onClick={toggleMute} className="text-muted-foreground hover:text-foreground transition-colors">
+                {isMuted || volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
+              </button>
+              <Slider value={[isMuted ? 0 : volume]} min={0} max={100} step={1} onValueChange={handleVolume} className="flex-1" />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Recitations;
