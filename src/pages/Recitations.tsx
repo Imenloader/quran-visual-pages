@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Home, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, Search, ChevronDown, Loader2, Music, Heart, ListMusic, X, Trash2, Clock } from "lucide-react";
+import { Home, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, Search, ChevronDown, Loader2, Music, Heart, ListMusic, X, Trash2, Clock, Download, Check } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 
 interface Reciter {
@@ -116,6 +116,8 @@ const Recitations = () => {
   const [volume, setVolume] = useState(80);
   const [isMuted, setIsMuted] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
+  const [dlState, setDlState] = useState<"idle" | "downloading" | "done">("idle");
+  const [dlProgress, setDlProgress] = useState(0);
   const [isShuffle, setIsShuffle] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
   const [showReciters, setShowReciters] = useState(true);
@@ -323,6 +325,31 @@ const Recitations = () => {
     if (surah) playSurah(surah, last.currentTime, last.moshafServer);
   };
 
+  const downloadAllSurahs = async () => {
+    if (!selectedMoshaf || dlState === "downloading") return;
+    setDlState("downloading");
+    setDlProgress(0);
+    const available = getAvailableSurahs();
+    let loaded = 0;
+    const batchSize = 3;
+    for (let i = 0; i < available.length; i += batchSize) {
+      const batch = available.slice(i, i + batchSize);
+      await Promise.all(
+        batch.map(async (surah) => {
+          try {
+            const url = getAudioUrl(selectedMoshaf.server, surah.id);
+            const res = await fetch(url, { cache: "force-cache" });
+            if (res.ok) await res.blob();
+          } catch { /* skip */ }
+          loaded++;
+          setDlProgress(Math.round((loaded / available.length) * 100));
+        })
+      );
+    }
+    setDlState("done");
+    setTimeout(() => setDlState("idle"), 5000);
+  };
+
   const filteredReciters = reciters.filter((r) => r.name.includes(searchQuery));
   const lastPlayed = getLastPlayed();
 
@@ -488,6 +515,41 @@ const Recitations = () => {
                 {m.name}
               </button>
             ))}
+          </div>
+        )}
+
+        {/* Download all surahs button */}
+        {selectedMoshaf && !showReciters && (
+          <button
+            onClick={downloadAllSurahs}
+            disabled={dlState === "downloading"}
+            className={`w-full mb-4 flex items-center gap-3 border rounded-xl px-4 py-3 transition-all font-naskh text-sm ${
+              dlState === "done"
+                ? "bg-primary/10 border-primary/30"
+                : dlState === "downloading"
+                ? "bg-gold/10 border-gold/30"
+                : "bg-card border-border hover:border-gold/50 hover:shadow-islamic"
+            }`}
+          >
+            <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${dlState === "done" ? "bg-primary/20" : "gradient-gold"}`}>
+              {dlState === "downloading" ? <Loader2 size={16} className="animate-spin" /> : dlState === "done" ? <Check size={16} className="text-primary" /> : <Download size={16} className="text-foreground" />}
+            </div>
+            <div className="flex-1 text-right min-w-0">
+              <p className="font-bold text-foreground">
+                {dlState === "done" ? "✓ تم تحميل جميع التلاوات" : dlState === "downloading" ? `جاري التحميل... ${dlProgress}%` : "تحميل جميع التلاوات للأوفلاين"}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {dlState === "downloading"
+                  ? `${Math.round((dlProgress / 100) * getAvailableSurahs().length)} من ${getAvailableSurahs().length} سورة`
+                  : `${getAvailableSurahs().length} سورة - ${selectedReciter?.name}`}
+              </p>
+            </div>
+          </button>
+        )}
+
+        {dlState === "downloading" && (
+          <div className="w-full mb-4 h-2 bg-muted rounded-full overflow-hidden">
+            <div className="h-full gradient-gold transition-all duration-300 rounded-full" style={{ width: `${dlProgress}%` }} />
           </div>
         )}
 
