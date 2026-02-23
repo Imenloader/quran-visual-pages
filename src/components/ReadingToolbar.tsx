@@ -28,29 +28,24 @@ const ReadingToolbar = ({
   bookmarked,
   juzNumber,
 }: ReadingToolbarProps) => {
-  const [isNight, setIsNight] = useState(() => {
-    return document.documentElement.classList.contains("night-reading");
+  const [isDark, setIsDark] = useState(() => {
+    return document.documentElement.classList.contains("dark");
   });
 
-  const toggleNightMode = () => {
+  const toggleDarkMode = () => {
     const html = document.documentElement;
-    if (isNight) {
-      // Restore previous theme
-      const saved = localStorage.getItem("quran-theme");
-      html.classList.remove("dark", "night-reading", "sepia");
-      if (saved === "dark") html.classList.add("dark");
-      else if (saved === "sepia") html.classList.add("sepia");
-      else if (saved !== "night") {
-        // was night, revert to dark
-        html.classList.add("dark");
-        localStorage.setItem("quran-theme", "dark");
-      }
-      setIsNight(false);
+    if (isDark) {
+      html.classList.remove("dark", "night-reading");
+      html.style.removeProperty("--page-brightness");
+      localStorage.setItem("quran-theme", "light");
+      setIsDark(false);
     } else {
       html.classList.remove("sepia");
-      html.classList.add("dark", "night-reading");
-      localStorage.setItem("quran-theme", "night");
-      setIsNight(true);
+      html.classList.add("dark");
+      const dimming = localStorage.getItem("quran-page-dimming") || "80";
+      html.style.setProperty("--page-brightness", `${parseInt(dimming) / 100}`);
+      localStorage.setItem("quran-theme", "dark");
+      setIsDark(true);
     }
   };
   return (
@@ -83,11 +78,11 @@ const ReadingToolbar = ({
         {/* Actions */}
         <div className="flex items-center gap-0.5 sm:gap-1">
           <button
-            onClick={toggleNightMode}
-            className={`toolbar-btn ${isNight ? "text-gold bg-gold/10" : ""}`}
-            title={isNight ? "إيقاف وضع القراءة الليلية" : "وضع القراءة الليلية"}
+            onClick={toggleDarkMode}
+            className={`toolbar-btn ${isDark ? "text-gold bg-gold/10" : ""}`}
+            title={isDark ? "الوضع الفاتح" : "الوضع الداكن"}
           >
-            {isNight ? <Sun size={16} className="sm:w-[18px] sm:h-[18px]" /> : <Moon size={16} className="sm:w-[18px] sm:h-[18px]" />}
+            {isDark ? <Sun size={16} className="sm:w-[18px] sm:h-[18px]" /> : <Moon size={16} className="sm:w-[18px] sm:h-[18px]" />}
           </button>
           <button onClick={onToggleJuzIndex} className="toolbar-btn" title="فهرس الأجزاء">
             <List size={16} className="sm:w-[18px] sm:h-[18px]" />

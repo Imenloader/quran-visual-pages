@@ -1,18 +1,19 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff, Clock, Send, Eclipse } from "lucide-react";
+import { Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff, Clock, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useNotifications } from "@/hooks/useNotifications";
+import { Slider } from "@/components/ui/slider";
 
-type ThemeMode = "light" | "dark" | "sepia" | "night";
+type ThemeMode = "light" | "dark" | "sepia";
 
 const THEME_KEY = "quran-theme";
 const FONT_SIZE_KEY = "quran-font-size";
+const DIMMING_KEY = "quran-page-dimming";
 
 const THEME_OPTIONS: { id: ThemeMode; label: string; icon: React.ReactNode; preview: string }[] = [
   { id: "light", label: "فاتح", icon: <Sun size={18} />, preview: "bg-[hsl(42,32%,97%)]" },
-  { id: "dark", label: "داكن", icon: <Moon size={18} />, preview: "bg-[hsl(220,20%,4%)]" },
-  { id: "night", label: "قراءة ليلية", icon: <Eclipse size={18} />, preview: "bg-[hsl(0,0%,0%)]" },
+  { id: "dark", label: "داكن / ليلي", icon: <Moon size={18} />, preview: "bg-[hsl(220,20%,4%)]" },
   { id: "sepia", label: "بني دافئ", icon: <Palette size={18} />, preview: "bg-[hsl(35,40%,93%)]" },
 ];
 
@@ -27,24 +28,31 @@ const applyTheme = (theme: ThemeMode) => {
   document.documentElement.classList.remove("dark", "sepia", "night-reading");
   if (theme === "dark") {
     document.documentElement.classList.add("dark");
-  } else if (theme === "night") {
-    document.documentElement.classList.add("dark", "night-reading");
   } else if (theme === "sepia") {
     document.documentElement.classList.add("sepia");
   }
   localStorage.setItem(THEME_KEY, theme);
 };
 
+const applyDimming = (value: number) => {
+  document.documentElement.style.setProperty("--page-brightness", `${value / 100}`);
+  localStorage.setItem(DIMMING_KEY, value.toString());
+};
+
 const Settings = () => {
   const { settings: notifSettings, updateSettings: updateNotif, permissionState, requestPermission, testNotification, isSupported } = useNotifications();
 
   const [theme, setTheme] = useState<ThemeMode>(() => {
-    const saved = localStorage.getItem(THEME_KEY) as ThemeMode;
-    if (saved === "dark" || saved === "sepia" || saved === "night") return saved;
-    if (document.documentElement.classList.contains("night-reading")) return "night";
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved === "night" || saved === "dark") return "dark";
+    if (saved === "sepia") return "sepia";
     if (document.documentElement.classList.contains("dark")) return "dark";
     if (document.documentElement.classList.contains("sepia")) return "sepia";
     return "light";
+  });
+
+  const [dimming, setDimming] = useState(() => {
+    return parseInt(localStorage.getItem(DIMMING_KEY) || "80");
   });
 
   const [fontSize, setFontSize] = useState(() => {
@@ -53,7 +61,13 @@ const Settings = () => {
 
   useEffect(() => {
     applyTheme(theme);
+    if (theme === "dark") applyDimming(dimming);
+    else document.documentElement.style.removeProperty("--page-brightness");
   }, [theme]);
+
+  useEffect(() => {
+    if (theme === "dark") applyDimming(dimming);
+  }, [dimming, theme]);
 
   useEffect(() => {
     document.documentElement.style.setProperty("--base-font-size", `${fontSize}px`);
@@ -108,7 +122,7 @@ const Settings = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             {THEME_OPTIONS.map(opt => (
               <button
                 key={opt.id}
@@ -129,6 +143,31 @@ const Settings = () => {
               </button>
             ))}
           </div>
+
+          {/* Dimming slider - only in dark mode */}
+          {theme === "dark" && (
+            <div className="mt-4 p-4 bg-muted/50 rounded-xl border border-border space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-naskh text-sm font-bold text-foreground flex items-center gap-2">
+                  <Moon size={14} className="text-gold" />
+                  شدة إعتام الصفحات
+                </span>
+                <span className="font-naskh text-xs text-muted-foreground">{dimming}%</span>
+              </div>
+              <Slider
+                value={[dimming]}
+                min={30}
+                max={100}
+                step={5}
+                onValueChange={(val) => setDimming(val[0])}
+                className="w-full"
+              />
+              <div className="flex justify-between text-[10px] text-muted-foreground font-naskh">
+                <span>معتم جداً</span>
+                <span>عادي</span>
+              </div>
+            </div>
+          )}
         </section>
 
         {/* Font Size */}
