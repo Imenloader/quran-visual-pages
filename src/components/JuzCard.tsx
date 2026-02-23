@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { JuzInfo, toArabicNumber, getQuranPageImageUrl } from "@/data/quranData";
 import { Download, Check, Loader2, Wifi, WifiOff } from "lucide-react";
+import { toast } from "sonner";
 
 interface JuzCardProps {
   juz: JuzInfo;
@@ -69,13 +70,46 @@ const JuzCard = ({ juz, index }: JuzCardProps) => {
     setCachedPercent(100);
   };
 
+  // Long-press to download
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isLongPress = useRef(false);
+
+  const handlePointerDown = useCallback(() => {
+    isLongPress.current = false;
+    longPressTimer.current = setTimeout(() => {
+      isLongPress.current = true;
+      if (downloadState === "idle") {
+        toast.info(`جاري تحميل ${juz.nameAr} للأوفلاين...`);
+        // Trigger download directly
+        downloadForOffline({ preventDefault: () => {}, stopPropagation: () => {} } as React.MouseEvent);
+      }
+    }, 600);
+  }, [downloadState, juz.nameAr]);
+
+  const handlePointerUp = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    if (isLongPress.current) {
+      e.preventDefault();
+    }
+  }, []);
+
   return (
     <Link
       to={`/juz/${juz.number}`}
       className="group block"
       style={{ animationDelay: `${index * 40}ms` }}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerUp}
+      onClick={handleClick}
     >
-      <div className="relative overflow-hidden rounded-lg border border-border bg-card p-5 transition-all duration-300 hover:shadow-islamic hover:border-gold-light hover:-translate-y-1">
+      <div className="relative overflow-hidden rounded-lg border border-border bg-card p-5 transition-all duration-300 hover:shadow-islamic hover:border-gold-light hover:-translate-y-1 select-none">
         <div className="absolute top-0 left-0 w-12 h-12 gradient-gold opacity-20 rounded-br-full" />
 
         {/* Download button */}
