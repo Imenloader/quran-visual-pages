@@ -4,7 +4,8 @@ import { juzData, toArabicNumber } from "@/data/quranData";
 import JuzCard from "@/components/JuzCard";
 import JuzIndex from "@/components/JuzIndex";
 import QuranHeader from "@/components/QuranHeader";
-import { Search, Bookmark, Moon, Sun, List } from "lucide-react";
+import { Search, Bookmark, Moon, Sun, List, Download } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const BOOKMARK_KEY = "quran-bookmark";
 
@@ -144,7 +145,20 @@ const Index = () => {
 
       {/* External links section */}
       <section className="container max-w-5xl mx-auto px-4 pb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <Link
+            to="/install"
+            className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 hover:shadow-islamic hover:border-gold/50 transition-all group"
+          >
+            <div className="flex items-center justify-center w-10 h-10 rounded-full gradient-gold shrink-0">
+              <Download size={18} className="text-foreground" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-naskh text-sm font-bold text-foreground group-hover:text-gold transition-colors">تثبيت التطبيق</p>
+              <p className="text-xs text-muted-foreground font-naskh">ثبّته على هاتفك للوصول السريع</p>
+            </div>
+          </Link>
+
           <a
             href="https://quraaniat.vercel.app"
             target="_blank"
