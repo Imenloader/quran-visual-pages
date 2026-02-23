@@ -117,6 +117,7 @@ const Recitations = () => {
   const [showAddToPlaylist, setShowAddToPlaylist] = useState<Surah | null>(null);
   const [newPlaylistName, setNewPlaylistName] = useState("");
   const [activePlaylist, setActivePlaylist] = useState<Playlist | null>(null);
+  const [activePlaylistName, setActivePlaylistName] = useState<string>("");
   const [playerMinimized, setPlayerMinimized] = useState(false);
   const [playlistQueue, setPlaylistQueue] = useState<PlaylistTrack[]>([]);
   const [playlistQueueIndex, setPlaylistQueueIndex] = useState(-1);
@@ -328,6 +329,7 @@ const Recitations = () => {
       return;
     }
     setActivePlaylist(pl);
+    setActivePlaylistName(pl.name);
     setPlaylistQueue(pl.tracks);
     setPlaylistQueueIndex(0);
     const track = pl.tracks[0];
@@ -364,6 +366,7 @@ const Recitations = () => {
       toast("لا توجد سور متاحة", { description: "القارئ لا يملك هذه السور" });
       return;
     }
+    setActivePlaylistName(preset.name);
     setPlaylistQueue(tracks);
     setPlaylistQueueIndex(0);
     setActiveTab("reciters");
@@ -887,7 +890,12 @@ const Recitations = () => {
               >
                 {audioLoading ? <Loader2 size={12} className="animate-spin" /> : isPlaying ? <Pause size={12} /> : <Play size={12} className="mr-[-1px]" />}
               </button>
-              <p className="font-naskh text-xs text-foreground truncate flex-1">سورة {currentSurah.name} — {selectedReciter?.name}</p>
+              <p className="font-naskh text-xs text-foreground truncate flex-1">
+                سورة {currentSurah.name} — {selectedReciter?.name}
+                {playlistQueue.length > 0 && activePlaylistName && (
+                  <span className="text-gold"> • {activePlaylistName} ({playlistQueueIndex + 1}/{playlistQueue.length})</span>
+                )}
+              </p>
             </div>
           )}
 
@@ -905,8 +913,15 @@ const Recitations = () => {
                 <p className="font-naskh text-sm font-bold text-foreground truncate">سورة {currentSurah.name}</p>
                 <p className="text-xs text-muted-foreground font-naskh truncate">
                   {selectedReciter?.name}
-                  {playlistQueue.length > 0 && ` • ${playlistQueueIndex + 1}/${playlistQueue.length}`}
                 </p>
+                {playlistQueue.length > 0 && activePlaylistName && (
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <ListMusic size={10} className="text-gold shrink-0" />
+                    <span className="text-[10px] text-gold font-naskh truncate">
+                      {activePlaylistName} • {playlistQueueIndex + 1}/{playlistQueue.length}
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-1">
