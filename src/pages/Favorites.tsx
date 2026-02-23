@@ -4,6 +4,7 @@ import { useFavorites, type FavoriteItem } from "@/hooks/useFavorites";
 import { juzData, toArabicNumber } from "@/data/quranData";
 import { ATHKAR_DATA } from "@/data/athkarData";
 import { useState } from "react";
+import ScrollReveal from "@/components/ScrollReveal";
 
 type TabKey = "all" | "juz" | "athkar" | "recitations";
 
@@ -116,28 +117,30 @@ const Favorites = () => {
                   <span className="text-xs text-muted-foreground font-naskh">({toArabicNumber(favJuzList.length)})</span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {favJuzList.map(juz => (
-                    <div key={juz.number} className="relative group">
-                      <Link
-                        to={`/juz/${juz.number}`}
-                        className="block bg-card border border-border rounded-xl p-4 hover:shadow-islamic hover:border-gold-light transition-all text-center"
-                      >
-                        <div className="w-10 h-10 rounded-full gradient-islamic flex items-center justify-center mx-auto mb-2">
-                          <span className="text-sm font-bold font-amiri text-primary-foreground">
-                            {toArabicNumber(juz.number)}
-                          </span>
-                        </div>
-                        <p className="font-amiri text-sm font-bold text-foreground">{juz.nameAr}</p>
-                        <p className="text-xs text-muted-foreground font-naskh mt-1">{juz.startSurah}</p>
-                      </Link>
-                      <button
-                        onClick={() => toggleFavorite({ type: "juz", id: juz.number })}
-                        className="absolute top-2 left-2 p-1.5 rounded-full bg-card/80 backdrop-blur-sm text-red-400 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100"
-                        title="إزالة من المفضلة"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
+                  {favJuzList.map((juz, idx) => (
+                    <ScrollReveal key={juz.number} index={idx}>
+                      <div className="relative group">
+                        <Link
+                          to={`/juz/${juz.number}`}
+                          className="block bg-card border border-border rounded-xl p-4 hover:shadow-islamic hover:border-gold-light transition-all text-center"
+                        >
+                          <div className="w-10 h-10 rounded-full gradient-islamic flex items-center justify-center mx-auto mb-2">
+                            <span className="text-sm font-bold font-amiri text-primary-foreground">
+                              {toArabicNumber(juz.number)}
+                            </span>
+                          </div>
+                          <p className="font-amiri text-sm font-bold text-foreground">{juz.nameAr}</p>
+                          <p className="text-xs text-muted-foreground font-naskh mt-1">{juz.startSurah}</p>
+                        </Link>
+                        <button
+                          onClick={() => toggleFavorite({ type: "juz", id: juz.number })}
+                          className="absolute top-2 left-2 p-1.5 rounded-full bg-card/80 backdrop-blur-sm text-red-400 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100"
+                          title="إزالة من المفضلة"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </ScrollReveal>
                   ))}
                 </div>
               </section>
@@ -152,42 +155,41 @@ const Favorites = () => {
                   <span className="text-xs text-muted-foreground font-naskh">({toArabicNumber(favDhikrList.length)})</span>
                 </div>
                 <div className="space-y-3">
-                  {favDhikrList.map(dhikr => (
-                    <div
-                      key={dhikr.id}
-                      className="relative group bg-card border border-border rounded-xl p-4"
-                    >
-                      <span className="inline-block text-[10px] font-naskh text-accent bg-accent/10 rounded-md px-2 py-0.5 mb-2">
-                        {dhikr.categoryTitle}
-                      </span>
-                      <p className="font-amiri text-base leading-loose text-foreground mb-2">
-                        {dhikr.text}
-                      </p>
-                      {dhikr.virtue && (
-                        <p className="text-xs font-naskh text-gold mb-2 bg-gold/10 rounded-lg px-3 py-1.5 inline-block">
-                          ✨ {dhikr.virtue}
+                  {favDhikrList.map((dhikr, idx) => (
+                    <ScrollReveal key={dhikr.id} index={idx}>
+                      <div className="relative group bg-card border border-border rounded-xl p-4">
+                        <span className="inline-block text-[10px] font-naskh text-accent bg-accent/10 rounded-md px-2 py-0.5 mb-2">
+                          {dhikr.categoryTitle}
+                        </span>
+                        <p className="font-amiri text-base leading-loose text-foreground mb-2">
+                          {dhikr.text}
                         </p>
-                      )}
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground font-naskh">{dhikr.reference}</span>
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => copyText(dhikr.text, dhikr.id)}
-                            className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground"
-                            title="نسخ"
-                          >
-                            {copiedId === dhikr.id ? <Check size={14} className="text-gold" /> : <Copy size={14} />}
-                          </button>
-                          <button
-                            onClick={() => toggleFavorite({ type: "dhikr", id: dhikr.id, categoryId: dhikr.categoryId })}
-                            className="p-1.5 rounded-md hover:bg-red-50 transition-colors text-red-400 hover:text-red-500"
-                            title="إزالة من المفضلة"
-                          >
-                            <Trash2 size={14} />
-                          </button>
+                        {dhikr.virtue && (
+                          <p className="text-xs font-naskh text-gold mb-2 bg-gold/10 rounded-lg px-3 py-1.5 inline-block">
+                            ✨ {dhikr.virtue}
+                          </p>
+                        )}
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground font-naskh">{dhikr.reference}</span>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => copyText(dhikr.text, dhikr.id)}
+                              className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground"
+                              title="نسخ"
+                            >
+                              {copiedId === dhikr.id ? <Check size={14} className="text-gold" /> : <Copy size={14} />}
+                            </button>
+                            <button
+                              onClick={() => toggleFavorite({ type: "dhikr", id: dhikr.id, categoryId: dhikr.categoryId })}
+                              className="p-1.5 rounded-md hover:bg-red-50 transition-colors text-red-400 hover:text-red-500"
+                              title="إزالة من المفضلة"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </ScrollReveal>
                   ))}
                 </div>
               </section>
@@ -203,32 +205,24 @@ const Favorites = () => {
                 </div>
                 <div className="space-y-2">
                   {favRecitationItems.map((item, idx) => (
-                    <div
-                      key={`${item.reciterId}-${item.moshafId}-${item.id}-${idx}`}
-                      className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 group hover:border-gold/50 transition-all"
-                    >
-                      <div className="w-10 h-10 rounded-full gradient-islamic flex items-center justify-center shrink-0">
-                        <Music size={16} className="text-primary-foreground" />
+                    <ScrollReveal key={`${item.reciterId}-${item.moshafId}-${item.id}-${idx}`} index={idx}>
+                      <div className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 group hover:border-gold/50 transition-all">
+                        <div className="w-10 h-10 rounded-full gradient-islamic flex items-center justify-center shrink-0">
+                          <Music size={16} className="text-primary-foreground" />
+                        </div>
+                        <Link to="/recitations" className="flex-1 min-w-0 text-right">
+                          <p className="font-naskh text-sm font-bold text-foreground truncate">سورة {item.surahName}</p>
+                          <p className="text-xs text-muted-foreground font-naskh truncate">{item.reciterName}</p>
+                        </Link>
+                        <button
+                          onClick={() => toggleFavorite(item)}
+                          className="p-1.5 rounded-full bg-card/80 backdrop-blur-sm text-red-400 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100 shrink-0"
+                          title="إزالة من المفضلة"
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       </div>
-                      <Link
-                        to="/recitations"
-                        className="flex-1 min-w-0 text-right"
-                      >
-                        <p className="font-naskh text-sm font-bold text-foreground truncate">
-                          سورة {item.surahName}
-                        </p>
-                        <p className="text-xs text-muted-foreground font-naskh truncate">
-                          {item.reciterName}
-                        </p>
-                      </Link>
-                      <button
-                        onClick={() => toggleFavorite(item)}
-                        className="p-1.5 rounded-full bg-card/80 backdrop-blur-sm text-red-400 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100 shrink-0"
-                        title="إزالة من المفضلة"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
+                    </ScrollReveal>
                   ))}
                 </div>
               </section>
