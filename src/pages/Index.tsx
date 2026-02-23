@@ -2,8 +2,9 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { juzData, toArabicNumber } from "@/data/quranData";
 import JuzCard from "@/components/JuzCard";
+import JuzIndex from "@/components/JuzIndex";
 import QuranHeader from "@/components/QuranHeader";
-import { Search, Bookmark, Moon, Sun } from "lucide-react";
+import { Search, Bookmark, Moon, Sun, List } from "lucide-react";
 
 const BOOKMARK_KEY = "quran-bookmark";
 
@@ -24,13 +25,13 @@ const getBookmark = (): BookmarkData | null => {
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
+  const [showIndex, setShowIndex] = useState(false);
   const navigate = useNavigate();
   const bookmark = getBookmark();
 
   const filteredJuz = useMemo(() => {
     if (!searchQuery.trim()) return juzData;
     const q = searchQuery.trim();
-    // Search by number or name or surah
     return juzData.filter(
       (juz) =>
         juz.number.toString().includes(q) ||
@@ -58,12 +59,37 @@ const Index = () => {
     }
   };
 
+  const bookmarkJuzName = bookmark
+    ? juzData.find((j) => j.number === bookmark.juz)?.nameAr
+    : null;
+
   return (
     <div className="min-h-screen bg-background">
       <QuranHeader />
 
       <main className="container max-w-5xl mx-auto px-4 py-6">
-        {/* Top bar: search + dark mode + bookmark */}
+        {/* Bookmark resume banner */}
+        {bookmark && (
+          <button
+            onClick={handleResumeReading}
+            className="w-full mb-4 flex items-center gap-3 bg-primary/10 border border-primary/30 rounded-xl px-4 py-3 text-right hover:bg-primary/15 transition-colors group"
+          >
+            <div className="flex items-center justify-center w-10 h-10 rounded-full gradient-islamic shrink-0">
+              <Bookmark size={18} className="text-primary-foreground" fill="currentColor" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-naskh text-sm font-bold text-foreground">أكمل القراءة</p>
+              <p className="text-xs text-muted-foreground font-naskh">
+                {bookmarkJuzName} - صفحة {toArabicNumber(bookmark.page)}
+              </p>
+            </div>
+            <span className="text-xs text-primary font-naskh group-hover:underline shrink-0">
+              استئناف ←
+            </span>
+          </button>
+        )}
+
+        {/* Top bar: search + actions */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
           {/* Search */}
           <div className="relative flex-1">
@@ -81,18 +107,14 @@ const Index = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Resume bookmark */}
-            {bookmark && (
-              <button
-                onClick={handleResumeReading}
-                className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-naskh hover:opacity-90 transition-opacity"
-              >
-                <Bookmark size={16} />
-                <span>
-                  استئناف - صفحة {toArabicNumber(bookmark.page)}
-                </span>
-              </button>
-            )}
+            {/* Juz Index button */}
+            <button
+              onClick={() => setShowIndex(true)}
+              className="flex items-center gap-2 bg-card border border-border px-4 py-2.5 rounded-lg text-sm font-naskh text-foreground hover:bg-muted transition-colors"
+            >
+              <List size={16} />
+              <span className="hidden sm:inline">الفهرس</span>
+            </button>
 
             {/* Dark mode toggle */}
             <button
@@ -123,6 +145,9 @@ const Index = () => {
       <footer className="text-center py-6 text-muted-foreground text-sm font-naskh border-t border-border">
         القرآن الكريم - مصحف المدينة المنورة
       </footer>
+
+      {/* Juz Index Modal */}
+      {showIndex && <JuzIndex onClose={() => setShowIndex(false)} />}
     </div>
   );
 };

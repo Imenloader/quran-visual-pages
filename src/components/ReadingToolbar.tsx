@@ -1,4 +1,4 @@
-import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen } from "lucide-react";
+import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen, List } from "lucide-react";
 import { toArabicNumber } from "@/data/quranData";
 import ShareButton from "./ShareButton";
 
@@ -9,6 +9,7 @@ interface ReadingToolbarProps {
   onResetZoom: () => void;
   onSaveBookmark: () => void;
   onTogglePageNav: () => void;
+  onToggleJuzIndex: () => void;
   currentPage: number;
   bookmarked: boolean;
   juzNumber: number;
@@ -21,6 +22,7 @@ const ReadingToolbar = ({
   onResetZoom,
   onSaveBookmark,
   onTogglePageNav,
+  onToggleJuzIndex,
   currentPage,
   bookmarked,
   juzNumber,
@@ -54,6 +56,9 @@ const ReadingToolbar = ({
 
         {/* Actions */}
         <div className="flex items-center gap-0.5 sm:gap-1">
+          <button onClick={onToggleJuzIndex} className="toolbar-btn" title="فهرس الأجزاء">
+            <List size={16} className="sm:w-[18px] sm:h-[18px]" />
+          </button>
           <ShareButton juzNumber={juzNumber} currentPage={currentPage} />
           <button onClick={onTogglePageNav} className="toolbar-btn" title="الانتقال لصفحة">
             <BookOpen size={16} className="sm:w-[18px] sm:h-[18px]" />

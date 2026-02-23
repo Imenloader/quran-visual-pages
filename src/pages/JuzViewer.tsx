@@ -5,6 +5,7 @@ import QuranHeader from "@/components/QuranHeader";
 import ReadingToolbar from "@/components/ReadingToolbar";
 import ProgressBar from "@/components/ProgressBar";
 import PageNavigator from "@/components/PageNavigator";
+import JuzIndex from "@/components/JuzIndex";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { ChevronRight, ChevronLeft, ArrowUp } from "lucide-react";
 
@@ -38,6 +39,7 @@ const JuzViewer = () => {
   const [zoom, setZoom] = useState(100);
   const [currentPage, setCurrentPage] = useState(0);
   const [showPageNav, setShowPageNav] = useState(false);
+  const [showJuzIndex, setShowJuzIndex] = useState(false);
   const [savedBookmark, setSavedBookmark] = useState<BookmarkData | null>(null);
   const pageRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
@@ -133,6 +135,7 @@ const JuzViewer = () => {
         onResetZoom={() => setZoom(100)}
         onSaveBookmark={handleSaveBookmark}
         onTogglePageNav={() => setShowPageNav((v) => !v)}
+        onToggleJuzIndex={() => setShowJuzIndex((v) => !v)}
         currentPage={currentPage}
         bookmarked={savedBookmark?.juz === num && savedBookmark?.page === currentPage}
         juzNumber={num}
@@ -255,6 +258,9 @@ const JuzViewer = () => {
           العودة للأعلى
         </button>
       </div>
+
+      {/* Juz Index Modal */}
+      {showJuzIndex && <JuzIndex onClose={() => setShowJuzIndex(false)} currentJuz={num} />}
     </div>
   );
 };
