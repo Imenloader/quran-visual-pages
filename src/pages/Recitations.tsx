@@ -871,7 +871,31 @@ const Recitations = () => {
 
       {/* Audio Player - Fixed Bottom */}
       {currentSurah && (
-        <div className={`fixed bottom-0 left-0 right-0 z-[60] bg-card/95 backdrop-blur-md border-t border-border shadow-lg pb-[env(safe-area-inset-bottom)] mb-[72px] transition-all duration-300`}>
+        <div
+          className={`fixed bottom-0 left-0 right-0 z-[60] bg-card/95 backdrop-blur-md border-t border-border shadow-lg pb-[env(safe-area-inset-bottom)] mb-[72px] transition-all duration-300`}
+          onTouchStart={(e) => {
+            const touch = e.touches[0];
+            (e.currentTarget as any)._swipeStartY = touch.clientY;
+            (e.currentTarget as any)._swipeStartTime = Date.now();
+          }}
+          onTouchEnd={(e) => {
+            const startY = (e.currentTarget as any)._swipeStartY;
+            const startTime = (e.currentTarget as any)._swipeStartTime;
+            if (startY == null) return;
+            const endY = e.changedTouches[0].clientY;
+            const diff = endY - startY;
+            const elapsed = Date.now() - startTime;
+            if (elapsed < 400) {
+              if (diff > 40 && !playerMinimized) setPlayerMinimized(true);
+              else if (diff < -40 && playerMinimized) setPlayerMinimized(false);
+            }
+          }}
+        >
+          {/* Swipe handle bar */}
+          <div className="flex justify-center pt-1.5 pb-0.5">
+            <div className="w-10 h-1 rounded-full bg-border" />
+          </div>
+
           {/* Minimize/Maximize toggle */}
           <button
             onClick={() => setPlayerMinimized(prev => !prev)}
