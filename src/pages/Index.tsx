@@ -156,7 +156,7 @@ const Index = () => {
               className="flex items-center gap-2 bg-card border border-border px-4 py-2.5 rounded-lg text-sm font-naskh text-foreground hover:bg-muted transition-colors"
             >
               <Heart size={16} className="text-destructive" />
-              <span className="hidden sm:inline">المفضلة</span>
+              المفضلة
             </Link>
             <button
               onClick={() => setShowIndex(true)}
