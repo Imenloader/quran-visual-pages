@@ -120,6 +120,7 @@ const Recitations = () => {
   const [dlProgress, setDlProgress] = useState(0);
   const dlAbortRef = useRef<AbortController | null>(null);
   const dlLoadedRef = useRef(0);
+  const [cachedSurahs, setCachedSurahs] = useState<Set<number>>(new Set());
   const [isShuffle, setIsShuffle] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
   const [showReciters, setShowReciters] = useState(true);
@@ -187,6 +188,27 @@ const Recitations = () => {
     const padded = surahId.toString().padStart(3, "0");
     return `${server}${padded}.mp3`;
   };
+
+  const checkCachedSurahs = useCallback(async () => {
+    if (!selectedMoshaf) return;
+    const available = getAvailableSurahs();
+    const cached = new Set<number>();
+    try {
+      const cache = await caches.open("workbox-runtime");
+      for (const surah of available) {
+        const url = getAudioUrl(selectedMoshaf.server, surah.id);
+        const match = await cache.match(url);
+        if (match) cached.add(surah.id);
+      }
+    } catch {
+      // Cache API not available
+    }
+    setCachedSurahs(cached);
+  }, [selectedMoshaf, getAvailableSurahs]);
+
+  useEffect(() => {
+    checkCachedSurahs();
+  }, [checkCachedSurahs]);
 
   const playSurah = (surah: Surah, resumeTime?: number, server?: string) => {
     const srv = server || selectedMoshaf?.server;
@@ -357,6 +379,7 @@ const Recitations = () => {
       if (!controller.signal.aborted) {
         setDlState("done");
         dlLoadedRef.current = 0;
+        checkCachedSurahs();
         setTimeout(() => setDlState("idle"), 5000);
       }
     } catch { /* aborted */ }
@@ -603,6 +626,9 @@ const Recitations = () => {
                     {surah.id}
                   </span>
                   <span className="font-naskh text-sm text-foreground truncate">{surah.name}</span>
+                  {cachedSurahs.has(surah.id) && (
+                    <span className="w-2 h-2 rounded-full bg-primary shrink-0" title="محملة أوفلاين" />
+                  )}
                   {currentSurah?.id === surah.id && isPlaying && (
                     <span className="mr-auto text-gold"><Volume2 size={14} /></span>
                   )}
