@@ -9,10 +9,28 @@ interface JuzCardProps {
   index: number;
 }
 
+const STORAGE_KEY = "juz-download-state";
+
+const getStoredState = (juzNumber: number): boolean => {
+  try {
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    return stored[juzNumber] === true;
+  } catch { return false; }
+};
+
+const setStoredState = (juzNumber: number, done: boolean) => {
+  try {
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    stored[juzNumber] = done;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+  } catch { /* ignore */ }
+};
+
 const JuzCard = ({ juz, index }: JuzCardProps) => {
-  const [downloadState, setDownloadState] = useState<"idle" | "downloading" | "done">("idle");
+  const wasDone = getStoredState(juz.number);
+  const [downloadState, setDownloadState] = useState<"idle" | "downloading" | "done">(wasDone ? "done" : "idle");
   const [progress, setProgress] = useState(0);
-  const [cachedPercent, setCachedPercent] = useState<number | null>(null);
+  const [cachedPercent, setCachedPercent] = useState<number | null>(wasDone ? 100 : null);
 
   const totalPages = juz.endPage - juz.startPage + 1;
 
@@ -29,8 +47,15 @@ const JuzCard = ({ juz, index }: JuzCardProps) => {
           if (urls.has(getQuranPageImageUrl(p))) cached++;
         }
         if (!cancelled) {
-          setCachedPercent(Math.round((cached / totalPages) * 100));
-          if (cached === totalPages) setDownloadState("done");
+          const pct = Math.round((cached / totalPages) * 100);
+          setCachedPercent(pct);
+          if (cached === totalPages) {
+            setDownloadState("done");
+            setStoredState(juz.number, true);
+          } else {
+            setStoredState(juz.number, false);
+            if (!wasDone || cached < totalPages) setDownloadState("idle");
+          }
         }
       } catch {
         if (!cancelled) setCachedPercent(null);
@@ -38,7 +63,7 @@ const JuzCard = ({ juz, index }: JuzCardProps) => {
     };
     checkCache();
     return () => { cancelled = true; };
-  }, [juz.startPage, juz.endPage, totalPages]);
+  }, [juz.startPage, juz.endPage, totalPages, juz.number, wasDone]);
 
   const downloadForOffline = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -68,6 +93,7 @@ const JuzCard = ({ juz, index }: JuzCardProps) => {
 
     setDownloadState("done");
     setCachedPercent(100);
+    setStoredState(juz.number, true);
   };
 
   // Long-press to download
