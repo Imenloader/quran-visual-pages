@@ -4,8 +4,10 @@ import "./index.css";
 
 // Restore theme preference
 const savedTheme = localStorage.getItem("quran-theme");
-if (savedTheme === "dark") {
+if (savedTheme === "dark" || savedTheme === "night") {
   document.documentElement.classList.add("dark");
+  const dimming = localStorage.getItem("quran-page-dimming") || "80";
+  document.documentElement.style.setProperty("--page-brightness", `${parseInt(dimming) / 100}`);
 }
 
 createRoot(document.getElementById("root")!).render(<App />);

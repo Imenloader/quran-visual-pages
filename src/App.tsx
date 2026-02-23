@@ -25,12 +25,14 @@ const ThemeInit = () => {
   useEffect(() => {
     const saved = localStorage.getItem("quran-theme");
     document.documentElement.classList.remove("dark", "sepia", "night-reading");
-    if (saved === "dark") {
+    if (saved === "dark" || saved === "night") {
       document.documentElement.classList.add("dark");
-    } else if (saved === "night") {
-      document.documentElement.classList.add("dark", "night-reading");
+      // Migrate old "night" to "dark"
+      if (saved === "night") localStorage.setItem("quran-theme", "dark");
+      const dimming = localStorage.getItem("quran-page-dimming") || "80";
+      document.documentElement.style.setProperty("--page-brightness", `${parseInt(dimming) / 100}`);
     } else if (saved === "sepia") {
-      document.documentElement.classList.add(saved);
+      document.documentElement.classList.add("sepia");
     }
   }, []);
   return null;
