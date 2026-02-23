@@ -10,12 +10,14 @@ import Recitations from "./pages/Recitations";
 import EmbedView from "./pages/EmbedView";
 import Athkar from "./pages/Athkar";
 import NotFound from "./pages/NotFound";
+import NetworkStatus from "./components/NetworkStatus";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <NetworkStatus />
       <Toaster />
       <Sonner />
       <BrowserRouter>
