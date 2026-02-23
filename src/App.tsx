@@ -12,6 +12,7 @@ import EmbedView from "./pages/EmbedView";
 import Athkar from "./pages/Athkar";
 import Favorites from "./pages/Favorites";
 import Settings from "./pages/Settings";
+import PrayerTimes from "./pages/PrayerTimes";
 import HowToUse from "./pages/HowToUse";
 import NotFound from "./pages/NotFound";
 import NetworkStatus from "./components/NetworkStatus";
@@ -46,6 +47,7 @@ const App = () => (
           <Route path="/athkar" element={<Athkar />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/prayer-times" element={<PrayerTimes />} />
           <Route path="/how-to-use" element={<HowToUse />} />
           <Route path="/embed/:siteId" element={<EmbedView />} />
           <Route path="*" element={<NotFound />} />
