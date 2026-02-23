@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { Home, ExternalLink, Loader2, WifiOff } from "lucide-react";
+import { Home, ExternalLink, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 
 const SITES: Record<string, { title: string; url: string; description: string }> = {
@@ -12,6 +12,11 @@ const SITES: Record<string, { title: string; url: string; description: string }>
     title: "١٠٠ آية لقيام الليل",
     url: "https://www.mohammedhesham.site/aya",
     description: "آيات مختارة لصلاة القيام",
+  },
+  khatma: {
+    title: "ختمة القرآن الكريم",
+    url: "https://quraaniat.vercel.app",
+    description: "جدول ختمة القرآن الكريم",
   },
 };
 
@@ -51,7 +56,7 @@ const EmbedView = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="flex flex-col bg-background" style={{ height: 'calc(100vh - 68px - env(safe-area-inset-bottom, 0px))' }}>
       {/* Top bar */}
       <div className="shrink-0 flex items-center gap-3 px-4 py-2 bg-card border-b border-border">
         <Link
