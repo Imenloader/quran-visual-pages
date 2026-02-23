@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Home, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, Search, ChevronDown, Loader2, Music } from "lucide-react";
+import { Home, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, Search, ChevronDown, Loader2, Music, Heart, ListMusic, X, Trash2, Clock } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 
 interface Reciter {
@@ -21,6 +21,27 @@ interface Moshaf {
 interface Surah {
   id: number;
   name: string;
+}
+
+interface PlaylistItem {
+  surahId: number;
+  surahName: string;
+  reciterId: number;
+  reciterName: string;
+  moshafId: number;
+  moshafServer: string;
+}
+
+interface LastPlayed {
+  reciterId: number;
+  reciterName: string;
+  moshafId: number;
+  moshafName: string;
+  moshafServer: string;
+  surahId: number;
+  surahName: string;
+  currentTime: number;
+  surahList: string;
 }
 
 const SURAHS: Surah[] = [
@@ -64,11 +85,22 @@ const SURAHS: Surah[] = [
   { id: 112, name: "الإخلاص" }, { id: 113, name: "الفلق" }, { id: 114, name: "الناس" },
 ];
 
+const LAST_PLAYED_KEY = "quran-last-played";
+const PLAYLIST_KEY = "quran-playlist";
+
 const formatTime = (seconds: number): string => {
   if (isNaN(seconds) || !isFinite(seconds)) return "٠٠:٠٠";
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
   return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+};
+
+const getLastPlayed = (): LastPlayed | null => {
+  try { return JSON.parse(localStorage.getItem(LAST_PLAYED_KEY) || "null"); } catch { return null; }
+};
+
+const getPlaylist = (): PlaylistItem[] => {
+  try { return JSON.parse(localStorage.getItem(PLAYLIST_KEY) || "[]"); } catch { return []; }
 };
 
 const Recitations = () => {
@@ -87,8 +119,13 @@ const Recitations = () => {
   const [isShuffle, setIsShuffle] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
   const [showReciters, setShowReciters] = useState(true);
+  const [playlist, setPlaylist] = useState<PlaylistItem[]>(getPlaylist);
+  const [showPlaylist, setShowPlaylist] = useState(false);
+  const [activeTab, setActiveTab] = useState<"reciters" | "playlist">("reciters");
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const saveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Load reciters
   useEffect(() => {
     fetch("https://mp3quran.net/api/v3/reciters?language=ar")
       .then((res) => res.json())
@@ -99,26 +136,62 @@ const Recitations = () => {
       .catch(() => setLoading(false));
   }, []);
 
+  // Restore last played on load
+  useEffect(() => {
+    const last = getLastPlayed();
+    if (last && reciters.length > 0) {
+      const reciter = reciters.find(r => r.id === last.reciterId);
+      if (reciter) {
+        setSelectedReciter(reciter);
+        const moshaf = reciter.moshaf.find(m => m.id === last.moshafId);
+        if (moshaf) {
+          setSelectedMoshaf(moshaf);
+          setShowReciters(false);
+        }
+      }
+    }
+  }, [reciters]);
+
+  // Save current time periodically
+  useEffect(() => {
+    saveTimerRef.current = setInterval(() => {
+      if (audioRef.current && currentSurah && selectedReciter && selectedMoshaf) {
+        const data: LastPlayed = {
+          reciterId: selectedReciter.id,
+          reciterName: selectedReciter.name,
+          moshafId: selectedMoshaf.id,
+          moshafName: selectedMoshaf.name,
+          moshafServer: selectedMoshaf.server,
+          surahId: currentSurah.id,
+          surahName: currentSurah.name,
+          currentTime: audioRef.current.currentTime,
+          surahList: selectedMoshaf.surah_list,
+        };
+        localStorage.setItem(LAST_PLAYED_KEY, JSON.stringify(data));
+      }
+    }, 3000);
+    return () => { if (saveTimerRef.current) clearInterval(saveTimerRef.current); };
+  }, [currentSurah, selectedReciter, selectedMoshaf]);
+
   const getAvailableSurahs = useCallback((): Surah[] => {
     if (!selectedMoshaf) return [];
     const ids = selectedMoshaf.surah_list.split(",").map(Number);
     return SURAHS.filter((s) => ids.includes(s.id));
   }, [selectedMoshaf]);
 
-  const getAudioUrl = (moshaf: Moshaf, surahId: number): string => {
+  const getAudioUrl = (server: string, surahId: number): string => {
     const padded = surahId.toString().padStart(3, "0");
-    return `${moshaf.server}${padded}.mp3`;
+    return `${server}${padded}.mp3`;
   };
 
-  const playSurah = (surah: Surah) => {
-    if (!selectedMoshaf) return;
+  const playSurah = (surah: Surah, resumeTime?: number, server?: string) => {
+    const srv = server || selectedMoshaf?.server;
+    if (!srv) return;
     setCurrentSurah(surah);
     setAudioLoading(true);
-    const url = getAudioUrl(selectedMoshaf, surah.id);
+    const url = getAudioUrl(srv, surah.id);
 
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
+    if (audioRef.current) audioRef.current.pause();
     const audio = new Audio(url);
     audioRef.current = audio;
     audio.volume = isMuted ? 0 : volume / 100;
@@ -126,6 +199,9 @@ const Recitations = () => {
     audio.addEventListener("loadedmetadata", () => {
       setDuration(audio.duration);
       setAudioLoading(false);
+      if (resumeTime && resumeTime > 0) {
+        audio.currentTime = resumeTime;
+      }
     });
     audio.addEventListener("timeupdate", () => setCurrentTime(audio.currentTime));
     audio.addEventListener("ended", handleEnded);
@@ -152,36 +228,24 @@ const Recitations = () => {
       return;
     }
     const idx = available.findIndex((s) => s.id === currentSurah.id);
-    if (idx < available.length - 1) {
-      playSurah(available[idx + 1]);
-    }
+    if (idx < available.length - 1) playSurah(available[idx + 1]);
   };
 
   const playPrevSurah = () => {
     const available = getAvailableSurahs();
     if (!currentSurah || available.length === 0) return;
     const idx = available.findIndex((s) => s.id === currentSurah.id);
-    if (idx > 0) {
-      playSurah(available[idx - 1]);
-    }
+    if (idx > 0) playSurah(available[idx - 1]);
   };
 
   const togglePlay = () => {
     if (!audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      audioRef.current.play();
-      setIsPlaying(true);
-    }
+    if (isPlaying) { audioRef.current.pause(); setIsPlaying(false); }
+    else { audioRef.current.play(); setIsPlaying(true); }
   };
 
   const handleSeek = (val: number[]) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = val[0];
-      setCurrentTime(val[0]);
-    }
+    if (audioRef.current) { audioRef.current.currentTime = val[0]; setCurrentTime(val[0]); }
   };
 
   const handleVolume = (val: number[]) => {
@@ -201,15 +265,70 @@ const Recitations = () => {
     setShowReciters(false);
   };
 
-  const filteredReciters = reciters.filter((r) =>
-    r.name.includes(searchQuery)
-  );
+  // Playlist functions
+  const addToPlaylist = (surah: Surah) => {
+    if (!selectedReciter || !selectedMoshaf) return;
+    const item: PlaylistItem = {
+      surahId: surah.id,
+      surahName: surah.name,
+      reciterId: selectedReciter.id,
+      reciterName: selectedReciter.name,
+      moshafId: selectedMoshaf.id,
+      moshafServer: selectedMoshaf.server,
+    };
+    const exists = playlist.some(p => p.surahId === surah.id && p.reciterId === selectedReciter.id && p.moshafId === selectedMoshaf.id);
+    if (exists) return;
+    const updated = [...playlist, item];
+    setPlaylist(updated);
+    localStorage.setItem(PLAYLIST_KEY, JSON.stringify(updated));
+  };
+
+  const removeFromPlaylist = (index: number) => {
+    const updated = playlist.filter((_, i) => i !== index);
+    setPlaylist(updated);
+    localStorage.setItem(PLAYLIST_KEY, JSON.stringify(updated));
+  };
+
+  const playFromPlaylist = (item: PlaylistItem) => {
+    const reciter = reciters.find(r => r.id === item.reciterId);
+    if (reciter) {
+      setSelectedReciter(reciter);
+      const moshaf = reciter.moshaf.find(m => m.id === item.moshafId);
+      if (moshaf) setSelectedMoshaf(moshaf);
+    }
+    setShowPlaylist(false);
+    setShowReciters(false);
+    const surah = SURAHS.find(s => s.id === item.surahId);
+    if (surah) playSurah(surah, undefined, item.moshafServer);
+  };
+
+  const isInPlaylist = (surahId: number) => {
+    if (!selectedReciter || !selectedMoshaf) return false;
+    return playlist.some(p => p.surahId === surahId && p.reciterId === selectedReciter.id && p.moshafId === selectedMoshaf.id);
+  };
+
+  const resumeLastPlayed = () => {
+    const last = getLastPlayed();
+    if (!last) return;
+    const reciter = reciters.find(r => r.id === last.reciterId);
+    if (reciter) {
+      setSelectedReciter(reciter);
+      const moshaf = reciter.moshaf.find(m => m.id === last.moshafId);
+      if (moshaf) {
+        setSelectedMoshaf(moshaf);
+        setShowReciters(false);
+      }
+    }
+    const surah = SURAHS.find(s => s.id === last.surahId);
+    if (surah) playSurah(surah, last.currentTime, last.moshafServer);
+  };
+
+  const filteredReciters = reciters.filter((r) => r.name.includes(searchQuery));
+  const lastPlayed = getLastPlayed();
 
   // cleanup
   useEffect(() => {
-    return () => {
-      if (audioRef.current) audioRef.current.pause();
-    };
+    return () => { if (audioRef.current) audioRef.current.pause(); };
   }, []);
 
   return (
@@ -217,27 +336,84 @@ const Recitations = () => {
       {/* Header */}
       <header className="gradient-islamic pattern-islamic px-4 text-center relative overflow-hidden">
         <div className="absolute bottom-0 left-0 right-0 h-1 gradient-gold" />
-        <div className="flex justify-start pt-3 pb-1">
-          <Link
-            to="/"
-            className="flex items-center gap-1.5 bg-gold text-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-all font-naskh text-sm font-bold shadow-md"
-          >
+        <div className="flex justify-between items-center pt-3 pb-1">
+          <Link to="/" className="flex items-center gap-1.5 bg-gold text-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-all font-naskh text-sm font-bold shadow-md">
             <Home size={16} />
             الرئيسية
           </Link>
+          <div className="flex gap-2">
+            <button
+              onClick={() => { setShowPlaylist(!showPlaylist); setActiveTab("playlist"); }}
+              className="flex items-center gap-1.5 bg-white/10 text-primary-foreground px-3 py-2 rounded-lg hover:bg-white/20 transition-all font-naskh text-xs font-bold"
+            >
+              <ListMusic size={14} />
+              قائمتي ({playlist.length})
+            </button>
+          </div>
         </div>
         <div className="pb-6">
           <p className="font-amiri text-gold text-lg mb-2">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
-          <h1 className="font-amiri text-2xl sm:text-3xl font-bold text-primary-foreground">
-            سماع التلاوات
-          </h1>
-          <p className="font-naskh text-primary-foreground/70 text-sm mt-2">
-            استمع لأشهر القراء والمشايخ
-          </p>
+          <h1 className="font-amiri text-2xl sm:text-3xl font-bold text-primary-foreground">سماع التلاوات</h1>
+          <p className="font-naskh text-primary-foreground/70 text-sm mt-2">استمع لأشهر القراء والمشايخ</p>
         </div>
       </header>
 
       <main className="flex-1 container max-w-4xl mx-auto px-4 py-4">
+        {/* Resume last played banner */}
+        {lastPlayed && !currentSurah && (
+          <button
+            onClick={resumeLastPlayed}
+            className="w-full mb-4 flex items-center gap-3 bg-primary/10 border border-primary/30 rounded-xl px-4 py-3 text-right hover:bg-primary/15 transition-colors group"
+          >
+            <div className="w-10 h-10 rounded-full gradient-islamic flex items-center justify-center shrink-0">
+              <Clock size={18} className="text-primary-foreground" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-naskh text-sm font-bold text-foreground">استئناف آخر تلاوة</p>
+              <p className="text-xs text-muted-foreground font-naskh truncate">
+                سورة {lastPlayed.surahName} - {lastPlayed.reciterName}
+              </p>
+            </div>
+            <Play size={18} className="text-primary shrink-0" />
+          </button>
+        )}
+
+        {/* Playlist Panel */}
+        {showPlaylist && (
+          <div className="mb-4 bg-card border border-border rounded-xl overflow-hidden animate-fade-in">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+              <h3 className="font-naskh text-sm font-bold text-foreground flex items-center gap-2">
+                <ListMusic size={16} className="text-gold" />
+                قائمة التشغيل المخصصة
+              </h3>
+              <button onClick={() => setShowPlaylist(false)} className="p-1 rounded-md hover:bg-muted transition-colors text-muted-foreground">
+                <X size={16} />
+              </button>
+            </div>
+            {playlist.length === 0 ? (
+              <div className="px-4 py-8 text-center">
+                <Heart size={32} className="mx-auto text-muted-foreground/30 mb-2" />
+                <p className="text-sm text-muted-foreground font-naskh">لم تضف أي سور بعد</p>
+                <p className="text-xs text-muted-foreground/70 font-naskh mt-1">اضغط على ♡ بجانب أي سورة لإضافتها</p>
+              </div>
+            ) : (
+              <div className="max-h-60 overflow-y-auto divide-y divide-border">
+                {playlist.map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors">
+                    <button onClick={() => playFromPlaylist(item)} className="flex-1 text-right min-w-0">
+                      <p className="font-naskh text-sm text-foreground truncate">سورة {item.surahName}</p>
+                      <p className="text-xs text-muted-foreground font-naskh truncate">{item.reciterName}</p>
+                    </button>
+                    <button onClick={() => removeFromPlaylist(idx)} className="p-1.5 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors shrink-0">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Reciter Selection */}
         {selectedReciter && !showReciters && (
           <button
@@ -249,9 +425,7 @@ const Recitations = () => {
             </div>
             <div className="flex-1 text-right">
               <p className="font-naskh text-sm font-bold text-foreground">{selectedReciter.name}</p>
-              {selectedMoshaf && (
-                <p className="text-xs text-muted-foreground font-naskh">{selectedMoshaf.name}</p>
-              )}
+              {selectedMoshaf && <p className="text-xs text-muted-foreground font-naskh">{selectedMoshaf.name}</p>}
             </div>
             <ChevronDown size={16} className="text-muted-foreground" />
           </button>
@@ -259,7 +433,6 @@ const Recitations = () => {
 
         {showReciters && (
           <>
-            {/* Search reciters */}
             <div className="relative mb-4">
               <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
               <input
@@ -290,9 +463,7 @@ const Recitations = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-naskh text-sm font-bold text-foreground truncate">{reciter.name}</p>
-                      <p className="text-xs text-muted-foreground font-naskh">
-                        {reciter.moshaf.length > 0 ? reciter.moshaf[0].name : ""}
-                      </p>
+                      <p className="text-xs text-muted-foreground font-naskh">{reciter.moshaf.length > 0 ? reciter.moshaf[0].name : ""}</p>
                     </div>
                   </button>
                 ))}
@@ -324,23 +495,28 @@ const Recitations = () => {
         {selectedMoshaf && !showReciters && (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-24">
             {getAvailableSurahs().map((surah) => (
-              <button
+              <div
                 key={surah.id}
-                onClick={() => playSurah(surah)}
                 className={`flex items-center gap-2 bg-card border rounded-lg px-3 py-2.5 hover:border-gold/50 transition-all text-right ${
                   currentSurah?.id === surah.id ? "border-gold shadow-islamic" : "border-border"
                 }`}
               >
-                <span className="w-7 h-7 rounded-full gradient-islamic flex items-center justify-center text-xs text-primary-foreground font-bold shrink-0">
-                  {surah.id}
-                </span>
-                <span className="font-naskh text-sm text-foreground truncate">{surah.name}</span>
-                {currentSurah?.id === surah.id && isPlaying && (
-                  <span className="mr-auto text-gold">
-                    <Volume2 size={14} />
+                <button onClick={() => playSurah(surah)} className="flex items-center gap-2 flex-1 min-w-0">
+                  <span className="w-7 h-7 rounded-full gradient-islamic flex items-center justify-center text-xs text-primary-foreground font-bold shrink-0">
+                    {surah.id}
                   </span>
-                )}
-              </button>
+                  <span className="font-naskh text-sm text-foreground truncate">{surah.name}</span>
+                  {currentSurah?.id === surah.id && isPlaying && (
+                    <span className="mr-auto text-gold"><Volume2 size={14} /></span>
+                  )}
+                </button>
+                <button
+                  onClick={() => isInPlaylist(surah.id) ? undefined : addToPlaylist(surah)}
+                  className={`p-1 rounded-md transition-colors shrink-0 ${isInPlaylist(surah.id) ? "text-gold" : "text-muted-foreground/40 hover:text-gold"}`}
+                >
+                  <Heart size={14} fill={isInPlaylist(surah.id) ? "currentColor" : "none"} />
+                </button>
+              </div>
             ))}
           </div>
         )}
@@ -349,35 +525,20 @@ const Recitations = () => {
       {/* Audio Player - Fixed Bottom */}
       {currentSurah && (
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border shadow-lg">
-          {/* Progress bar */}
           <div className="px-4 pt-2">
-            <Slider
-              value={[currentTime]}
-              min={0}
-              max={duration || 1}
-              step={1}
-              onValueChange={handleSeek}
-              className="w-full"
-            />
+            <Slider value={[currentTime]} min={0} max={duration || 1} step={1} onValueChange={handleSeek} className="w-full" />
             <div className="flex justify-between text-xs text-muted-foreground font-naskh mt-1">
               <span>{formatTime(duration)}</span>
               <span>{formatTime(currentTime)}</span>
             </div>
           </div>
 
-          {/* Controls */}
           <div className="px-4 pb-3 flex items-center gap-3">
-            {/* Surah info */}
             <div className="flex-1 min-w-0 text-right">
-              <p className="font-naskh text-sm font-bold text-foreground truncate">
-                سورة {currentSurah.name}
-              </p>
-              <p className="text-xs text-muted-foreground font-naskh truncate">
-                {selectedReciter?.name}
-              </p>
+              <p className="font-naskh text-sm font-bold text-foreground truncate">سورة {currentSurah.name}</p>
+              <p className="text-xs text-muted-foreground font-naskh truncate">{selectedReciter?.name}</p>
             </div>
 
-            {/* Playback controls */}
             <div className="flex items-center gap-1">
               <button onClick={() => setIsShuffle(!isShuffle)} className={`p-2 rounded-full transition-colors ${isShuffle ? "text-gold" : "text-muted-foreground hover:text-foreground"}`}>
                 <Shuffle size={16} />
@@ -390,13 +551,7 @@ const Recitations = () => {
                 className="w-11 h-11 rounded-full gradient-islamic flex items-center justify-center text-primary-foreground shadow-md hover:opacity-90 transition-opacity"
                 disabled={audioLoading}
               >
-                {audioLoading ? (
-                  <Loader2 size={20} className="animate-spin" />
-                ) : isPlaying ? (
-                  <Pause size={20} />
-                ) : (
-                  <Play size={20} className="mr-[-2px]" />
-                )}
+                {audioLoading ? <Loader2 size={20} className="animate-spin" /> : isPlaying ? <Pause size={20} /> : <Play size={20} className="mr-[-2px]" />}
               </button>
               <button onClick={playNextSurah} className="p-2 rounded-full text-foreground hover:bg-muted transition-colors">
                 <SkipBack size={18} />
@@ -406,7 +561,6 @@ const Recitations = () => {
               </button>
             </div>
 
-            {/* Volume */}
             <div className="hidden sm:flex items-center gap-2 w-28">
               <button onClick={toggleMute} className="text-muted-foreground hover:text-foreground transition-colors">
                 {isMuted || volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
