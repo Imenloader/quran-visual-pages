@@ -1,5 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { formatInTimeZone } from "date-fns-tz";
+import { isBefore, addDays } from "date-fns";
 
+const CAIRO_TZ = "Africa/Cairo";
+const MAADI_LAT = 29.9602;
+const MAADI_LNG = 31.2569;
 const PRAYER_SETTINGS_KEY = "prayer-times-settings";
 
 export interface PrayerTimesData {
@@ -22,10 +27,10 @@ export interface PrayerSettings {
 }
 
 const DEFAULT_SETTINGS: PrayerSettings = {
-  latitude: null,
-  longitude: null,
-  cityName: "",
-  method: 5, // Egyptian General Authority of Survey (common for Arab countries)
+  latitude: MAADI_LAT,
+  longitude: MAADI_LNG,
+  cityName: "المعادي، القاهرة (تلقائي)",
+  method: 5, // Egyptian General Authority of Survey
   adhanSound: "makkah",
   notificationsEnabled: false,
   manualOverrides: {},
@@ -205,12 +210,12 @@ export function usePrayerTimes() {
     if (settings.latitude && settings.longitude) {
       fetchTimes(settings.latitude, settings.longitude, settings.method);
     }
-  }, []);
+  }, [settings.latitude, settings.longitude, settings.method, fetchTimes]);
 
   // Apply manual overrides
-  const effectiveTimes: PrayerTimesData | null = times
-    ? { ...times, ...settings.manualOverrides }
-    : null;
+  const effectiveTimes = useMemo<PrayerTimesData | null>(() => {
+    return times ? { ...times, ...settings.manualOverrides } : null;
+  }, [times, settings.manualOverrides]);
 
   // Schedule notifications
   useEffect(() => {
@@ -226,12 +231,22 @@ export function usePrayerTimes() {
     prayersToNotify.forEach((prayer) => {
       const timeStr = effectiveTimes[prayer];
       const [hours, minutes] = timeStr.split(":").map(Number);
-      const target = new Date();
-      target.setHours(hours, minutes, 0, 0);
+      
+      // Get current time in Cairo
       const now = new Date();
-      if (target <= now) return; // already passed today
+      const nowInCairoStr = formatInTimeZone(now, CAIRO_TZ, "yyyy-MM-dd HH:mm:ss");
+      const cairoNow = new Date(nowInCairoStr);
 
-      const ms = target.getTime() - now.getTime();
+      // Create target time in Cairo
+      let targetCairo = new Date(cairoNow);
+      targetCairo.setHours(hours, minutes, 0, 0);
+
+      // If time has passed today in Cairo, schedule for tomorrow
+      if (isBefore(targetCairo, cairoNow)) {
+        targetCairo = addDays(targetCairo, 1);
+      }
+
+      const ms = targetCairo.getTime() - cairoNow.getTime();
       const timer = setTimeout(() => {
         // Show notification
         if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {

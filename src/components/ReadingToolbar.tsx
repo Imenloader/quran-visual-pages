@@ -1,7 +1,8 @@
-import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen, List, Moon, Sun } from "lucide-react";
+import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen, List, Moon, Sun, Info, MessageSquareText, Type, FileImage } from "lucide-react";
 import { toArabicNumber } from "@/data/quranData";
 import ShareButton from "./ShareButton";
-import { useState } from "react";
+import { useTheme } from "@/contexts/ThemeContext";
+import { motion } from "framer-motion";
 
 interface ReadingToolbarProps {
   zoom: number;
@@ -28,75 +29,85 @@ const ReadingToolbar = ({
   bookmarked,
   juzNumber,
 }: ReadingToolbarProps) => {
-  const [isDark, setIsDark] = useState(() => {
-    return document.documentElement.classList.contains("dark");
-  });
+  const { theme, setTheme, readingMode, setReadingMode } = useTheme();
 
   const toggleDarkMode = () => {
-    const html = document.documentElement;
-    if (isDark) {
-      html.classList.remove("dark", "night-reading");
-      html.style.removeProperty("--page-brightness");
-      localStorage.setItem("quran-theme", "light");
-      setIsDark(false);
+    if (theme === "dark") {
+      setTheme("light");
     } else {
-      html.classList.remove("sepia");
-      html.classList.add("dark");
-      const dimming = localStorage.getItem("quran-page-dimming") || "80";
-      html.style.setProperty("--page-brightness", `${parseInt(dimming) / 100}`);
-      localStorage.setItem("quran-theme", "dark");
-      setIsDark(true);
+      setTheme("dark");
     }
   };
+
+  const toggleReadingMode = () => {
+    setReadingMode(readingMode === "image" ? "text" : "image");
+  };
+
   return (
-    <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border">
-      <div className="container max-w-4xl mx-auto px-2 sm:px-4 py-2 flex items-center justify-between gap-1 sm:gap-2">
-        {/* Zoom controls */}
-        <div className="flex items-center gap-0.5 sm:gap-1">
-          <button onClick={onZoomOut} className="toolbar-btn" title="تصغير">
-            <ZoomOut size={16} className="sm:w-[18px] sm:h-[18px]" />
+    <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border/40 shadow-soft">
+      <div className="container max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        
+        {/* Left: Navigation & Index */}
+        <div className="flex items-center gap-2">
+          <button onClick={onToggleJuzIndex} className="toolbar-btn" title="فهرس الأجزاء">
+            <List size={20} strokeWidth={1.5} />
           </button>
-          <button
-            onClick={onResetZoom}
-            className="toolbar-btn text-xs font-naskh min-w-[2.5rem] sm:min-w-[3rem]"
-            title="إعادة الحجم الأصلي"
-          >
-            {toArabicNumber(zoom)}%
+          <button onClick={onTogglePageNav} className="toolbar-btn" title="الانتقال لصفحة">
+            <BookOpen size={20} strokeWidth={1.5} />
           </button>
-          <button onClick={onZoomIn} className="toolbar-btn" title="تكبير">
-            <ZoomIn size={16} className="sm:w-[18px] sm:h-[18px]" />
-          </button>
+          <div className="h-6 w-px bg-border/40 mx-1 hidden sm:block" />
+          <div className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-xl bg-muted/30 text-xs font-serif text-primary">
+            <span className="opacity-60">صفحة</span>
+            <span className="font-bold">{currentPage}</span>
+          </div>
         </div>
 
-        {/* Current page indicator */}
-        {currentPage > 0 && (
-          <span className="text-xs text-muted-foreground font-naskh hidden sm:block">
-            صفحة {toArabicNumber(currentPage)}
-          </span>
-        )}
+        {/* Center: App Title/Logo */}
+        <div className="flex flex-col items-center">
+          <span className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase">مصحف المدينة</span>
+          <span className="text-xs text-primary font-serif italic">الإصدار الرقمي</span>
+        </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-0.5 sm:gap-1">
+        {/* Right: Tools & Settings */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleReadingMode}
+            className={`toolbar-btn ${readingMode === "text" ? "text-accent bg-accent/10" : ""}`}
+            title={readingMode === "text" ? "عرض الصور" : "عرض النص"}
+          >
+            {readingMode === "text" ? <FileImage size={20} strokeWidth={1.5} /> : <Type size={20} strokeWidth={1.5} />}
+          </button>
+
+          <div className="hidden md:flex items-center gap-1 bg-muted/30 rounded-2xl p-1">
+            <button onClick={onZoomOut} className="toolbar-btn !p-1.5" title="تصغير">
+              <ZoomOut size={16} strokeWidth={1.5} />
+            </button>
+            <button onClick={onResetZoom} className="px-2 text-[10px] font-serif font-bold text-primary/60">
+              {toArabicNumber(zoom)}%
+            </button>
+            <button onClick={onZoomIn} className="toolbar-btn !p-1.5" title="تكبير">
+              <ZoomIn size={16} strokeWidth={1.5} />
+            </button>
+          </div>
+          
+          <div className="h-6 w-px bg-border/40 mx-1 hidden sm:block" />
+          
           <button
             onClick={toggleDarkMode}
-            className={`toolbar-btn ${isDark ? "text-gold bg-gold/10" : ""}`}
-            title={isDark ? "الوضع الفاتح" : "الوضع الداكن"}
+            className={`toolbar-btn ${theme === "dark" ? "text-accent bg-accent/10" : ""}`}
+            title={theme === "dark" ? "الوضع الفاتح" : "الوضع الداكن"}
           >
-            {isDark ? <Sun size={16} className="sm:w-[18px] sm:h-[18px]" /> : <Moon size={16} className="sm:w-[18px] sm:h-[18px]" />}
+            {theme === "dark" ? <Sun size={20} strokeWidth={1.5} /> : <Moon size={20} strokeWidth={1.5} />}
           </button>
-          <button onClick={onToggleJuzIndex} className="toolbar-btn" title="فهرس الأجزاء">
-            <List size={16} className="sm:w-[18px] sm:h-[18px]" />
-          </button>
+          
           <ShareButton juzNumber={juzNumber} currentPage={currentPage} />
-          <button onClick={onTogglePageNav} className="toolbar-btn" title="الانتقال لصفحة">
-            <BookOpen size={16} className="sm:w-[18px] sm:h-[18px]" />
-          </button>
+          
           <button
             onClick={onSaveBookmark}
-            className={`toolbar-btn ${bookmarked ? "text-gold" : ""}`}
+            className={`toolbar-btn ${bookmarked ? "text-accent" : ""}`}
             title="حفظ موضع القراءة"
           >
-            <Bookmark size={16} className="sm:w-[18px] sm:h-[18px]" fill={bookmarked ? "currentColor" : "none"} />
+            <Bookmark size={20} strokeWidth={1.5} fill={bookmarked ? "currentColor" : "none"} />
           </button>
         </div>
       </div>

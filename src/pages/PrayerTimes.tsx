@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   MapPin, Clock, Bell, BellOff, Volume2, VolumeX,
   Settings, Loader2, RefreshCw, Edit3, Check, X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 import {
   usePrayerTimes,
   ADHAN_SOUNDS,
@@ -95,7 +96,7 @@ const PrayerTimes = () => {
   const [editValue, setEditValue] = useState("");
   const [playingAdhan, setPlayingAdhan] = useState<string | null>(null);
 
-  const handleEnableNotifications = async () => {
+  const handleEnableNotifications = useCallback(async () => {
     if (!("Notification" in window)) {
       toast.error("متصفحك لا يدعم التنبيهات");
       return;
@@ -113,30 +114,30 @@ const PrayerTimes = () => {
     }
     updateSettings({ notificationsEnabled: !settings.notificationsEnabled });
     toast.success(settings.notificationsEnabled ? "تم إيقاف تنبيهات الصلاة" : "تم تفعيل تنبيهات الصلاة");
-  };
+  }, [settings.notificationsEnabled, updateSettings]);
 
-  const handleEditPrayer = (prayer: keyof PrayerTimesData) => {
+  const handleEditPrayer = useCallback((prayer: keyof PrayerTimesData) => {
     setEditingPrayer(prayer);
     setEditValue(times?.[prayer] || "");
-  };
+  }, [times]);
 
-  const saveEdit = () => {
+  const saveEdit = useCallback(() => {
     if (!editingPrayer || !editValue) return;
     updateSettings({
       manualOverrides: { ...settings.manualOverrides, [editingPrayer]: editValue },
     });
     setEditingPrayer(null);
     toast.success(`تم تعديل وقت ${PRAYER_NAMES[editingPrayer]}`);
-  };
+  }, [editingPrayer, editValue, settings.manualOverrides, updateSettings]);
 
-  const resetOverride = (prayer: keyof PrayerTimesData) => {
+  const resetOverride = useCallback((prayer: keyof PrayerTimesData) => {
     const overrides = { ...settings.manualOverrides };
     delete overrides[prayer];
     updateSettings({ manualOverrides: overrides });
     toast.success(`تم إعادة وقت ${PRAYER_NAMES[prayer]} للافتراضي`);
-  };
+  }, [settings.manualOverrides, updateSettings]);
 
-  const handlePreview = (soundId: string) => {
+  const handlePreview = useCallback((soundId: string) => {
     if (playingAdhan === soundId) {
       stopAdhan();
       setPlayingAdhan(null);
@@ -145,7 +146,7 @@ const PrayerTimes = () => {
       setPlayingAdhan(soundId);
       setTimeout(() => setPlayingAdhan(null), 15000);
     }
-  };
+  }, [playingAdhan, previewAdhan, stopAdhan]);
 
   const prayerOrder: (keyof PrayerTimesData)[] = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
 
@@ -161,18 +162,90 @@ const PrayerTimes = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <header className="gradient-islamic pattern-islamic px-4 text-center relative overflow-hidden">
-        <div className="absolute bottom-0 left-0 right-0 h-1 gradient-gold" />
-        <div className="pb-6 pt-4">
-          <p className="font-amiri text-gold text-lg mb-2">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
-          <h1 className="font-amiri text-2xl sm:text-3xl font-bold text-primary-foreground">مواقيت الصلاة</h1>
-          {settings.cityName && (
-            <p className="font-naskh text-primary-foreground/70 text-sm mt-2 flex items-center justify-center gap-1">
-              <MapPin size={14} />
-              {settings.cityName}
-            </p>
-          )}
+      <header className="relative overflow-hidden bg-emerald-deep min-h-[40vh] flex items-center justify-center">
+        {/* Immersive Background Layer */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.15 }}
+            transition={{ duration: 2 }}
+            className="absolute inset-0 pattern-islamic scale-150 opacity-20" 
+          />
+          
+          {/* Atmospheric Gradients & Light Rays */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-deep/40 to-emerald-deep" />
+          
+          <motion.div 
+            animate={{ 
+              opacity: [0.1, 0.3, 0.1],
+              scale: [1, 1.2, 1],
+              rotate: [0, 5, 0]
+            }}
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-1/4 -right-1/4 w-[100%] h-[100%] bg-gold/10 rounded-full blur-[120px]" 
+          />
+          
+          <motion.div 
+            animate={{ 
+              opacity: [0.1, 0.2, 0.1],
+              scale: [1.2, 1, 1.2],
+              rotate: [0, -5, 0]
+            }}
+            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -bottom-1/4 -left-1/4 w-[80%] h-[80%] bg-emerald-light/10 rounded-full blur-[100px]" 
+          />
         </div>
+
+        <div className="relative z-10 container max-w-4xl mx-auto px-6 py-16 flex flex-col items-center text-center">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="flex items-center gap-4 mb-8"
+          >
+            <div className="h-px w-12 bg-gold/40" />
+            <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-gold/80">
+              مواقيت الصلاة والأذان
+            </span>
+            <div className="h-px w-12 bg-gold/40" />
+          </motion.div>
+
+          <motion.h1 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            className="font-serif text-5xl sm:text-6xl md:text-7xl font-light text-white mb-6 tracking-tight drop-shadow-lg"
+          >
+            مواقيت الصلاة
+          </motion.h1>
+
+          {settings.cityName && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.8 }}
+              transition={{ delay: 0.5 }}
+              className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 px-6 py-3 rounded-full shadow-xl"
+            >
+              <MapPin size={16} className="text-gold" />
+              <span className="font-naskh text-white text-sm tracking-wide">
+                {settings.cityName}
+              </span>
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-light animate-pulse" />
+            </motion.div>
+          )}
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.4 }}
+            transition={{ delay: 1 }}
+            className="absolute bottom-8 flex flex-col items-center gap-2"
+          >
+            <div className="w-px h-12 bg-gradient-to-b from-gold/40 to-transparent" />
+          </motion.div>
+        </div>
+
+        {/* Elegant bottom transition */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-20" />
       </header>
 
       <main className="container max-w-2xl mx-auto px-4 py-6 space-y-5">

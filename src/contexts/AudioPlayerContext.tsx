@@ -81,8 +81,8 @@ const SURAHS: Surah[] = [
 
 const LAST_PLAYED_KEY = "quran-last-played";
 
-const getAudioUrl = (server: string, surahId: number): string => {
-  const padded = surahId.toString().padStart(3, "0");
+const getAudioUrl = (server: string, surahId: number | string | undefined | null): string => {
+  const padded = String(surahId ?? "").padStart(3, "0");
   return `${server}${padded}.mp3`;
 };
 
@@ -147,6 +147,9 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
   const isShuffleRef = useRef(isShuffle);
   const playlistQueueRef = useRef(playlistQueue);
   const playlistQueueIndexRef = useRef(playlistQueueIndex);
+  const playSurahInternalRef = useRef<((surah: Surah, server: string, resumeTime?: number) => void) | null>(null);
+  const playNextSurahInternalRef = useRef<(() => void) | null>(null);
+  const handleEndedRef = useRef<(() => void) | null>(null);
 
   useEffect(() => { isRepeatRef.current = isRepeat; }, [isRepeat]);
   useEffect(() => { isShuffleRef.current = isShuffle; }, [isShuffle]);
@@ -174,7 +177,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
       if (resumeTime && resumeTime > 0) audio.currentTime = resumeTime;
     });
     audio.addEventListener("timeupdate", () => setCurrentTime(audio.currentTime));
-    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener("ended", () => handleEndedRef.current?.());
     audio.addEventListener("error", () => setAudioLoading(false));
     audio.play().then(() => setIsPlaying(true)).catch(() => setAudioLoading(false));
   }, [isMuted, volume]);
@@ -185,7 +188,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
       audioRef.current.play();
       return;
     }
-    playNextSurahInternal();
+    playNextSurahInternalRef.current?.();
   }, []);
 
   const playNextSurahInternal = useCallback(() => {
@@ -200,7 +203,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
         if (surah) {
           setSelectedReciterName(track.reciterName);
           currentReciterRef.current = { id: track.reciterId, name: track.reciterName };
-          playSurahInternal(surah, track.moshafServer);
+          playSurahInternalRef.current?.(surah, track.moshafServer);
         }
       }
       return;
@@ -210,12 +213,12 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     if (!cur || available.length === 0) return;
     if (isShuffleRef.current) {
       const rand = available[Math.floor(Math.random() * available.length)];
-      playSurahInternal(rand, currentMoshafRef.current!.server);
+      playSurahInternalRef.current?.(rand, currentMoshafRef.current!.server);
       return;
     }
     const idx = available.findIndex(s => s.id === cur.id);
-    if (idx < available.length - 1) playSurahInternal(available[idx + 1], currentMoshafRef.current!.server);
-  }, [currentSurah, getAvailableSurahs, playSurahInternal]);
+    if (idx < available.length - 1) playSurahInternalRef.current?.(available[idx + 1], currentMoshafRef.current!.server);
+  }, [currentSurah, getAvailableSurahs]);
 
   const playPrevSurahInternal = useCallback(() => {
     const queue = playlistQueueRef.current;
@@ -229,7 +232,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
         if (surah) {
           setSelectedReciterName(track.reciterName);
           currentReciterRef.current = { id: track.reciterId, name: track.reciterName };
-          playSurahInternal(surah, track.moshafServer);
+          playSurahInternalRef.current?.(surah, track.moshafServer);
         }
       }
       return;
@@ -238,8 +241,12 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     const cur = currentSurah;
     if (!cur || available.length === 0) return;
     const idx = available.findIndex(s => s.id === cur.id);
-    if (idx > 0) playSurahInternal(available[idx - 1], currentMoshafRef.current!.server);
-  }, [currentSurah, getAvailableSurahs, playSurahInternal]);
+    if (idx > 0) playSurahInternalRef.current?.(available[idx - 1], currentMoshafRef.current!.server);
+  }, [currentSurah, getAvailableSurahs]);
+
+  playSurahInternalRef.current = playSurahInternal;
+  playNextSurahInternalRef.current = playNextSurahInternal;
+  handleEndedRef.current = handleEnded;
 
   // Save last played periodically
   useEffect(() => {
@@ -280,7 +287,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     });
     navigator.mediaSession.setActionHandler('previoustrack', playPrevSurahInternal);
     navigator.mediaSession.setActionHandler('nexttrack', playNextSurahInternal);
-  }, [currentSurah, selectedReciterName, playNextSurahInternal, playPrevSurahInternal]);
+  }, [currentSurah, selectedReciterName, playNextSurahInternal, playPrevSurahInternal, setIsPlaying]);
 
   const playSurah = useCallback((surah: Surah, reciter: ReciterInfo, moshaf: MoshafInfo, resumeTime?: number) => {
     currentReciterRef.current = reciter;
@@ -289,8 +296,8 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     setPlaylistQueue([]);
     setPlaylistQueueIndex(-1);
     setActivePlaylistName("");
-    playSurahInternal(surah, moshaf.server, resumeTime);
-  }, [playSurahInternal]);
+    playSurahInternalRef.current?.(surah, moshaf.server, resumeTime);
+  }, []);
 
   const playPlaylistQueue = useCallback((tracks: PlaylistTrackGlobal[], name: string, startIndex = 0) => {
     if (tracks.length === 0) return;
@@ -302,8 +309,8 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     currentMoshafRef.current = { id: track.moshafId, name: "", server: track.moshafServer, surah_list: "" };
     setSelectedReciterName(track.reciterName);
     const surah = SURAHS.find(s => s.id === track.surahId);
-    if (surah) playSurahInternal(surah, track.moshafServer);
-  }, [playSurahInternal]);
+    if (surah) playSurahInternalRef.current?.(surah, track.moshafServer);
+  }, []);
 
   const togglePlay = useCallback(() => {
     if (!audioRef.current) return;

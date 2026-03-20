@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Scheherazade+New:wght@400;700&family=Lateef:wght@400;700&family=Harmattan:wght@400;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,154 +6,78 @@
 
 @layer base {
   :root {
-    --background: 40 30% 97%;
-    --foreground: 150 30% 12%;
-
-    --card: 40 25% 95%;
-    --card-foreground: 150 30% 12%;
-
-    --popover: 40 30% 97%;
-    --popover-foreground: 150 30% 12%;
-
-    --primary: 158 60% 22%;
-    --primary-foreground: 40 30% 97%;
-
-    --secondary: 40 30% 90%;
-    --secondary-foreground: 150 30% 12%;
-
-    --muted: 40 15% 92%;
-    --muted-foreground: 150 10% 48%;
-
-    --accent: 43 78% 50%;
-    --accent-foreground: 150 30% 12%;
-
-    --destructive: 0 72% 55%;
+    /* Warm Organic / Cultural Palette - Refined for maximum contrast */
+    --background: 45 30% 98%; /* Brighter cream for better contrast with dark text */
+    --foreground: 145 40% 8%; /* Near-black forest green for maximum contrast */
+    --card: 45 30% 99%;
+    --card-foreground: 145 40% 8%;
+    --popover: 45 30% 99%;
+    --popover-foreground: 145 40% 8%;
+    --primary: 145 45% 12%; /* Deep, rich emerald for strong primary actions */
+    --primary-foreground: 45 30% 98%;
+    --secondary: 45 35% 90%;
+    --secondary-foreground: 145 45% 12%;
+    --muted: 45 20% 92%;
+    --muted-foreground: 145 30% 15%; /* Darker muted text for readability (was 25%) */
+    --accent: 38 65% 30%; /* Deep bronze/gold for high-contrast accents */
+    --accent-foreground: 45 30% 98%;
+    --destructive: 0 84% 45%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 40 18% 87%;
-    --input: 40 18% 87%;
-    --ring: 158 60% 22%;
-
-    --radius: 0.75rem;
-
-    --sidebar-background: 158 60% 14%;
-    --sidebar-foreground: 40 30% 97%;
-    --sidebar-primary: 43 78% 50%;
-    --sidebar-primary-foreground: 150 30% 12%;
-    --sidebar-accent: 158 45% 22%;
-    --sidebar-accent-foreground: 40 30% 97%;
-    --sidebar-border: 158 35% 25%;
-    --sidebar-ring: 43 78% 50%;
-
-    /* Custom tokens */
-    --gold: 43 78% 50%;
-    --gold-light: 43 60% 66%;
-    --gold-dark: 43 82% 38%;
-    --emerald-deep: 158 60% 14%;
-    --emerald: 158 60% 22%;
-    --emerald-light: 158 42% 34%;
-    --cream: 40 30% 97%;
-    --cream-dark: 40 20% 92%;
-
-    /* Glass effect */
-    --glass-bg: 40 30% 97% / 0.85;
-    --glass-border: 40 18% 87% / 0.6;
+    --border: 45 20% 85%;
+    --input: 45 20% 85%;
+    --ring: 145 45% 15%;
+    --radius: 1.5rem;
+    
+    --gold: 38 65% 35%;
+    --gold-light: 38 65% 55%;
+    --gold-dark: 38 65% 20%;
+    --emerald: 145 45% 15%;
+    --emerald-light: 145 45% 30%;
+    --emerald-deep: 145 45% 8%;
   }
 
   .dark {
-    --background: 220 20% 4%;
-    --foreground: 40 15% 88%;
-    --card: 220 18% 7%;
-    --card-foreground: 40 15% 88%;
-    --popover: 220 18% 7%;
-    --popover-foreground: 40 15% 88%;
-    --primary: 158 50% 24%;
-    --primary-foreground: 40 15% 95%;
-    --secondary: 220 14% 10%;
-    --secondary-foreground: 40 15% 88%;
-    --muted: 220 12% 9%;
-    --muted-foreground: 40 8% 50%;
-    --accent: 43 65% 44%;
-    --accent-foreground: 220 20% 4%;
-    --destructive: 0 55% 38%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 220 14% 12%;
-    --input: 220 14% 12%;
-    --ring: 43 65% 44%;
-
-    --gold: 43 65% 44%;
-    --gold-light: 43 45% 55%;
-    --gold-dark: 43 70% 32%;
-    --emerald-deep: 158 50% 8%;
-    --emerald: 158 50% 24%;
-    --emerald-light: 158 38% 34%;
-
-    --glass-bg: 220 20% 4% / 0.92;
-    --glass-border: 220 14% 14% / 0.6;
+    /* Deep Atmospheric Dark Mode - High Contrast Edition */
+    --background: 145 35% 3%; /* Deep obsidian green */
+    --foreground: 45 25% 96%; /* Bright cream for maximum contrast */
+    --card: 145 35% 5%;
+    --card-foreground: 45 25% 96%;
+    --popover: 145 35% 5%;
+    --popover-foreground: 45 25% 96%;
+    --primary: 145 50% 65%; /* Vibrant emerald for dark mode visibility */
+    --primary-foreground: 145 35% 3%;
+    --secondary: 145 30% 10%;
+    --secondary-foreground: 42 80% 75%;
+    --muted: 145 25% 8%;
+    --muted-foreground: 145 20% 85%;
+    --accent: 42 80% 75%; /* Bright gold for dark mode accents */
+    --accent-foreground: 145 35% 3%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 45 25% 96%;
+    --border: 145 25% 12%;
+    --input: 145 25% 12%;
+    --ring: 42 80% 75%;
   }
 
-  /* Night reading mode — extra warm, AMOLED-friendly */
-  .dark.night-reading {
-    --background: 0 0% 0%;
-    --foreground: 35 25% 82%;
-    --card: 25 10% 5%;
-    --card-foreground: 35 25% 82%;
-    --popover: 25 10% 5%;
-    --popover-foreground: 35 25% 82%;
-    --primary: 158 40% 20%;
-    --primary-foreground: 35 25% 92%;
-    --secondary: 25 8% 8%;
-    --secondary-foreground: 35 25% 82%;
-    --muted: 25 6% 6%;
-    --muted-foreground: 35 12% 45%;
-    --accent: 40 55% 40%;
-    --accent-foreground: 0 0% 0%;
-    --border: 25 8% 10%;
-    --input: 25 8% 10%;
-    --ring: 40 55% 40%;
-
-    --gold: 40 55% 40%;
-    --gold-light: 40 40% 52%;
-    --gold-dark: 40 60% 28%;
-    --emerald-deep: 158 40% 6%;
-    --emerald: 158 40% 20%;
-    --emerald-light: 158 30% 28%;
-
-    --glass-bg: 0 0% 0% / 0.95;
-    --glass-border: 25 8% 12% / 0.6;
-  }
-
-  /* Sepia theme */
   .sepia {
-    --background: 35 40% 92%;
-    --foreground: 25 40% 14%;
-    --card: 36 35% 89%;
-    --card-foreground: 25 40% 14%;
-    --popover: 35 40% 92%;
-    --popover-foreground: 25 40% 14%;
-    --primary: 155 50% 26%;
-    --primary-foreground: 40 40% 96%;
-    --secondary: 35 28% 82%;
-    --secondary-foreground: 25 40% 14%;
-    --muted: 35 22% 85%;
-    --muted-foreground: 25 18% 42%;
-    --accent: 40 72% 46%;
-    --accent-foreground: 25 40% 14%;
-    --destructive: 0 65% 48%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 35 24% 78%;
-    --input: 35 24% 78%;
-    --ring: 155 50% 26%;
-
-    --gold: 40 72% 46%;
-    --gold-light: 40 55% 60%;
-    --gold-dark: 40 78% 34%;
-    --emerald-deep: 155 50% 14%;
-    --emerald: 155 50% 26%;
-    --emerald-light: 155 38% 36%;
-
-    --glass-bg: 35 40% 92% / 0.88;
-    --glass-border: 35 24% 78% / 0.6;
+    /* Warm Sepia - Optimized for long reading sessions */
+    --background: 35 45% 85%; /* Richer sepia background */
+    --foreground: 25 40% 10%; /* Very dark brown for contrast */
+    --card: 35 45% 87%;
+    --card-foreground: 25 40% 10%;
+    --popover: 35 45% 87%;
+    --popover-foreground: 25 40% 10%;
+    --primary: 25 55% 22%; /* Deep mahogany primary */
+    --primary-foreground: 35 45% 96%;
+    --secondary: 35 40% 78%;
+    --secondary-foreground: 25 55% 22%;
+    --muted: 35 30% 75%;
+    --muted-foreground: 25 35% 30%;
+    --accent: 30 65% 30%;
+    --accent-foreground: 35 45% 96%;
+    --border: 35 30% 70%;
+    --input: 35 30% 70%;
+    --ring: 25 55% 22%;
   }
 }
 
@@ -161,191 +85,156 @@
   * {
     @apply border-border;
   }
-
-  html {
-    scroll-behavior: smooth;
+  body {
+    @apply bg-background text-foreground font-sans selection:bg-primary/20;
+    direction: rtl;
     -webkit-tap-highlight-color: transparent;
   }
-
-  body {
-    @apply bg-background text-foreground font-naskh;
-    direction: rtl;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    overflow-x: hidden;
-  }
-
-  /* Smooth transitions for theme changes */
-  *, *::before, *::after {
-    transition-property: background-color, border-color, color, fill, stroke, box-shadow;
-    transition-duration: 0.2s;
-    transition-timing-function: ease;
-  }
-
-  /* Disable transition for transform/opacity to not conflict with animations */
-  .no-theme-transition, [class*="animate-"], .transition-transform, .transition-all, .transition-opacity {
-    transition-property: none;
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif tracking-tight text-primary;
+    font-family: 'Cormorant Garamond', serif;
   }
 }
 
-@layer utilities {
-  .font-amiri {
-    font-family: 'Amiri', serif;
-  }
+@theme {
+  --font-serif: "Cormorant Garamond", serif;
+  --font-display: "Playfair Display", serif;
+  --font-naskh: "Noto Naskh Arabic", "Amiri", serif;
+  --font-quran: "Amiri", "Noto Naskh Arabic", "Scheherazade New", "Lateef", "Harmattan", serif;
+}
 
-  .font-naskh {
-    font-family: 'Noto Naskh Arabic', serif;
-  }
+.font-naskh {
+  font-family: "Noto Naskh Arabic", "Amiri", serif;
+}
 
-  .text-gold {
-    color: hsl(var(--gold));
-  }
+.font-quran {
+  font-family: "KFGQPC Uthman Taha Naskh", "Scheherazade New", "Amiri", "Traditional Arabic", "Sakkal Majalla", "Noto Naskh Arabic", "Lateef", "Harmattan", serif;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  text-rendering: optimizeLegibility;
+}
 
-  .bg-gold {
-    background-color: hsl(var(--gold));
-  }
+.gradient-gold {
+  background: linear-gradient(135deg, #c5a028 0%, #e6b800 100%);
+}
 
-  .bg-emerald-deep {
-    background-color: hsl(var(--emerald-deep));
-  }
+.quran-page-img {
+  @apply w-full h-auto object-contain transition-all duration-700;
+  filter: sepia(0.05) contrast(1.02);
+}
 
-  .bg-emerald-primary {
-    background-color: hsl(var(--emerald));
-  }
+.page-dimming-overlay {
+  @apply fixed inset-0 pointer-events-none z-[100] bg-black transition-opacity duration-500;
+  opacity: var(--page-dimming-opacity, 0);
+}
 
-  .gradient-islamic {
-    background: linear-gradient(145deg, hsl(var(--emerald-deep)), hsl(var(--emerald)), hsl(var(--emerald-light)));
-  }
+.dark .quran-page-img {
+  filter: invert(0.93) hue-rotate(180deg) brightness(0.75) contrast(1.1);
+}
 
-  .gradient-gold {
-    background: linear-gradient(145deg, hsl(var(--gold-dark)), hsl(var(--gold)), hsl(var(--gold-light)));
-  }
+.sepia .quran-page-img {
+  filter: sepia(0.35) contrast(1.02) brightness(0.9);
+}
 
-  .gradient-subtle {
-    background: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
-  }
+.toolbar-btn {
+  @apply p-2.5 rounded-2xl hover:bg-muted/50 transition-all active:scale-95 flex items-center justify-center text-muted-foreground hover:text-primary hover:shadow-sm;
+}
 
-  .shadow-islamic {
-    box-shadow: 0 4px 20px -4px hsl(var(--emerald) / 0.2), 0 0 0 1px hsl(var(--gold) / 0.06);
-  }
+.pattern-islamic {
+  background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 0l7.837 24.12h25.363L52.682 39.04l7.837 24.12-20.519-14.92-20.519 14.92 7.837-24.12-20.519-14.92h25.363z' fill='%23143523' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
 
-  .shadow-soft {
-    box-shadow: 0 1px 8px -1px hsl(var(--foreground) / 0.06);
-  }
+.dark .pattern-islamic {
+  background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 0l7.837 24.12h25.363L52.682 39.04l7.837 24.12-20.519-14.92-20.519 14.92 7.837-24.12-20.519-14.92h25.363z' fill='%23d4af37' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
 
-  .shadow-gold-glow {
-    box-shadow: 0 0 20px -4px hsl(var(--gold) / 0.25);
-  }
+.gradient-islamic {
+  @apply bg-gradient-to-br from-emerald-deep via-primary to-emerald-light;
+}
 
-  .border-gold {
-    border-color: hsl(var(--gold));
-  }
+.shadow-islamic {
+  box-shadow: 0 20px 40px -10px rgba(20, 40, 30, 0.15), 0 10px 20px -5px rgba(20, 40, 30, 0.1);
+}
 
-  .glass {
-    background: hsl(var(--glass-bg));
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid hsl(var(--glass-border));
-  }
+.shadow-gold-glow {
+  box-shadow: 0 0 25px rgba(197, 160, 40, 0.2);
+}
 
-  .pattern-islamic {
-    background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a84c' fill-opacity='0.05'%3E%3Cpath d='M50 50v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V16h-2v4h-4v2h4v4h2v-4h4v-2h-4zM20 50v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V16h-2v4h-4v2h4v4h2v-4h4v-2h-4z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  }
-
-  .toolbar-btn {
-    @apply flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-lg text-foreground bg-card border border-border hover:bg-muted transition-all active:scale-95;
-  }
-
-  .dark .quran-page-img {
-    filter: brightness(var(--page-brightness, 0.82)) contrast(1.08) sepia(0.08);
-  }
-
-  .dark .page-dimming-overlay {
-    position: fixed;
-    inset: 0;
-    background: black;
-    opacity: var(--page-dimming-opacity, 0);
-    pointer-events: none;
-    z-index: 1;
-    transition: opacity 0.3s ease;
-  }
-
-  .sepia .quran-page-img {
-    filter: sepia(0.15) brightness(var(--page-brightness, 0.95));
-  }
-
-  .sepia .page-dimming-overlay {
-    position: fixed;
-    inset: 0;
-    background: hsl(25 20% 10%);
-    opacity: var(--page-dimming-opacity, 0);
-    pointer-events: none;
-    z-index: 1;
-    transition: opacity 0.3s ease;
-  }
-
-  /* Smooth animations */
-  .animate-fade-in {
-    animation: fadeIn 0.3s ease-out;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-6px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .animate-slide-up {
-    animation: slideUp 0.4s ease-out both;
-  }
-
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* systeme.io embed compatibility */
-  .systeme-embed {
-    all: unset;
-  }
-
-  /* Scrollbar styling */
-  ::-webkit-scrollbar {
-    width: 5px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: hsl(var(--border));
-    border-radius: 4px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground) / 0.3);
-  }
-
-  /* Safe area for bottom nav */
-  .safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-
-  /* Touch optimization */
-  @media (hover: none) {
-    button, a, [role="button"] {
-      -webkit-tap-highlight-color: transparent;
-    }
-  }
+.shadow-soft {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.03);
 }
 
 @keyframes long-press-ring {
-  from {
-    stroke-dashoffset: 157;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
+  from { stroke-dashoffset: 175.929; }
+  to { stroke-dashoffset: 0; }
 }
 
 .animate-long-press-ring {
   animation: long-press-ring 0.6s linear forwards;
 }
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-primary/10 rounded-full hover:bg-primary/20 transition-colors;
+}
+
+.fullscreen-reading {
+  @apply fixed inset-0 z-[100] bg-background overflow-hidden;
+}
+
+.glass-card {
+  @apply bg-card/70 backdrop-blur-xl border border-white/10 shadow-islamic;
+}
+
+.bento-card {
+  @apply relative overflow-hidden rounded-[2rem] border border-border bg-card p-8 transition-all duration-500 hover:shadow-islamic hover:-translate-y-1.5;
+}
+
+.pill-image {
+  @apply rounded-[9999px] aspect-[3/4] object-cover;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-background;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-primary/20 rounded-full hover:bg-primary/30 transition-colors;
+}
+
+/* Custom animations */
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.ornament-border {
+  position: relative;
+}
+
+.ornament-border::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, hsl(var(--accent)), transparent);
+}
+

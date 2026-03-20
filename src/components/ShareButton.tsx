@@ -22,7 +22,9 @@ const ShareButton = ({ juzNumber, currentPage }: ShareButtonProps) => {
     if (navigator.share) {
       try {
         await navigator.share({ title: shareText, url });
-      } catch {}
+      } catch (err) {
+        // Ignore abort errors or other share failures
+      }
     } else {
       setShowMenu((v) => !v);
     }
