@@ -8,6 +8,8 @@ import { motion } from "framer-motion";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import {
   usePrayerTimes,
+  getCairoDate,
+  formatTime,
   ADHAN_SOUNDS,
   CALCULATION_METHODS,
   PRAYER_NAMES,
@@ -18,18 +20,20 @@ const NextPrayerCountdown = ({
   prayerName,
   prayerTime,
   prayerIcon,
+  timeFormat = "12h",
 }: {
   prayerName: keyof PrayerTimesData;
   prayerTime: string;
   prayerIcon: string;
+  timeFormat?: "12h" | "24h";
 }) => {
   const [remaining, setRemaining] = useState({ hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
     const calc = () => {
       const [h, m] = prayerTime.split(":").map(Number);
-      const now = new Date();
-      const target = new Date();
+      const now = getCairoDate();
+      const target = new Date(now);
       target.setHours(h, m, 0, 0);
       if (target <= now) target.setDate(target.getDate() + 1);
       const diff = target.getTime() - now.getTime();
@@ -58,7 +62,7 @@ const NextPrayerCountdown = ({
         </div>
         <div className="flex-1">
           <p className="font-amiri text-lg font-bold text-foreground mb-1">
-            {PRAYER_NAMES[prayerName]} — {prayerTime}
+            {PRAYER_NAMES[prayerName]} — {formatTime(prayerTime, timeFormat)}
           </p>
           <div className="flex items-center gap-1.5 justify-start" dir="ltr">
             {[
@@ -82,6 +86,34 @@ const NextPrayerCountdown = ({
         </div>
       </div>
     </section>
+  );
+};
+
+const CairoClock = () => {
+  const [time, setTime] = useState("");
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = getCairoDate();
+      const options: Intl.DateTimeFormatOptions = {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      };
+      setTime(new Intl.DateTimeFormat("en-US", options).format(now));
+    };
+
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="flex flex-col items-center bg-white/5 backdrop-blur-md border border-white/10 px-8 py-4 rounded-3xl shadow-2xl mt-4">
+      <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-gold mb-1">توقيت القاهرة الآن</span>
+      <span className="font-mono text-3xl font-bold text-white tabular-nums">{time}</span>
+    </div>
   );
 };
 
@@ -218,16 +250,24 @@ const PrayerTimes = () => {
             <div className="h-px w-12 bg-gold/40" />
           </motion.div>
 
-          <motion.h1 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="font-serif text-5xl sm:text-6xl md:text-7xl font-light text-white mb-6 tracking-tight drop-shadow-lg"
-          >
-            مواقيت الصلاة
-          </motion.h1>
+            <motion.h1 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+              className="font-serif text-5xl sm:text-6xl md:text-7xl font-light text-white mb-6 tracking-tight drop-shadow-lg"
+            >
+              مواقيت الصلاة
+            </motion.h1>
 
-          {settings.cityName && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <CairoClock />
+            </motion.div>
+
+            {settings.cityName && (
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -291,6 +331,7 @@ const PrayerTimes = () => {
                 prayerName={nextPrayer.name}
                 prayerTime={nextPrayer.time}
                 prayerIcon={prayerIcons[nextPrayer.name]}
+                timeFormat={settings.timeFormat}
               />
             )}
 
@@ -367,7 +408,7 @@ const PrayerTimes = () => {
                             <span className={`font-naskh text-base font-bold ${
                               isNext ? "text-accent" : "text-foreground"
                             }`}>
-                              {times[prayer]}
+                              {formatTime(times[prayer], settings.timeFormat)}
                             </span>
                             {prayer !== "Sunrise" && (
                               <button
@@ -550,6 +591,33 @@ const PrayerTimes = () => {
                       <option key={m.id} value={m.id}>{m.label}</option>
                     ))}
                   </select>
+                </div>
+
+                {/* Time format */}
+                <div>
+                  <label className="font-naskh text-sm font-bold text-foreground mb-2 block">نظام الوقت</label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => updateSettings({ timeFormat: "12h" })}
+                      className={`flex-1 py-2 rounded-xl border-2 transition-all font-naskh text-sm ${
+                        settings.timeFormat === "12h"
+                          ? "border-emerald-deep bg-emerald-deep/5 text-emerald-deep font-bold"
+                          : "border-border text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      12 ساعة
+                    </button>
+                    <button
+                      onClick={() => updateSettings({ timeFormat: "24h" })}
+                      className={`flex-1 py-2 rounded-xl border-2 transition-all font-naskh text-sm ${
+                        settings.timeFormat === "24h"
+                          ? "border-emerald-deep bg-emerald-deep/5 text-emerald-deep font-bold"
+                          : "border-border text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      24 ساعة
+                    </button>
+                  </div>
                 </div>
 
                 {/* Location info */}

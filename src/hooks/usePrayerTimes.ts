@@ -22,6 +22,7 @@ export interface PrayerSettings {
   adhanSound: string;
   notificationsEnabled: boolean;
   manualOverrides: Partial<PrayerTimesData>;
+  timeFormat: "12h" | "24h";
 }
 
 const DEFAULT_SETTINGS: PrayerSettings = {
@@ -32,6 +33,7 @@ const DEFAULT_SETTINGS: PrayerSettings = {
   adhanSound: "makkah",
   notificationsEnabled: false,
   manualOverrides: {},
+  timeFormat: "12h",
 };
 
 export const ADHAN_SOUNDS: { id: string; label: string; url: string }[] = [
@@ -123,9 +125,20 @@ const saveSettings = (settings: PrayerSettings) => {
   localStorage.setItem(PRAYER_SETTINGS_KEY, JSON.stringify(settings));
 };
 
+export const getCairoDate = (): Date => {
+  const now = new Date();
+  try {
+    const cairoString = now.toLocaleString("en-US", { timeZone: "Africa/Cairo" });
+    return new Date(cairoString);
+  } catch (e) {
+    console.error("Error calculating Cairo date:", e);
+    return now;
+  }
+};
+
 const parseTime = (timeStr: string): Date => {
   const [hours, minutes] = timeStr.split(":").map(Number);
-  const now = new Date();
+  const now = getCairoDate();
   now.setHours(hours, minutes, 0, 0);
   return now;
 };
@@ -133,7 +146,7 @@ const parseTime = (timeStr: string): Date => {
 const getNextPrayer = (
   times: PrayerTimesData
 ): { name: keyof PrayerTimesData; time: string } | null => {
-  const now = new Date();
+  const now = getCairoDate();
   const prayerOrder: (keyof PrayerTimesData)[] = [
     "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha",
   ];
@@ -148,7 +161,7 @@ const getNextPrayer = (
 };
 
 const getRemainingTime = (timeStr: string): string => {
-  const now = new Date();
+  const now = getCairoDate();
   const target = parseTime(timeStr);
   if (target <= now) {
     target.setDate(target.getDate() + 1);
@@ -158,6 +171,15 @@ const getRemainingTime = (timeStr: string): string => {
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   if (hours > 0) return `${hours} ساعة و ${minutes} دقيقة`;
   return `${minutes} دقيقة`;
+};
+
+export const formatTime = (timeStr: string, format: "12h" | "24h"): string => {
+  if (format === "24h") return timeStr;
+  
+  const [hours, minutes] = timeStr.split(":").map(Number);
+  const period = hours >= 12 ? "م" : "ص";
+  const h = hours % 12 || 12;
+  return `${h}:${String(minutes).padStart(2, "0")} ${period}`;
 };
 
 export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
@@ -189,77 +211,53 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
   }, [audioUnlocked]);
 
   const playAdhanSound = useCallback((url: string) => {
-    try {
-      if (optionsRef.current?.onAdhanStart) {
-        optionsRef.current.onAdhanStart();
-      }
-      
-      // Cleanup previous audio
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.removeAttribute("src");
-        audioRef.current.load();
-      }
-      
-      const audio = new Audio();
-      // Use crossOrigin only if needed, but for AlAdhan CDN it's usually better without it
-      // unless we're doing Web Audio API processing
-      audio.src = url;
-      audio.preload = "auto";
-      audioRef.current = audio;
-
-      // Add event listeners for debugging and error handling
-      audio.oncanplaythrough = () => {
-        console.log("Audio can play through:", url);
-      };
-
-      audio.onerror = () => {
-        const error = audio.error;
-        let errorMsg = "حدث خطأ في تشغيل ملف الأذان";
-        
-        if (error) {
-          console.error("Audio element error details:", {
-            code: error.code,
-            message: error.message,
-            url: url
-          });
-          
-          switch (error.code) {
-            case 1: errorMsg = "تم إيقاف تحميل الملف"; break;
-            case 2: errorMsg = "خطأ في الشبكة أثناء تحميل الأذان"; break;
-            case 3: errorMsg = "خطأ في فك تشفير ملف الأذان"; break;
-            case 4: 
-              errorMsg = "ملف الأذان غير مدعوم أو الرابط غير صالح"; 
-              // Try a fallback URL if it's a common sound
-              if (url.includes("cdn.aladhan.com")) {
-                console.warn("AlAdhan CDN failed, trying fallback...");
-                // We could implement a fallback mechanism here if we had alternative URLs
-              }
-              break;
-          }
+    const FALLBACK_SOUND = "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3";
+    
+    const playAudio = (audioUrl: string, isFallback = false) => {
+      try {
+        if (optionsRef.current?.onAdhanStart && !isFallback) {
+          optionsRef.current.onAdhanStart();
         }
         
-        toast.error(errorMsg);
-      };
+        // Cleanup previous audio
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.removeAttribute("src");
+          audioRef.current.load();
+        }
+        
+        const audio = new Audio();
+        audio.src = audioUrl;
+        audio.preload = "auto";
+        audioRef.current = audio;
 
-      const playPromise = audio.play();
-      
-      if (playPromise !== undefined) {
-        playPromise.catch((err) => {
-          if (err.name === "AbortError") return;
-          console.error("Adhan playback promise failed:", err);
-          
-          if (err.name === "NotAllowedError") {
-            toast.error("يرجى الضغط على الشاشة لتفعيل الصوت");
-          } else if (err.name === "NotSupportedError" || err.message.includes("suitable")) {
-            console.warn("Retrying audio load...");
-            audio.load();
+        audio.onerror = () => {
+          console.error(`Audio error for ${isFallback ? "fallback" : "primary"} sound:`, audio.error);
+          if (!isFallback) {
+            console.log("Attempting fallback sound...");
+            playAudio(FALLBACK_SOUND, true);
+          } else {
+            toast.error("تعذر تشغيل صوت التنبيه");
           }
-        });
+        };
+
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((err) => {
+            if (err.name === "AbortError") return;
+            console.error("Playback failed:", err);
+            if (!isFallback) {
+              playAudio(FALLBACK_SOUND, true);
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Error in playAudio:", err);
+        if (!isFallback) playAudio(FALLBACK_SOUND, true);
       }
-    } catch (err) {
-      console.error("Error in playAdhanSound:", err);
-    }
+    };
+
+    playAudio(url);
   }, []);
 
   const fetchTimes = useCallback(async (lat: number, lng: number, method: number) => {
@@ -353,8 +351,8 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
       const timeStr = effectiveTimes[prayer];
       const [hours, minutes] = timeStr.split(":").map(Number);
       
-      const now = new Date();
-      const target = new Date();
+      const now = getCairoDate();
+      const target = new Date(now);
       target.setHours(hours, minutes, 0, 0);
 
       // If time has passed today, schedule for tomorrow
