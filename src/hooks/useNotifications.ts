@@ -1,5 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { formatInTimeZone, zonedTimeToUtc } from "date-fns-tz";
+import { addDays, isBefore } from "date-fns";
 
+const CAIRO_TZ = "Africa/Cairo";
 const NOTIF_SETTINGS_KEY = "quran-notification-settings";
 
 export interface NotificationSettings {
@@ -91,13 +94,23 @@ const showNotification = (title: string, body: string, tag: string) => {
 
 const getMsUntilTime = (timeStr: string): number => {
   const [hours, minutes] = timeStr.split(":").map(Number);
+  
+  // Get current time in Cairo
   const now = new Date();
-  const target = new Date();
-  target.setHours(hours, minutes, 0, 0);
-  if (target <= now) {
-    target.setDate(target.getDate() + 1);
+  const nowInCairoStr = formatInTimeZone(now, CAIRO_TZ, "yyyy-MM-dd HH:mm:ss");
+  const cairoNow = new Date(nowInCairoStr);
+
+  // Create target time in Cairo
+  let targetCairo = new Date(cairoNow);
+  targetCairo.setHours(hours, minutes, 0, 0);
+
+  // If time has passed today in Cairo, schedule for tomorrow
+  if (isBefore(targetCairo, cairoNow)) {
+    targetCairo = addDays(targetCairo, 1);
   }
-  return target.getTime() - now.getTime();
+
+  // The delay is the difference between target Cairo time and current Cairo time
+  return targetCairo.getTime() - cairoNow.getTime();
 };
 
 export function useNotifications() {

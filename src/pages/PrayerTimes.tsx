@@ -1,9 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   MapPin, Clock, Bell, BellOff, Volume2, VolumeX,
   Settings, Loader2, RefreshCw, Edit3, Check, X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import {
   usePrayerTimes,
   ADHAN_SOUNDS,
@@ -84,18 +86,24 @@ const NextPrayerCountdown = ({
 };
 
 const PrayerTimes = () => {
+  const { stopPlayer, isPlaying: isQuranPlaying } = useAudioPlayer();
   const {
     settings, updateSettings, times, loading, error,
     locationLoading, detectLocation, nextPrayer, getRemainingTime,
-    previewAdhan, stopAdhan, testPrayerNotification,
-  } = usePrayerTimes();
+    previewAdhan, stopAdhan, testPrayerNotification, unlockAudio, audioUnlocked
+  } = usePrayerTimes({
+    onAdhanStart: () => {
+      if (isQuranPlaying) stopPlayer();
+    }
+  });
 
   const [showSettings, setShowSettings] = useState(false);
   const [editingPrayer, setEditingPrayer] = useState<keyof PrayerTimesData | null>(null);
   const [editValue, setEditValue] = useState("");
   const [playingAdhan, setPlayingAdhan] = useState<string | null>(null);
 
-  const handleEnableNotifications = async () => {
+  const handleEnableNotifications = useCallback(async () => {
+    unlockAudio(); // Unlock audio on interaction
     if (!("Notification" in window)) {
       toast.error("متصفحك لا يدعم التنبيهات");
       return;
@@ -113,30 +121,31 @@ const PrayerTimes = () => {
     }
     updateSettings({ notificationsEnabled: !settings.notificationsEnabled });
     toast.success(settings.notificationsEnabled ? "تم إيقاف تنبيهات الصلاة" : "تم تفعيل تنبيهات الصلاة");
-  };
+  }, [settings.notificationsEnabled, updateSettings, unlockAudio]);
 
-  const handleEditPrayer = (prayer: keyof PrayerTimesData) => {
+  const handleEditPrayer = useCallback((prayer: keyof PrayerTimesData) => {
     setEditingPrayer(prayer);
     setEditValue(times?.[prayer] || "");
-  };
+  }, [times]);
 
-  const saveEdit = () => {
+  const saveEdit = useCallback(() => {
     if (!editingPrayer || !editValue) return;
     updateSettings({
       manualOverrides: { ...settings.manualOverrides, [editingPrayer]: editValue },
     });
     setEditingPrayer(null);
     toast.success(`تم تعديل وقت ${PRAYER_NAMES[editingPrayer]}`);
-  };
+  }, [editingPrayer, editValue, settings.manualOverrides, updateSettings]);
 
-  const resetOverride = (prayer: keyof PrayerTimesData) => {
+  const resetOverride = useCallback((prayer: keyof PrayerTimesData) => {
     const overrides = { ...settings.manualOverrides };
     delete overrides[prayer];
     updateSettings({ manualOverrides: overrides });
     toast.success(`تم إعادة وقت ${PRAYER_NAMES[prayer]} للافتراضي`);
-  };
+  }, [settings.manualOverrides, updateSettings]);
 
-  const handlePreview = (soundId: string) => {
+  const handlePreview = useCallback((soundId: string) => {
+    unlockAudio(); // Unlock audio on interaction
     if (playingAdhan === soundId) {
       stopAdhan();
       setPlayingAdhan(null);
@@ -145,7 +154,7 @@ const PrayerTimes = () => {
       setPlayingAdhan(soundId);
       setTimeout(() => setPlayingAdhan(null), 15000);
     }
-  };
+  }, [playingAdhan, previewAdhan, stopAdhan, unlockAudio]);
 
   const prayerOrder: (keyof PrayerTimesData)[] = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
 
@@ -161,18 +170,90 @@ const PrayerTimes = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <header className="gradient-islamic pattern-islamic px-4 text-center relative overflow-hidden">
-        <div className="absolute bottom-0 left-0 right-0 h-1 gradient-gold" />
-        <div className="pb-6 pt-4">
-          <p className="font-amiri text-gold text-lg mb-2">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
-          <h1 className="font-amiri text-2xl sm:text-3xl font-bold text-primary-foreground">مواقيت الصلاة</h1>
-          {settings.cityName && (
-            <p className="font-naskh text-primary-foreground/70 text-sm mt-2 flex items-center justify-center gap-1">
-              <MapPin size={14} />
-              {settings.cityName}
-            </p>
-          )}
+      <header className="relative overflow-hidden bg-emerald-deep min-h-[40vh] flex items-center justify-center">
+        {/* Immersive Background Layer */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.15 }}
+            transition={{ duration: 2 }}
+            className="absolute inset-0 pattern-islamic scale-150 opacity-20" 
+          />
+          
+          {/* Atmospheric Gradients & Light Rays */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-deep/40 to-emerald-deep" />
+          
+          <motion.div 
+            animate={{ 
+              opacity: [0.1, 0.3, 0.1],
+              scale: [1, 1.2, 1],
+              rotate: [0, 5, 0]
+            }}
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-1/4 -right-1/4 w-[100%] h-[100%] bg-gold/10 rounded-full blur-[120px]" 
+          />
+          
+          <motion.div 
+            animate={{ 
+              opacity: [0.1, 0.2, 0.1],
+              scale: [1.2, 1, 1.2],
+              rotate: [0, -5, 0]
+            }}
+            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -bottom-1/4 -left-1/4 w-[80%] h-[80%] bg-emerald-light/10 rounded-full blur-[100px]" 
+          />
         </div>
+
+        <div className="relative z-10 container max-w-4xl mx-auto px-6 py-16 flex flex-col items-center text-center">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="flex items-center gap-4 mb-8"
+          >
+            <div className="h-px w-12 bg-gold/40" />
+            <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-gold">
+              مواقيت الصلاة والأذان
+            </span>
+            <div className="h-px w-12 bg-gold/40" />
+          </motion.div>
+
+          <motion.h1 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            className="font-serif text-5xl sm:text-6xl md:text-7xl font-light text-white mb-6 tracking-tight drop-shadow-lg"
+          >
+            مواقيت الصلاة
+          </motion.h1>
+
+          {settings.cityName && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 px-6 py-3 rounded-full shadow-xl"
+            >
+              <MapPin size={16} className="text-gold" />
+              <span className="font-naskh text-white text-sm tracking-wide">
+                {settings.cityName}
+              </span>
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-light animate-pulse" />
+            </motion.div>
+          )}
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.4 }}
+            transition={{ delay: 1 }}
+            className="absolute bottom-8 flex flex-col items-center gap-2"
+          >
+            <div className="w-px h-12 bg-gradient-to-b from-gold/40 to-transparent" />
+          </motion.div>
+        </div>
+
+        {/* Elegant bottom transition */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-20" />
       </header>
 
       <main className="container max-w-2xl mx-auto px-4 py-6 space-y-5">
@@ -318,6 +399,36 @@ const PrayerTimes = () => {
 
             {/* Notifications toggle */}
             <section className="bg-card border border-border rounded-2xl p-5 shadow-soft">
+              {settings.notificationsEnabled && Notification.permission !== "granted" && (
+                <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-3">
+                  <BellOff size={18} className="text-destructive shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-[11px] text-destructive font-naskh font-bold">إذن التنبيهات مطلوب</p>
+                    <p className="text-[10px] text-destructive font-naskh">التنبيهات مفعلة ولكن المتصفح يمنعها. يرجى تفعيل الإذن.</p>
+                  </div>
+                  <button 
+                    onClick={handleEnableNotifications}
+                    className="px-3 py-1 bg-destructive text-white text-[10px] font-naskh rounded-lg font-bold"
+                  >
+                    تفعيل الإذن
+                  </button>
+                </div>
+              )}
+              {!audioUnlocked && (
+                <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-3">
+                  <Volume2 size={18} className="text-amber-500 shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-[11px] text-amber-600 font-naskh font-bold">تفعيل الصوت مطلوب</p>
+                    <p className="text-[10px] text-amber-600 font-naskh">اضغط على أي زر لتفعيل صوت الأذان في المتصفح</p>
+                  </div>
+                  <button 
+                    onClick={unlockAudio}
+                    className="px-3 py-1 bg-amber-500 text-white text-[10px] font-naskh rounded-lg font-bold"
+                  >
+                    تفعيل الآن
+                  </button>
+                </div>
+              )}
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl gradient-gold flex items-center justify-center">
                   <Bell size={18} className="text-foreground" />
@@ -340,47 +451,73 @@ const PrayerTimes = () => {
             </section>
 
             {/* Adhan sound selector */}
-            <section className="bg-card border border-border rounded-2xl p-5 shadow-soft">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl gradient-islamic flex items-center justify-center">
-                  <Volume2 size={18} className="text-primary-foreground" />
+            <section className="bg-card border-2 border-emerald-light/20 rounded-[2.5rem] p-8 shadow-islamic relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-light/5 rounded-full -mr-16 -mt-16 blur-3xl" />
+              
+              <div className="flex items-center gap-4 mb-8 relative z-10">
+                <div className="w-14 h-14 rounded-2xl gradient-islamic flex items-center justify-center shadow-emerald-deep/20 shadow-lg">
+                  <Volume2 size={24} className="text-white" />
                 </div>
                 <div>
-                  <h2 className="font-naskh text-sm font-bold text-foreground">صوت الأذان</h2>
-                  <p className="text-[11px] text-muted-foreground font-naskh">اختر المؤذن المفضل</p>
+                  <h2 className="font-serif text-xl font-bold text-foreground">صوت الأذان</h2>
+                  <p className="text-xs text-muted-foreground font-serif italic">اختر المؤذن المفضل للتنبيهات</p>
                 </div>
               </div>
-
-              <div className="space-y-2">
+ 
+              <div className="grid gap-3 relative z-10">
                 {ADHAN_SOUNDS.map((sound) => (
-                  <div
+                  <motion.div
                     key={sound.id}
-                    className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ${
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    className={`group flex items-center gap-4 p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                       settings.adhanSound === sound.id
-                        ? "border-accent bg-accent/10"
-                        : "border-border hover:border-accent/40"
+                        ? "border-emerald-deep bg-emerald-deep/5 shadow-md"
+                        : "border-border/40 hover:border-emerald-light/40 hover:bg-muted/30"
                     }`}
                     onClick={() => updateSettings({ adhanSound: sound.id })}
                   >
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                      settings.adhanSound === sound.id ? "border-accent" : "border-border"
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
+                      settings.adhanSound === sound.id ? "border-emerald-deep bg-emerald-deep" : "border-border"
                     }`}>
                       {settings.adhanSound === sound.id && (
-                        <div className="w-2.5 h-2.5 rounded-full bg-accent" />
+                        <div className="w-2 h-2 rounded-full bg-gold" />
                       )}
                     </div>
-                    <span className="font-naskh text-sm text-foreground flex-1">{sound.label}</span>
+                    
+                    <div className="flex-1">
+                      <span className={`font-serif text-base transition-colors ${
+                        settings.adhanSound === sound.id ? "text-emerald-deep font-bold" : "text-foreground"
+                      }`}>
+                        {sound.label}
+                      </span>
+                      {playingAdhan === sound.id && (
+                        <motion.div 
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="flex items-center gap-1 mt-1"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-deep animate-pulse" />
+                          <span className="text-[10px] text-emerald-deep font-serif font-bold">جاري المعاينة...</span>
+                        </motion.div>
+                      )}
+                    </div>
+
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handlePreview(sound.id);
                       }}
-                      className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                        playingAdhan === sound.id 
+                          ? "bg-emerald-deep text-gold shadow-lg" 
+                          : "bg-muted text-muted-foreground hover:bg-emerald-light/20 hover:text-emerald-deep"
+                      }`}
                       title="معاينة"
                     >
-                      {playingAdhan === sound.id ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                      {playingAdhan === sound.id ? <VolumeX size={18} /> : <Volume2 size={18} />}
                     </button>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </section>

@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from "react";
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, ChevronDown, Loader2, ListMusic } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
@@ -17,6 +18,11 @@ const GlobalAudioPlayer = () => {
     togglePlay, playNextSurah, playPrevSurah, handleSeek, handleVolume,
     toggleMute, setIsRepeat, setIsShuffle, setPlayerMinimized,
   } = useAudioPlayer();
+
+  const swipeData = useRef<{ startY: number | null; startTime: number | null }>({
+    startY: null,
+    startTime: null,
+  });
 
   if (!currentSurah) return null;
 
@@ -38,17 +44,19 @@ const GlobalAudioPlayer = () => {
       className="fixed bottom-0 left-0 right-0 z-[60] bg-card/95 backdrop-blur-md border-t border-border shadow-lg pb-[env(safe-area-inset-bottom)] mb-[72px] transition-all duration-300 animate-slide-up"
       onTouchStart={(e) => {
         const touch = e.touches[0];
-        (e.currentTarget as any)._swipeStartY = touch.clientY;
-        (e.currentTarget as any)._swipeStartTime = Date.now();
+        swipeData.current = {
+          startY: touch.clientY,
+          startTime: Date.now(),
+        };
       }}
       onTouchEnd={(e) => {
-        const startY = (e.currentTarget as any)._swipeStartY;
-        const startTime = (e.currentTarget as any)._swipeStartTime;
-        if (startY == null) return;
+        const { startY, startTime } = swipeData.current;
+        if (startY == null || startTime == null) return;
         const endY = e.changedTouches[0].clientY;
         const diff = endY - startY;
         const elapsed = Date.now() - startTime;
         if (elapsed < 400 && diff > 40) setPlayerMinimized(true);
+        swipeData.current = { startY: null, startTime: null };
       }}
     >
       {/* Swipe handle + close button */}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Download, Smartphone, Share, MoreVertical, Plus, ArrowRight, CheckCircle2, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -44,23 +45,65 @@ const Install = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pattern-islamic">
-      {/* Header */}
-      <div className="gradient-islamic text-primary-foreground py-8 px-4 text-center">
-        <div className="flex justify-center mb-4">
-          <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
-            <Download size={32} className="text-gold-light" />
-          </div>
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-bold font-naskh mb-2">
-          تثبيت تطبيق القرآن الكريم
-        </h1>
-        <p className="text-sm sm:text-base opacity-90 font-naskh max-w-md mx-auto">
-          ثبّت التطبيق على جهازك للوصول السريع والقراءة بدون إنترنت
-        </p>
-      </div>
+    <div className="min-h-screen bg-background pb-24 selection:bg-accent/20">
+      {/* Immersive Experiential Header */}
+      <header className="relative overflow-hidden pt-16 pb-24 px-6 text-center">
+        {/* Background Layers */}
+        <div className="absolute inset-0 bg-emerald-deep z-0" />
+        <div className="absolute inset-0 pattern-islamic opacity-10 z-0" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-emerald-deep z-0" />
+        
+        {/* Atmospheric Elements */}
+        <motion.div 
+          animate={{ 
+            opacity: [0.1, 0.3, 0.1],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-1/2 -right-1/4 w-full h-full bg-gold/20 rounded-full blur-[120px] z-0" 
+        />
 
-      <div className="container max-w-lg mx-auto px-4 py-6 space-y-6">
+        <div className="relative z-10 container max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="flex items-center justify-center gap-4 mb-8"
+          >
+            <div className="h-px w-12 bg-gradient-to-l from-gold/50 to-transparent" />
+            <span className="text-[10px] font-bold text-gold/80 uppercase tracking-[0.4em]">تثبيت التطبيق الذكي</span>
+            <div className="h-px w-12 bg-gradient-to-r from-gold/50 to-transparent" />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="w-20 h-20 rounded-[2rem] bg-gold/20 backdrop-blur-md flex items-center justify-center mx-auto mb-8 border border-gold/30 shadow-gold-glow">
+              <Smartphone size={32} className="text-gold" strokeWidth={1.5} />
+            </div>
+            
+            <h1 className="text-4xl sm:text-6xl font-serif font-bold text-white mb-6 tracking-tight">
+              تثبيت <span className="italic font-light text-gold/80">التطبيق</span>
+            </h1>
+            
+            <p className="text-white/80 font-serif italic text-lg max-w-xl mx-auto leading-relaxed">
+              احصل على تجربة قراءة متكاملة وسريعة حتى بدون اتصال بالإنترنت، لتكون آيات الله معك في كل وقت وحين
+            </p>
+
+            <motion.p 
+              animate={{ opacity: [0.3, 0.6, 0.3] }}
+              transition={{ duration: 4, repeat: Infinity }}
+              className="font-amiri text-gold text-3xl mt-10"
+            >
+              ﷽
+            </motion.p>
+          </motion.div>
+        </div>
+      </header>
+
+      <div className="container max-w-lg mx-auto px-6 -mt-12 relative z-20 space-y-6">
         {/* Install status */}
         {isInstalled && (
           <div className="flex items-center gap-3 p-4 rounded-xl bg-emerald-primary/10 border border-emerald-primary/30">

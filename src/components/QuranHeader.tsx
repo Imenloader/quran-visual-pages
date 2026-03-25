@@ -1,4 +1,5 @@
-import { BookOpen } from "lucide-react";
+import { BookOpen, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface QuranHeaderProps {
   title?: string;
@@ -7,52 +8,169 @@ interface QuranHeaderProps {
 
 const QuranHeader = ({ title = "القرآن الكريم" }: QuranHeaderProps) => {
   return (
-    <header className="relative overflow-hidden bg-gradient-to-b from-emerald-deep via-primary to-emerald-light">
-      {/* Geometric Islamic pattern overlay */}
-      <div className="absolute inset-0 pattern-islamic opacity-60" />
+    <header className="relative overflow-hidden bg-emerald-deep min-h-[50vh] flex items-center justify-center">
+      {/* Immersive Background Layer */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.2 }}
+          transition={{ duration: 2 }}
+          className="absolute inset-0 pattern-islamic scale-[2] opacity-20" 
+        />
+        
+        {/* Atmospheric Gradients & Light Rays */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-deep/40 to-emerald-deep" />
+        
+        <motion.div 
+          animate={{ 
+            opacity: [0.2, 0.4, 0.2],
+            scale: [1, 1.3, 1],
+            rotate: [0, 10, 0]
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-1/2 -right-1/4 w-[120%] h-[120%] bg-gold/15 rounded-full blur-[160px]" 
+        />
+        
+        <motion.div 
+          animate={{ 
+            opacity: [0.1, 0.3, 0.1],
+            scale: [1.3, 1, 1.3],
+            rotate: [0, -15, 0]
+          }}
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -bottom-1/2 -left-1/4 w-[100%] h-[100%] bg-emerald-light/15 rounded-full blur-[140px]" 
+        />
 
-      {/* Radial glow effects */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gold/8 rounded-full blur-3xl" />
-      <div className="absolute -top-20 -right-20 w-64 h-64 bg-gold/5 rounded-full blur-3xl" />
-      <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-gold/5 rounded-full blur-3xl" />
-
-      {/* Bottom decorative border */}
-      <div className="absolute bottom-0 left-0 right-0 h-[3px]">
-        <div className="h-full gradient-gold opacity-80" />
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 container max-w-5xl mx-auto px-4 pt-8 pb-7 sm:pt-10 sm:pb-9 md:pt-12 md:pb-10">
-        <div className="flex flex-col items-center text-center gap-3 sm:gap-4">
-
-          {/* Ornamental star/icon */}
-          <div className="relative">
-            <div className="absolute inset-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gold/20 blur-xl" />
-            <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl gradient-gold flex items-center justify-center shadow-lg shadow-gold/25">
-              <BookOpen className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-deep" />
-            </div>
-          </div>
-
-          {/* Bismillah with decorative lines */}
-          <div className="flex items-center gap-3 sm:gap-4 w-full max-w-md">
-            <div className="flex-1 h-px bg-gradient-to-l from-gold/50 to-transparent" />
-            <p className="font-amiri text-gold text-base sm:text-lg md:text-xl leading-relaxed whitespace-nowrap">
-              بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
-            </p>
-            <div className="flex-1 h-px bg-gradient-to-r from-gold/50 to-transparent" />
-          </div>
-
-          {/* Title */}
-          <h1 className="font-amiri text-2xl sm:text-3xl md:text-4xl font-bold text-primary-foreground leading-tight tracking-wide">
-            {title}
-          </h1>
-
-          {/* Subtitle */}
-          <p className="font-naskh text-primary-foreground/50 text-xs sm:text-sm max-w-xs">
-            اقرأ وتدبّر كتاب الله عز وجل
-          </p>
+        {/* Floating Particles */}
+        <div className="absolute inset-0 pointer-events-none">
+          {[...Array(20)].map((_, i) => (
+            <motion.div
+              key={i}
+              initial={{ 
+                x: Math.random() * 100 + "%", 
+                y: Math.random() * 100 + "%",
+                opacity: 0 
+              }}
+              animate={{ 
+                y: [null, "-20%"],
+                opacity: [0, 0.5, 0]
+              }}
+              transition={{ 
+                duration: Math.random() * 10 + 10, 
+                repeat: Infinity,
+                delay: Math.random() * 5
+              }}
+              className="absolute w-1 h-1 bg-gold/30 rounded-full blur-[1px]"
+            />
+          ))}
         </div>
       </div>
+
+      {/* Content Container */}
+      <div className="relative z-10 container max-w-6xl mx-auto px-6 py-24 flex flex-col items-center text-center">
+        
+        {/* Micro-label with animated lines */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+          className="flex items-center gap-6 mb-12"
+        >
+          <motion.div 
+            animate={{ width: [0, 48, 32] }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="h-px bg-gradient-to-l from-gold/60 to-transparent" 
+          />
+          <span className="text-[11px] uppercase tracking-[0.5em] font-bold text-gold drop-shadow-sm">
+            المصحف الإلكتروني الشامل
+          </span>
+          <motion.div 
+            animate={{ width: [0, 48, 32] }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="h-px bg-gradient-to-r from-gold/60 to-transparent" 
+          />
+        </motion.div>
+
+        {/* Main Title with Depth and Shadow */}
+        <div className="relative mb-14">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+            className="relative"
+          >
+            <h1 className="font-serif text-7xl sm:text-8xl md:text-[10rem] font-light text-white leading-none tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+              {title}
+            </h1>
+            
+            {/* Decorative Sparkles */}
+            <motion.div
+              animate={{ 
+                opacity: [0.2, 0.6, 0.2],
+                scale: [0.8, 1.2, 0.8]
+              }}
+              transition={{ duration: 4, repeat: Infinity }}
+              className="absolute -top-12 -right-12 text-gold/40 pointer-events-none"
+            >
+              <Sparkles size={64} strokeWidth={0.5} />
+            </motion.div>
+          </motion.div>
+        </div>
+
+        {/* Bismillah - Exquisite Calligraphic Feel */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 1.2 }}
+          className="flex flex-col items-center gap-8"
+        >
+          <p className="font-quran text-3xl sm:text-4xl md:text-5xl text-gold leading-relaxed italic drop-shadow-md">
+            بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+          </p>
+          
+          <div className="flex items-center gap-6">
+            <motion.div 
+              animate={{ scaleX: [0, 1] }}
+              transition={{ delay: 1.2, duration: 1 }}
+              className="h-[1px] w-16 bg-gradient-to-l from-gold/40 to-transparent origin-right" 
+            />
+            <div className="relative">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 border border-gold/20 rounded-full scale-150"
+              />
+              <BookOpen className="w-6 h-6 text-gold relative z-10" strokeWidth={1} />
+            </div>
+            <motion.div 
+              animate={{ scaleX: [0, 1] }}
+              transition={{ delay: 1.2, duration: 1 }}
+              className="h-[1px] w-16 bg-gradient-to-r from-gold/40 to-transparent origin-left" 
+            />
+          </div>
+        </motion.div>
+
+        {/* Floating Footer micro-details */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.6 }}
+          transition={{ delay: 1.5 }}
+          className="absolute bottom-16 flex flex-col items-center gap-4"
+        >
+          <span className="text-[10px] uppercase tracking-[0.6em] font-bold text-white">
+            تلاوة • تدبّر • حفظ
+          </span>
+          <motion.div 
+            animate={{ height: [0, 64, 48] }}
+            transition={{ duration: 2, delay: 1.8 }}
+            className="w-px bg-gradient-to-b from-gold/60 to-transparent shadow-gold-glow" 
+          />
+        </motion.div>
+      </div>
+
+      {/* Elegant bottom transition with layered blurs */}
+      <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-background via-background/80 to-transparent z-20" />
+      <div className="absolute bottom-0 left-0 right-0 h-24 backdrop-blur-sm z-10" />
     </header>
   );
 };

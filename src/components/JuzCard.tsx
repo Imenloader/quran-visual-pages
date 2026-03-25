@@ -1,15 +1,16 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { JuzInfo, toArabicNumber, getQuranPageImageUrl } from "@/data/quranData";
-import { Download, Check, Loader2, Wifi, WifiOff, Heart } from "lucide-react";
+import { Download, Check, Loader2, Wifi, WifiOff, Heart, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { useFavorites } from "@/hooks/useFavorites";
-
+import { motion } from "framer-motion";
 
 interface JuzCardProps {
   juz: JuzInfo;
   index: number;
   isBookmarked?: boolean;
+  searchQuery?: string;
 }
 
 const STORAGE_KEY = "juz-download-state";
@@ -29,7 +30,7 @@ const setStoredState = (juzNumber: number, done: boolean) => {
   } catch { /* ignore */ }
 };
 
-const JuzCard = ({ juz, index, isBookmarked }: JuzCardProps) => {
+const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
   const wasDone = getStoredState(juz.number);
   const [downloadState, setDownloadState] = useState<"idle" | "downloading" | "done">(wasDone ? "done" : "idle");
   const [progress, setProgress] = useState(0);
@@ -39,8 +40,8 @@ const JuzCard = ({ juz, index, isBookmarked }: JuzCardProps) => {
   const isFav = isFavorite("juz", juz.number);
 
   const totalPages = juz.endPage - juz.startPage + 1;
+  const matchedSurahs = searchQuery ? juz.surahs.filter(s => s.includes(searchQuery)) : [];
 
-  // Check how many pages are cached on mount
   useEffect(() => {
     if (wasDone) return;
     let cancelled = false;
@@ -69,7 +70,7 @@ const JuzCard = ({ juz, index, isBookmarked }: JuzCardProps) => {
     return () => { cancelled = true; };
   }, [juz.startPage, juz.endPage, totalPages, juz.number, wasDone]);
 
-  const downloadForOffline = async (e: React.MouseEvent) => {
+  const downloadForOffline = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (downloadState === "downloading") return;
@@ -98,9 +99,8 @@ const JuzCard = ({ juz, index, isBookmarked }: JuzCardProps) => {
     setDownloadState("done");
     setCachedPercent(100);
     setStoredState(juz.number, true);
-  };
+  }, [downloadState, juz.number, juz.startPage, totalPages]);
 
-  // Long-press to download
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isLongPress = useRef(false);
 
@@ -112,16 +112,13 @@ const JuzCard = ({ juz, index, isBookmarked }: JuzCardProps) => {
     longPressTimer.current = setTimeout(() => {
       isLongPress.current = true;
       setLongPressing(false);
-      // Haptic feedback
-      if (navigator.vibrate) {
-        navigator.vibrate(30);
-      }
+      if (navigator.vibrate) navigator.vibrate(30);
       if (downloadState === "idle") {
         toast.info(`جاري تحميل ${juz.nameAr} للأوفلاين...`);
         downloadForOffline({ preventDefault: () => {}, stopPropagation: () => {} } as React.MouseEvent);
       }
     }, 600);
-  }, [downloadState, juz.nameAr]);
+  }, [downloadState, juz.nameAr, downloadForOffline]);
 
   const handlePointerUp = useCallback(() => {
     setLongPressing(false);
@@ -132,9 +129,7 @@ const JuzCard = ({ juz, index, isBookmarked }: JuzCardProps) => {
   }, []);
 
   const handleClick = useCallback((e: React.MouseEvent) => {
-    if (isLongPress.current) {
-      e.preventDefault();
-    }
+    if (isLongPress.current) e.preventDefault();
   }, []);
 
   return (
@@ -146,126 +141,145 @@ const JuzCard = ({ juz, index, isBookmarked }: JuzCardProps) => {
       onPointerLeave={handlePointerUp}
       onClick={handleClick}
     >
-      <div className={`relative overflow-hidden rounded-lg border-2 bg-card p-5 transition-all duration-300 hover:shadow-islamic hover:border-gold-light hover:-translate-y-1 select-none ${
-        isBookmarked ? "border-gold shadow-[0_0_12px_rgba(196,167,82,0.3)]" : "border-border"
-      }`}>
+      <motion.div 
+        whileHover={{ y: -8, scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        className={`relative overflow-hidden rounded-[2.5rem] border bg-card p-8 transition-all duration-500 hover:shadow-islamic select-none ${
+          isBookmarked ? "border-accent shadow-gold-glow" : "border-border/60 hover:border-primary/40"
+        }`}
+      >
+        {/* Decorative Background Element */}
+        <div className="absolute -top-12 -left-12 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors" />
+        
+        {/* Bookmark Badge */}
         {isBookmarked && (
-          <div className="absolute top-0 right-0 bg-gold text-foreground text-[9px] font-naskh font-bold px-2 py-0.5 rounded-bl-lg z-10">
-            📖 متوقف هنا
-          </div>
-        )}
-        <div className="absolute top-0 left-0 w-12 h-12 gradient-gold opacity-20 rounded-br-full" />
-
-        {/* Favorite button */}
-        <button
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite({ type: "juz", id: juz.number }); }}
-          title={isFav ? "إزالة من المفضلة" : "إضافة للمفضلة"}
-          className={`absolute top-2 left-2 w-7 h-7 rounded-full flex items-center justify-center transition-all z-10 ${
-            isFav ? "bg-red-500/20 text-red-500" : "bg-muted text-muted-foreground hover:bg-red-500/10 hover:text-red-400"
-          }`}
-        >
-          <Heart size={14} fill={isFav ? "currentColor" : "none"} />
-        </button>
-
-        {/* Download button */}
-        <button
-          onClick={downloadForOffline}
-          title="تحميل للقراءة أوفلاين"
-          className={`absolute ${isBookmarked ? "top-8" : "top-2"} right-2 w-7 h-7 rounded-full flex items-center justify-center transition-all z-10 ${
-            downloadState === "done"
-              ? "bg-primary text-primary-foreground"
-              : downloadState === "downloading"
-              ? "bg-gold/20 text-gold"
-              : "bg-muted text-muted-foreground hover:bg-gold/20 hover:text-gold"
-          }`}
-        >
-          {downloadState === "downloading" ? (
-            <Loader2 size={14} className="animate-spin" />
-          ) : downloadState === "done" ? (
-            <Check size={14} />
-          ) : (
-            <Download size={14} />
-          )}
-        </button>
-
-        {/* Progress bar */}
-        {downloadState === "downloading" && (
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted overflow-hidden rounded-b-lg">
-            <div className="h-full gradient-gold transition-all duration-300" style={{ width: `${progress}%` }} />
+          <div className="absolute top-0 right-0 bg-accent text-accent-foreground text-[10px] font-serif font-bold px-5 py-2 rounded-bl-3xl z-10 shadow-sm flex items-center gap-2">
+            <BookOpen size={12} />
+            <span>متوقف هنا</span>
           </div>
         )}
 
-        <div className="relative flex items-center justify-center w-14 h-14 mx-auto mb-3">
-          {/* Long-press progress ring */}
-          <svg
-            className={`absolute inset-0 w-14 h-14 -rotate-90 transition-opacity ${longPressing ? "opacity-100" : "opacity-0"}`}
-            viewBox="0 0 56 56"
+        {/* Action Buttons Container */}
+        <div className="absolute top-6 left-6 flex flex-col gap-3 z-10">
+          <button
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite({ type: "juz", id: juz.number }); }}
+            className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all backdrop-blur-sm ${
+              isFav ? "bg-red-500/10 text-red-500" : "bg-muted text-muted-foreground hover:bg-red-500/5 hover:text-red-400"
+            }`}
           >
-            <circle cx="28" cy="28" r="25" fill="none" stroke="hsl(var(--gold))" strokeWidth="3" strokeOpacity="0.2" />
+            <Heart size={16} fill={isFav ? "currentColor" : "none"} strokeWidth={1.5} />
+          </button>
+
+          <button
+            onClick={downloadForOffline}
+            className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all backdrop-blur-sm ${
+              downloadState === "done"
+                ? "bg-emerald-500/10 text-emerald-500"
+                : downloadState === "downloading"
+                ? "bg-accent/10 text-accent"
+                : "bg-muted/50 text-muted-foreground hover:bg-accent/10 hover:text-accent"
+            }`}
+          >
+            {downloadState === "downloading" ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : downloadState === "done" ? (
+              <Check size={16} />
+            ) : (
+              <Download size={16} strokeWidth={1.5} />
+            )}
+          </button>
+        </div>
+
+        {/* Juz Number Circle */}
+        <div className="relative flex items-center justify-center w-24 h-24 mx-auto mb-8">
+          <svg
+            className={`absolute inset-0 w-24 h-24 -rotate-90 transition-opacity duration-500 ${longPressing ? "opacity-100" : "opacity-0"}`}
+            viewBox="0 0 96 96"
+          >
+            <circle cx="48" cy="48" r="44" fill="none" stroke="hsl(var(--accent))" strokeWidth="2" strokeOpacity="0.1" />
             <circle
-              cx="28" cy="28" r="25" fill="none"
-              stroke="hsl(var(--gold))"
-              strokeWidth="3"
-              strokeDasharray={`${2 * Math.PI * 25}`}
-              strokeDashoffset={`${2 * Math.PI * 25}`}
+              cx="48" cy="48" r="44" fill="none"
+              stroke="hsl(var(--accent))"
+              strokeWidth="2"
+              strokeDasharray={`${2 * Math.PI * 44}`}
+              strokeDashoffset={`${2 * Math.PI * 44}`}
               strokeLinecap="round"
               className={longPressing ? "animate-long-press-ring" : ""}
             />
           </svg>
-          <div className={`flex items-center justify-center w-12 h-12 rounded-full gradient-islamic transition-transform ${longPressing ? "scale-90" : ""}`}>
-            <span className="text-lg font-bold font-amiri text-primary-foreground">
-              {toArabicNumber(juz.number)}
+          <div className={`flex items-center justify-center w-20 h-20 rounded-[2rem] bg-emerald-deep text-white transition-all duration-500 shadow-lg ${longPressing ? "scale-90" : "group-hover:scale-105"}`}>
+            <span className="text-3xl font-bold font-serif">
+              {juz.number}
             </span>
           </div>
         </div>
 
-        <h3 className="text-center font-amiri text-lg font-bold text-foreground mb-1 group-hover:text-gold-dark transition-colors">
-          {juz.nameAr}
-        </h3>
+        {/* Text Content */}
+        <div className="text-center space-y-2">
+          <h3 className="font-serif text-3xl font-medium text-primary group-hover:text-accent transition-colors duration-300">
+            {juz.nameAr}
+          </h3>
+          
+          <div className="flex items-center justify-center gap-2">
+            <div className="h-px w-4 bg-border" />
+            <p className="text-sm text-muted-foreground font-naskh italic">
+              {juz.startSurah}
+            </p>
+            <div className="h-px w-4 bg-border" />
+          </div>
 
-        <p className="text-center text-sm text-muted-foreground font-naskh">
-          {juz.startSurah}
-        </p>
+          {matchedSurahs.length > 0 && (
+            <div className="pt-2 flex flex-wrap justify-center gap-1.5">
+              {matchedSurahs.map(s => (
+                <span key={s} className="text-[10px] bg-accent/10 text-accent px-2 py-0.5 rounded-full font-naskh font-medium">
+                  {s}
+                </span>
+              ))}
+            </div>
+          )}
 
-        <p className="text-center text-xs text-muted-foreground mt-2 font-naskh">
-          صفحة {toArabicNumber(juz.startPage)} - {toArabicNumber(juz.endPage)}
-        </p>
+          <div className="pt-4">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-muted text-[11px] text-muted-foreground font-naskh">
+              <span>صفحة {juz.startPage}</span>
+              <span className="w-1 h-1 rounded-full bg-border" />
+              <span>{juz.endPage}</span>
+            </div>
+          </div>
+        </div>
 
-        {/* Offline status indicator */}
-        {downloadState !== "downloading" && cachedPercent !== null && (
-          <div className={`flex items-center justify-center gap-1 mt-2 text-[10px] font-naskh ${
-            cachedPercent === 100 ? "text-primary" : cachedPercent > 0 ? "text-gold" : "text-muted-foreground/50"
-          }`}>
+        {/* Status Indicators */}
+        <div className="mt-8 pt-6 border-t border-border/40 flex items-center justify-between">
+          <div className="flex items-center gap-2">
             {cachedPercent === 100 ? (
-              <>
-                <Wifi size={10} />
-                <span>متاح أوفلاين</span>
-              </>
-            ) : cachedPercent > 0 ? (
-              <>
-                <Wifi size={10} />
-                <span>{cachedPercent}% محمّل</span>
-              </>
+              <div className="flex items-center gap-1.5 text-emerald-500 text-[10px] font-medium">
+                <Wifi size={12} />
+                <span>جاهز للأوفلاين</span>
+              </div>
             ) : (
-              <>
-                <WifiOff size={10} />
-                <span>غير محمّل</span>
-              </>
+              <div className="flex items-center gap-1.5 text-muted-foreground text-[10px]">
+                <WifiOff size={12} />
+                <span>{cachedPercent ? `${cachedPercent}%` : "غير محمّل"}</span>
+              </div>
             )}
           </div>
-        )}
+          
+          <div className="text-[10px] text-muted-foreground font-serif uppercase tracking-widest">
+            Juz {juz.number}
+          </div>
+        </div>
 
+        {/* Download Progress Bar */}
         {downloadState === "downloading" && (
-          <p className="text-center text-[10px] text-gold font-naskh mt-1">
-            جاري التحميل... {progress}%
-          </p>
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted overflow-hidden">
+            <motion.div 
+              className="h-full bg-accent" 
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.3 }}
+            />
+          </div>
         )}
-        {downloadState === "done" && (
-          <p className="text-center text-[10px] text-primary font-naskh mt-1">
-            ✓ تم التحميل للأوفلاين
-          </p>
-        )}
-      </div>
+      </motion.div>
     </Link>
   );
 };

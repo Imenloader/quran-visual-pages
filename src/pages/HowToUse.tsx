@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { BookOpen, Download, Headphones, Shield, Settings, Smartphone, WifiOff, Hand, Moon, Heart, ListMusic, Star, Maximize, Bell } from "lucide-react";
+import { motion } from "framer-motion";
 
 const steps = [
   {
@@ -77,16 +78,64 @@ const steps = [
 const HowToUse = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
-      <header className="gradient-islamic pattern-islamic px-4 text-center relative overflow-hidden">
-        <div className="absolute bottom-0 left-0 right-0 h-1 gradient-gold" />
-        <div className="pb-6 pt-4">
-          <p className="font-amiri text-gold text-lg mb-2">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
-          <h1 className="font-amiri text-2xl sm:text-3xl font-bold text-primary-foreground">دليل الاستخدام</h1>
-          <p className="font-naskh text-primary-foreground/70 text-sm mt-2">دليل شامل لجميع مميزات التطبيق</p>
+      {/* Immersive Experiential Header */}
+      <header className="relative overflow-hidden pt-16 pb-24 px-6 text-center">
+        {/* Background Layers */}
+        <div className="absolute inset-0 bg-emerald-deep z-0" />
+        <div className="absolute inset-0 pattern-islamic opacity-10 z-0" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-emerald-deep z-0" />
+        
+        {/* Atmospheric Elements */}
+        <motion.div 
+          animate={{ 
+            opacity: [0.1, 0.3, 0.1],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-1/2 -right-1/4 w-full h-full bg-gold/20 rounded-full blur-[120px] z-0" 
+        />
+
+        <div className="relative z-10 container max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="flex items-center justify-center gap-4 mb-8"
+          >
+            <div className="h-px w-12 bg-gradient-to-l from-gold/50 to-transparent" />
+            <span className="text-[10px] font-bold text-gold/80 uppercase tracking-[0.4em]">دليل المستخدم الشامل</span>
+            <div className="h-px w-12 bg-gradient-to-r from-gold/50 to-transparent" />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="w-20 h-20 rounded-[2rem] bg-gold/20 backdrop-blur-md flex items-center justify-center mx-auto mb-8 border border-gold/30 shadow-gold-glow">
+              <Hand size={32} className="text-gold" strokeWidth={1.5} />
+            </div>
+            
+            <h1 className="text-4xl sm:text-6xl font-serif font-bold text-white mb-6 tracking-tight">
+              دليل <span className="italic font-light text-gold/80">الاستخدام</span>
+            </h1>
+            
+            <p className="text-white/80 font-serif italic text-lg max-w-xl mx-auto leading-relaxed">
+              تعرف على أسرار ومميزات التطبيق لتجعل من وردك اليومي رحلة إيمانية متكاملة وسهلة
+            </p>
+
+            <motion.p 
+              animate={{ opacity: [0.3, 0.6, 0.3] }}
+              transition={{ duration: 4, repeat: Infinity }}
+              className="font-amiri text-gold text-3xl mt-10"
+            >
+              ﷽
+            </motion.p>
+          </motion.div>
         </div>
       </header>
 
-      <main className="container max-w-2xl mx-auto px-4 py-6 space-y-4">
+      <main className="container max-w-3xl mx-auto px-6 -mt-12 relative z-20 space-y-4">
         {steps.map((step, i) => (
           <div
             key={i}
@@ -97,9 +146,9 @@ const HowToUse = () => {
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-naskh text-sm font-bold text-foreground mb-1">{step.title}</h3>
-              <p className="font-naskh text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
+              <p className="font-naskh text-xs text-muted-foreground/90 leading-relaxed">{step.desc}</p>
             </div>
-            <span className="font-amiri text-2xl text-accent/30 font-bold shrink-0 leading-none mt-1">
+            <span className="font-amiri text-2xl text-accent/60 font-bold shrink-0 leading-none mt-1">
               {i + 1}
             </span>
           </div>
