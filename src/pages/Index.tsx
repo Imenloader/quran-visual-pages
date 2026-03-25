@@ -8,7 +8,7 @@ import QuranHeader from "@/components/QuranHeader";
 import { Search, Bookmark, List, Download, Headphones, BookOpen, MoonStar, Shield, Loader2, Check, X, Pause, Play, Settings, Moon, Award, Heart, Sparkles, Zap, BookMarked, ChevronLeft, WifiOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import ScrollReveal from "@/components/ScrollReveal";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 
 const BOOKMARK_KEY = "quran-bookmark";
 

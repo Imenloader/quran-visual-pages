@@ -5,7 +5,7 @@ import { juzData, toArabicNumber } from "@/data/quranData";
 import { ATHKAR_DATA } from "@/data/athkarData";
 import { useState, useMemo, useCallback } from "react";
 import ScrollReveal from "@/components/ScrollReveal";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 
 type TabKey = "all" | "juz" | "athkar" | "recitations" | "reciters";
 

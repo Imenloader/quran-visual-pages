@@ -83,7 +83,13 @@ const LAST_PLAYED_KEY = "quran-last-played";
 
 const getAudioUrl = (server: string, surahId: number | string | undefined | null): string => {
   const padded = String(surahId ?? "").padStart(3, "0");
-  return `${server}${padded}.mp3`;
+  // Force https if server starts with http:// to avoid mixed content issues
+  let httpsServer = server.startsWith("http://") ? server.replace("http://", "https://") : server;
+  // Ensure trailing slash
+  if (!httpsServer.endsWith("/")) {
+    httpsServer += "/";
+  }
+  return `${httpsServer}${padded}.mp3`;
 };
 
 interface AudioPlayerContextType {
@@ -167,7 +173,9 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     setAudioLoading(true);
     const url = getAudioUrl(server, surah.id);
     if (audioRef.current) audioRef.current.pause();
-    const audio = new Audio(url);
+    const audio = new Audio();
+    audio.crossOrigin = "anonymous";
+    audio.src = url;
     audioRef.current = audio;
     audio.volume = isMuted ? 0 : volume / 100;
 

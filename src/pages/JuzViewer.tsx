@@ -11,7 +11,7 @@ import { ChevronRight, ChevronLeft, ArrowUp, Maximize, Minimize } from "lucide-r
 import LazyImage from "@/components/LazyImage";
 import QuranTextViewer from "@/components/QuranTextViewer";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/contexts/ThemeContext";
 
 const BOOKMARK_KEY = "quran-bookmark";

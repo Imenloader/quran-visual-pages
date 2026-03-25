@@ -4,7 +4,7 @@ import { Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff,
 import { toast } from "sonner";
 import { useNotifications } from "@/hooks/useNotifications";
 import { Slider } from "@/components/ui/slider";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import ScrollReveal from "@/components/ScrollReveal";
 import { toArabicNumber } from "@/data/quranData";
 

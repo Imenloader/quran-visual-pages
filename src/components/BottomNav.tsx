@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Clock, Shield, Settings, Home, ChevronUp, ChevronDown, Heart, Headphones } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 
 const NAV_ITEMS = [
   { path: "/settings", label: "الإعدادات", icon: Settings },

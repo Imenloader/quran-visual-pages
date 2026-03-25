@@ -4,7 +4,7 @@ import {
   Settings, Loader2, RefreshCw, Edit3, Check, X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import {
   usePrayerTimes,
@@ -122,7 +122,7 @@ const PrayerTimes = () => {
   const {
     settings, updateSettings, times, loading, error,
     locationLoading, detectLocation, nextPrayer, getRemainingTime,
-    previewAdhan, stopAdhan, testPrayerNotification, unlockAudio, audioUnlocked
+    previewAdhan, stopAdhan, testPrayerNotification, speakPrayer, unlockAudio, audioUnlocked
   } = usePrayerTimes({
     onAdhanStart: () => {
       if (isQuranPlaying) stopPlayer();
@@ -187,6 +187,16 @@ const PrayerTimes = () => {
       setTimeout(() => setPlayingAdhan(null), 15000);
     }
   }, [playingAdhan, previewAdhan, stopAdhan, unlockAudio]);
+
+  const handleSpeakPrayer = useCallback((prayer: keyof PrayerTimesData) => {
+    unlockAudio();
+    const voiceFound = speakPrayer(prayer);
+    if (!voiceFound) {
+      toast.warning("No English voice found on your device. It may not sound correct.");
+    } else {
+      toast.success(`Playing English notification for ${prayer} prayer`);
+    }
+  }, [speakPrayer, unlockAudio]);
 
   const prayerOrder: (keyof PrayerTimesData)[] = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
 
@@ -411,16 +421,25 @@ const PrayerTimes = () => {
                               {formatTime(times[prayer], settings.timeFormat)}
                             </span>
                             {prayer !== "Sunrise" && (
-                              <button
-                                onClick={() => {
-                                  testPrayerNotification(prayer);
-                                  toast.success(`تم إرسال تنبيه تجريبي لصلاة ${PRAYER_NAMES[prayer]}`);
-                                }}
-                                className="text-gold hover:text-accent transition-colors p-1"
-                                title="تجربة الإشعار"
-                              >
-                                <Bell size={13} />
-                              </button>
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => {
+                                    testPrayerNotification(prayer);
+                                    toast.success(`Sent test notification for ${prayer} prayer`);
+                                  }}
+                                  className="text-gold hover:text-accent transition-colors p-1"
+                                  title="تجربة الإشعار"
+                                >
+                                  <Bell size={13} />
+                                </button>
+                                <button
+                                  onClick={() => handleSpeakPrayer(prayer)}
+                                  className="text-emerald-deep hover:text-emerald-light transition-colors p-1"
+                                  title="نطق اسم الصلاة"
+                                >
+                                  <Volume2 size={13} />
+                                </button>
+                              </div>
                             )}
                             <button
                               onClick={() => handleEditPrayer(prayer)}
@@ -478,16 +497,27 @@ const PrayerTimes = () => {
                   <h2 className="font-naskh text-sm font-bold text-foreground">تنبيه الأذان</h2>
                   <p className="text-[11px] text-muted-foreground font-naskh">إشعار مع صوت الأذان عند كل صلاة</p>
                 </div>
-                <button
-                  onClick={handleEnableNotifications}
-                  className={`w-12 h-7 rounded-full transition-all relative ${
-                    settings.notificationsEnabled ? "bg-accent" : "bg-muted border border-border"
-                  }`}
-                >
-                  <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-card shadow-sm transition-all ${
-                    settings.notificationsEnabled ? "left-0.5" : "left-[calc(100%-1.625rem)]"
-                  }`} />
-                </button>
+                <div className="flex items-center gap-2">
+                  {settings.notificationsEnabled && (
+                    <button
+                      onClick={() => testPrayerNotification("Dhuhr")}
+                      className="px-3 py-1 bg-gold/10 border border-gold/20 text-gold text-[10px] font-naskh rounded-lg font-bold hover:bg-gold/20 transition-all"
+                      title="تجربة التنبيه"
+                    >
+                      تجربة
+                    </button>
+                  )}
+                  <button
+                    onClick={handleEnableNotifications}
+                    className={`w-12 h-7 rounded-full transition-all relative ${
+                      settings.notificationsEnabled ? "bg-accent" : "bg-muted border border-border"
+                    }`}
+                  >
+                    <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-card shadow-sm transition-all ${
+                      settings.notificationsEnabled ? "left-0.5" : "left-[calc(100%-1.625rem)]"
+                    }`} />
+                  </button>
+                </div>
               </div>
             </section>
 

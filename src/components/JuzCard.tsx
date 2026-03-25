@@ -4,7 +4,7 @@ import { JuzInfo, toArabicNumber, getQuranPageImageUrl } from "@/data/quranData"
 import { Download, Check, Loader2, Wifi, WifiOff, Heart, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { useFavorites } from "@/hooks/useFavorites";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 interface JuzCardProps {
   juz: JuzInfo;

@@ -5,7 +5,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { usePlaylists, PRESET_PLAYLISTS, type PlaylistTrack, type Playlist } from "@/hooks/usePlaylists";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import ScrollReveal from "@/components/ScrollReveal";
 
 interface Reciter {
@@ -89,12 +89,19 @@ const getLastPlayed = (): LastPlayed | null => {
 
 const getAudioUrl = (server: string, surahId: number | string | undefined | null): string => {
   const padded = String(surahId ?? "").padStart(3, "0");
-  return `${server}${padded}.mp3`;
+  // Force https if server starts with http:// to avoid mixed content issues
+  let httpsServer = server.startsWith("http://") ? server.replace("http://", "https://") : server;
+  // Ensure trailing slash
+  if (!httpsServer.endsWith("/")) {
+    httpsServer += "/";
+  }
+  return `${httpsServer}${padded}.mp3`;
 };
 
 const Recitations = () => {
   const [reciters, setReciters] = useState<Reciter[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedReciter, setSelectedReciter] = useState<Reciter | null>(null);
   const [selectedMoshaf, setSelectedMoshaf] = useState<Moshaf | null>(null);
@@ -123,15 +130,28 @@ const Recitations = () => {
   } = useAudioPlayer();
 
   // Load reciters
-  useEffect(() => {
+  const fetchReciters = useCallback(() => {
+    setLoading(true);
+    setError(null);
     fetch("https://mp3quran.net/api/v3/reciters?language=ar")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch reciters");
+        return res.json();
+      })
       .then((data) => {
         setReciters(data.reciters || []);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        console.error("Error fetching reciters:", err);
+        setError("حدث خطأ أثناء تحميل قائمة القراء. يرجى التحقق من اتصالك بالإنترنت.");
+        setLoading(false);
+      });
   }, []);
+
+  useEffect(() => {
+    fetchReciters();
+  }, [fetchReciters]);
 
   // Restore last played on load
   useEffect(() => {
@@ -312,7 +332,24 @@ const Recitations = () => {
   const pauseDl = () => { dlAbortRef.current?.abort(); setDlState("paused"); };
   const cancelDl = () => { dlLoadedRef.current = 0; setDlProgress(0); setDlState("idle"); };
 
-  const filteredReciters = reciters.filter((r) => r.name.includes(searchQuery));
+  const normalizeArabic = (text: string) => {
+    if (!text) return "";
+    return text
+      .replace(/[أإآ]/g, "ا")
+      .replace(/ة/g, "ه")
+      .replace(/[ىي]/g, "ي")
+      .replace(/[ؤئ]/g, "ء")
+      .replace(/[\u064B-\u0652]/g, "") // Remove diacritics
+      .replace(/\s+/g, " ") // Normalize spaces
+      .toLowerCase()
+      .trim();
+  };
+
+  const filteredReciters = reciters.filter((r) => {
+    const normalizedName = normalizeArabic(r.name);
+    const normalizedQuery = normalizeArabic(searchQuery);
+    return normalizedName.includes(normalizedQuery);
+  });
   const lastPlayed = getLastPlayed();
 
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -333,7 +370,15 @@ const Recitations = () => {
 
   const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
     if (!highlight.trim()) return <span>{text}</span>;
-    const regex = new RegExp(`(${highlight})`, "gi");
+    
+    // Create a flexible regex for Arabic characters
+    const escapedHighlight = highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const flexibleHighlight = escapedHighlight
+      .replace(/[أإآا]/g, "[أإآا]")
+      .replace(/[ةه]/g, "[ةه]")
+      .replace(/[ىي]/g, "[ىي]");
+      
+    const regex = new RegExp(`(${flexibleHighlight})`, "gi");
     const parts = text.split(regex);
     return (
       <span>
@@ -845,6 +890,26 @@ const Recitations = () => {
 
                 {loading ? (
                   <ReciterSkeleton />
+                ) : error ? (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex flex-col items-center justify-center py-20 gap-6 bg-red-500/5 border border-dashed border-red-500/20 rounded-[2rem] backdrop-blur-sm"
+                  >
+                    <div className="w-24 h-24 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/20 shadow-inner">
+                      <X size={40} className="text-red-500/40" />
+                    </div>
+                    <div className="text-center space-y-2">
+                      <p className="font-serif text-2xl text-foreground">خطأ في التحميل</p>
+                      <p className="font-naskh text-sm text-muted-foreground">{error}</p>
+                    </div>
+                    <button 
+                      onClick={fetchReciters}
+                      className="px-8 py-3 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all font-sans text-xs font-bold tracking-widest uppercase"
+                    >
+                      إعادة المحاولة
+                    </button>
+                  </motion.div>
                 ) : filteredReciters.length === 0 ? (
                   <motion.div 
                     initial={{ opacity: 0, scale: 0.9 }}

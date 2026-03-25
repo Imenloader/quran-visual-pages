@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { formatInTimeZone } from "date-fns-tz";
 import { isBefore, addDays } from "date-fns";
 import { toast } from "sonner";
+import { speakPrayerName } from "@/services/ttsService";
 
 const PRAYER_SETTINGS_KEY = "prayer-times-settings";
 
@@ -30,7 +31,7 @@ const DEFAULT_SETTINGS: PrayerSettings = {
   longitude: 31.2569,
   cityName: "المعادي، القاهرة (تلقائي)",
   method: 5, // Egyptian General Authority of Survey
-  adhanSound: "makkah",
+  adhanSound: "tts_arabic",
   notificationsEnabled: false,
   manualOverrides: {},
   timeFormat: "12h",
@@ -40,57 +41,62 @@ export const ADHAN_SOUNDS: { id: string; label: string; url: string }[] = [
   {
     id: "makkah",
     label: "أذان الحرم المكي",
-    url: "https://cdn.aladhan.com/audio/adhans/1.mp3",
+    url: "https://everyayah.com/data/Adhan/Adhan_Makkah.mp3",
   },
   {
     id: "madinah",
     label: "أذان المسجد النبوي",
-    url: "https://cdn.aladhan.com/audio/adhans/2.mp3",
+    url: "https://everyayah.com/data/Adhan/Adhan_Madinah.mp3",
   },
   {
     id: "alaqsa",
     label: "أذان المسجد الأقصى",
-    url: "https://cdn.aladhan.com/audio/adhans/3.mp3",
+    url: "https://everyayah.com/data/Adhan/Adhan_Al-Aqsa.mp3",
   },
   {
     id: "egypt",
     label: "أذان مصر (القاهرة)",
-    url: "https://cdn.aladhan.com/audio/adhans/4.mp3",
+    url: "https://everyayah.com/data/Adhan/Adhan_Egypt.mp3",
   },
   {
     id: "turkey",
     label: "أذان تركيا (إسطنبول)",
-    url: "https://cdn.aladhan.com/audio/adhans/7.mp3",
-  },
-  {
-    id: "bosnia",
-    label: "أذان البوسنة",
-    url: "https://cdn.aladhan.com/audio/adhans/8.mp3",
+    url: "https://everyayah.com/data/Adhan/Adhan_Turkey.mp3",
   },
   {
     id: "mishary",
     label: "مشاري العفاسي",
-    url: "https://cdn.aladhan.com/audio/adhans/6.mp3",
+    url: "https://everyayah.com/data/Adhan/Adhan_Mishary_Rashid_Al_Afasy.mp3",
   },
   {
     id: "abdulbaset",
     label: "عبدالباسط عبدالصمد",
-    url: "https://cdn.aladhan.com/audio/adhans/5.mp3",
+    url: "https://everyayah.com/data/Adhan/Adhan_Abdul_Baset_Abdul_Samad.mp3",
   },
   {
     id: "mansour",
     label: "منصور السالمي",
-    url: "https://cdn.aladhan.com/audio/adhans/10.mp3",
+    url: "https://everyayah.com/data/Adhan/Adhan_Mansour_Al_Salimi.mp3",
   },
   {
     id: "naif",
     label: "نايف الفايز",
-    url: "https://cdn.aladhan.com/audio/adhans/11.mp3",
+    url: "https://everyayah.com/data/Adhan/Adhan_Naif_Al_Fayez.mp3",
   },
   {
     id: "yusuf",
     label: "يوسف إسلام",
-    url: "https://cdn.aladhan.com/audio/adhans/9.mp3",
+    url: "https://everyayah.com/data/Adhan/Adhan_Yusuf_Islam.mp3",
+  },
+  {
+    id: "tts_arabic",
+    label: "نطق اسم الصلاة (إنجليزي)",
+    url: "tts",
+  },
+  {
+    id: "beep",
+    label: "تنبيه بسيط (Beep)",
+    url: "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3",
   },
 ];
 
@@ -200,6 +206,8 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
   // Function to unlock audio on first interaction
   const unlockAudio = useCallback(() => {
     if (audioUnlocked) return;
+    
+    // Unlock standard audio
     const audio = new Audio();
     audio.play().then(() => {
       audio.pause();
@@ -208,9 +216,17 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
     }).catch(() => {
       console.log("Audio unlock failed - waiting for interaction");
     });
+
+    // Unlock SpeechSynthesis
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.getVoices();
+      // Speak an empty string to unlock TTS on some mobile browsers
+      const utterance = new SpeechSynthesisUtterance("");
+      window.speechSynthesis.speak(utterance);
+    }
   }, [audioUnlocked]);
 
-  const playAdhanSound = useCallback((url: string) => {
+  const playAdhanSound = useCallback(async (soundId: string, prayerNameAr?: string) => {
     const FALLBACK_SOUND = "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3";
     
     const playAudio = (audioUrl: string, isFallback = false) => {
@@ -227,6 +243,7 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
         }
         
         const audio = new Audio();
+        audio.crossOrigin = "anonymous";
         audio.src = audioUrl;
         audio.preload = "auto";
         audioRef.current = audio;
@@ -257,7 +274,18 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
       }
     };
 
-    playAudio(url);
+    if (soundId === "tts_arabic" && prayerNameAr) {
+      // Find the key for the prayerNameAr to get the English name
+      const prayerKey = (Object.keys(PRAYER_NAMES) as (keyof PrayerTimesData)[]).find(
+        key => PRAYER_NAMES[key] === prayerNameAr
+      );
+      const englishName = prayerKey || prayerNameAr;
+      console.log("Calling speakPrayerName for:", englishName);
+      speakPrayerName(englishName);
+    } else {
+      const soundUrl = ADHAN_SOUNDS.find(s => s.id === soundId)?.url || ADHAN_SOUNDS[0].url;
+      playAudio(soundUrl);
+    }
   }, []);
 
   const fetchTimes = useCallback(async (lat: number, lng: number, method: number) => {
@@ -344,7 +372,6 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
     if (!settings.notificationsEnabled || !effectiveTimes) return;
     if (!("Notification" in window) || Notification.permission !== "granted") return;
 
-    const adhanUrl = ADHAN_SOUNDS.find((s) => s.id === settings.adhanSound)?.url || ADHAN_SOUNDS[0].url;
     const prayersToNotify: (keyof PrayerTimesData)[] = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
 
     prayersToNotify.forEach((prayer) => {
@@ -366,8 +393,8 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
       if (ms > 0) {
         const timer = setTimeout(() => {
           // Show notification
-          const title = `🕌 حان وقت صلاة ${PRAYER_NAMES[prayer]}`;
-          const body = `حان الآن موعد أذان ${PRAYER_NAMES[prayer]} - ${timeStr}`;
+          const title = `🕌 Time for ${prayer} Prayer`;
+          const body = `It is now time for ${prayer} prayer - ${timeStr}`;
           
           if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
             navigator.serviceWorker.ready.then((reg) => {
@@ -375,8 +402,8 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
                 body,
                 icon: "/pwa-192x192.png",
                 tag: `prayer-${prayer}`,
-                dir: "rtl",
-                lang: "ar",
+                dir: "ltr",
+                lang: "en",
                 renotify: true,
                 vibrate: [200, 100, 200],
               } as NotificationOptions);
@@ -386,13 +413,13 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
               body,
               icon: "/pwa-192x192.png",
               tag: `prayer-${prayer}`,
-              dir: "rtl",
-              lang: "ar",
+              dir: "ltr",
+              lang: "en",
             });
           }
 
           // Play adhan
-          playAdhanSound(adhanUrl);
+          playAdhanSound(settings.adhanSound, PRAYER_NAMES[prayer]);
         }, ms);
         notifTimersRef.current.push(timer);
       }
@@ -427,13 +454,13 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
       audioRef.current.pause();
       audioRef.current = null;
     }
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
   }, []);
 
   const previewAdhan = useCallback((soundId: string) => {
-    const url = ADHAN_SOUNDS.find((s) => s.id === soundId)?.url;
-    if (!url) return;
-    
-    playAdhanSound(url);
+    playAdhanSound(soundId, "العصر"); // Use Asr as preview example
     
     // Stop after 15 seconds
     const stopTimer = setTimeout(() => {
@@ -446,22 +473,21 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
   const testPrayerNotification = useCallback((prayer: keyof PrayerTimesData) => {
     if (!effectiveTimes) return;
     const timeStr = effectiveTimes[prayer];
-    const title = `🕌 حان وقت صلاة ${PRAYER_NAMES[prayer]}`;
-    const body = `حان الآن موعد أذان ${PRAYER_NAMES[prayer]} - ${timeStr}`;
+    const title = `🕌 Time for ${prayer} Prayer`;
+    const body = `It is now time for ${prayer} prayer - ${timeStr}`;
     
     if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
       navigator.serviceWorker.ready.then((reg) => {
         reg.showNotification(title, {
-          body, icon: "/pwa-192x192.png", tag: `test-${prayer}`, dir: "rtl", lang: "ar", renotify: true,
+          body, icon: "/pwa-192x192.png", tag: `test-${prayer}`, dir: "ltr", lang: "en", renotify: true,
         } as NotificationOptions);
       });
     } else if ("Notification" in window && Notification.permission === "granted") {
-      new Notification(title, { body, icon: "/pwa-192x192.png", tag: `test-${prayer}`, dir: "rtl", lang: "ar" });
+      new Notification(title, { body, icon: "/pwa-192x192.png", tag: `test-${prayer}`, dir: "ltr", lang: "en" });
     }
     
     // Play adhan
-    const adhanUrl = ADHAN_SOUNDS.find((s) => s.id === settings.adhanSound)?.url || ADHAN_SOUNDS[0].url;
-    playAdhanSound(adhanUrl);
+    playAdhanSound(settings.adhanSound, PRAYER_NAMES[prayer]);
     
     setTimeout(() => stopAdhan(), 15000);
   }, [effectiveTimes, settings.adhanSound, playAdhanSound, stopAdhan]);
@@ -479,6 +505,10 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
     previewAdhan,
     stopAdhan,
     testPrayerNotification,
+    speakPrayer: (prayer: keyof PrayerTimesData) => {
+      console.log("speakPrayer hook called for:", prayer);
+      return speakPrayerName(prayer);
+    },
     unlockAudio,
     audioUnlocked,
   };

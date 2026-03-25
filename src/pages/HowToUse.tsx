@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { BookOpen, Download, Headphones, Shield, Settings, Smartphone, WifiOff, Hand, Moon, Heart, ListMusic, Star, Maximize, Bell } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 const steps = [
   {

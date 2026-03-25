@@ -3,25 +3,25 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, Suspense } from "react";
 import NetworkStatus from "./components/NetworkStatus";
 import BottomNav from "./components/BottomNav";
 import GlobalAudioPlayer from "./components/GlobalAudioPlayer";
 import { AudioPlayerProvider } from "./contexts/AudioPlayerContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
-const Index = lazy(() => import("./pages/Index"));
-const JuzViewer = lazy(() => import("./pages/JuzViewer"));
-const Install = lazy(() => import("./pages/Install"));
-const Recitations = lazy(() => import("./pages/Recitations"));
-const EmbedView = lazy(() => import("./pages/EmbedView"));
-const Athkar = lazy(() => import("./pages/Athkar"));
-const Favorites = lazy(() => import("./pages/Favorites"));
-const Settings = lazy(() => import("./pages/Settings"));
-const PrayerTimes = lazy(() => import("./pages/PrayerTimes"));
-const HowToUse = lazy(() => import("./pages/HowToUse"));
-const Tajweed = lazy(() => import("./pages/Tajweed"));
-const NotFound = lazy(() => import("./pages/NotFound"));
+import Index from "./pages/Index";
+import JuzViewer from "./pages/JuzViewer";
+import Install from "./pages/Install";
+import Recitations from "./pages/Recitations";
+import EmbedView from "./pages/EmbedView";
+import Athkar from "./pages/Athkar";
+import Favorites from "./pages/Favorites";
+import Settings from "./pages/Settings";
+import PrayerTimes from "./pages/PrayerTimes";
+import HowToUse from "./pages/HowToUse";
+import Tajweed from "./pages/Tajweed";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 

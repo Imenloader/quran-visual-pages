@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import QuranHeader from "@/components/QuranHeader";
 import { Book, Info, Sparkles, Star, Heart, Bookmark, List, Search, BookOpen, Shield, Zap } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";

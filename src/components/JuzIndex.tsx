@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { X, BookOpen } from "lucide-react";
 import { juzData, toArabicNumber } from "@/data/quranData";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 interface JuzIndexProps {
   onClose: () => void;

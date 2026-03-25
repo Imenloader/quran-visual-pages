@@ -5,7 +5,7 @@ import { ATHKAR_DATA, type AthkarCategory } from "@/data/athkarData";
 import { useFavorites } from "@/hooks/useFavorites";
 import { toArabicNumber } from "@/data/quranData";
 import ScrollReveal from "@/components/ScrollReveal";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   sunrise: <Sunrise size={20} />,
