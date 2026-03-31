@@ -2,14 +2,14 @@ import { useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface SwipeConfig {
-  juzNumber: number;
+  onSwipeLeft?: () => void;
+  onSwipeRight?: () => void;
   minSwipeDistance?: number;
 }
 
-export function useSwipeNavigation({ juzNumber, minSwipeDistance = 80 }: SwipeConfig) {
+export function useSwipeNavigation({ onSwipeLeft, onSwipeRight, minSwipeDistance = 80 }: SwipeConfig) {
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
-  const navigate = useNavigate();
 
   const onTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
@@ -25,12 +25,12 @@ export function useSwipeNavigation({ juzNumber, minSwipeDistance = 80 }: SwipeCo
     if (Math.abs(diff) < minSwipeDistance) return;
 
     // RTL: swipe left = next, swipe right = previous
-    if (diff > 0 && juzNumber > 1) {
-      navigate(`/juz/${juzNumber - 1}`);
-    } else if (diff < 0 && juzNumber < 30) {
-      navigate(`/juz/${juzNumber + 1}`);
+    if (diff > 0 && onSwipeLeft) {
+      onSwipeLeft();
+    } else if (diff < 0 && onSwipeRight) {
+      onSwipeRight();
     }
-  }, [juzNumber, minSwipeDistance, navigate]);
+  }, [minSwipeDistance, onSwipeLeft, onSwipeRight]);
 
   return { onTouchStart, onTouchMove, onTouchEnd };
 }

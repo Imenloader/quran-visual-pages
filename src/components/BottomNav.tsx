@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Clock, Shield, Settings, Home, ChevronUp, ChevronDown, Heart, Headphones } from "lucide-react";
+import { Clock, Shield, Settings, Home, ChevronUp, Headphones } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 const NAV_ITEMS = [
@@ -15,6 +15,12 @@ const BottomNav = () => {
   const location = useLocation();
   const [isHidden, setIsHidden] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const triggerHaptic = useCallback(() => {
+    if (typeof window !== "undefined" && window.navigator && window.navigator.vibrate) {
+      window.navigator.vibrate(15);
+    }
+  }, []);
 
   useEffect(() => {
     const handler = () => setIsFullscreen(document.documentElement.classList.contains("fullscreen-reading"));
@@ -35,7 +41,10 @@ const BottomNav = () => {
             y: isHidden ? 0 : 0,
             opacity: 1
           }}
-          onClick={() => setIsHidden(!isHidden)}
+          onClick={() => {
+            setIsHidden(!isHidden);
+            triggerHaptic();
+          }}
           className="w-12 h-7 rounded-t-2xl bg-card/95 backdrop-blur-xl border border-border/40 border-b-0 flex items-center justify-center text-muted-foreground hover:text-accent transition-all shadow-lg group"
           aria-label={isHidden ? "إظهار القائمة" : "إخفاء القائمة"}
         >
@@ -69,6 +78,7 @@ const BottomNav = () => {
                     <Link
                       key={item.path}
                       to={item.path}
+                      onClick={triggerHaptic}
                       className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all shadow-islamic relative group z-20 ${
                         isActive 
                           ? "bg-accent text-accent-foreground scale-110 shadow-accent/20" 
@@ -90,6 +100,7 @@ const BottomNav = () => {
                   <Link
                     key={item.path}
                     to={item.path}
+                    onClick={triggerHaptic}
                     className="flex flex-col items-center py-2 px-1 min-w-[64px] group relative z-10"
                   >
                     <motion.div 

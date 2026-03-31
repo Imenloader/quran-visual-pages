@@ -610,17 +610,80 @@ const PrayerTimes = () => {
             {showSettings && (
               <section className="bg-card border border-border rounded-2xl p-5 shadow-soft space-y-4">
                 {/* Calculation method */}
-                <div>
-                  <label className="font-naskh text-sm font-bold text-foreground mb-2 block">طريقة الحساب</label>
-                  <select
-                    value={settings.method}
-                    onChange={(e) => updateSettings({ method: parseInt(e.target.value) })}
-                    className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-sm font-naskh text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  >
-                    {CALCULATION_METHODS.map((m) => (
-                      <option key={m.id} value={m.id}>{m.label}</option>
-                    ))}
-                  </select>
+                <div className="space-y-4">
+                  <div>
+                    <label className="font-naskh text-sm font-bold text-foreground mb-2 block">طريقة الحساب</label>
+                    <select
+                      value={settings.method}
+                      onChange={(e) => updateSettings({ method: parseInt(e.target.value) })}
+                      className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-sm font-naskh text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    >
+                      {CALCULATION_METHODS.map((m) => (
+                        <option key={m.id} value={m.id}>{m.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Pre-prayer notification */}
+                  <div className="p-4 bg-muted/50 rounded-2xl border border-border/50 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-naskh text-sm font-bold text-foreground">تنبيه قبل الصلاة</p>
+                        <p className="text-[10px] text-muted-foreground font-naskh">تنبيه إضافي قبل موعد الأذان ببضع دقائق</p>
+                      </div>
+                      <button
+                        onClick={() => updateSettings({ prePrayerNotification: !settings.prePrayerNotification })}
+                        className={`w-10 h-6 rounded-full transition-all relative ${
+                          settings.prePrayerNotification ? "bg-accent" : "bg-muted-foreground/20"
+                        }`}
+                      >
+                        <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-card shadow-sm transition-all ${
+                          settings.prePrayerNotification ? "left-0.5" : "left-[calc(100%-1.375rem)]"
+                        }`} />
+                      </button>
+                    </div>
+                    
+                    {settings.prePrayerNotification && (
+                      <div className="flex items-center gap-2 pt-2 border-t border-border/30">
+                        <span className="text-[11px] font-naskh text-muted-foreground">قبل الأذان بـ:</span>
+                        <select
+                          value={settings.prePrayerMinutes}
+                          onChange={(e) => updateSettings({ prePrayerMinutes: parseInt(e.target.value) })}
+                          className="bg-card border border-border rounded-lg px-2 py-1 text-xs font-naskh text-foreground"
+                        >
+                          {[5, 10, 15, 20, 30].map(m => (
+                            <option key={m} value={m}>{m} دقائق</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Enabled prayers selection */}
+                  <div>
+                    <label className="font-naskh text-sm font-bold text-foreground mb-3 block">تفعيل التنبيهات لـ:</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {(Object.keys(PRAYER_NAMES) as (keyof PrayerTimesData)[]).map((prayer) => (
+                        <button
+                          key={prayer}
+                          onClick={() => {
+                            const current = settings.enabledPrayers;
+                            const next = current.includes(prayer)
+                              ? current.filter(p => p !== prayer)
+                              : [...current, prayer];
+                            updateSettings({ enabledPrayers: next });
+                          }}
+                          className={`py-2 px-1 rounded-xl border-2 transition-all font-naskh text-[11px] ${
+                            settings.enabledPrayers.includes(prayer)
+                              ? "border-emerald-deep bg-emerald-deep/5 text-emerald-deep font-bold"
+                              : "border-border text-muted-foreground hover:bg-muted"
+                          }`}
+                        >
+                          {PRAYER_NAMES[prayer]}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Time format */}

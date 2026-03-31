@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 
 type Theme = "light" | "dark" | "sepia";
 type ReadingMode = "image" | "text";
+type ScrollDirection = "vertical" | "horizontal";
 
 interface ThemeContextType {
   theme: Theme;
@@ -10,6 +11,8 @@ interface ThemeContextType {
   setDimming: (dimming: number) => void;
   readingMode: ReadingMode;
   setReadingMode: (mode: ReadingMode) => void;
+  scrollDirection: ScrollDirection;
+  setScrollDirection: (direction: ScrollDirection) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -27,6 +30,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return (saved as ReadingMode) || "image";
   });
 
+  const [scrollDirection, setScrollDirectionState] = useState<ScrollDirection>(() => {
+    const saved = localStorage.getItem("quran-scroll-direction");
+    return (saved as ScrollDirection) || "vertical";
+  });
+
   const [dimming, setDimmingState] = useState<number>(() => {
     const saved = localStorage.getItem("quran-page-dimming");
     return saved ? parseInt(saved) : 80;
@@ -40,6 +48,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const setReadingMode = (newMode: ReadingMode) => {
     setReadingModeState(newMode);
     localStorage.setItem("quran-reading-mode", newMode);
+  };
+
+  const setScrollDirection = (newDirection: ScrollDirection) => {
+    setScrollDirectionState(newDirection);
+    localStorage.setItem("quran-scroll-direction", newDirection);
   };
 
   const setDimming = (newDimming: number) => {
@@ -65,7 +78,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [theme, dimming]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, dimming, setDimming, readingMode, setReadingMode }}>
+    <ThemeContext.Provider value={{ 
+      theme, setTheme, 
+      dimming, setDimming, 
+      readingMode, setReadingMode,
+      scrollDirection, setScrollDirection
+    }}>
       {children}
     </ThemeContext.Provider>
   );

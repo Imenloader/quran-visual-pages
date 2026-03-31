@@ -42,6 +42,10 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
   const totalPages = juz.endPage - juz.startPage + 1;
   const matchedSurahs = searchQuery ? juz.surahs.filter(s => s.includes(searchQuery)) : [];
 
+  const history = JSON.parse(localStorage.getItem("quran-reading-history") || "{}");
+  const juzHistory = history[juz.number] || { pagesRead: 0 };
+  const readingProgress = (juzHistory.pagesRead / totalPages) * 100;
+
   useEffect(() => {
     if (wasDone) return;
     let cancelled = false;
@@ -148,6 +152,15 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
           isBookmarked ? "border-accent shadow-gold-glow" : "border-border/60 hover:border-primary/40"
         }`}
       >
+        {/* Reading Progress Bar */}
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted/20 z-20">
+          <motion.div 
+            initial={{ width: 0 }}
+            animate={{ width: `${readingProgress}%` }}
+            className="h-full bg-accent/40"
+          />
+        </div>
+
         {/* Decorative Background Element */}
         <div className="absolute -top-12 -left-12 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors" />
         
@@ -219,6 +232,10 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
           <h3 className="font-serif text-3xl font-medium text-primary group-hover:text-accent transition-colors duration-300">
             {juz.nameAr}
           </h3>
+
+          <p className="text-xs text-muted-foreground font-naskh leading-relaxed max-w-[240px] mx-auto">
+            {juz.surahs.join("، ")}
+          </p>
           
           <div className="flex items-center justify-center gap-2">
             <div className="h-px w-4 bg-border" />

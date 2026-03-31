@@ -67,21 +67,21 @@ const QuranHeader = ({ title = "القرآن الكريم" }: QuranHeaderProps) 
       </div>
 
       {/* Content Container */}
-      <div className="relative z-10 container max-w-6xl mx-auto px-6 py-24 flex flex-col items-center text-center">
+      <div className="relative z-10 container max-w-6xl mx-auto px-6 py-16 md:py-24 flex flex-col items-center text-center">
         
         {/* Micro-label with animated lines */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
-          className="flex items-center gap-6 mb-12"
+          className="flex items-center gap-4 md:gap-6 mb-8 md:mb-12"
         >
           <motion.div 
             animate={{ width: [0, 48, 32] }}
             transition={{ duration: 1.5, ease: "easeOut" }}
             className="h-px bg-gradient-to-l from-gold/60 to-transparent" 
           />
-          <span className="text-[11px] uppercase tracking-[0.5em] font-bold text-gold drop-shadow-sm">
+          <span className="text-[9px] md:text-[11px] uppercase tracking-[0.3em] md:tracking-[0.5em] font-bold text-gold drop-shadow-sm">
             المصحف الإلكتروني الشامل
           </span>
           <motion.div 
@@ -92,14 +92,14 @@ const QuranHeader = ({ title = "القرآن الكريم" }: QuranHeaderProps) 
         </motion.div>
 
         {/* Main Title with Depth and Shadow */}
-        <div className="relative mb-14">
+        <div className="relative mb-10 md:mb-14">
           <motion.div
             initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
             transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
             className="relative"
           >
-            <h1 className="font-serif text-7xl sm:text-8xl md:text-[10rem] font-light text-white leading-none tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+            <h1 className="font-serif text-5xl sm:text-7xl md:text-8xl lg:text-[10rem] font-light text-white leading-none tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
               {title}
             </h1>
             

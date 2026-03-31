@@ -22,6 +22,9 @@ export interface PrayerSettings {
   method: number; // calculation method
   adhanSound: string;
   notificationsEnabled: boolean;
+  prePrayerNotification: boolean;
+  prePrayerMinutes: number;
+  enabledPrayers: (keyof PrayerTimesData)[];
   manualOverrides: Partial<PrayerTimesData>;
   timeFormat: "12h" | "24h";
 }
@@ -33,6 +36,9 @@ const DEFAULT_SETTINGS: PrayerSettings = {
   method: 5, // Egyptian General Authority of Survey
   adhanSound: "tts_arabic",
   notificationsEnabled: false,
+  prePrayerNotification: false,
+  prePrayerMinutes: 10,
+  enabledPrayers: ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"],
   manualOverrides: {},
   timeFormat: "12h",
 };
@@ -41,52 +47,87 @@ export const ADHAN_SOUNDS: { id: string; label: string; url: string }[] = [
   {
     id: "makkah",
     label: "أذان الحرم المكي",
-    url: "https://everyayah.com/data/Adhan/Adhan_Makkah.mp3",
+    url: "/Adhan%20Sounds/Adhan-Makkah.mp3",
   },
   {
     id: "madinah",
     label: "أذان المسجد النبوي",
-    url: "https://everyayah.com/data/Adhan/Adhan_Madinah.mp3",
+    url: "/Adhan%20Sounds/Adhan-Madinah.mp3",
   },
   {
     id: "alaqsa",
     label: "أذان المسجد الأقصى",
-    url: "https://everyayah.com/data/Adhan/Adhan_Al-Aqsa.mp3",
+    url: "/Adhan%20Sounds/Adhan-Alaqsa.mp3",
   },
   {
     id: "egypt",
     label: "أذان مصر (القاهرة)",
-    url: "https://everyayah.com/data/Adhan/Adhan_Egypt.mp3",
-  },
-  {
-    id: "turkey",
-    label: "أذان تركيا (إسطنبول)",
-    url: "https://everyayah.com/data/Adhan/Adhan_Turkey.mp3",
-  },
-  {
-    id: "mishary",
-    label: "مشاري العفاسي",
-    url: "https://everyayah.com/data/Adhan/Adhan_Mishary_Rashid_Al_Afasy.mp3",
+    url: "/Adhan%20Sounds/Adhan-Egypt.mp3",
   },
   {
     id: "abdulbaset",
     label: "عبدالباسط عبدالصمد",
-    url: "https://everyayah.com/data/Adhan/Adhan_Abdul_Baset_Abdul_Samad.mp3",
+    url: "/Adhan%20Sounds/Abdul-Basit.mp3",
   },
   {
-    id: "mansour",
-    label: "منصور السالمي",
-    url: "https://everyayah.com/data/Adhan/Adhan_Mansour_Al_Salimi.mp3",
+    id: "minshawi",
+    label: "محمد صديق المنشاوي",
+    url: "/Adhan%20Sounds/Minshawi.mp3",
   },
   {
-    id: "naif",
-    label: "نايف الفايز",
-    url: "https://everyayah.com/data/Adhan/Adhan_Naif_Al_Fayez.mp3",
+    id: "naghshbandi",
+    label: "سيد النقشبندي",
+    url: "/Adhan%20Sounds/Naghshbandi.mp3",
   },
   {
     id: "yusuf",
     label: "يوسف إسلام",
-    url: "https://everyayah.com/data/Adhan/Adhan_Yusuf_Islam.mp3",
+    url: "/Adhan%20Sounds/Yusuf-Islam.mp3",
+  },
+  {
+    id: "halab",
+    label: "أذان حلب",
+    url: "/Adhan%20Sounds/Adhan-Halab.mp3",
+  },
+  {
+    id: "abdulghaffar",
+    label: "عبدالغفار",
+    url: "/Adhan%20Sounds/Abdul-Ghaffar.mp3",
+  },
+  {
+    id: "abdulhakam",
+    label: "عبدالحكم",
+    url: "/Adhan%20Sounds/Abdul-Hakam.mp3",
+  },
+  {
+    id: "hussaini",
+    label: "الحسيني",
+    url: "/Adhan%20Sounds/Al-Hussaini.mp3",
+  },
+  {
+    id: "bakir",
+    label: "بكر باش",
+    url: "/Adhan%20Sounds/Bakir-Bash.mp3",
+  },
+  {
+    id: "hafez",
+    label: "حافظ",
+    url: "/Adhan%20Sounds/Hafez.mp3",
+  },
+  {
+    id: "hafizmurad",
+    label: "حافظ مراد",
+    url: "/Adhan%20Sounds/Hafiz-Murad.mp3",
+  },
+  {
+    id: "saber",
+    label: "صابر",
+    url: "/Adhan%20Sounds/Saber.mp3",
+  },
+  {
+    id: "sharif",
+    label: "شريف دومان",
+    url: "/Adhan%20Sounds/Sharif-Doman.mp3",
   },
   {
     id: "tts_arabic",
@@ -372,29 +413,24 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
     if (!settings.notificationsEnabled || !effectiveTimes) return;
     if (!("Notification" in window) || Notification.permission !== "granted") return;
 
-    const prayersToNotify: (keyof PrayerTimesData)[] = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
+    const prayersToNotify = settings.enabledPrayers;
 
     prayersToNotify.forEach((prayer) => {
       const timeStr = effectiveTimes[prayer];
       const [hours, minutes] = timeStr.split(":").map(Number);
       
       const now = getCairoDate();
+      
+      // 1. Schedule Main Prayer Notification
       const target = new Date(now);
       target.setHours(hours, minutes, 0, 0);
-
-      // If time has passed today, schedule for tomorrow
-      if (isBefore(target, now)) {
-        target.setDate(target.getDate() + 1);
-      }
+      if (isBefore(target, now)) target.setDate(target.getDate() + 1);
 
       const ms = target.getTime() - now.getTime();
-      
-      // Only schedule if it's within the next 24 hours (which it should be)
       if (ms > 0) {
         const timer = setTimeout(() => {
-          // Show notification
-          const title = `🕌 Time for ${prayer} Prayer`;
-          const body = `It is now time for ${prayer} prayer - ${timeStr}`;
+          const title = `🕌 حان الآن وقت صلاة ${PRAYER_NAMES[prayer]}`;
+          const body = `الله أكبر، الله أكبر.. حان الآن موعد أذان صلاة ${PRAYER_NAMES[prayer]} حسب توقيت ${settings.cityName || "القاهرة"}`;
           
           if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
             navigator.serviceWorker.ready.then((reg) => {
@@ -402,10 +438,10 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
                 body,
                 icon: "/pwa-192x192.png",
                 tag: `prayer-${prayer}`,
-                dir: "ltr",
-                lang: "en",
+                dir: "rtl",
+                lang: "ar",
                 renotify: true,
-                vibrate: [200, 100, 200],
+                vibrate: [200, 100, 200, 100, 200],
               } as NotificationOptions);
             });
           } else {
@@ -413,15 +449,50 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
               body,
               icon: "/pwa-192x192.png",
               tag: `prayer-${prayer}`,
-              dir: "ltr",
-              lang: "en",
+              dir: "rtl",
+              lang: "ar",
             });
           }
 
-          // Play adhan
           playAdhanSound(settings.adhanSound, PRAYER_NAMES[prayer]);
         }, ms);
         notifTimersRef.current.push(timer);
+      }
+
+      // 2. Schedule Pre-Prayer Notification
+      if (settings.prePrayerNotification && prayer !== "Sunrise") {
+        const preTarget = new Date(target);
+        preTarget.setMinutes(preTarget.getMinutes() - settings.prePrayerMinutes);
+        
+        const preMs = preTarget.getTime() - now.getTime();
+        if (preMs > 0) {
+          const preTimer = setTimeout(() => {
+            const title = `🔔 اقترب موعد صلاة ${PRAYER_NAMES[prayer]}`;
+            const body = `بقي ${settings.prePrayerMinutes} دقائق على أذان صلاة ${PRAYER_NAMES[prayer]}`;
+            
+            if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+              navigator.serviceWorker.ready.then((reg) => {
+                reg.showNotification(title, {
+                  body,
+                  icon: "/pwa-192x192.png",
+                  tag: `pre-prayer-${prayer}`,
+                  dir: "rtl",
+                  lang: "ar",
+                  renotify: true,
+                } as NotificationOptions);
+              });
+            } else {
+              new Notification(title, {
+                body,
+                icon: "/pwa-192x192.png",
+                tag: `pre-prayer-${prayer}`,
+                dir: "rtl",
+                lang: "ar",
+              });
+            }
+          }, preMs);
+          notifTimersRef.current.push(preTimer);
+        }
       }
     });
 
@@ -429,7 +500,7 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
       notifTimersRef.current.forEach(clearTimeout);
       notifTimersRef.current = [];
     };
-  }, [effectiveTimes, settings.notificationsEnabled, settings.adhanSound, playAdhanSound]);
+  }, [effectiveTimes, settings.notificationsEnabled, settings.adhanSound, settings.cityName, settings.enabledPrayers, settings.prePrayerMinutes, settings.prePrayerNotification, playAdhanSound]);
 
   const updateSettings = useCallback(
     (partial: Partial<PrayerSettings>) => {

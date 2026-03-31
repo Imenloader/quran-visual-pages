@@ -65,6 +65,33 @@ const Index = () => {
   const { setReadingMode } = useTheme();
   const navigate = useNavigate();
   const bookmark = getBookmark();
+  const [verseOfDay, setVerseOfDay] = useState<{ text: string; surah: string; number: number } | null>(null);
+  const [readingStats, setReadingStats] = useState({ completedJuz: 0, totalPagesRead: 0 });
+
+  useEffect(() => {
+    // Generate a pseudo-random verse of the day based on the date
+    const date = new Date();
+    const seed = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
+    const verses = [
+      { text: "إِنَّ مَعَ الْعُسْرِ يُسْرًا", surah: "الشرح", number: 6 },
+      { text: "وَقُل رَّبِّ زِدْنِي عِلْمًا", surah: "طه", number: 114 },
+      { text: "فَاذْكُرُونِي أَذْكُرْكُمْ", surah: "البقرة", number: 152 },
+      { text: "وَاللَّهُ مَعَ الصَّابِرِينَ", surah: "البقرة", number: 249 },
+      { text: "إِنَّ اللَّهَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ", surah: "البقرة", number: 20 },
+      { text: "وَتَزَوَّدُوا فَإِنَّ خَيْرَ الزَّادِ التَّقْوَىٰ", surah: "البقرة", number: 197 },
+      { text: "لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا", surah: "البقرة", number: 286 },
+    ];
+    setVerseOfDay(verses[seed % verses.length]);
+
+    // Calculate reading stats from localStorage
+    const history = JSON.parse(localStorage.getItem("quran-reading-history") || "{}");
+    const completed = Object.keys(history).length;
+    const pagesRead = Object.values(history).reduce((acc: number, val: unknown) => {
+      const v = val as { pagesRead?: number };
+      return acc + (v.pagesRead || 0);
+    }, 0);
+    setReadingStats({ completedJuz: completed, totalPagesRead: pagesRead });
+  }, []);
 
   const totalPages = 604;
 
@@ -189,16 +216,16 @@ const Index = () => {
     <div className="min-h-screen bg-background pb-32">
       <QuranHeader />
       
-      <main className="container max-w-7xl mx-auto px-6 -mt-24 relative z-30">
+      <main className="container max-w-7xl mx-auto px-4 sm:px-6 -mt-16 md:-mt-24 relative z-30">
         {/* Immersive Bento Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 mb-12 md:mb-16">
           
           {/* Hero Section - The "Heart" of the App */}
           <motion.div 
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-8 relative overflow-hidden rounded-[3rem] bg-card/40 backdrop-blur-2xl border border-border/40 p-12 group shadow-islamic"
+            className="lg:col-span-8 relative overflow-hidden rounded-[2rem] md:rounded-[3rem] bg-card/40 backdrop-blur-2xl border border-border/40 p-6 md:p-12 group shadow-islamic"
           >
             {/* Animated Background Elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -231,13 +258,13 @@ const Index = () => {
                   </div>
                 </motion.div>
                 
-                <h1 className="text-5xl md:text-7xl font-serif font-light mb-8 text-primary leading-[1.1] tracking-tight">
+                <h1 className="text-4xl md:text-7xl font-serif font-light mb-6 md:mb-8 text-primary leading-[1.1] tracking-tight">
                   مصحف <span className="italic font-medium text-accent drop-shadow-sm">المدينة المنورة</span>
                   <br />
-                  <span className="text-3xl md:text-4xl text-primary font-naskh mt-4 block">الإصدار الرقمي الفاخر</span>
+                  <span className="text-2xl md:text-4xl text-primary font-naskh mt-3 md:mt-4 block">الإصدار الرقمي الفاخر</span>
                 </h1>
                 
-                <p className="text-muted-foreground font-naskh text-xl max-w-2xl leading-relaxed border-r-2 border-accent/20 pr-6">
+                <p className="text-muted-foreground font-naskh text-lg md:text-xl max-w-2xl leading-relaxed border-r-2 border-accent/20 pr-4 md:pr-6">
                   انغمس في تجربة قراءة استثنائية تجمع بين أصالة الخط العثماني وأحدث تقنيات العرض الرقمي، لتكون رفيقك الدائم في رحلة التدبر.
                 </p>
               </div>
@@ -283,7 +310,72 @@ const Index = () => {
           </motion.div>
 
           {/* Sidebar Bento Cards */}
-          <div className="lg:col-span-4 flex flex-col gap-6">
+          <div className="lg:col-span-4 flex flex-col gap-4 md:gap-6">
+            {/* Reading Stats Card */}
+            <motion.div 
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1, duration: 0.8 }}
+              className="bento-card !p-6 md:!p-8 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border-indigo-500/20"
+            >
+              <div className="flex items-center justify-between mb-4 md:mb-6">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-500">
+                  <Award className="size-[20px] md:size-[22px]" strokeWidth={1.5} />
+                </div>
+                <span className="text-[9px] md:text-[10px] font-bold text-indigo-500 uppercase tracking-[0.2em] md:tracking-[0.3em]">إحصائيات القراءة</span>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <div className="text-xl md:text-2xl font-serif font-bold text-primary">{toArabicNumber(readingStats.completedJuz)}</div>
+                  <div className="text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-wider">أجزاء مكتملة</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-xl md:text-2xl font-serif font-bold text-primary">{toArabicNumber(readingStats.totalPagesRead)}</div>
+                  <div className="text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-wider">صفحات مقروءة</div>
+                </div>
+              </div>
+              <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t border-indigo-500/10">
+                <div className="flex justify-between text-[9px] md:text-[10px] font-bold text-muted-foreground mb-2">
+                  <span>تقدم الختمة</span>
+                  <span>{toArabicNumber(Math.round((readingStats.totalPagesRead / 604) * 100))}%</span>
+                </div>
+                <div className="h-1.5 bg-indigo-500/10 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(readingStats.totalPagesRead / 604) * 100}%` }}
+                    className="h-full bg-indigo-500"
+                  />
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Verse of the Day Card */}
+            <motion.div 
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2, duration: 0.8 }}
+              className="bento-card !p-6 md:!p-8 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/20"
+            >
+              <div className="flex items-center justify-between mb-4 md:mb-6">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-amber-500/20 flex items-center justify-center text-amber-500">
+                  <Sparkles className="size-[20px] md:size-[22px]" strokeWidth={1.5} />
+                </div>
+                <span className="text-[9px] md:text-[10px] font-bold text-amber-500 uppercase tracking-[0.2em] md:tracking-[0.3em]">آية اليوم</span>
+              </div>
+              {verseOfDay && (
+                <div className="space-y-3 md:space-y-4">
+                  <p className="text-xl md:text-2xl font-quran text-primary leading-relaxed text-center">
+                    {verseOfDay.text}
+                  </p>
+                  <div className="flex items-center justify-center gap-2 text-[9px] md:text-[10px] font-bold text-amber-600/60 uppercase tracking-widest">
+                    <span>سورة {verseOfDay.surah}</span>
+                    <span className="w-1 h-1 rounded-full bg-amber-600/30" />
+                    <span>آية {toArabicNumber(verseOfDay.number)}</span>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+
             {/* Search Card */}
             <motion.div 
               id="search-section"
@@ -320,7 +412,7 @@ const Index = () => {
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3, duration: 0.8 }}
-              className={`bento-card !p-8 border-none relative overflow-hidden group ${
+              className={`bento-card !p-6 md:!p-8 border-none relative overflow-hidden group ${
                 downloadAllState === "done" 
                   ? "!bg-emerald-deep text-white shadow-emerald-500/20" 
                   : "!bg-accent text-accent-foreground shadow-accent/20"
@@ -328,22 +420,22 @@ const Index = () => {
             >
               <div className="absolute inset-0 pattern-islamic opacity-[0.05] group-hover:scale-110 transition-transform duration-1000" />
               <div className="relative z-10">
-                <div className="flex items-center justify-between mb-8">
-                  <div className={`p-4 rounded-[1.5rem] shadow-inner ${downloadAllState === "done" ? "bg-white/10" : "bg-black/10"}`}>
-                    <Download size={24} strokeWidth={1.5} className={downloadAllState === "done" ? "text-white" : "text-accent-foreground"} />
+                <div className="flex items-center justify-between mb-6 md:mb-8">
+                  <div className={`p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] shadow-inner ${downloadAllState === "done" ? "bg-white/10" : "bg-black/10"}`}>
+                    <Download strokeWidth={1.5} className={`size-[20px] md:size-[24px] ${downloadAllState === "done" ? "text-white" : "text-accent-foreground"}`} />
                   </div>
                   {downloadAllState === "downloading" && (
                     <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-black/10 backdrop-blur-sm border border-black/5 animate-pulse">
-                      <Loader2 size={12} className="animate-spin text-accent-foreground" />
-                      <span className="text-[9px] font-bold tracking-widest uppercase text-accent-foreground">جاري التحميل</span>
+                      <Loader2 className="size-[10px] md:size-[12px] animate-spin text-accent-foreground" />
+                      <span className="text-[8px] md:text-[9px] font-bold tracking-widest uppercase text-accent-foreground">جاري التحميل</span>
                     </div>
                   )}
                 </div>
                 
-                <h3 className={`font-serif text-2xl font-medium mb-3 ${downloadAllState === "done" ? "text-white" : "text-accent-foreground"}`}>
+                <h3 className={`font-serif text-xl md:text-2xl font-medium mb-2 md:mb-3 ${downloadAllState === "done" ? "text-white" : "text-accent-foreground"}`}>
                   {downloadAllState === "done" ? "المصحف متاح أوفلاين" : "الوصول بدون إنترنت"}
                 </h3>
-                <p className={`text-sm font-naskh leading-relaxed mb-8 ${downloadAllState === "done" ? "text-white" : "text-accent-foreground"}`}>
+                <p className={`text-xs md:text-sm font-naskh leading-relaxed mb-6 md:mb-8 ${downloadAllState === "done" ? "text-white" : "text-accent-foreground"}`}>
                   {downloadAllState === "done" 
                     ? "تم تحميل جميع صفحات المصحف بنجاح، يمكنك الآن القراءة دون الحاجة للاتصال بالإنترنت."
                     : "قم بتحميل صفحات المصحف كاملة (٦٠٤ صفحة) لتتمكن من القراءة في أي وقت دون اتصال."}
@@ -422,6 +514,45 @@ const Index = () => {
               </Link>
             </ScrollReveal>
           ))}
+        </div>
+
+        {/* Quick Recitations Section */}
+        <div className="mb-20">
+          <div className="flex items-center justify-between mb-8 ornament-border pb-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-500">
+                <Headphones size={24} strokeWidth={1.5} />
+              </div>
+              <h2 className="text-3xl font-serif font-medium text-primary">تلاوات سريعة</h2>
+            </div>
+            <Link to="/recitations" className="text-sm font-serif text-accent hover:underline">عرض الكل</Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { name: "سورة يس", reciter: "مشاري العفاسي", id: 36 },
+              { name: "سورة الملك", reciter: "عبد الباسط عبد الصمد", id: 67 },
+              { name: "سورة الكهف", reciter: "سعد الغامدي", id: 18 },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                whileHover={{ y: -5 }}
+                className="p-6 rounded-[2.5rem] bg-card/40 backdrop-blur-sm border border-border/40 flex items-center justify-between group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                    <Play size={18} fill="currentColor" />
+                  </div>
+                  <div>
+                    <div className="font-serif font-bold text-primary">{item.name}</div>
+                    <div className="text-[10px] text-muted-foreground font-naskh">{item.reciter}</div>
+                  </div>
+                </div>
+                <button className="w-10 h-10 rounded-full bg-muted/20 flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-white transition-all">
+                  <Zap size={16} />
+                </button>
+              </motion.div>
+            ))}
+          </div>
         </div>
 
         {/* Search Results - Editorial Style */}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { toArabicNumber } from "@/data/quranData";
 
@@ -11,6 +11,13 @@ interface PageNavigatorProps {
 
 const PageNavigator = ({ pages, currentPage, onGoToPage, onClose }: PageNavigatorProps) => {
   const [inputValue, setInputValue] = useState("");
+  const activePageRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    if (activePageRef.current) {
+      activePageRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [currentPage]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,10 +58,11 @@ const PageNavigator = ({ pages, currentPage, onGoToPage, onClose }: PageNavigato
         </form>
 
         {/* Page grid */}
-        <div className="grid grid-cols-10 sm:grid-cols-15 gap-1 max-h-32 overflow-y-auto">
+        <div className="grid grid-cols-10 sm:grid-cols-15 gap-1 max-h-32 overflow-y-auto scroll-smooth">
           {pages.map((page) => (
             <button
               key={page}
+              ref={page === currentPage ? activePageRef : null}
               onClick={() => onGoToPage(page)}
               className={`text-xs font-naskh py-1 rounded transition-colors ${
                 page === currentPage

@@ -7,7 +7,7 @@ import ProgressBar from "@/components/ProgressBar";
 import PageNavigator from "@/components/PageNavigator";
 import JuzIndex from "@/components/JuzIndex";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
-import { ChevronRight, ChevronLeft, ArrowUp, Maximize, Minimize } from "lucide-react";
+import { ChevronRight, ChevronLeft, ArrowUp, Maximize, Minimize, ChevronUp } from "lucide-react";
 import LazyImage from "@/components/LazyImage";
 import QuranTextViewer from "@/components/QuranTextViewer";
 import { toast } from "sonner";
@@ -39,7 +39,7 @@ const JuzViewer = () => {
   const { juzNumber } = useParams();
   const num = parseInt(juzNumber || "0");
   const juz = juzData.find((j) => j.number === num);
-  const { theme, readingMode } = useTheme();
+  const { theme, readingMode, scrollDirection } = useTheme();
 
   const pages = useMemo(() => {
     if (!juz) return [];
@@ -54,21 +54,103 @@ const JuzViewer = () => {
   const [zoom, setZoom] = useState(100);
   const [currentPage, setCurrentPage] = useState(0);
 
+  const handleNextPage = useCallback(() => {
+    if (currentPage < juz!.endPage) {
+      const next = currentPage + 1;
+      setCurrentPage(next);
+      if (scrollDirection === "vertical") {
+        scrollToPage(next);
+      }
+    }
+  }, [currentPage, juz, scrollDirection]);
+
+  const handlePrevPage = useCallback(() => {
+    if (currentPage > juz!.startPage) {
+      const prev = currentPage - 1;
+      setCurrentPage(prev);
+      if (scrollDirection === "vertical") {
+        scrollToPage(prev);
+      }
+    }
+  }, [currentPage, juz, scrollDirection]);
+
+  const { onTouchStart, onTouchMove, onTouchEnd } = useSwipeNavigation({ 
+    onSwipeLeft: handleNextPage, 
+    onSwipeRight: handlePrevPage 
+  });
+
+  // Keyboard Navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // In RTL: Left arrow for next page, Right arrow for previous page
+      if (e.key === "ArrowLeft") {
+        handleNextPage();
+      } else if (e.key === "ArrowRight") {
+        handlePrevPage();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleNextPage, handlePrevPage]);
+
+  const [showPageNav, setShowPageNav] = useState(false);
+  const [showJuzIndex, setShowJuzIndex] = useState(false);
+  const [savedBookmark, setSavedBookmark] = useState<BookmarkData | null>(null);
+
   // Initialize currentPage to the first page of the Juz or bookmarked page
   useEffect(() => {
     if (pages.length > 0 && currentPage === 0) {
       const bookmark = getBookmark();
       if (bookmark && bookmark.juz === num && pages.includes(bookmark.page)) {
         setCurrentPage(bookmark.page);
+        // Initial scroll for vertical mode
+        if (scrollDirection === "vertical") {
+          setTimeout(() => scrollToPage(bookmark.page), 100);
+        }
       } else {
         setCurrentPage(pages[0]);
       }
     }
-  }, [pages, num, currentPage]);
+  }, [pages, num, currentPage, scrollDirection]);
 
-  const [showPageNav, setShowPageNav] = useState(false);
-  const [showJuzIndex, setShowJuzIndex] = useState(false);
-  const [savedBookmark, setSavedBookmark] = useState<BookmarkData | null>(null);
+  const prevScrollDirectionRef = useRef(scrollDirection);
+  const prevReadingModeRef = useRef(readingMode);
+
+  // Sync scroll position when switching to vertical mode OR back to image mode
+  useEffect(() => {
+    const switchingToVertical = scrollDirection === "vertical" && prevScrollDirectionRef.current === "horizontal";
+    const switchingToImage = readingMode === "image" && prevReadingModeRef.current === "text";
+
+    if ((switchingToVertical || switchingToImage) && scrollDirection === "vertical" && currentPage !== 0) {
+      // Small delay to ensure DOM is ready after mode switch
+      setTimeout(() => scrollToPage(currentPage), 100);
+    }
+    
+    prevScrollDirectionRef.current = scrollDirection;
+    prevReadingModeRef.current = readingMode;
+  }, [scrollDirection, readingMode, currentPage]);
+
+  // Auto-save bookmark whenever page changes
+  useEffect(() => {
+    if (currentPage !== 0 && juz) {
+      saveBookmark(num, currentPage, readingMode);
+      setSavedBookmark({ juz: num, page: currentPage, readingMode });
+
+      // Update reading history for stats
+      const history = JSON.parse(localStorage.getItem("quran-reading-history") || "{}");
+      const juzHistory = history[num] || { pagesRead: 0, lastPage: 0, visitedPages: [] };
+      
+      if (!juzHistory.visitedPages.includes(currentPage)) {
+        juzHistory.visitedPages.push(currentPage);
+        juzHistory.pagesRead = juzHistory.visitedPages.length;
+      }
+      
+      juzHistory.lastPage = currentPage;
+      history[num] = juzHistory;
+      localStorage.setItem("quran-reading-history", JSON.stringify(history));
+    }
+  }, [currentPage, num, readingMode, juz]);
 
   // Aggressive caching for current Juz
   useEffect(() => {
@@ -87,8 +169,6 @@ const JuzViewer = () => {
   const [showControls, setShowControls] = useState(true);
   const controlsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pageRefs = useRef<Record<number, HTMLDivElement | null>>({});
-
-  const { onTouchStart, onTouchMove, onTouchEnd } = useSwipeNavigation({ juzNumber: num });
 
   useEffect(() => {
     setSavedBookmark(getBookmark());
@@ -116,7 +196,7 @@ const JuzViewer = () => {
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
-    if (!juz || pages.length === 0) return;
+    if (!juz || pages.length === 0 || scrollDirection === "horizontal") return;
 
     const options = {
       root: null,
@@ -130,8 +210,6 @@ const JuzViewer = () => {
           const pageNum = parseInt(entry.target.id.replace("page-", ""));
           if (pageNum) {
             setCurrentPage(pageNum);
-            saveBookmark(num, pageNum, readingMode);
-            setSavedBookmark({ juz: num, page: pageNum, readingMode });
           }
         }
       });
@@ -147,7 +225,7 @@ const JuzViewer = () => {
     return () => {
       observerRef.current?.disconnect();
     };
-  }, [juz, num, pages, readingMode]);
+  }, [juz, num, pages, readingMode, scrollDirection]);
 
   if (!juz) return <Navigate to="/" replace />;
 
@@ -220,6 +298,34 @@ const JuzViewer = () => {
       {/* Immersive Background Elements */}
       <div className="fixed inset-0 pattern-islamic opacity-[0.01] pointer-events-none" />
       
+      {/* Floating Action Buttons */}
+      <div className={`fixed right-6 md:right-8 z-40 flex flex-col gap-4 transition-all duration-500 ${isFullscreen ? "bottom-8" : "bottom-28 md:bottom-32"}`}>
+        <AnimatePresence>
+          {scrollDirection === "vertical" && progress > 10 && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              onClick={() => scrollToPage(pages[0])}
+              className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-primary text-primary-foreground shadow-2xl flex items-center justify-center hover:scale-110 active:scale-90 transition-all"
+              title="العودة للأعلى"
+            >
+              <ChevronUp className="size-[24px] md:size-[28px]" />
+            </motion.button>
+          )}
+        </AnimatePresence>
+        
+        <button
+          onClick={toggleFullscreen}
+          className={`w-12 h-12 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 ${
+            isFullscreen ? "bg-accent text-white" : "bg-card/90 backdrop-blur-md text-primary border border-border/40"
+          }`}
+          title={isFullscreen ? "خروج من ملء الشاشة" : "وضع ملء الشاشة"}
+        >
+          {isFullscreen ? <Minimize className="size-[20px] md:size-[24px]" /> : <Maximize className="size-[20px] md:size-[24px]" />}
+        </button>
+      </div>
+
       {/* Header & toolbar - hidden in fullscreen unless controls shown */}
       <div className={`transition-all duration-700 ease-[0.16, 1, 0.3, 1] ${isFullscreen && !showControls ? "opacity-0 pointer-events-none -translate-y-full fixed top-0 left-0 right-0 z-50" : isFullscreen ? "fixed top-0 left-0 right-0 z-50 opacity-100" : "relative z-20"}`}>
         <QuranHeader title={juz.nameAr} showBack />
@@ -244,7 +350,10 @@ const JuzViewer = () => {
           pages={pages}
           currentPage={currentPage}
           onGoToPage={(page) => {
-            scrollToPage(page);
+            setCurrentPage(page);
+            if (scrollDirection === "vertical") {
+              scrollToPage(page);
+            }
             setShowPageNav(false);
           }}
           onClose={() => setShowPageNav(false)}
@@ -298,51 +407,99 @@ const JuzViewer = () => {
       >
         <div className="flex flex-col items-center gap-8 sm:gap-12 w-full" style={{ maxWidth: `${isFullscreen ? 9999 : maxWidth}px` }}>
           {readingMode === "image" ? (
-            pages.map((page) => (
-              <motion.div
-                key={page}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                ref={(el) => { pageRefs.current[page] = el; }}
-                id={`page-${page}`}
-                className={`relative rounded-[2rem] overflow-hidden border border-border/40 bg-card shadow-islamic transition-all duration-500 w-full group ${currentPage === page ? "ring-2 ring-accent/20" : ""}`}
-              >
-                {/* Page Number Badge */}
-                <div className="absolute top-6 left-6 z-10 flex flex-col items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                  <div className="w-10 h-10 rounded-2xl bg-emerald-deep/90 backdrop-blur-md text-white flex items-center justify-center font-serif text-sm shadow-lg border border-white/10">
-                    {page}
-                  </div>
-                  <span className="text-[8px] font-bold text-primary/70 uppercase tracking-widest">Page</span>
-                </div>
-
-                {errorStates[page] && (
-                  <div className="w-full aspect-[3/4] bg-muted/30 flex flex-col items-center justify-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center text-destructive">
-                      <ArrowUp className="rotate-180" size={24} />
+            scrollDirection === "vertical" ? (
+              pages.map((page) => (
+                <motion.div
+                  key={page}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                  ref={(el) => { pageRefs.current[page] = el; }}
+                  id={`page-${page}`}
+                  className={`relative rounded-[2rem] overflow-hidden border border-border/40 bg-card shadow-islamic transition-all duration-500 w-full group ${currentPage === page ? "ring-2 ring-accent/20" : ""}`}
+                >
+                  {/* Page Number Badge */}
+                  <div className="absolute top-6 left-6 z-10 flex flex-col items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-deep/20 backdrop-blur-md text-primary flex items-center justify-center font-serif text-sm shadow-sm border border-primary/10">
+                      {page}
                     </div>
-                    <span className="text-muted-foreground font-serif italic text-lg">
-                      تعذر تحميل الصفحة {page}
-                    </span>
+                    <span className="text-[8px] font-bold text-primary/70 uppercase tracking-widest">Page</span>
                   </div>
-                )}
 
-                {!errorStates[page] && (
-                  <div className="relative overflow-hidden">
+                  {errorStates[page] && (
+                    <div className="w-full aspect-[3/4] bg-muted/30 flex flex-col items-center justify-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center text-destructive">
+                        <ArrowUp className="rotate-180" size={24} />
+                      </div>
+                      <span className="text-muted-foreground font-serif italic text-lg">
+                        تعذر تحميل الصفحة {page}
+                      </span>
+                    </div>
+                  )}
+
+                  {!errorStates[page] && (
+                    <div className="relative overflow-hidden">
+                      <LazyImage
+                        src={getQuranPageImageUrl(page)}
+                        alt={`صفحة ${page} من المصحف الشريف`}
+                        className="quran-page-img w-full h-auto transition-transform duration-700 group-hover:scale-[1.01]"
+                        onLoad={() => handleImageLoad(page)}
+                        onError={() => handleImageError(page)}
+                      />
+                      {/* Subtle overlay for better reading comfort */}
+                      <div className="absolute inset-0 bg-primary/5 mix-blend-multiply pointer-events-none opacity-20" />
+                    </div>
+                  )}
+                </motion.div>
+              ))
+            ) : (
+              <div className="w-full flex flex-col items-center">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentPage}
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                    transition={{ duration: 0.3 }}
+                    className="relative rounded-[2rem] overflow-hidden border border-border/40 bg-card shadow-islamic w-full"
+                  >
                     <LazyImage
-                      src={getQuranPageImageUrl(page)}
-                      alt={`صفحة ${page} من المصحف الشريف`}
-                      className="quran-page-img w-full h-auto transition-transform duration-700 group-hover:scale-[1.01]"
-                      onLoad={() => handleImageLoad(page)}
-                      onError={() => handleImageError(page)}
+                      src={getQuranPageImageUrl(currentPage)}
+                      alt={`صفحة ${currentPage} من المصحف الشريف`}
+                      className="quran-page-img w-full h-auto"
+                      onLoad={() => handleImageLoad(currentPage)}
+                      onError={() => handleImageError(currentPage)}
                     />
-                    {/* Subtle overlay for better reading comfort */}
-                    <div className="absolute inset-0 bg-primary/5 mix-blend-multiply pointer-events-none opacity-20" />
-                  </div>
-                )}
-              </motion.div>
-            ))
+                    <div className="absolute top-6 left-6 z-10 flex flex-col items-center gap-1">
+                      <div className="w-10 h-10 rounded-2xl bg-emerald-deep/20 backdrop-blur-md text-primary flex items-center justify-center font-serif text-sm shadow-sm border border-primary/10">
+                        {currentPage}
+                      </div>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+                
+                <div className="flex items-center gap-8 mt-8">
+                  <button 
+                    onClick={handlePrevPage}
+                    disabled={currentPage === juz.startPage}
+                    className="p-4 rounded-2xl bg-card border border-border/40 text-primary disabled:opacity-30 transition-all hover:bg-muted/50"
+                  >
+                    <ChevronRight size={24} />
+                  </button>
+                  <span className="font-serif text-lg text-primary">
+                    صفحة {toArabicNumber(currentPage)} من {toArabicNumber(juz.endPage)}
+                  </span>
+                  <button 
+                    onClick={handleNextPage}
+                    disabled={currentPage === juz.endPage}
+                    className="p-4 rounded-2xl bg-card border border-border/40 text-primary disabled:opacity-30 transition-all hover:bg-muted/50"
+                  >
+                    <ChevronLeft size={24} />
+                  </button>
+                </div>
+              </div>
+            )
           ) : (
             <motion.div
               initial={{ opacity: 0, y: 40 }}

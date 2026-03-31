@@ -39,7 +39,7 @@ const getCounters = (): Record<number, number> => {
 };
 
 const Athkar = () => {
-  const [expandedCategory, setExpandedCategory] = useState<string | null>("morning");
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const [counters, setCounters] = useState<Record<number, number>>(getCounters());
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -89,7 +89,9 @@ const Athkar = () => {
   }, []);
 
   const toggleCategory = useCallback((id: string) => {
-    setExpandedCategory(prev => prev === id ? null : id);
+    setExpandedCategories(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
   }, []);
 
   const totalAthkar = ATHKAR_DATA.reduce((sum, cat) => sum + cat.athkar.length, 0);
@@ -270,7 +272,7 @@ const Athkar = () => {
 
         <div className="grid grid-cols-1 gap-6">
           {filteredData.map((category, idx) => {
-            const isExpanded = isSearching || expandedCategory === category.id;
+            const isExpanded = isSearching || expandedCategories.includes(category.id);
             return (
               <ScrollReveal key={category.id} index={idx}>
                 <motion.div 
