@@ -13,6 +13,13 @@ const LazyImage = ({ src, alt, className = "", onLoad, onError }: LazyImageProps
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const imgRef = useRef<HTMLDivElement>(null);
+  const [prevSrc, setPrevSrc] = useState(src);
+
+  if (src !== prevSrc) {
+    setPrevSrc(src);
+    setHasError(false);
+    setIsLoaded(false);
+  }
 
   useEffect(() => {
     const el = imgRef.current;

@@ -1,12 +1,16 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff, Clock, Send, ChevronLeft, X, BookOpen, Wand2 } from "lucide-react";
+import { Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff, Clock, Send, ChevronLeft, X, BookOpen, Wand2, LayoutGrid, DownloadCloud, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useNotifications } from "@/hooks/useNotifications";
 import { Slider } from "@/components/ui/slider";
 import { motion, AnimatePresence } from "motion/react";
 import ScrollReveal from "@/components/ScrollReveal";
 import { toArabicNumber } from "@/data/quranData";
+import { useTheme } from "@/contexts/ThemeContext";
+import JuzImporter from "@/components/JuzImporter";
+import OfflineManager from "@/components/OfflineManager";
+import { useTranslation } from "react-i18next";
 
 type ThemeMode = "light" | "dark" | "sepia";
 
@@ -14,29 +18,27 @@ const THEME_KEY = "quran-theme";
 const FONT_SIZE_KEY = "quran-font-size";
 const DIMMING_KEY = "quran-page-dimming";
 
-const THEME_OPTIONS: { id: ThemeMode; label: string; icon: React.ReactNode; preview: string }[] = [
-  { id: "light", label: "فاتح", icon: <Sun size={18} />, preview: "bg-[hsl(42,32%,97%)]" },
-  { id: "dark", label: "داكن / ليلي", icon: <Moon size={18} />, preview: "bg-[hsl(220,20%,4%)]" },
-  { id: "sepia", label: "بني دافئ", icon: <Palette size={18} />, preview: "bg-[hsl(35,40%,93%)]" },
-];
-
-const FONT_SIZES = [
-  { id: "small", label: "صغير", value: 14 },
-  { id: "medium", label: "متوسط", value: 16 },
-  { id: "large", label: "كبير", value: 18 },
-  { id: "xlarge", label: "كبير جداً", value: 20 },
-];
-
-import { useTheme } from "@/contexts/ThemeContext";
-import JuzImporter from "@/components/JuzImporter";
-
 const Settings = () => {
-  const { theme, setTheme, dimming, setDimming } = useTheme();
+  const { t, i18n } = useTranslation();
+  const { theme, setTheme, dimming, setDimming, tajweedMode, setTajweedMode } = useTheme();
   const { settings: notifSettings, updateSettings: updateNotif, permissionState, requestPermission, testNotification, isSupported } = useNotifications();
 
   const [fontSize, setFontSize] = useState(() => {
     return parseInt(localStorage.getItem(FONT_SIZE_KEY) || "16");
   });
+
+  const THEME_OPTIONS: { id: ThemeMode; label: string; icon: React.ReactNode; preview: string }[] = [
+    { id: "light", label: t("settings.themes.light"), icon: <Sun size={18} />, preview: "bg-[hsl(45,30%,98%)]" },
+    { id: "dark", label: "داكن / ليلي (OLED)", icon: <Moon size={18} />, preview: "bg-black" },
+    { id: "sepia", label: t("settings.themes.sepia"), icon: <Palette size={18} />, preview: "bg-[hsl(35,45%,85%)]" },
+  ];
+
+  const FONT_SIZES = [
+    { id: "small", label: t("settings.fontSize.small"), value: 14 },
+    { id: "medium", label: t("settings.fontSize.medium"), value: 16 },
+    { id: "large", label: t("settings.fontSize.large"), value: 18 },
+    { id: "xlarge", label: t("settings.fontSize.xlarge"), value: 20 },
+  ];
 
   useEffect(() => {
     document.documentElement.style.setProperty("--base-font-size", `${fontSize}px`);
@@ -50,17 +52,6 @@ const Settings = () => {
     localStorage.removeItem("quran-bookmark");
     toast.success("تم إعادة ضبط جميع الإعدادات");
     window.location.reload();
-  };
-
-  const clearDownloadData = async () => {
-    localStorage.removeItem("juz-download-state");
-    try {
-      await caches.delete("workbox-runtime");
-      toast.success("تم حذف جميع بيانات التحميل بنجاح");
-      window.location.reload();
-    } catch {
-      toast.success("تم مسح حالة التحميل");
-    }
   };
 
   return (
@@ -97,17 +88,91 @@ const Settings = () => {
             </div>
             
             <h1 className="text-4xl sm:text-6xl font-serif font-bold text-white mb-6 tracking-tight">
-              تخصيص <span className="italic font-light text-gold/80">التجربة</span>
+              {t("settings.title")}
             </h1>
             
             <p className="text-white/80 font-serif italic text-lg max-w-xl mx-auto leading-relaxed">
-              قم بتهيئة مساحتك الإيمانية بما يتناسب مع راحتك، ليكون وردك اليومي رحلة من السكينة والجمال
+              {t("settings.subtitle")}
             </p>
           </motion.div>
         </div>
       </header>
 
       <main className="container max-w-3xl mx-auto px-6 -mt-12 relative z-20 space-y-8">
+        {/* Language Selection */}
+        <ScrollReveal index={0}>
+          <section className="bg-card/80 backdrop-blur-2xl rounded-[2.5rem] p-8 shadow-islamic border border-border/20">
+            <div className="flex items-center gap-6 mb-10">
+              <div className="w-14 h-14 rounded-[1.2rem] bg-emerald-deep text-gold flex items-center justify-center shadow-lg">
+                <LayoutGrid size={24} strokeWidth={1.5} />
+              </div>
+              <div>
+                <h2 className="font-serif text-2xl font-bold text-primary">{t("settings.language.title")}</h2>
+                <p className="text-sm text-primary/70 font-serif italic">{t("settings.language.subtitle")}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { id: "ar", label: "العربية" },
+                { id: "en", label: "English" },
+              ].map(lang => (
+                <motion.button
+                  key={lang.id}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => i18n.changeLanguage(lang.id)}
+                  className={`flex flex-col items-center gap-3 p-6 rounded-[2rem] border-2 transition-all ${
+                    i18n.language === lang.id
+                      ? "border-accent bg-accent/5 shadow-lg"
+                      : "border-primary/5 hover:border-accent/30 bg-primary/5"
+                  }`}
+                >
+                  <span className="font-serif text-lg font-bold text-primary">{lang.label}</span>
+                </motion.button>
+              ))}
+            </div>
+          </section>
+        </ScrollReveal>
+
+        {/* Reading Settings */}
+        <ScrollReveal index={1}>
+          <section className="bg-card/80 backdrop-blur-2xl rounded-[2.5rem] p-8 shadow-islamic border border-border/20">
+            <div className="flex items-center gap-6 mb-10">
+              <div className="w-14 h-14 rounded-[1.2rem] bg-emerald-deep text-gold flex items-center justify-center shadow-lg">
+                <Sparkles size={24} strokeWidth={1.5} />
+              </div>
+              <div>
+                <h2 className="font-serif text-2xl font-bold text-primary">إعدادات القراءة</h2>
+                <p className="text-sm text-primary/70 font-serif italic">تخصيص تجربة عرض المصحف الشريف</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-6 p-6 rounded-[2rem] border border-border/5 bg-card/5 hover:bg-card hover:shadow-lg transition-all group">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 shadow-sm">
+                  <Sparkles size={24} strokeWidth={1.5} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-serif text-lg font-bold text-primary">التجويد الملون</p>
+                  <p className="text-xs text-muted-foreground font-naskh mt-1">تلوين أحرف المصحف بناءً على أحكام التجويد</p>
+                </div>
+                <button
+                  onClick={() => setTajweedMode(!tajweedMode)}
+                  className={`w-16 h-9 rounded-full transition-all flex items-center p-1 ${
+                    tajweedMode ? "bg-emerald-deep shadow-lg justify-end" : "bg-primary/10 justify-start"
+                  }`}
+                  dir="ltr"
+                >
+                  <motion.div 
+                    layout
+                    className="w-7 h-7 rounded-full bg-white shadow-md" 
+                  />
+                </button>
+              </div>
+            </div>
+          </section>
+        </ScrollReveal>
+
         {/* Theme Selection */}
         <ScrollReveal index={1}>
           <section className="bg-card/80 backdrop-blur-2xl rounded-[2.5rem] p-8 shadow-islamic border border-border/20 overflow-hidden relative">
@@ -116,8 +181,8 @@ const Settings = () => {
                 <Palette size={24} strokeWidth={1.5} />
               </div>
               <div>
-                <h2 className="font-serif text-2xl font-bold text-primary">المظهر البصري</h2>
-                <p className="text-sm text-primary/70 font-serif italic">اختر الثيم المناسب لراحة عينيك أثناء القراءة</p>
+                <h2 className="font-serif text-2xl font-bold text-primary">{t("settings.theme.title")}</h2>
+                <p className="text-sm text-primary/70 font-serif italic">{t("settings.theme.subtitle")}</p>
               </div>
             </div>
 
@@ -168,12 +233,14 @@ const Settings = () => {
                       <Moon size={20} className="text-gold" strokeWidth={1.5} />
                       شدة إعتام الصفحات
                     </span>
-                    <span className="font-serif text-sm font-bold text-gold bg-gold/10 px-4 py-1 rounded-full">{toArabicNumber(dimming)}%</span>
+                    <span className="font-serif text-sm font-bold text-gold bg-gold/10 px-4 py-1 rounded-full">
+                      {i18n.language === "ar" ? toArabicNumber(dimming) : dimming}%
+                    </span>
                   </div>
                   <Slider
                     value={[dimming]}
-                    min={30}
-                    max={100}
+                    min={0}
+                    max={90}
                     step={5}
                     onValueChange={(val) => setDimming(val[0])}
                     className="w-full"
@@ -196,8 +263,8 @@ const Settings = () => {
                 <Type size={24} strokeWidth={1.5} />
               </div>
               <div>
-                <h2 className="font-serif text-2xl font-bold text-primary">حجم الخط</h2>
-                <p className="text-sm text-primary/70 font-serif italic">تحكم في حجم نص الأذكار والأدعية لسهولة القراءة</p>
+                <h2 className="font-serif text-2xl font-bold text-primary">{t("settings.fontSize.title")}</h2>
+                <p className="text-sm text-primary/70 font-serif italic">{t("settings.fontSize.subtitle")}</p>
               </div>
             </div>
 
@@ -304,12 +371,13 @@ const Settings = () => {
                       )}
                       <button
                         onClick={() => updateNotif({ [item.id]: !notifSettings[item.id as keyof typeof notifSettings] })}
-                        className={`w-16 h-9 rounded-full transition-all relative p-1 ${
-                          notifSettings[item.id as keyof typeof notifSettings] ? "bg-emerald-deep shadow-lg" : "bg-primary/10"
+                        className={`w-16 h-9 rounded-full transition-all flex items-center p-1 ${
+                          notifSettings[item.id as keyof typeof notifSettings] ? "bg-emerald-deep shadow-lg justify-end" : "bg-primary/10 justify-start"
                         }`}
+                        dir="ltr"
                       >
                         <motion.div 
-                          animate={{ x: notifSettings[item.id as keyof typeof notifSettings] ? 28 : 0 }}
+                          layout
                           className="w-7 h-7 rounded-full bg-white shadow-md" 
                         />
                       </button>
@@ -325,8 +393,25 @@ const Settings = () => {
           </section>
         </ScrollReveal>
 
-        {/* Advanced Tools */}
+        {/* Offline Management */}
         <ScrollReveal index={3}>
+          <section className="bg-card/80 backdrop-blur-2xl rounded-[2.5rem] p-8 shadow-islamic border border-border/20 overflow-hidden relative">
+            <div className="flex items-center gap-6 mb-10">
+              <div className="w-14 h-14 rounded-[1.2rem] bg-emerald-deep text-gold flex items-center justify-center shadow-lg">
+                <DownloadCloud size={24} strokeWidth={1.5} />
+              </div>
+              <div>
+                <h2 className="font-serif text-2xl font-bold text-primary">الاستخدام دون اتصال (Offline)</h2>
+                <p className="text-sm text-primary/70 font-serif italic">تحميل صفحات المصحف للقراءة في أي وقت وأي مكان</p>
+              </div>
+            </div>
+
+            <OfflineManager />
+          </section>
+        </ScrollReveal>
+
+        {/* Advanced Tools */}
+        <ScrollReveal index={4}>
           <section className="bg-card/80 backdrop-blur-2xl rounded-[2.5rem] p-8 shadow-islamic border border-border/20 overflow-hidden relative">
             <div className="flex items-center gap-6 mb-10">
               <div className="w-14 h-14 rounded-[1.2rem] bg-emerald-deep text-gold flex items-center justify-center shadow-lg">
@@ -349,60 +434,29 @@ const Settings = () => {
           </section>
         </ScrollReveal>
 
-        {/* Data Management Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {/* Clear Downloads */}
-          <ScrollReveal index={3}>
-            <section className="bg-card/80 backdrop-blur-2xl rounded-[2.5rem] p-8 shadow-islamic border border-border/20 h-full flex flex-col">
-              <div className="flex items-center gap-6 mb-8">
-                <div className="w-14 h-14 rounded-[1.2rem] bg-gold/10 text-gold flex items-center justify-center shadow-lg">
-                  <Trash2 size={24} strokeWidth={1.5} />
-                </div>
-                <div>
-                  <h2 className="font-serif text-xl font-bold text-primary">بيانات التحميل</h2>
-                </div>
+        {/* Reset App */}
+        <ScrollReveal index={5}>
+          <section className="bg-card/80 backdrop-blur-2xl rounded-[2.5rem] p-8 shadow-islamic border border-border/20 h-full flex flex-col">
+            <div className="flex items-center gap-6 mb-8">
+              <div className="w-14 h-14 rounded-[1.2rem] bg-red-50 text-red-500 flex items-center justify-center shadow-lg">
+                <RotateCcw size={24} strokeWidth={1.5} />
               </div>
-
-              <div className="flex-1 space-y-6">
-                <p className="text-sm text-primary/70 font-serif italic leading-relaxed">حذف جميع الصفحات المحمّلة مسبقاً للقراءة دون اتصال بالإنترنت لتوفير المساحة</p>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={clearDownloadData}
-                  className="w-full h-14 rounded-2xl border-2 border-gold/30 text-gold font-serif text-lg font-bold hover:bg-gold/5 transition-all"
-                >
-                  حذف المحفوظات
-                </motion.button>
-              </div>
-            </section>
-          </ScrollReveal>
-
-          {/* Reset App */}
-          <ScrollReveal index={4}>
-            <section className="bg-card/80 backdrop-blur-2xl rounded-[2.5rem] p-8 shadow-islamic border border-border/20 h-full flex flex-col">
-              <div className="flex items-center gap-6 mb-8">
-                <div className="w-14 h-14 rounded-[1.2rem] bg-red-50 text-red-500 flex items-center justify-center shadow-lg">
-                  <RotateCcw size={24} strokeWidth={1.5} />
-                </div>
-                <div>
-                  <h2 className="font-serif text-xl font-bold text-primary">إعادة الضبط</h2>
-                </div>
-              </div>
-
-              <div className="flex-1 space-y-6">
+              <div>
+                <h2 className="font-serif text-xl font-bold text-primary">إعادة الضبط</h2>
                 <p className="text-sm text-primary/70 font-serif italic leading-relaxed">مسح شامل لجميع تفضيلاتك، علاماتك المرجعية، وعدادات الأذكار (ضبط المصنع)</p>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={resetAll}
-                  className="w-full h-14 rounded-2xl border-2 border-red-200 text-red-500 font-serif text-lg font-bold hover:bg-red-50 transition-all"
-                >
-                  إعادة ضبط شاملة
-                </motion.button>
               </div>
-            </section>
-          </ScrollReveal>
-        </div>
+            </div>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={resetAll}
+              className="w-full h-14 rounded-2xl border-2 border-red-200 text-red-500 font-serif text-lg font-bold hover:bg-red-50 transition-all"
+            >
+              إعادة ضبط شاملة
+            </motion.button>
+          </section>
+        </ScrollReveal>
 
         {/* Support Links */}
         <ScrollReveal index={5}>

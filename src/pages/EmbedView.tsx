@@ -3,19 +3,14 @@ import { Home, ExternalLink, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 
 const SITES: Record<string, { title: string; url: string; description: string }> = {
-  quraaniat: {
-    title: "ختم القرآن وسماعه",
-    url: "https://quraaniat.vercel.app",
-    description: "تابع ختمتك واستمع للتلاوات",
-  },
   qiyam: {
-    title: "١٠٠ آية لقيام الليل",
+    title: "قيام الليل",
     url: "https://www.mohammedhesham.site/aya",
     description: "آيات مختارة لصلاة القيام",
   },
   khatma: {
     title: "ختمة القرآن الكريم",
-    url: "https://quraaniat.vercel.app",
+    url: "https://quraaniat.vercel.app/",
     description: "جدول ختمة القرآن الكريم",
   },
 };

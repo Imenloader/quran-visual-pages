@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Download, Smartphone, Share, MoreVertical, Plus, ArrowRight, CheckCircle2, BookOpen } from "lucide-react";
+import { DownloadCloud, Smartphone, Share, MoreVertical, Plus, ArrowRight, CheckCircle2, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 
@@ -121,7 +121,7 @@ const Install = () => {
             onClick={handleInstall}
             className="w-full flex items-center justify-center gap-3 py-4 px-6 rounded-xl gradient-gold text-foreground font-bold font-naskh text-lg shadow-islamic transition-transform active:scale-95"
           >
-            <Download size={22} />
+            <DownloadCloud size={22} />
             تثبيت التطبيق الآن
           </button>
         )}
@@ -158,7 +158,7 @@ const Install = () => {
               <Step number={1} icon={<MoreVertical size={18} />}>
                 اضغط على <strong>القائمة</strong> <MoreVertical size={14} className="inline mx-1" /> (ثلاث نقاط) في Chrome
               </Step>
-              <Step number={2} icon={<Download size={18} />}>
+              <Step number={2} icon={<DownloadCloud size={18} />}>
                 اختر <strong>"تثبيت التطبيق"</strong> أو <strong>"إضافة إلى الشاشة الرئيسية"</strong>
               </Step>
               <Step number={3} icon={<CheckCircle2 size={18} />}>

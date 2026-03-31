@@ -1,4 +1,4 @@
-import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen, List, Moon, Sun, Info, MessageSquareText, Type, FileImage, ArrowDown, ArrowRightLeft, Palette } from "lucide-react";
+import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen, List, Moon, Sun, Info, MessageSquareText, Type, FileImage, ArrowDown, ArrowRightLeft, Palette, GraduationCap } from "lucide-react";
 import { toArabicNumber } from "@/data/quranData";
 import ShareButton from "./ShareButton";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -15,6 +15,8 @@ interface ReadingToolbarProps {
   currentPage: number;
   bookmarked: boolean;
   juzNumber: number;
+  hifzMode: boolean;
+  onToggleHifzMode: () => void;
 }
 
 const ReadingToolbar = ({
@@ -28,6 +30,8 @@ const ReadingToolbar = ({
   currentPage,
   bookmarked,
   juzNumber,
+  hifzMode,
+  onToggleHifzMode,
 }: ReadingToolbarProps) => {
   const { theme, setTheme, readingMode, setReadingMode, scrollDirection, setScrollDirection } = useTheme();
 
@@ -82,6 +86,14 @@ const ReadingToolbar = ({
             title={readingMode === "text" ? "عرض الصور" : "عرض النص"}
           >
             {readingMode === "text" ? <FileImage className="size-[18px] md:size-[20px]" strokeWidth={1.5} /> : <Type className="size-[18px] md:size-[20px]" strokeWidth={1.5} />}
+          </button>
+
+          <button
+            onClick={onToggleHifzMode}
+            className={`toolbar-btn !p-2 md:!p-2.5 ${hifzMode ? "text-accent bg-accent/10" : ""}`}
+            title="وضع التحفيظ والمراجعة"
+          >
+            <GraduationCap className="size-[18px] md:size-[20px]" strokeWidth={1.5} />
           </button>
 
           <button

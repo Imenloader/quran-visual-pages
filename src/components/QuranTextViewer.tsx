@@ -2,20 +2,42 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "@/contexts/ThemeContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, AlertCircle, RefreshCw, BookOpen } from "lucide-react";
-import { juzData, toArabicNumber } from "@/data/quranData";
+import { Loader2, AlertCircle, RefreshCw, BookOpen, GraduationCap, Sparkles, Share2, Info } from "lucide-react";
+import { juzData, toArabicNumber, surahIndex } from "@/data/quranData";
 import { juzTextData } from "@/data/juzTextData";
+import { applyTajweedColors } from "@/lib/tajweedParser";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
+import VerseShareCard from "@/components/VerseShareCard";
+
+interface VerseData {
+  text: string;
+  surahNumber: number;
+  ayahNumber: number;
+  surahName: string;
+  fullKey: string; // "surah:ayah"
+}
 
 interface QuranTextViewerProps {
   pageNumber?: number;
   juzNumber?: number;
+  hifzMode?: boolean;
 }
 
-const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ pageNumber, juzNumber }) => {
-  const { theme } = useTheme();
+const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ pageNumber, juzNumber, hifzMode = false }) => {
+  const { theme, tajweedMode } = useTheme();
+  const { currentVerseKey, syncMode } = useAudioPlayer();
   const [loading, setLoading] = useState(true);
   const [localText, setLocalText] = useState<string | null>(null);
   const [currentJuz, setCurrentJuz] = useState<number | null>(null);
+  const [hiddenVerses, setHiddenVerses] = useState<Set<number>>(new Set());
+  
+  // Tafsir State
+  const [selectedVerse, setSelectedVerse] = useState<VerseData | null>(null);
+  const [tafsirContent, setTafsirContent] = useState<string | null>(null);
+  const [tafsirLoading, setTafsirLoading] = useState(false);
+  const [showTafsir, setShowTafsir] = useState(false);
+  const [showShareCard, setShowShareCard] = useState(false);
 
   useEffect(() => {
     const loadText = () => {
@@ -66,6 +88,132 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ pageNumber, juzNumber
     };
   }, [pageNumber, juzNumber]);
 
+  // Split text into verses based on common markers and associate with Surah/Ayah
+  const versesData = React.useMemo(() => {
+    if (!localText || !currentJuz) return [];
+    
+    const juzInfo = juzData[currentJuz - 1];
+    const surahNames = juzInfo.surahs;
+    const lines = localText.split("\n").filter(line => line.trim().length > 0);
+    
+    const result: VerseData[] = [];
+    
+    // Parse startSurah to get initial Ayah number
+    // Format: "SurahName AyahNumber" or just "SurahName"
+    const startSurahParts = juzInfo.startSurah.split(" ");
+    const startSurahName = startSurahParts[0];
+    const startAyahOffset = startSurahParts.length > 1 ? parseInt(startSurahParts[1]) : 1;
+
+    lines.forEach((line, lineIndex) => {
+      const surahName = surahNames[lineIndex];
+      const surahInfo = surahIndex.find(s => s.name === surahName);
+      const surahNumber = surahInfo ? surahInfo.number : 0;
+      
+      // Split by verse markers
+      const regex = /(۝\s*[\u0660-\u0669\u06F0-\u06F9\d]+|[([﴿][\u0660-\u0669\u06F0-\u06F9\d]+[)\]﴾])/g;
+      const parts = line.split(regex);
+      
+      let ayahCounter = (lineIndex === 0) ? startAyahOffset : 1;
+
+      for (let i = 0; i < parts.length; i += 2) {
+        const text = parts[i];
+        const marker = parts[i + 1] || "";
+        if (text || marker) {
+          result.push({
+            text: text + marker,
+            surahNumber,
+            ayahNumber: ayahCounter,
+            surahName,
+            fullKey: `${surahNumber}:${ayahCounter}`
+          });
+          ayahCounter++;
+        }
+      }
+    });
+    
+    return result;
+  }, [localText, currentJuz]);
+
+  // Load hidden verses from localStorage
+  useEffect(() => {
+    if (currentJuz) {
+      const saved = localStorage.getItem(`quran-hidden-verses-${currentJuz}`);
+      if (saved) {
+        try {
+          setHiddenVerses(new Set(JSON.parse(saved)));
+        } catch (e) {
+          console.error("Failed to parse hidden verses", e);
+        }
+      } else if (hifzMode) {
+        // Default to all hidden if no saved state and hifzMode is on
+        setHiddenVerses(new Set(versesData.map((_, i) => i)));
+      }
+    } else {
+      setHiddenVerses(new Set());
+    }
+  }, [currentJuz, hifzMode, versesData]);
+
+  // Save hidden verses to localStorage
+  useEffect(() => {
+    if (currentJuz && hifzMode) {
+      localStorage.setItem(`quran-hidden-verses-${currentJuz}`, JSON.stringify(Array.from(hiddenVerses)));
+    }
+  }, [hiddenVerses, currentJuz, hifzMode]);
+
+  // Track reading progress
+  useEffect(() => {
+    if (currentJuz) {
+      const today = new Date().toISOString().split('T')[0];
+      const history = JSON.parse(localStorage.getItem("quran-reading-history-daily") || "[]");
+      
+      const dayIndex = history.findIndex((h: { date: string; pages: number }) => h.date === today);
+      if (dayIndex >= 0) {
+        // We only increment if it's a new "session" or just once per page view
+        // For simplicity, let's just track that they read something today
+        // A better way would be to track page turns
+      } else {
+        history.push({ date: today, pages: 1 });
+        localStorage.setItem("quran-reading-history-daily", JSON.stringify(history));
+      }
+    }
+  }, [currentJuz]);
+
+  const toggleVerse = (index: number) => {
+    setHiddenVerses(prev => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  };
+
+  const handleVerseClick = async (verse: VerseData, index: number) => {
+    if (hifzMode) {
+      toggleVerse(index);
+      return;
+    }
+
+    setSelectedVerse(verse);
+    setShowTafsir(true);
+    setTafsirLoading(true);
+    setTafsirContent(null);
+
+    try {
+      const response = await fetch(`https://api.alquran.cloud/v1/ayah/${verse.fullKey}/ar.muyassar`);
+      const data = await response.json();
+      if (data.code === 200) {
+        setTafsirContent(data.data.text);
+      } else {
+        setTafsirContent("تعذر تحميل التفسير حالياً.");
+      }
+    } catch (error) {
+      console.error("Tafsir fetch error:", error);
+      setTafsirContent("حدث خطأ أثناء الاتصال بالخادم.");
+    } finally {
+      setTafsirLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
@@ -101,9 +249,55 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ pageNumber, juzNumber
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="w-full max-w-5xl mx-auto px-8 py-16 font-quran text-center"
+      className="w-full max-w-5xl mx-auto px-4 md:px-8 py-16 font-quran text-center relative"
       dir="rtl"
     >
+      {hifzMode && (
+        <div className="mb-12 flex flex-col items-center gap-4 sticky top-24 z-30">
+          <div className="px-6 py-3 rounded-2xl bg-accent/10 backdrop-blur-md border border-accent/20 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-accent text-white flex items-center justify-center">
+              <GraduationCap size={20} />
+            </div>
+            <div className="text-right">
+              <p className="text-sm font-bold text-primary">وضع التحفيظ مفعل</p>
+              <p className="text-[10px] text-muted-foreground">انقر على الآيات لإخفائها أو إظهارها</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setHiddenVerses(new Set(verses.map((_, i) => i)))}
+              className="px-4 py-1.5 rounded-full bg-card border border-border text-xs font-serif hover:bg-accent/5 transition-all"
+            >
+              إخفاء الكل
+            </button>
+            <button
+              onClick={() => setHiddenVerses(new Set())}
+              className="px-4 py-1.5 rounded-full bg-card border border-border text-xs font-serif hover:bg-accent/5 transition-all"
+            >
+              إظهار الكل
+            </button>
+          </div>
+        </div>
+      )}
+
+      {syncMode && !hifzMode && (
+        <div className="mb-4 flex justify-center">
+          <div className="px-4 py-2 rounded-full bg-accent/10 border border-accent/20 flex items-center gap-2 text-accent animate-pulse">
+            <Sparkles size={14} />
+            <span className="text-[10px] font-bold font-naskh uppercase tracking-wider">تزامن الآيات مفعل</span>
+          </div>
+        </div>
+      )}
+
+      {tajweedMode && !hifzMode && (
+        <div className="mb-8 flex justify-center">
+          <div className="px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+            <Sparkles size={14} />
+            <span className="text-[10px] font-bold font-naskh uppercase tracking-wider">التجويد الملون مفعل</span>
+          </div>
+        </div>
+      )}
+
       <div 
         className="text-3xl md:text-5xl text-primary text-center whitespace-pre-wrap break-words selection:bg-accent/30"
         style={{ 
@@ -113,7 +307,26 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ pageNumber, juzNumber
           fontFeatureSettings: '"kern" 1, "liga" 1, "calt" 1'
         }}
       >
-        {localText}
+        {versesData.map((verse, index) => {
+          const isHidden = hifzMode && hiddenVerses.has(index);
+          const isPlaying = currentVerseKey === verse.fullKey;
+          
+          return (
+            <span
+              key={index}
+              onClick={() => handleVerseClick(verse, index)}
+              className={`inline-block transition-all duration-500 cursor-pointer rounded-lg px-1 ${
+                isHidden 
+                  ? "blur-2xl opacity-5 grayscale scale-95 bg-muted/20" 
+                  : isPlaying
+                    ? "bg-accent/20 ring-2 ring-accent/30 scale-105 shadow-lg shadow-accent/10"
+                    : "blur-0 opacity-100 scale-100 hover:bg-accent/5"
+              }`}
+            >
+              {tajweedMode && !isHidden ? applyTajweedColors(verse.text) : verse.text}
+            </span>
+          );
+        })}
       </div>
       
       <div className="mt-16 flex flex-col items-center gap-4 border-t border-border/40 pt-12">
@@ -122,6 +335,69 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ pageNumber, juzNumber
         </div>
         <span className="text-[10px] font-bold text-accent uppercase tracking-[0.3em]">نهاية الجزء</span>
       </div>
+
+      {/* Tafsir Slide-up Panel */}
+      <Sheet open={showTafsir} onOpenChange={setShowTafsir}>
+        <SheetContent side="bottom" className="h-[60vh] sm:h-[50vh] rounded-t-[2.5rem] border-t-accent/20 bg-card/95 backdrop-blur-xl">
+          <SheetHeader className="text-right pb-6 border-b border-border/40">
+            <div className="flex items-center justify-between">
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => setShowShareCard(true)}
+                  className="p-2 rounded-full hover:bg-accent/10 text-accent transition-colors"
+                >
+                  <Share2 size={18} />
+                </button>
+                <button className="p-2 rounded-full hover:bg-accent/10 text-accent transition-colors">
+                  <Info size={18} />
+                </button>
+              </div>
+              <SheetTitle className="font-serif text-2xl text-primary">
+                {selectedVerse?.surahName} - آية {toArabicNumber(selectedVerse?.ayahNumber)}
+              </SheetTitle>
+            </div>
+            <SheetDescription className="font-naskh text-accent/60 text-sm">
+              التفسير الميسر
+            </SheetDescription>
+          </SheetHeader>
+          
+          <div className="mt-8 overflow-y-auto max-h-[calc(60vh-150px)] px-2 custom-scrollbar" dir="rtl">
+            {tafsirLoading ? (
+              <div className="flex flex-col items-center justify-center py-12 gap-4">
+                <Loader2 className="w-8 h-8 text-accent animate-spin" />
+                <p className="text-muted-foreground font-naskh">جاري تحميل التفسير...</p>
+              </div>
+            ) : (
+              <div className="space-y-8 pb-12">
+                <div className="p-6 rounded-2xl bg-accent/5 border border-accent/10">
+                  <p className="text-2xl md:text-3xl font-quran leading-relaxed text-primary text-center">
+                    {selectedVerse?.text}
+                  </p>
+                </div>
+                <div className="space-y-4">
+                  <h4 className="font-serif font-bold text-lg text-accent flex items-center gap-2">
+                    <div className="w-1.5 h-6 bg-accent rounded-full" />
+                    تفسير الآية:
+                  </h4>
+                  <p className="text-lg md:text-xl font-naskh leading-loose text-primary/90 text-justify">
+                    {tafsirContent}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <AnimatePresence>
+        {showShareCard && selectedVerse && (
+          <VerseShareCard 
+            verse={selectedVerse} 
+            translation={tafsirContent || undefined}
+            onClose={() => setShowShareCard(false)} 
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

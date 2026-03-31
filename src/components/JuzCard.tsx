@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { JuzInfo, toArabicNumber, getQuranPageImageUrl } from "@/data/quranData";
-import { Download, Check, Loader2, Wifi, WifiOff, Heart, BookOpen } from "lucide-react";
+import { DownloadCloud, Check, Loader2, Wifi, WifiOff, Heart, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { useFavorites } from "@/hooks/useFavorites";
 import { motion } from "motion/react";
@@ -51,12 +51,13 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
     let cancelled = false;
     const checkCache = async () => {
       try {
-        const cache = await caches.open("workbox-runtime");
+        const cache = await caches.open("quran-pages-cache");
         const keys = await cache.keys();
         const urls = new Set(keys.map(k => k.url));
         let cached = 0;
         for (let p = juz.startPage; p <= juz.endPage; p++) {
-          if (urls.has(getQuranPageImageUrl(p))) cached++;
+          const pageUrl = new URL(getQuranPageImageUrl(p), window.location.origin).href;
+          if (urls.has(pageUrl)) cached++;
         }
         if (!cancelled) {
           const pct = Math.round((cached / totalPages) * 100);
@@ -87,13 +88,15 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
 
     for (let i = 0; i < pages.length; i += batchSize) {
       const batch = pages.slice(i, i + batchSize);
+      const cache = await caches.open("quran-pages-cache");
       await Promise.all(
         batch.map(async (page) => {
           try {
             const url = getQuranPageImageUrl(page);
-            const res = await fetch(url, { cache: "force-cache" });
-            if (res.ok) await res.blob();
-          } catch { /* ignore */ }
+            await cache.add(url);
+          } catch (err) { 
+            console.error(`Failed to cache page ${page}:`, err);
+          }
           loaded++;
           setProgress(Math.round((loaded / totalPages) * 100));
         })
@@ -198,7 +201,7 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
             ) : downloadState === "done" ? (
               <Check size={16} />
             ) : (
-              <Download size={16} strokeWidth={1.5} />
+              <DownloadCloud size={16} strokeWidth={1.5} />
             )}
           </button>
         </div>

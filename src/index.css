@@ -37,47 +37,47 @@
   }
 
   .dark {
-    /* Deep Atmospheric Dark Mode - High Contrast Edition */
-    --background: 145 45% 1%; /* True obsidian */
-    --foreground: 45 30% 100%; /* Pure white/cream */
-    --card: 145 45% 3%;
-    --card-foreground: 45 30% 100%;
-    --popover: 145 45% 3%;
-    --popover-foreground: 45 30% 100%;
-    --primary: 145 70% 75%; /* More vibrant, high-contrast emerald */
-    --primary-foreground: 145 45% 1%;
-    --secondary: 145 40% 6%;
-    --secondary-foreground: 42 100% 80%;
-    --muted: 145 35% 4%;
-    --muted-foreground: 145 20% 95%; /* Very light for readability */
-    --accent: 42 100% 75%; /* Vibrant gold */
-    --accent-foreground: 145 45% 1%;
-    --destructive: 0 95% 70%;
-    --destructive-foreground: 45 30% 100%;
-    --border: 145 35% 8%;
-    --input: 145 35% 8%;
-    --ring: 42 100% 75%;
+    /* OLED Black Theme - Maximum battery saving and contrast */
+    --background: 0 0% 0%; /* Pure black */
+    --foreground: 0 0% 100%; /* Pure white */
+    --card: 0 0% 3%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 3%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 145 70% 85%; /* Bright emerald */
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 6%;
+    --secondary-foreground: 42 100% 85%;
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 95%;
+    --accent: 42 100% 80%; /* Bright gold */
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 100% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
+    --ring: 42 100% 80%;
   }
 
   .sepia {
     /* Warm Sepia - Optimized for long reading sessions */
     --background: 35 45% 85%; /* Richer sepia background */
-    --foreground: 25 40% 10%; /* Very dark brown for contrast */
+    --foreground: 25 40% 5%; /* Very dark brown for maximum contrast */
     --card: 35 45% 87%;
-    --card-foreground: 25 40% 10%;
+    --card-foreground: 25 40% 5%;
     --popover: 35 45% 87%;
-    --popover-foreground: 25 40% 10%;
-    --primary: 25 55% 22%; /* Deep mahogany primary */
+    --popover-foreground: 25 40% 5%;
+    --primary: 25 55% 18%; /* Deeper mahogany primary for contrast */
     --primary-foreground: 35 45% 96%;
     --secondary: 35 40% 78%;
-    --secondary-foreground: 25 55% 22%;
+    --secondary-foreground: 25 55% 18%;
     --muted: 35 30% 75%;
-    --muted-foreground: 25 35% 30%;
-    --accent: 30 65% 30%;
+    --muted-foreground: 25 35% 25%;
+    --accent: 30 65% 25%;
     --accent-foreground: 35 45% 96%;
     --border: 35 30% 70%;
     --input: 35 30% 70%;
-    --ring: 25 55% 22%;
+    --ring: 25 55% 18%;
   }
 }
 
@@ -87,8 +87,15 @@
   }
   body {
     @apply bg-background text-foreground font-sans selection:bg-primary/20;
-    direction: rtl;
     -webkit-tap-highlight-color: transparent;
+  }
+  
+  .lang-ar {
+    font-family: "Amiri", "Noto Naskh Arabic", serif;
+  }
+  
+  .lang-en {
+    font-family: "Inter", system-ui, sans-serif;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -129,7 +136,7 @@
 }
 
 .dark .quran-page-img {
-  filter: invert(0.93) hue-rotate(180deg) brightness(0.75) contrast(1.1);
+  filter: invert(1) brightness(0.8) contrast(1.2);
 }
 
 .sepia .quran-page-img {

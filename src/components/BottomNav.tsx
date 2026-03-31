@@ -1,20 +1,22 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Clock, Shield, Settings, Home, ChevronUp, Headphones } from "lucide-react";
+import { Clock, Shield, Settings, Home, ChevronUp, LayoutGrid, Music } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-
-const NAV_ITEMS = [
-  { path: "/settings", label: "الإعدادات", icon: Settings },
-  { path: "/prayer-times", label: "الصلاة", icon: Clock },
-  { path: "/", label: "الرئيسية", icon: Home, isCenter: true },
-  { path: "/athkar", label: "الأذكار", icon: Shield },
-  { path: "/recitations", label: "التلاوات", icon: Headphones },
-];
+import { useTranslation } from "react-i18next";
 
 const BottomNav = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const [isHidden, setIsHidden] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const NAV_ITEMS = [
+    { path: "/settings", label: t("nav.settings"), icon: Settings },
+    { path: "/prayer-times", label: t("nav.prayer"), icon: Clock },
+    { path: "/", label: t("nav.home"), icon: Home, isCenter: true },
+    { path: "/athkar", label: t("nav.athkar"), icon: Shield },
+    { path: "/hub", label: t("nav.hub"), icon: LayoutGrid },
+  ];
 
   const triggerHaptic = useCallback(() => {
     if (typeof window !== "undefined" && window.navigator && window.navigator.vibrate) {
@@ -46,7 +48,7 @@ const BottomNav = () => {
             triggerHaptic();
           }}
           className="w-12 h-7 rounded-t-2xl bg-card/95 backdrop-blur-xl border border-border/40 border-b-0 flex items-center justify-center text-muted-foreground hover:text-accent transition-all shadow-lg group"
-          aria-label={isHidden ? "إظهار القائمة" : "إخفاء القائمة"}
+          aria-label={isHidden ? t("nav.showMenu") : t("nav.hideMenu")}
         >
           <motion.div
             animate={{ rotate: isHidden ? 0 : 180 }}

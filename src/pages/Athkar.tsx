@@ -1,11 +1,12 @@
 import { useState, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Home, Search, X, Shield, BookOpen, ChevronDown, ChevronUp, Copy, Check, Sunrise, Sunset, Moon, AlarmClock, Building, House, UtensilsCrossed, Plane, Shirt, Volume2, Heart, Stethoscope, Compass, Droplets, DoorOpen, Cloud, Share2, ArrowRight } from "lucide-react";
+import { Home, Search as SearchIcon, X, Shield, BookOpen, ChevronDown, ChevronUp, Copy, Check, Sunrise, Sunset, Moon, AlarmClock, Building, House, UtensilsCrossed, Plane, Shirt, Volume2, Heart, Stethoscope, Compass, Droplets, DoorOpen, Cloud, Share2, ArrowRight } from "lucide-react";
 import { ATHKAR_DATA, type AthkarCategory } from "@/data/athkarData";
 import { useFavorites } from "@/hooks/useFavorites";
 import { toArabicNumber } from "@/data/quranData";
 import ScrollReveal from "@/components/ScrollReveal";
 import { motion, AnimatePresence } from "motion/react";
+import { useTranslation } from "react-i18next";
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   sunrise: <Sunrise size={20} />,
@@ -39,6 +40,8 @@ const getCounters = (): Record<number, number> => {
 };
 
 const Athkar = () => {
+  const { t, i18n } = useTranslation();
+  const isArabic = i18n.language === 'ar';
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const [counters, setCounters] = useState<Record<number, number>>(getCounters());
   const [copiedId, setCopiedId] = useState<number | null>(null);
@@ -153,7 +156,7 @@ const Athkar = () => {
               to="/" 
               className="w-12 h-12 rounded-full bg-white/5 backdrop-blur-md flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all border border-white/10"
             >
-              <ArrowRight size={24} strokeWidth={1.5} />
+              <ArrowRight size={24} strokeWidth={1.5} className="rtl:rotate-180" />
             </Link>
             
             <div className="flex items-center gap-4">
@@ -162,13 +165,13 @@ const Athkar = () => {
                 className="h-12 px-6 rounded-full bg-white/5 backdrop-blur-md flex items-center gap-3 text-xs font-sans font-bold tracking-widest text-white/70 hover:text-white hover:bg-white/10 transition-all border border-white/10 uppercase"
               >
                 <Heart size={16} strokeWidth={1.5} />
-                <span>Favorites</span>
+                <span>{t("hub.favorites")}</span>
               </Link>
               <button 
                 onClick={resetCounters}
                 className="h-12 px-6 rounded-full bg-gold/10 backdrop-blur-md flex items-center gap-3 text-xs font-sans font-bold tracking-widest text-gold hover:bg-gold/20 transition-all border border-gold/20 uppercase"
               >
-                <span>Reset Counters</span>
+                <span>{t("athkar.resetCounters")}</span>
               </button>
             </div>
           </div>
@@ -180,7 +183,7 @@ const Athkar = () => {
               className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
-              <span className="text-[10px] font-sans font-bold tracking-[0.2em] text-white/80 uppercase">Spiritual Fortress</span>
+              <span className="text-[10px] font-sans font-bold tracking-[0.2em] text-white/80 uppercase">{t("athkar.spiritualFortress")}</span>
             </motion.div>
             
             <motion.h1 
@@ -189,7 +192,7 @@ const Athkar = () => {
               transition={{ delay: 0.1 }}
               className="text-6xl sm:text-8xl font-serif font-light text-white mb-8 tracking-tighter"
             >
-              الأذكار <span className="italic font-light text-gold/80">&</span> الأدعية
+              {t("athkar.title").split('&')[0]} <span className="italic font-light text-gold/80">&</span> {t("athkar.title").split('&')[1]}
             </motion.h1>
             
             <motion.p 
@@ -198,7 +201,7 @@ const Athkar = () => {
               transition={{ delay: 0.2 }}
               className="text-white/80 font-serif italic text-xl max-w-2xl mx-auto leading-relaxed mb-12"
             >
-              مجموعة مختارة من صحيح السنة النبوية المطهرة، لتكون حصناً للمسلم في يومه وليله
+              {t("athkar.subtitle")}
             </motion.p>
 
             <motion.div 
@@ -208,13 +211,13 @@ const Athkar = () => {
               className="flex items-center justify-center gap-12"
             >
               <div className="flex flex-col items-center">
-                <span className="text-4xl font-serif text-gold mb-1">{toArabicNumber(ATHKAR_DATA.length)}</span>
-                <span className="text-[10px] font-sans font-bold text-white/60 uppercase tracking-[0.3em]">Sections</span>
+                <span className="text-4xl font-serif text-gold mb-1">{isArabic ? toArabicNumber(ATHKAR_DATA.length) : ATHKAR_DATA.length}</span>
+                <span className="text-[10px] font-sans font-bold text-white/60 uppercase tracking-[0.3em]">{t("athkar.sections")}</span>
               </div>
               <div className="w-px h-12 bg-white/10" />
               <div className="flex flex-col items-center">
-                <span className="text-4xl font-serif text-gold mb-1">{toArabicNumber(totalAthkar)}</span>
-                <span className="text-[10px] font-sans font-bold text-white/60 uppercase tracking-[0.3em]">Remembrances</span>
+                <span className="text-4xl font-serif text-gold mb-1">{isArabic ? toArabicNumber(totalAthkar) : totalAthkar}</span>
+                <span className="text-[10px] font-sans font-bold text-white/60 uppercase tracking-[0.3em]">{t("athkar.remembrances")}</span>
               </div>
             </motion.div>
           </div>
@@ -233,12 +236,12 @@ const Athkar = () => {
           className="relative mb-12"
         >
           <div className="absolute inset-0 bg-white/40 backdrop-blur-2xl rounded-[2.5rem] shadow-islamic -z-10" />
-          <Search size={20} className="absolute right-6 top-1/2 -translate-y-1/2 text-primary/70 pointer-events-none" strokeWidth={1.5} />
+          <SearchIcon size={20} className="absolute right-6 top-1/2 -translate-y-1/2 text-primary/70 pointer-events-none" strokeWidth={1.5} />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="ابحث في كنوز الأذكار..."
+            placeholder={t("athkar.searchPlaceholder")}
             className="w-full bg-transparent border-none rounded-[2.5rem] pr-16 pl-16 py-6 text-lg font-serif text-primary placeholder:text-primary/60 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
           />
           <AnimatePresence>
@@ -264,8 +267,8 @@ const Athkar = () => {
           >
             <span className="text-xs font-serif italic text-primary/80">
               {filteredData.length > 0
-                ? `تم العثور على ${toArabicNumber(filteredData.reduce((s, c) => s + c.athkar.length, 0))} نتيجة في ${toArabicNumber(filteredData.length)} أقسام`
-                : `لم نجد نتائج للبحث عن "${searchQuery}"`}
+                ? t("athkar.resultsFound", { count: toArabicNumber(filteredData.reduce((s, c) => s + c.athkar.length, 0)), sections: toArabicNumber(filteredData.length) })
+                : t("athkar.noResults", { query: searchQuery })}
             </span>
           </motion.div>
         )}
@@ -291,12 +294,12 @@ const Athkar = () => {
                       {ICON_MAP[category.iconName] || <BookOpen size={28} strokeWidth={1.5} />}
                     </motion.div>
                     
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-serif text-xl font-bold text-primary group-hover:text-accent transition-colors">{category.title}</h3>
-                      <p className="text-sm text-primary/70 font-serif italic mt-1 line-clamp-1">
-                        {category.description} • {toArabicNumber(category.athkar.length)} ذكر
-                      </p>
-                    </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-serif text-xl font-bold text-primary group-hover:text-accent transition-colors">{category.title}</h3>
+                          <p className="text-sm text-primary/70 font-serif italic mt-1 line-clamp-1">
+                            {category.description} • {isArabic ? toArabicNumber(category.athkar.length) : category.athkar.length} {t("athkar.remembrances")}
+                          </p>
+                        </div>
 
                     <motion.div
                       animate={{ rotate: isExpanded ? 180 : 0 }}
@@ -361,13 +364,13 @@ const Athkar = () => {
                                         {isDone ? (
                                           <>
                                             <Check size={18} strokeWidth={2} />
-                                            <span>تم الذكر</span>
+                                            <span>{t("athkar.done")}</span>
                                           </>
                                         ) : (
                                           <div className="flex items-center gap-2">
-                                            <span className="text-lg">{toArabicNumber(currentCount)}</span>
+                                            <span className="text-lg">{isArabic ? toArabicNumber(currentCount) : currentCount}</span>
                                             <span className="text-muted-foreground">/</span>
-                                            <span>{toArabicNumber(dhikr.count)}</span>
+                                            <span>{isArabic ? toArabicNumber(dhikr.count) : dhikr.count}</span>
                                           </div>
                                         )}
                                       </motion.button>
@@ -428,11 +431,11 @@ const Athkar = () => {
         <div className="relative z-10 container max-w-lg mx-auto px-6">
           <div className="w-12 h-12 ornament-border opacity-20 mx-auto mb-8" />
           <p className="font-serif italic text-primary/70 text-sm leading-relaxed">
-            المصدر: حصن المسلم، صحيح البخاري ومسلم، ومن أذكار الكتاب والسنة النبوية المطهرة
+            {t("athkar.source")}
           </p>
           <div className="mt-12 flex items-center justify-center gap-4">
             <div className="h-px w-12 bg-primary/10" />
-            <span className="text-[10px] font-bold text-primary/50 uppercase tracking-[0.4em]">صدقة جارية</span>
+            <span className="text-[10px] font-bold text-primary/50 uppercase tracking-[0.4em]">{t("athkar.charity")}</span>
             <div className="h-px w-12 bg-primary/10" />
           </div>
         </div>

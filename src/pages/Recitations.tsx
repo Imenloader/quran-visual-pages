@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Home, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, Search, ChevronDown, Loader2, Music, Heart, ListMusic, X, Trash2, Clock, Download, Check, Square, Star, Plus, FolderPlus, GripVertical, ArrowRight, Link2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Home, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, Search, ChevronDown, Loader2, Music, Heart, ListMusic, X, Trash2, Clock, DownloadCloud, Check, Square, Star, Plus, FolderPlus, GripVertical, ArrowRight, Link2 } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { usePlaylists, PRESET_PLAYLISTS, type PlaylistTrack, type Playlist } from "@/hooks/usePlaylists";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
@@ -99,6 +100,7 @@ const getAudioUrl = (server: string, surahId: number | string | undefined | null
 };
 
 const Recitations = () => {
+  const { t } = useTranslation();
   const [reciters, setReciters] = useState<Reciter[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -473,7 +475,7 @@ const Recitations = () => {
                 className="h-12 px-6 rounded-full bg-muted flex items-center gap-3 text-xs font-sans font-bold tracking-widest text-muted-foreground hover:text-primary hover:bg-muted/80 transition-all border border-border/40 uppercase"
               >
                 <Heart size={16} strokeWidth={1.5} />
-                <span>Favorites</span>
+                <span>{t("recitations.favorites")}</span>
               </Link>
             </div>
           </div>
@@ -485,7 +487,7 @@ const Recitations = () => {
               className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-muted/50 border border-border/40 backdrop-blur-md mb-8"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
-              <span className="text-[10px] font-sans font-bold tracking-[0.2em] text-muted-foreground uppercase">Audio Library</span>
+              <span className="text-[10px] font-sans font-bold tracking-[0.2em] text-muted-foreground uppercase">{t("recitations.audioLibrary")}</span>
             </motion.div>
             
             <motion.p 
@@ -534,7 +536,7 @@ const Recitations = () => {
               }`}
             >
               <Music size={14} />
-              القراء والسور
+              {t("recitations.recitersAndSurahs")}
             </button>
             <button
               onClick={() => setActiveTab("playlists")}
@@ -545,7 +547,7 @@ const Recitations = () => {
               }`}
             >
               <ListMusic size={14} />
-              قوائم التشغيل
+              {t("recitations.playlists")}
               {playlists.length > 0 && (
                 <span className={`absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full text-[9px] flex items-center justify-center border border-black/10 ${
                   activeTab === "playlists" ? "bg-black text-gold" : "bg-gold text-black"
@@ -1024,7 +1026,7 @@ const Recitations = () => {
                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-inner transition-all ${
                       dlState === "done" ? "bg-emerald/20 text-emerald" : "bg-gold text-black"
                     }`}>
-                      {dlState === "downloading" ? <Pause size={24} /> : dlState === "done" ? <Check size={24} /> : dlState === "paused" ? <Play size={24} /> : <Download size={24} />}
+                      {dlState === "downloading" ? <Pause size={24} /> : dlState === "done" ? <Check size={24} /> : dlState === "paused" ? <Play size={24} /> : <DownloadCloud size={24} />}
                     </div>
                     <div className="flex-1 text-right min-w-0">
                       <span className="text-[10px] font-sans font-bold tracking-[0.2em] text-primary/60 uppercase mb-1 block">Offline Access</span>

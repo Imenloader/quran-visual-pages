@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { Heart, BookOpen, Shield, Trash2, Copy, Check, Headphones, Music, Star, User, Search, X } from "lucide-react";
 import { useFavorites, type FavoriteItem } from "@/hooks/useFavorites";
@@ -18,6 +19,8 @@ const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
 ];
 
 const Favorites = () => {
+  const { t, i18n } = useTranslation();
+  const isArabic = i18n.language === 'ar';
   const { favorites, toggleFavorite } = useFavorites();
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<TabKey>("all");
@@ -99,17 +102,17 @@ const Favorites = () => {
             </div>
             
             <h1 className="text-4xl sm:text-6xl font-serif font-bold text-white mb-6 tracking-tight">
-              كنوزي <span className="italic font-light text-gold/80">المفضلة</span>
+              {t('favorites.title')} <span className="italic font-light text-gold/80">{t('favorites.subtitle')}</span>
             </h1>
             
             <p className="text-white/80 font-serif italic text-lg max-w-xl mx-auto leading-relaxed">
-              مجموعتك الخاصة من الأجزاء المباركة، الأذكار النبوية، والتلاوات العطرة التي تلامس قلبك
+              {t('favorites.description')}
             </p>
 
             <div className="flex items-center justify-center gap-6 mt-10">
               <div className="flex flex-col items-center">
-                <span className="text-2xl font-serif text-gold">{toArabicNumber(counts.all)}</span>
-                <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">إجمالي المحفوظات</span>
+                <span className="text-2xl font-serif text-gold">{isArabic ? toArabicNumber(counts.all) : counts.all}</span>
+                <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">{t('favorites.totalSaved')}</span>
               </div>
             </div>
           </motion.div>
@@ -127,7 +130,7 @@ const Favorites = () => {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="ابحث في محفوظاتك..."
+                  placeholder={t('favorites.searchPlaceholder')}
                   className="w-full bg-primary/5 border-none rounded-2xl pr-12 pl-12 py-3 text-sm font-serif text-primary placeholder:text-primary/60 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
                 />
                 {searchQuery && (
@@ -181,11 +184,11 @@ const Favorites = () => {
                 <Heart size={48} className="text-primary/10" strokeWidth={1} />
               </div>
               <div className="space-y-3">
-                <h2 className="font-serif text-2xl font-bold text-primary">سجل مفضلاتك فارغ</h2>
-                <p className="font-serif italic text-primary/70 text-lg max-w-xs mx-auto leading-relaxed">ابدأ برحلتك الإيمانية وأضف ما يروق لقلبك من كنوز التطبيق</p>
+                <h2 className="font-serif text-2xl font-bold text-primary">{t('favorites.emptyTitle')}</h2>
+                <p className="font-serif italic text-primary/70 text-lg max-w-xs mx-auto leading-relaxed">{t('favorites.emptySubtitle')}</p>
               </div>
               <Link to="/" className="inline-flex h-14 px-10 rounded-2xl bg-emerald-deep text-gold font-serif text-lg font-bold shadow-xl hover:shadow-emerald-deep/20 transition-all items-center justify-center">
-                استكشف الآن
+                {t('favorites.exploreNow')}
               </Link>
             </motion.div>
           ) : (
@@ -203,7 +206,7 @@ const Favorites = () => {
                   <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center mx-auto">
                     <Search size={32} className="text-primary/10" strokeWidth={1} />
                   </div>
-                  <p className="font-serif italic text-primary/70 text-xl">لم نجد نتائج للبحث عن "{searchQuery}"</p>
+                  <p className="font-serif italic text-primary/70 text-xl">{t('favorites.noResults', { query: searchQuery })}</p>
                 </div>
               )}
 
@@ -214,7 +217,7 @@ const Favorites = () => {
                     <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center text-gold">
                       <Star size={20} strokeWidth={1.5} />
                     </div>
-                    <h2 className="font-serif text-2xl font-bold text-primary">القراء المفضلون</h2>
+                    <h2 className="font-serif text-2xl font-bold text-primary">{t('favorites.reciters')}</h2>
                     <div className="h-px flex-1 bg-primary/5" />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -233,7 +236,7 @@ const Favorites = () => {
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="font-serif text-lg font-bold text-primary truncate">{item.name}</p>
-                              <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest mt-1">Reciter</p>
+                              <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest mt-1">{t('favorites.reciter')}</p>
                             </div>
                           </Link>
                           <button
@@ -257,7 +260,7 @@ const Favorites = () => {
                     <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
                       <BookOpen size={20} strokeWidth={1.5} />
                     </div>
-                    <h2 className="font-serif text-2xl font-bold text-primary">الأجزاء المفضلة</h2>
+                    <h2 className="font-serif text-2xl font-bold text-primary">{t('favorites.juz')}</h2>
                     <div className="h-px flex-1 bg-primary/5" />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -269,7 +272,7 @@ const Favorites = () => {
                         >
                           <Link to={`/juz/${juz.number}`} className="block bg-card/60 backdrop-blur-sm border border-border/5 rounded-[2.5rem] p-8 hover:bg-card hover:shadow-islamic transition-all text-center">
                             <div className="w-16 h-16 rounded-full bg-emerald-deep text-gold flex items-center justify-center mx-auto mb-6 shadow-xl border border-foreground/10">
-                              <span className="text-2xl font-bold font-serif">{toArabicNumber(juz.number)}</span>
+                              <span className="text-2xl font-bold font-serif">{isArabic ? toArabicNumber(juz.number) : juz.number}</span>
                             </div>
                             <h3 className="font-serif text-xl font-bold text-primary mb-2">{juz.nameAr}</h3>
                             <p className="text-sm text-primary/70 font-serif italic">{juz.startSurah}</p>
@@ -295,7 +298,7 @@ const Favorites = () => {
                     <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                       <Shield size={20} strokeWidth={1.5} />
                     </div>
-                    <h2 className="font-serif text-2xl font-bold text-primary">الأذكار المفضلة</h2>
+                    <h2 className="font-serif text-2xl font-bold text-primary">{t('favorites.athkar')}</h2>
                     <div className="h-px flex-1 bg-primary/5" />
                   </div>
                   <div className="space-y-6">
@@ -311,14 +314,14 @@ const Favorites = () => {
                               <button 
                                 onClick={() => copyText(dhikr.text, dhikr.id)} 
                                 className="w-10 h-10 rounded-xl bg-primary/5 text-primary/30 hover:text-accent hover:bg-accent/10 flex items-center justify-center transition-all" 
-                                title="نسخ"
+                                title={t('athkar.copy')}
                               >
                                 {copiedId === dhikr.id ? <Check size={16} className="text-accent" strokeWidth={2} /> : <Copy size={16} strokeWidth={1.5} />}
                               </button>
                               <button 
                                 onClick={() => toggleFavorite({ type: "dhikr", id: dhikr.id, categoryId: dhikr.categoryId })} 
                                 className="w-10 h-10 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all" 
-                                title="إزالة من المفضلة"
+                                title={t('favorites.remove')}
                               >
                                 <Trash2 size={16} strokeWidth={1.5} />
                               </button>
@@ -347,7 +350,7 @@ const Favorites = () => {
                     <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500">
                       <Headphones size={20} strokeWidth={1.5} />
                     </div>
-                    <h2 className="font-serif text-2xl font-bold text-primary">التلاوات المفضلة</h2>
+                    <h2 className="font-serif text-2xl font-bold text-primary">{t('favorites.recitations')}</h2>
                     <div className="h-px flex-1 bg-primary/5" />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -361,7 +364,7 @@ const Favorites = () => {
                             <Music size={28} strokeWidth={1.5} />
                           </div>
                           <Link to="/recitations" className="flex-1 min-w-0 text-right">
-                            <p className="font-serif text-lg font-bold text-primary truncate">سورة {item.surahName}</p>
+                            <p className="font-serif text-lg font-bold text-primary truncate">{t('index.verseOfDay.surah')} {item.surahName}</p>
                             <p className="text-sm text-primary/70 font-serif italic truncate mt-1">{item.reciterName}</p>
                           </Link>
                           <button
@@ -393,7 +396,7 @@ const Favorites = () => {
                   <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center mx-auto">
                     <Heart size={32} className="text-primary/10" strokeWidth={1} />
                   </div>
-                  <p className="font-serif italic text-primary/70 text-xl">لا توجد عناصر في هذا القسم بعد</p>
+                  <p className="font-serif italic text-primary/70 text-xl">{t('favorites.noItemsInSection')}</p>
                 </motion.div>
               )}
             </motion.div>

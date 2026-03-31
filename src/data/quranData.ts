@@ -174,8 +174,20 @@ export const toArabicNumber = (num: number | string | undefined | null): string 
   }).join('');
 };
 
+export const getJuzAndPageForSurah = (surahNumber: number): { juz: number; page: number } => {
+  const surah = surahIndex.find(s => s.number === surahNumber);
+  if (!surah) return { juz: 1, page: 1 };
+  
+  const juz = juzData.find(j => surah.startPage >= j.startPage && surah.startPage <= j.endPage);
+  return {
+    juz: juz ? juz.number : 1,
+    page: surah.startPage
+  };
+};
+
 export const getQuranPageImageUrl = (pageNumber: number | string | undefined | null): string => {
   if (!pageNumber) return "";
   const paddedPage = String(pageNumber).padStart(3, '0');
+  // Using reliable remote source as primary since local files are 0 bytes
   return `https://jahedev.github.io/tajweed-quran-pages/hafs/tajweed-${paddedPage}.jpg`;
 };

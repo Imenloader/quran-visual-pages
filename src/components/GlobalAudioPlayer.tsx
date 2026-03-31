@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, ChevronDown, Loader2, ListMusic } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, ChevronDown, Loader2, ListMusic, Sparkles } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 
@@ -14,9 +14,9 @@ const GlobalAudioPlayer = () => {
   const {
     currentSurah, isPlaying, currentTime, duration, audioLoading,
     playerMinimized, selectedReciterName, playlistQueue, playlistQueueIndex,
-    activePlaylistName, isShuffle, isRepeat, volume, isMuted,
+    activePlaylistName, isShuffle, isRepeat, volume, isMuted, syncMode,
     togglePlay, playNextSurah, playPrevSurah, handleSeek, handleVolume,
-    toggleMute, setIsRepeat, setIsShuffle, setPlayerMinimized,
+    toggleMute, setIsRepeat, setIsShuffle, setPlayerMinimized, setSyncMode
   } = useAudioPlayer();
 
   const swipeData = useRef<{ startY: number | null; startTime: number | null }>({
@@ -96,6 +96,13 @@ const GlobalAudioPlayer = () => {
           </div>
 
           <div className="flex items-center gap-1">
+            <button 
+              onClick={() => setSyncMode(!syncMode)} 
+              className={`p-2 rounded-full transition-colors ${syncMode ? "text-accent" : "text-muted-foreground hover:text-foreground"}`}
+              title="تزامن الآيات"
+            >
+              <Sparkles size={16} />
+            </button>
             <button onClick={() => setIsShuffle(!isShuffle)} className={`p-2 rounded-full transition-colors ${isShuffle ? "text-gold" : "text-muted-foreground hover:text-foreground"}`}>
               <Shuffle size={16} />
             </button>

@@ -13,6 +13,8 @@ interface ThemeContextType {
   setReadingMode: (mode: ReadingMode) => void;
   scrollDirection: ScrollDirection;
   setScrollDirection: (direction: ScrollDirection) => void;
+  tajweedMode: boolean;
+  setTajweedMode: (mode: boolean) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -37,7 +39,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const [dimming, setDimmingState] = useState<number>(() => {
     const saved = localStorage.getItem("quran-page-dimming");
-    return saved ? parseInt(saved) : 80;
+    return saved ? parseInt(saved) : 0;
+  });
+
+  const [tajweedMode, setTajweedModeState] = useState<boolean>(() => {
+    const saved = localStorage.getItem("quran-tajweed-mode");
+    return saved === "true";
   });
 
   const setTheme = (newTheme: Theme) => {
@@ -60,9 +67,14 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem("quran-page-dimming", newDimming.toString());
   };
 
+  const setTajweedMode = (newMode: boolean) => {
+    setTajweedModeState(newMode);
+    localStorage.setItem("quran-tajweed-mode", newMode.toString());
+  };
+
   useEffect(() => {
     const html = document.documentElement;
-    html.classList.remove("dark", "sepia", "night-reading");
+    html.classList.remove("dark", "sepia");
     
     if (theme === "dark") {
       html.classList.add("dark");
@@ -70,9 +82,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       html.classList.add("sepia");
     }
 
-    // Apply dimming
-    const brightness = dimming / 100;
-    const opacity = (100 - dimming) / 100;
+    // Apply dimming - Now works as "Intensity" (0 = none, 100 = full dark)
+    const opacity = (dimming / 100) * 0.8; // Max 80% opacity to prevent total black screen
+    const brightness = 1 - (dimming / 100) * 0.7; // Reduce brightness up to 70%
     html.style.setProperty("--page-brightness", brightness.toString());
     html.style.setProperty("--page-dimming-opacity", opacity.toString());
   }, [theme, dimming]);
@@ -82,7 +94,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       theme, setTheme, 
       dimming, setDimming, 
       readingMode, setReadingMode,
-      scrollDirection, setScrollDirection
+      scrollDirection, setScrollDirection,
+      tajweedMode, setTajweedMode
     }}>
       {children}
     </ThemeContext.Provider>

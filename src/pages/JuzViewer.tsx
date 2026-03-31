@@ -7,7 +7,7 @@ import ProgressBar from "@/components/ProgressBar";
 import PageNavigator from "@/components/PageNavigator";
 import JuzIndex from "@/components/JuzIndex";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
-import { ChevronRight, ChevronLeft, ArrowUp, Maximize, Minimize, ChevronUp } from "lucide-react";
+import { ChevronRight, ChevronLeft, ArrowUp, Maximize, Minimize, ChevronUp, GraduationCap, RefreshCw } from "lucide-react";
 import LazyImage from "@/components/LazyImage";
 import QuranTextViewer from "@/components/QuranTextViewer";
 import { toast } from "sonner";
@@ -51,8 +51,76 @@ const JuzViewer = () => {
 
   const [loadingStates, setLoadingStates] = useState<Record<number, boolean>>({});
   const [errorStates, setErrorStates] = useState<Record<number, boolean>>({});
+  const [fallbackLevel, setFallbackLevel] = useState<Record<number, number>>({});
   const [zoom, setZoom] = useState(100);
   const [currentPage, setCurrentPage] = useState(0);
+  const [hifzMode, setHifzMode] = useState(() => localStorage.getItem("quran-hifz-mode") === "true");
+  const [hiddenPages, setHiddenPages] = useState<Record<number, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem("quran-hidden-pages");
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+  const [hiddenLines, setHiddenLines] = useState<Record<number, number[]>>(() => {
+    try {
+      const saved = localStorage.getItem("quran-hidden-lines");
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem("quran-hifz-mode", String(hifzMode));
+  }, [hifzMode]);
+
+  useEffect(() => {
+    localStorage.setItem("quran-hidden-pages", JSON.stringify(hiddenPages));
+  }, [hiddenPages]);
+
+  useEffect(() => {
+    localStorage.setItem("quran-hidden-lines", JSON.stringify(hiddenLines));
+  }, [hiddenLines]);
+
+  const isPageHidden = (page: number) => hifzMode && !!hiddenPages[page];
+
+  const togglePageHidden = (page: number) => {
+    setHiddenPages(prev => ({
+      ...prev,
+      [page]: !prev[page]
+    }));
+  };
+
+  const isLineHidden = (page: number, lineIndex: number) => {
+    return hifzMode && (hiddenLines[page]?.includes(lineIndex) ?? false);
+  };
+
+  const toggleLineHidden = (page: number, lineIndex: number) => {
+    setHiddenLines(prev => {
+      const lines = prev[page] || [];
+      if (lines.includes(lineIndex)) {
+        return { ...prev, [page]: lines.filter(l => l !== lineIndex) };
+      } else {
+        return { ...prev, [page]: [...lines, lineIndex] };
+      }
+    });
+  };
+
+  const hideAllLines = (page: number) => {
+    setHiddenLines(prev => ({
+      ...prev,
+      [page]: Array.from({ length: 15 }, (_, i) => i)
+    }));
+  };
+
+  const showAllLines = (page: number) => {
+    setHiddenLines(prev => ({
+      ...prev,
+      [page]: []
+    }));
+  };
 
   const handleNextPage = useCallback(() => {
     if (currentPage < juz!.endPage) {
@@ -238,8 +306,32 @@ const JuzViewer = () => {
   };
 
   const handleImageError = (page: number) => {
-    setLoadingStates((prev) => ({ ...prev, [page]: false }));
-    setErrorStates((prev) => ({ ...prev, [page]: true }));
+    const currentLevel = fallbackLevel[page] || 0;
+    if (currentLevel < 2) {
+      console.log(`Image load failed for page ${page} at level ${currentLevel}, trying next fallback...`);
+      setFallbackLevel((prev) => ({ ...prev, [page]: currentLevel + 1 }));
+    } else {
+      setLoadingStates((prev) => ({ ...prev, [page]: false }));
+      setErrorStates((prev) => ({ ...prev, [page]: true }));
+    }
+  };
+
+  const getImageUrl = (page: number) => {
+    const level = fallbackLevel[page] || 0;
+    const paddedPage = String(page).padStart(3, '0');
+    
+    if (level === 0) {
+      // Reliable Remote Source (via quranData.ts)
+      return getQuranPageImageUrl(page);
+    } else if (level === 1) {
+      // Local Source (may be 0 bytes)
+      return `/quran-images/tajweed-${paddedPage}.jpg`;
+    } else if (level === 2) {
+      // Quran.com Fallback
+      return `https://quran.com/images/quran/tajweed/${page}.png`;
+    }
+    
+    return getQuranPageImageUrl(page);
   };
 
   const scrollToPage = (page: number) => {
@@ -342,6 +434,18 @@ const JuzViewer = () => {
           currentPage={currentPage}
           bookmarked={savedBookmark?.juz === num && savedBookmark?.page === currentPage}
           juzNumber={num}
+          hifzMode={hifzMode}
+          onToggleHifzMode={() => {
+            const nextMode = !hifzMode;
+            setHifzMode(nextMode);
+            if (nextMode) {
+              // Hide all lines of the current page by default when entering hifzMode
+              hideAllLines(currentPage);
+              toast.success("تم تفعيل وضع التحفيظ والمراجعة", {
+                description: "انقر على الأسطر لإخفائها أو إظهارها"
+              });
+            }
+          }}
         />
       </div>
 
@@ -405,6 +509,44 @@ const JuzViewer = () => {
         className={`mx-auto px-4 flex flex-col items-center transition-all duration-500 ${isFullscreen ? "pb-12 pt-4" : "pb-40 pt-4"}`}
         onClick={handleScreenTap}
       >
+        {hifzMode && readingMode === "image" && (
+          <div className="mb-8 flex flex-wrap justify-center gap-4 sticky top-24 z-30 px-4">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                togglePageHidden(currentPage);
+              }}
+              className={`px-6 py-2.5 rounded-full font-serif font-bold shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2 border backdrop-blur-md ${
+                isPageHidden(currentPage) ? "bg-primary text-primary-foreground border-primary/20" : "bg-accent text-white border-white/20"
+              }`}
+            >
+              <GraduationCap size={18} />
+              {isPageHidden(currentPage) ? "إظهار الصفحة" : "إخفاء الصفحة"}
+            </button>
+            
+            <div className="flex gap-2 bg-card/80 backdrop-blur-md p-1 rounded-full border border-border/40 shadow-xl">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  hideAllLines(currentPage);
+                }}
+                className="px-4 py-1.5 rounded-full text-xs font-serif font-bold hover:bg-accent/10 transition-all text-primary"
+              >
+                إخفاء الأسطر
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  showAllLines(currentPage);
+                }}
+                className="px-4 py-1.5 rounded-full text-xs font-serif font-bold hover:bg-accent/10 transition-all text-primary"
+              >
+                إظهار الأسطر
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col items-center gap-8 sm:gap-12 w-full" style={{ maxWidth: `${isFullscreen ? 9999 : maxWidth}px` }}>
           {readingMode === "image" ? (
             scrollDirection === "vertical" ? (
@@ -440,15 +582,59 @@ const JuzViewer = () => {
 
                   {!errorStates[page] && (
                     <div className="relative overflow-hidden">
-                      <LazyImage
-                        src={getQuranPageImageUrl(page)}
-                        alt={`صفحة ${page} من المصحف الشريف`}
-                        className="quran-page-img w-full h-auto transition-transform duration-700 group-hover:scale-[1.01]"
-                        onLoad={() => handleImageLoad(page)}
-                        onError={() => handleImageError(page)}
-                      />
+                      <div className={`transition-all duration-700 ${isPageHidden(page) ? "blur-3xl opacity-5 grayscale scale-90" : "blur-0 opacity-100 scale-100"}`}>
+                        <LazyImage
+                          key={getImageUrl(page)}
+                          src={getImageUrl(page)}
+                          alt={`صفحة ${page} من المصحف الشريف`}
+                          className="quran-page-img w-full h-auto group-hover:scale-[1.01]"
+                          onLoad={() => handleImageLoad(page)}
+                          onError={() => handleImageError(page)}
+                        />
+                      </div>
+
+                      {/* Line-by-line overlays in Hifz mode */}
+                      {hifzMode && !isPageHidden(page) && (
+                        <div className="absolute inset-0 flex flex-col pointer-events-none">
+                          {Array.from({ length: 15 }).map((_, i) => (
+                            <div
+                              key={i}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleLineHidden(page, i);
+                              }}
+                              className={`flex-1 w-full transition-all duration-500 cursor-pointer pointer-events-auto ${
+                                isLineHidden(page, i) 
+                                  ? "bg-card/95 backdrop-blur-md border-y border-border/10" 
+                                  : "bg-transparent hover:bg-accent/5"
+                              }`}
+                            >
+                              {isLineHidden(page, i) && (
+                                <div className="w-full h-full flex items-center justify-center opacity-20">
+                                  <div className="w-8 h-1 bg-accent rounded-full" />
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                       {/* Subtle overlay for better reading comfort */}
                       <div className="absolute inset-0 bg-primary/5 mix-blend-multiply pointer-events-none opacity-20" />
+                      
+                      {isPageHidden(page) && (
+                        <div 
+                          className="absolute inset-0 flex items-center justify-center cursor-pointer z-10"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            togglePageHidden(page);
+                          }}
+                        >
+                          <div className="bg-card/60 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl flex flex-col items-center gap-3">
+                            <RefreshCw className="w-10 h-10 text-accent animate-spin-slow" />
+                            <p className="text-primary font-serif italic text-sm">انقر للمراجعة</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </motion.div>
@@ -464,13 +650,59 @@ const JuzViewer = () => {
                     transition={{ duration: 0.3 }}
                     className="relative rounded-[2rem] overflow-hidden border border-border/40 bg-card shadow-islamic w-full"
                   >
-                    <LazyImage
-                      src={getQuranPageImageUrl(currentPage)}
-                      alt={`صفحة ${currentPage} من المصحف الشريف`}
-                      className="quran-page-img w-full h-auto"
-                      onLoad={() => handleImageLoad(currentPage)}
-                      onError={() => handleImageError(currentPage)}
-                    />
+                    <div className="relative">
+                      <div className={`transition-all duration-700 ${isPageHidden(currentPage) ? "blur-3xl opacity-5 grayscale scale-90" : "blur-0 opacity-100 scale-100"}`}>
+                        <LazyImage
+                          key={getImageUrl(currentPage)}
+                          src={getImageUrl(currentPage)}
+                          alt={`صفحة ${currentPage} من المصحف الشريف`}
+                          className="quran-page-img w-full h-auto"
+                          onLoad={() => handleImageLoad(currentPage)}
+                          onError={() => handleImageError(currentPage)}
+                        />
+                      </div>
+
+                      {/* Line-by-line overlays in Hifz mode */}
+                      {hifzMode && !isPageHidden(currentPage) && (
+                        <div className="absolute inset-0 flex flex-col pointer-events-none">
+                          {Array.from({ length: 15 }).map((_, i) => (
+                            <div
+                              key={i}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleLineHidden(currentPage, i);
+                              }}
+                              className={`flex-1 w-full transition-all duration-500 cursor-pointer pointer-events-auto ${
+                                isLineHidden(currentPage, i) 
+                                  ? "bg-card/95 backdrop-blur-md border-y border-border/10" 
+                                  : "bg-transparent hover:bg-accent/5"
+                              }`}
+                            >
+                              {isLineHidden(currentPage, i) && (
+                                <div className="w-full h-full flex items-center justify-center opacity-20">
+                                  <div className="w-8 h-1 bg-accent rounded-full" />
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {isPageHidden(currentPage) && (
+                        <div 
+                          className="absolute inset-0 flex items-center justify-center cursor-pointer z-10"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            togglePageHidden(currentPage);
+                          }}
+                        >
+                          <div className="bg-card/60 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl flex flex-col items-center gap-3">
+                            <RefreshCw className="w-10 h-10 text-accent animate-spin-slow" />
+                            <p className="text-primary font-serif italic text-sm">انقر للمراجعة</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                     <div className="absolute top-6 left-6 z-10 flex flex-col items-center gap-1">
                       <div className="w-10 h-10 rounded-2xl bg-emerald-deep/20 backdrop-blur-md text-primary flex items-center justify-center font-serif text-sm shadow-sm border border-primary/10">
                         {currentPage}
@@ -506,7 +738,7 @@ const JuzViewer = () => {
               animate={{ opacity: 1, y: 0 }}
               className="w-full bg-card rounded-[2.5rem] border border-border/40 shadow-islamic overflow-hidden"
             >
-              <QuranTextViewer juzNumber={num} />
+              <QuranTextViewer juzNumber={num} hifzMode={hifzMode} />
             </motion.div>
           )}
         </div>

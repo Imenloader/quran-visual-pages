@@ -107,6 +107,9 @@ interface AudioPlayerContextType {
   playlistQueue: PlaylistTrackGlobal[];
   playlistQueueIndex: number;
   activePlaylistName: string;
+  currentVerseKey: string | null;
+  syncMode: boolean;
+  setSyncMode: (v: boolean) => void;
   playSurah: (surah: Surah, reciter: ReciterInfo, moshaf: MoshafInfo, resumeTime?: number) => void;
   playPlaylistQueue: (tracks: PlaylistTrackGlobal[], name: string, startIndex?: number) => void;
   togglePlay: () => void;
@@ -144,6 +147,8 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
   const [playlistQueue, setPlaylistQueue] = useState<PlaylistTrackGlobal[]>([]);
   const [playlistQueueIndex, setPlaylistQueueIndex] = useState(-1);
   const [activePlaylistName, setActivePlaylistName] = useState("");
+  const [currentVerseKey, setCurrentVerseKey] = useState<string | null>(null);
+  const [syncMode, setSyncMode] = useState(() => localStorage.getItem("quran-sync-mode") === "true");
 
   // Store current moshaf info for next/prev
   const currentMoshafRef = useRef<MoshafInfo | null>(null);
@@ -168,27 +173,9 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     return SURAHS.filter(s => ids.includes(s.id));
   }, []);
 
-  const playSurahInternal = useCallback((surah: Surah, server: string, resumeTime?: number) => {
-    setCurrentSurah(surah);
-    setAudioLoading(true);
-    const url = getAudioUrl(server, surah.id);
-    if (audioRef.current) audioRef.current.pause();
-    const audio = new Audio();
-    audio.crossOrigin = "anonymous";
-    audio.src = url;
-    audioRef.current = audio;
-    audio.volume = isMuted ? 0 : volume / 100;
-
-    audio.addEventListener("loadedmetadata", () => {
-      setDuration(audio.duration);
-      setAudioLoading(false);
-      if (resumeTime && resumeTime > 0) audio.currentTime = resumeTime;
-    });
-    audio.addEventListener("timeupdate", () => setCurrentTime(audio.currentTime));
-    audio.addEventListener("ended", () => handleEndedRef.current?.());
-    audio.addEventListener("error", () => setAudioLoading(false));
-    audio.play().then(() => setIsPlaying(true)).catch(() => setAudioLoading(false));
-  }, [isMuted, volume]);
+  useEffect(() => {
+    localStorage.setItem("quran-sync-mode", syncMode.toString());
+  }, [syncMode]);
 
   const handleEnded = useCallback(() => {
     if (isRepeatRef.current && audioRef.current) {
@@ -251,6 +238,79 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     const idx = available.findIndex(s => s.id === cur.id);
     if (idx > 0) playSurahInternalRef.current?.(available[idx - 1], currentMoshafRef.current!.server);
   }, [currentSurah, getAvailableSurahs]);
+
+  const playSurahInternal = useCallback(async (surah: Surah, server: string, resumeTime?: number) => {
+    setCurrentSurah(surah);
+    setAudioLoading(true);
+    
+    if (syncMode) {
+      try {
+        // Fetch Surah with Ayah audio
+        const response = await fetch(`https://api.alquran.cloud/v1/surah/${surah.id}/ar.alafasy?audio=1`);
+        const data = await response.json();
+        if (data.code === 200) {
+          const ayahs = data.data.ayahs;
+          let currentAyahIdx = 0;
+          
+          const playNextAyah = () => {
+            if (currentAyahIdx >= ayahs.length) {
+              handleEnded();
+              return;
+            }
+            
+            const ayah = ayahs[currentAyahIdx];
+            setCurrentVerseKey(`${surah.id}:${ayah.numberInSurah}`);
+            
+            if (audioRef.current) audioRef.current.pause();
+            const audio = new Audio(ayah.audio);
+            audio.crossOrigin = "anonymous";
+            audioRef.current = audio;
+            audio.volume = isMuted ? 0 : volume / 100;
+            
+            audio.addEventListener("loadedmetadata", () => {
+              setDuration(audio.duration);
+              setAudioLoading(false);
+            });
+            audio.addEventListener("timeupdate", () => setCurrentTime(audio.currentTime));
+            audio.addEventListener("ended", () => {
+              currentAyahIdx++;
+              playNextAyah();
+            });
+            audio.addEventListener("error", () => {
+              currentAyahIdx++;
+              playNextAyah();
+            });
+            
+            audio.play().then(() => setIsPlaying(true)).catch(() => setAudioLoading(false));
+          };
+          
+          playNextAyah();
+          return;
+        }
+      } catch (error) {
+        console.error("Sync mode error:", error);
+        // Fallback to normal mode
+      }
+    }
+
+    const url = getAudioUrl(server, surah.id);
+    if (audioRef.current) audioRef.current.pause();
+    const audio = new Audio();
+    audio.crossOrigin = "anonymous";
+    audio.src = url;
+    audioRef.current = audio;
+    audio.volume = isMuted ? 0 : volume / 100;
+
+    audio.addEventListener("loadedmetadata", () => {
+      setDuration(audio.duration);
+      setAudioLoading(false);
+      if (resumeTime && resumeTime > 0) audio.currentTime = resumeTime;
+    });
+    audio.addEventListener("timeupdate", () => setCurrentTime(audio.currentTime));
+    audio.addEventListener("ended", () => handleEndedRef.current?.());
+    audio.addEventListener("error", () => setAudioLoading(false));
+    audio.play().then(() => setIsPlaying(true)).catch(() => setAudioLoading(false));
+  }, [isMuted, volume, syncMode, handleEnded]);
 
   playSurahInternalRef.current = playSurahInternal;
   playNextSurahInternalRef.current = playNextSurahInternal;
@@ -355,7 +415,8 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     <AudioPlayerContext.Provider value={{
       currentSurah, isPlaying, currentTime, duration, volume, isMuted,
       isRepeat, isShuffle, audioLoading, playerMinimized, selectedReciterName,
-      playlistQueue, playlistQueueIndex, activePlaylistName,
+      playlistQueue, playlistQueueIndex, activePlaylistName, currentVerseKey,
+      syncMode, setSyncMode,
       playSurah, playPlaylistQueue, togglePlay, playNextSurah: playNextSurahInternal,
       playPrevSurah: playPrevSurahInternal, handleSeek, handleVolume, toggleMute,
       setIsRepeat, setIsShuffle, setPlayerMinimized, stopPlayer,
