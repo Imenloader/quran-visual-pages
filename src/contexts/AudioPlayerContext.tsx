@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useRef, useCallback, useEffect, type ReactNode } from "react";
+import { fetchWithCache } from "@/lib/apiClient";
 
 interface Surah {
   id: number;
@@ -246,8 +247,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     if (syncMode) {
       try {
         // Fetch Surah with Ayah audio
-        const response = await fetch(`https://api.alquran.cloud/v1/surah/${surah.id}/ar.alafasy?audio=1`);
-        const data = await response.json();
+        const data = await fetchWithCache(`https://api.alquran.cloud/v1/surah/${surah.id}/ar.alafasy?audio=1`);
         if (data.code === 200) {
           const ayahs = data.data.ayahs;
           let currentAyahIdx = 0;

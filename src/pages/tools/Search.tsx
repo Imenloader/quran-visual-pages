@@ -4,6 +4,7 @@ import { ChevronLeft, Search as SearchIcon, History, X, Loader2, BookOpen } from
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { getJuzAndPageForSurah, juzData as juzList } from "@/data/quranData";
+import { fetchWithCache } from "@/lib/apiClient";
 
 interface SearchResult {
   text: string;
@@ -51,12 +52,10 @@ const Search = () => {
         const encodedQuery = encodeURIComponent(query);
         
         // 1. Search in Ayahs
-        const ayahPromise = fetch(`https://api.alquran.cloud/v1/search/${encodedQuery}/all/ar.quran-simple`)
-          .then(res => res.json());
+        const ayahPromise = fetchWithCache(`https://api.alquran.cloud/v1/search/${encodedQuery}/all/ar.quran-simple`);
           
         // 2. Search in Surahs (by fetching all and filtering)
-        const surahPromise = fetch(`https://api.alquran.cloud/v1/surah`)
-          .then(res => res.json());
+        const surahPromise = fetchWithCache(`https://api.alquran.cloud/v1/surah`);
 
         const [ayahData, surahData] = await Promise.all([ayahPromise, surahPromise]);
 

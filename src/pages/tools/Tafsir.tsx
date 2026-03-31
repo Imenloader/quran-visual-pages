@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, BookOpen, Search, Info, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { fetchWithCache } from "@/lib/apiClient";
 
 interface Surah {
   number: number;
@@ -31,8 +32,7 @@ const Tafsir = () => {
   };
 
   useEffect(() => {
-    fetch("https://api.alquran.cloud/v1/surah")
-      .then(res => res.json())
+    fetchWithCache("https://api.alquran.cloud/v1/surah")
       .then(data => {
         if (data.status === "OK") {
           setSurahs(data.data);
@@ -57,8 +57,8 @@ const Tafsir = () => {
     setLoading(true);
     // Fetch Ayah text and Tafsir
     Promise.all([
-      fetch(`https://api.alquran.cloud/v1/ayah/${selectedSurah}:${selectedAyah}/ar.quran-simple`).then(res => res.json()),
-      fetch(`https://api.alquran.cloud/v1/ayah/${selectedSurah}:${selectedAyah}/ar.muyassar`).then(res => res.json())
+      fetchWithCache(`https://api.alquran.cloud/v1/ayah/${selectedSurah}:${selectedAyah}/ar.quran-simple`),
+      fetchWithCache(`https://api.alquran.cloud/v1/ayah/${selectedSurah}:${selectedAyah}/ar.muyassar`)
     ])
     .then(([ayahData, tafsirData]) => {
       if (ayahData.status === "OK" && tafsirData.status === "OK") {
@@ -82,8 +82,7 @@ const Tafsir = () => {
     const normalizedQuery = normalizeArabic(searchQuery);
     const encodedQuery = encodeURIComponent(searchQuery);
     
-    fetch(`https://api.alquran.cloud/v1/search/${encodedQuery}/all/ar.quran-simple`)
-      .then(res => res.json())
+    fetchWithCache(`https://api.alquran.cloud/v1/search/${encodedQuery}/all/ar.quran-simple`)
       .then(data => {
         if (data.status === "OK" && data.data.count > 0) {
           const firstResult = data.data.matches[0];

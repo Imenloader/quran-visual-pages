@@ -9,6 +9,7 @@ import { applyTajweedColors } from "@/lib/tajweedParser";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import VerseShareCard from "@/components/VerseShareCard";
+import { fetchWithCache } from "@/lib/apiClient";
 
 interface VerseData {
   text: string;
@@ -199,8 +200,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ pageNumber, juzNumber
     setTafsirContent(null);
 
     try {
-      const response = await fetch(`https://api.alquran.cloud/v1/ayah/${verse.fullKey}/ar.muyassar`);
-      const data = await response.json();
+      const data = await fetchWithCache(`https://api.alquran.cloud/v1/ayah/${verse.fullKey}/ar.muyassar`);
       if (data.code === 200) {
         setTafsirContent(data.data.text);
       } else {
@@ -208,7 +208,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ pageNumber, juzNumber
       }
     } catch (error) {
       console.error("Tafsir fetch error:", error);
-      setTafsirContent("حدث خطأ أثناء الاتصال بالخادم.");
+      setTafsirContent(error instanceof Error ? error.message : "حدث خطأ أثناء الاتصال بالخادم.");
     } finally {
       setTafsirLoading(false);
     }
