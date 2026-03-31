@@ -1,27 +1,60 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, MapPin, Search, Utensils, Info } from "lucide-react";
+import { ChevronLeft, MapPin, Search, Utensils, Loader2, ExternalLink, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { searchPlaces, Place } from "@/services/placesService";
 
 const HalalPlaces = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [location, setLocation] = useState<{ lat: number, lng: number } | null>(null);
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const fetchPlaces = async (lat?: number, lng?: number, queryOverride?: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const results = await searchPlaces(queryOverride || "مطاعم حلال قريبة", lat, lng);
+      setPlaces(results);
+      if (results.length === 0) {
+        setError("لم يتم العثور على أماكن حلال قريبة. يرجى التأكد من تفعيل الموقع أو المحاولة لاحقاً.");
+      }
+    } catch (err) {
+      setError("حدث خطأ أثناء البحث عن الأماكن الحلال. يرجى المحاولة لاحقاً.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          setLocation({ lat, lng });
+          fetchPlaces(lat, lng);
+        },
+        (err) => {
+          setError("يرجى تفعيل الموقع للبحث عن الأماكن الحلال القريبة");
+          fetchPlaces();
+        }
       );
+    } else {
+      fetchPlaces();
     }
   }, []);
 
-  const places = [
-    { name: "مطعم المدينة", type: "مطعم شرقي", distance: "0.8 كم", rating: 4.8 },
-    { name: "حلويات الشرق", type: "حلويات", distance: "1.5 كم", rating: 4.5 },
-    { name: "جزارة الأمانة", type: "لحوم حلال", distance: "2.3 كم", rating: 4.9 },
-  ];
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      fetchPlaces(location?.lat, location?.lng, searchQuery);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background pb-24 pt-6 px-4">
@@ -38,49 +71,84 @@ const HalalPlaces = () => {
         </header>
 
         <div className="space-y-6">
-          <div className="relative mb-6">
+          <form onSubmit={handleSearch} className="relative mb-6">
             <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <input
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="ابحث عن مطعم أو متجر..."
               className="w-full bg-card border border-border rounded-2xl py-4 pr-12 pl-4 text-sm font-naskh focus:outline-none focus:ring-2 focus:ring-accent/50"
             />
-          </div>
+          </form>
 
           <div className="space-y-4">
             <div className="flex items-center justify-between px-2">
               <h2 className="font-bold font-naskh text-foreground">أماكن حلال قريبة</h2>
+              <button 
+                onClick={() => fetchPlaces(location?.lat, location?.lng)}
+                className="text-xs text-accent font-bold font-naskh flex items-center gap-1"
+              >
+                تحديث الموقع
+              </button>
             </div>
 
             <div className="space-y-3">
-              {places.map((place, idx) => (
-                <motion.div
-                  key={place.name}
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: idx * 0.1 }}
-                  className="p-4 bg-card border border-border rounded-2xl shadow-soft flex items-center justify-between group hover:bg-accent/5 transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
-                      <Utensils className="w-6 h-6" />
+              {loading ? (
+                <div className="flex flex-col items-center justify-center py-12 gap-4">
+                  <Loader2 className="w-8 h-8 text-accent animate-spin" />
+                  <p className="text-muted-foreground text-sm font-naskh">جاري البحث عن أماكن حلال...</p>
+                </div>
+              ) : places.length > 0 ? (
+                places.map((place, idx) => (
+                  <motion.div
+                    key={place.name + idx}
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="p-4 bg-card border border-border rounded-2xl shadow-soft flex items-center justify-between group hover:bg-accent/5 transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+                        <Utensils className="w-6 h-6" />
+                      </div>
+                      <div className="space-y-1">
+                        <h3 className="font-bold font-naskh text-foreground">{place.name}</h3>
+                        <p className="text-[10px] text-muted-foreground font-naskh">{place.type || "مطعم حلال"}</p>
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <h3 className="font-bold font-naskh text-foreground">{place.name}</h3>
-                      <p className="text-[10px] text-muted-foreground font-naskh">{place.type}</p>
+                    <div className="text-right">
+                      {place.url && (
+                        <a 
+                          href={place.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-xs text-accent font-bold font-naskh flex items-center gap-1 hover:underline"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          الخريطة
+                        </a>
+                      )}
+                      {place.rating && (
+                        <div className="flex items-center gap-1 mt-1 justify-end">
+                          <span className="text-[10px] font-bold text-foreground">{place.rating}</span>
+                          <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+                        </div>
+                      )}
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs font-bold text-amber-500 font-mono">{place.distance}</p>
-                    <div className="flex items-center gap-1 mt-1">
-                      <span className="text-[10px] font-bold text-foreground">{place.rating}</span>
-                      <span className="text-amber-500">★</span>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                ))
+              ) : !error && (
+                <p className="text-center text-muted-foreground text-sm font-naskh py-12">لا توجد نتائج حالياً</p>
+              )}
             </div>
           </div>
+
+          {error && (
+            <div className="p-4 bg-destructive/10 text-destructive rounded-2xl text-sm font-naskh text-center">
+              {error}
+            </div>
+          )}
         </div>
       </div>
     </div>

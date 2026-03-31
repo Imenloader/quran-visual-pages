@@ -74,18 +74,15 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ pageNumber, juzNumber
     loadText();
 
     // Listen for updates from the importer
-    const handleUpdate = () => loadText();
+    const handleUpdate = (e: StorageEvent) => {
+      if (e.key === "quran-text-updated") {
+        loadText();
+      }
+    };
     window.addEventListener("storage", handleUpdate);
     
-    // Custom event for same-tab updates
-    const interval = setInterval(() => {
-      const lastUpdate = localStorage.getItem("quran-text-updated");
-      if (lastUpdate) loadText();
-    }, 2000);
-
     return () => {
       window.removeEventListener("storage", handleUpdate);
-      clearInterval(interval);
     };
   }, [pageNumber, juzNumber]);
 
@@ -105,29 +102,43 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ pageNumber, juzNumber
     const startSurahName = startSurahParts[0];
     const startAyahOffset = startSurahParts.length > 1 ? parseInt(startSurahParts[1]) : 1;
 
-    lines.forEach((line, lineIndex) => {
-      const surahName = surahNames[lineIndex];
-      const surahInfo = surahIndex.find(s => s.name === surahName);
-      const surahNumber = surahInfo ? surahInfo.number : 0;
-      
+    let currentSurahIdx = 0;
+
+    lines.forEach((line) => {
       // Split by verse markers
       const regex = /(۝\s*[\u0660-\u0669\u06F0-\u06F9\d]+|[([﴿][\u0660-\u0669\u06F0-\u06F9\d]+[)\]﴾])/g;
       const parts = line.split(regex);
-      
-      let ayahCounter = (lineIndex === 0) ? startAyahOffset : 1;
 
       for (let i = 0; i < parts.length; i += 2) {
         const text = parts[i];
         const marker = parts[i + 1] || "";
-        if (text || marker) {
-          result.push({
-            text: text + marker,
-            surahNumber,
-            ayahNumber: ayahCounter,
-            surahName,
-            fullKey: `${surahNumber}:${ayahCounter}`
-          });
-          ayahCounter++;
+        
+        if (marker) {
+          // Extract number from marker
+          const numMatch = marker.match(/[\d\u0660-\u0669\u06F0-\u06F9]+/);
+          if (numMatch) {
+            const rawNum = numMatch[0];
+            // Convert Arabic digits to Western
+            const westernNum = rawNum.replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d).toString());
+            const ayahNumber = parseInt(westernNum);
+            
+            // Check for surah change: if ayahNumber is 1 and it's not the very first verse of the juz
+            if (ayahNumber === 1 && result.length > 0) {
+              currentSurahIdx++;
+            }
+            
+            const surahName = surahNames[currentSurahIdx] || surahNames[surahNames.length - 1];
+            const surahInfo = surahIndex.find(s => s.name === surahName);
+            const surahNumber = surahInfo ? surahInfo.number : 0;
+
+            result.push({
+              text: text + marker,
+              surahNumber,
+              ayahNumber,
+              surahName,
+              fullKey: `${surahNumber}:${ayahNumber}`
+            });
+          }
         }
       }
     });
@@ -265,7 +276,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ pageNumber, juzNumber
           </div>
           <div className="flex gap-2">
             <button
-              onClick={() => setHiddenVerses(new Set(verses.map((_, i) => i)))}
+              onClick={() => setHiddenVerses(new Set(versesData.map((_, i) => i)))}
               className="px-4 py-1.5 rounded-full bg-card border border-border text-xs font-serif hover:bg-accent/5 transition-all"
             >
               إخفاء الكل

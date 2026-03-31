@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { getJuzAndPageForSurah, juzData as juzList } from "@/data/quranData";
 import { fetchWithCache } from "@/lib/apiClient";
+import { normalizeArabic } from "@/lib/arabicUtils";
 
 interface SearchResult {
   text: string;
@@ -29,14 +30,6 @@ const Search = () => {
   const [surahResults, setSurahResults] = useState<{ number: number; name: string; englishName: string }[]>([]);
   const [juzResults, setJuzResults] = useState<JuzMatch[]>([]);
   const [loading, setLoading] = useState(false);
-
-  const normalizeArabic = (text: string) => {
-    return text
-      .replace(/[\u064B-\u0652]/g, "") // Remove diacritics
-      .replace(/[أإآ]/g, "ا")
-      .replace(/ة/g, "ه")
-      .replace(/ى/g, "ي");
-  };
 
   useEffect(() => {
     if (query.trim().length < 2) {

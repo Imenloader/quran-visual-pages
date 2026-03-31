@@ -47,30 +47,56 @@ const OfflineManager: React.FC = () => {
     setIsDownloading(true);
     setProgress(0);
     let count = 0;
+    let failedCount = 0;
 
     try {
       const cache = await caches.open(CACHE_NAME);
       
+      const downloadPage = async (page: number, retries = 3) => {
+        const url = getQuranPageImageUrl(page);
+        for (let attempt = 1; attempt <= retries; attempt++) {
+          try {
+            const response = await fetch(url, { mode: 'cors' });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            await cache.put(url, response);
+            return true;
+          } catch (err) {
+            if (attempt === retries) {
+              console.error(`Failed to download page ${page} after ${retries} attempts:`, err);
+              return false;
+            }
+            // Exponential backoff
+            await new Promise(resolve => setTimeout(resolve, 500 * attempt));
+          }
+        }
+        return false;
+      };
+
       // Download in batches to avoid overwhelming the browser
-      const batchSize = 10;
+      const batchSize = 5; // Reduced batch size for better stability
       for (let i = 1; i <= TOTAL_PAGES; i += batchSize) {
         const batch = [];
         for (let j = i; j < i + batchSize && j <= TOTAL_PAGES; j++) {
-          const url = getQuranPageImageUrl(j);
           batch.push(
-            cache.add(url)
-              .then(() => {
+            downloadPage(j)
+              .then(success => {
                 count++;
+                if (!success) failedCount++;
                 setDownloadedCount(prev => Math.max(prev, count));
                 setProgress(Math.round((count / TOTAL_PAGES) * 100));
               })
-              .catch(err => console.error(`Failed to download page ${j}:`, err))
           );
         }
         await Promise.all(batch);
+        // Small delay between batches to be nice to the server
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
       
-      toast.success("تم تجهيز جميع الصفحات بنجاح للقراءة دون اتصال");
+      if (failedCount > 0) {
+        toast.warning(`تم تجهيز المصحف مع فشل تحميل ${toArabicNumber(failedCount)} صفحة. يرجى المحاولة مرة أخرى لاحقاً.`);
+      } else {
+        toast.success("تم تجهيز جميع الصفحات بنجاح للقراءة دون اتصال");
+      }
       await checkCacheStatus();
     } catch (error) {
       console.error("Download failed:", error);

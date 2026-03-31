@@ -6,6 +6,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { usePlaylists, PRESET_PLAYLISTS, type PlaylistTrack, type Playlist } from "@/hooks/usePlaylists";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import { toast } from "sonner";
+import { normalizeArabic } from "@/lib/arabicUtils";
 import { motion, AnimatePresence } from "motion/react";
 import ScrollReveal from "@/components/ScrollReveal";
 
@@ -333,19 +334,6 @@ const Recitations = () => {
 
   const pauseDl = () => { dlAbortRef.current?.abort(); setDlState("paused"); };
   const cancelDl = () => { dlLoadedRef.current = 0; setDlProgress(0); setDlState("idle"); };
-
-  const normalizeArabic = (text: string) => {
-    if (!text) return "";
-    return text
-      .replace(/[أإآ]/g, "ا")
-      .replace(/ة/g, "ه")
-      .replace(/[ىي]/g, "ي")
-      .replace(/[ؤئ]/g, "ء")
-      .replace(/[\u064B-\u0652]/g, "") // Remove diacritics
-      .replace(/\s+/g, " ") // Normalize spaces
-      .toLowerCase()
-      .trim();
-  };
 
   const filteredReciters = reciters.filter((r) => {
     const normalizedName = normalizeArabic(r.name);

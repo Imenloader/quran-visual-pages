@@ -143,8 +143,8 @@ const JuzViewer = () => {
   }, [currentPage, juz, scrollDirection]);
 
   const { onTouchStart, onTouchMove, onTouchEnd } = useSwipeNavigation({ 
-    onSwipeLeft: handleNextPage, 
-    onSwipeRight: handlePrevPage 
+    onSwipeLeft: scrollDirection === "horizontal" ? handleNextPage : undefined, 
+    onSwipeRight: scrollDirection === "horizontal" ? handlePrevPage : undefined 
   });
 
   // Keyboard Navigation
@@ -180,7 +180,7 @@ const JuzViewer = () => {
         setCurrentPage(pages[0]);
       }
     }
-  }, [pages, num, currentPage, scrollDirection]);
+  }, [pages, num, scrollDirection]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const prevScrollDirectionRef = useRef(scrollDirection);
   const prevReadingModeRef = useRef(readingMode);
@@ -197,26 +197,30 @@ const JuzViewer = () => {
     
     prevScrollDirectionRef.current = scrollDirection;
     prevReadingModeRef.current = readingMode;
-  }, [scrollDirection, readingMode, currentPage]);
+  }, [scrollDirection, readingMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Auto-save bookmark whenever page changes
+  // Auto-save bookmark whenever page changes (debounced)
   useEffect(() => {
     if (currentPage !== 0 && juz) {
-      saveBookmark(num, currentPage, readingMode);
-      setSavedBookmark({ juz: num, page: currentPage, readingMode });
+      const timer = setTimeout(() => {
+        saveBookmark(num, currentPage, readingMode);
+        setSavedBookmark({ juz: num, page: currentPage, readingMode });
 
-      // Update reading history for stats
-      const history = JSON.parse(localStorage.getItem("quran-reading-history") || "{}");
-      const juzHistory = history[num] || { pagesRead: 0, lastPage: 0, visitedPages: [] };
+        // Update reading history for stats
+        const history = JSON.parse(localStorage.getItem("quran-reading-history") || "{}");
+        const juzHistory = history[num] || { pagesRead: 0, lastPage: 0, visitedPages: [] };
+        
+        if (!juzHistory.visitedPages.includes(currentPage)) {
+          juzHistory.visitedPages.push(currentPage);
+          juzHistory.pagesRead = juzHistory.visitedPages.length;
+        }
+        
+        juzHistory.lastPage = currentPage;
+        history[num] = juzHistory;
+        localStorage.setItem("quran-reading-history", JSON.stringify(history));
+      }, 1500); // Wait 1.5s before saving to avoid lag during fast scrolling
       
-      if (!juzHistory.visitedPages.includes(currentPage)) {
-        juzHistory.visitedPages.push(currentPage);
-        juzHistory.pagesRead = juzHistory.visitedPages.length;
-      }
-      
-      juzHistory.lastPage = currentPage;
-      history[num] = juzHistory;
-      localStorage.setItem("quran-reading-history", JSON.stringify(history));
+      return () => clearTimeout(timer);
     }
   }, [currentPage, num, readingMode, juz]);
 
@@ -233,7 +237,7 @@ const JuzViewer = () => {
     cacheImages();
   }, [juz, pages]);
 
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const { isFullscreen, setIsFullscreen } = useTheme();
   const [showControls, setShowControls] = useState(true);
   const controlsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pageRefs = useRef<Record<number, HTMLDivElement | null>>({});
@@ -263,12 +267,18 @@ const JuzViewer = () => {
 
   const observerRef = useRef<IntersectionObserver | null>(null);
 
+  // IntersectionObserver for vertical scrolling
+  const currentPageRef = useRef(currentPage);
+  useEffect(() => {
+    currentPageRef.current = currentPage;
+  }, [currentPage]);
+
   useEffect(() => {
     if (!juz || pages.length === 0 || scrollDirection === "horizontal") return;
 
     const options = {
       root: null,
-      rootMargin: "-20% 0px -70% 0px",
+      rootMargin: "-45% 0px -45% 0px", // Focus on the middle of the screen
       threshold: 0,
     };
 
@@ -276,7 +286,7 @@ const JuzViewer = () => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           const pageNum = parseInt(entry.target.id.replace("page-", ""));
-          if (pageNum) {
+          if (pageNum && pageNum !== currentPageRef.current) {
             setCurrentPage(pageNum);
           }
         }
@@ -293,7 +303,7 @@ const JuzViewer = () => {
     return () => {
       observerRef.current?.disconnect();
     };
-  }, [juz, num, pages, readingMode, scrollDirection]);
+  }, [juz, num, pages, readingMode, scrollDirection]); // Removed currentPage from dependencies
 
   if (!juz) return <Navigate to="/" replace />;
 
@@ -351,21 +361,16 @@ const JuzViewer = () => {
   const maxWidth = Math.round(672 * (zoom / 100));
 
   const toggleFullscreen = () => {
-    setIsFullscreen(prev => {
-      const next = !prev;
-      if (next) {
-        document.documentElement.classList.add("fullscreen-reading");
-        toast("وضع ملء الشاشة", {
-          description: "انقر على الشاشة لإظهار/إخفاء الأزرار",
-          duration: 3000,
-          position: "top-center",
-        });
-        resetControlsTimer();
-      } else {
-        document.documentElement.classList.remove("fullscreen-reading");
-      }
-      return next;
-    });
+    const next = !isFullscreen;
+    setIsFullscreen(next);
+    if (next) {
+      toast("وضع ملء الشاشة", {
+        description: "انقر على الشاشة لإظهار/إخفاء الأزرار",
+        duration: 3000,
+        position: "top-center",
+      });
+      resetControlsTimer();
+    }
   };
 
   const resetControlsTimer = () => {
@@ -553,10 +558,10 @@ const JuzViewer = () => {
               pages.map((page) => (
                 <motion.div
                   key={page}
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true, margin: "200px" }}
+                  transition={{ duration: 0.5 }}
                   ref={(el) => { pageRefs.current[page] = el; }}
                   id={`page-${page}`}
                   className={`relative rounded-[2rem] overflow-hidden border border-border/40 bg-card shadow-islamic transition-all duration-500 w-full group ${currentPage === page ? "ring-2 ring-accent/20" : ""}`}
@@ -588,6 +593,7 @@ const JuzViewer = () => {
                           src={getImageUrl(page)}
                           alt={`صفحة ${page} من المصحف الشريف`}
                           className="quran-page-img w-full h-auto group-hover:scale-[1.01]"
+                          priority={page === currentPage || page === currentPage + 1}
                           onLoad={() => handleImageLoad(page)}
                           onError={() => handleImageError(page)}
                         />

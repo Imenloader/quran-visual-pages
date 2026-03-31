@@ -6,10 +6,11 @@ interface LazyImageProps {
   className?: string;
   onLoad?: () => void;
   onError?: () => void;
+  priority?: boolean;
 }
 
-const LazyImage = ({ src, alt, className = "", onLoad, onError }: LazyImageProps) => {
-  const [isInView, setIsInView] = useState(false);
+const LazyImage = ({ src, alt, className = "", onLoad, onError, priority = false }: LazyImageProps) => {
+  const [isInView, setIsInView] = useState(priority);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const imgRef = useRef<HTMLDivElement>(null);
@@ -22,6 +23,8 @@ const LazyImage = ({ src, alt, className = "", onLoad, onError }: LazyImageProps
   }
 
   useEffect(() => {
+    if (priority) return;
+    
     const el = imgRef.current;
     if (!el) return;
 
@@ -37,7 +40,7 @@ const LazyImage = ({ src, alt, className = "", onLoad, onError }: LazyImageProps
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [priority]);
 
   const handleLoad = useCallback(() => {
     setIsLoaded(true);

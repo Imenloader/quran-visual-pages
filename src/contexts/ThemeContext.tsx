@@ -15,11 +15,14 @@ interface ThemeContextType {
   setScrollDirection: (direction: ScrollDirection) => void;
   tajweedMode: boolean;
   setTajweedMode: (mode: boolean) => void;
+  isFullscreen: boolean;
+  setIsFullscreen: (v: boolean) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isFullscreen, setIsFullscreenState] = useState(false);
   const [theme, setThemeState] = useState<Theme>(() => {
     const saved = localStorage.getItem("quran-theme");
     if (saved === "dark" || saved === "night") return "dark";
@@ -72,6 +75,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem("quran-tajweed-mode", newMode.toString());
   };
 
+  const setIsFullscreen = (v: boolean) => {
+    setIsFullscreenState(v);
+    if (v) {
+      document.documentElement.classList.add("fullscreen-reading");
+    } else {
+      document.documentElement.classList.remove("fullscreen-reading");
+    }
+  };
+
   useEffect(() => {
     const html = document.documentElement;
     html.classList.remove("dark", "sepia");
@@ -95,7 +107,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       dimming, setDimming, 
       readingMode, setReadingMode,
       scrollDirection, setScrollDirection,
-      tajweedMode, setTajweedMode
+      tajweedMode, setTajweedMode,
+      isFullscreen, setIsFullscreen
     }}>
       {children}
     </ThemeContext.Provider>

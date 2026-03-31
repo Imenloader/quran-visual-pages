@@ -10,6 +10,7 @@ import QuranHeader from "@/components/QuranHeader";
 import { Search, List, Headphones, BookOpen, MoonStar, Settings, BookMarked, ChevronLeft, Heart, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import ScrollReveal from "@/components/ScrollReveal";
+import { normalizeArabic } from "@/lib/arabicUtils";
 import { motion, AnimatePresence } from "motion/react";
 
 const BOOKMARK_KEY = "quran-bookmark";
@@ -41,15 +42,6 @@ const getBookmark = (): BookmarkData | null => {
   } catch {
     return null;
   }
-};
-
-const normalizeArabic = (text: string) => {
-  return text
-    .replace(/[ًٌٍَُِّْ]/g, "") // Remove diacritics
-    .replace(/[أإآ]/g, "ا")
-    .replace(/ة/g, "ه")
-    .replace(/ى/g, "ي")
-    .replace(/ـ/g, ""); // Remove kashida
 };
 
 const Index = () => {

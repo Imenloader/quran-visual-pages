@@ -1,14 +1,15 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Clock, Shield, Settings, Home, ChevronUp, LayoutGrid, Music } from "lucide-react";
+import { Clock, Shield, Settings, Home, ChevronUp, LayoutGrid } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const BottomNav = () => {
   const { t } = useTranslation();
   const location = useLocation();
+  const { isFullscreen } = useTheme();
   const [isHidden, setIsHidden] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const NAV_ITEMS = [
     { path: "/settings", label: t("nav.settings"), icon: Settings },
@@ -22,13 +23,6 @@ const BottomNav = () => {
     if (typeof window !== "undefined" && window.navigator && window.navigator.vibrate) {
       window.navigator.vibrate(15);
     }
-  }, []);
-
-  useEffect(() => {
-    const handler = () => setIsFullscreen(document.documentElement.classList.contains("fullscreen-reading"));
-    const observer = new MutationObserver(handler);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-    return () => observer.disconnect();
   }, []);
 
   if (isFullscreen) return null;

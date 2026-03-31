@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { JuzInfo, toArabicNumber, getQuranPageImageUrl } from "@/data/quranData";
 import { DownloadCloud, Check, Loader2, Wifi, WifiOff, Heart, BookOpen } from "lucide-react";
@@ -40,11 +40,20 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
   const isFav = isFavorite("juz", juz.number);
 
   const totalPages = juz.endPage - juz.startPage + 1;
-  const matchedSurahs = searchQuery ? juz.surahs.filter(s => s.includes(searchQuery)) : [];
 
-  const history = JSON.parse(localStorage.getItem("quran-reading-history") || "{}");
-  const juzHistory = history[juz.number] || { pagesRead: 0 };
-  const readingProgress = (juzHistory.pagesRead / totalPages) * 100;
+  const readingProgress = useMemo(() => {
+    try {
+      const history = JSON.parse(localStorage.getItem("quran-reading-history") || "{}");
+      const juzHistory = history[juz.number] || { pagesRead: 0 };
+      return (juzHistory.pagesRead / totalPages) * 100;
+    } catch {
+      return 0;
+    }
+  }, [juz.number, totalPages]);
+
+  const matchedSurahs = useMemo(() => 
+    searchQuery ? juz.surahs.filter(s => s.includes(searchQuery)) : []
+  , [searchQuery, juz.surahs]);
 
   useEffect(() => {
     if (wasDone) return;

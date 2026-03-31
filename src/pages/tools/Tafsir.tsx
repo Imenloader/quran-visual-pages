@@ -4,6 +4,7 @@ import { ChevronLeft, BookOpen, Search, Info, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { fetchWithCache } from "@/lib/apiClient";
+import { normalizeArabic } from "@/lib/arabicUtils";
 
 interface Surah {
   number: number;
@@ -22,14 +23,6 @@ const Tafsir = () => {
   const [tafsir, setTafsir] = useState("");
   const [ayahText, setAyahText] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const normalizeArabic = (text: string) => {
-    return text
-      .replace(/[\u064B-\u0652]/g, "") // Remove diacritics
-      .replace(/[أإآ]/g, "ا")
-      .replace(/ة/g, "ه")
-      .replace(/ى/g, "ي");
-  };
 
   useEffect(() => {
     fetchWithCache("https://api.alquran.cloud/v1/surah")
