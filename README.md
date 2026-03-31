@@ -1,4 +1,4 @@
-# Welcome to QuraaniatVip
+# Welcome to Quraaniat
 
 ## How can I edit this code?
 
