@@ -19,7 +19,6 @@ import {
   type PrayerTimesData,
   type PrayerSettings,
 } from "@/hooks/usePrayerTimes";
-import QuranHeader from "@/components/QuranHeader";
 
 const CustomSelect = ({ 
   value, 
@@ -367,35 +366,99 @@ const PrayerTimes = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <QuranHeader 
-        title={t("prayerTimes.title")} 
-        variant="compact"
-        showBack
-      >
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mt-8"
-        >
-          <CairoClock />
-        </motion.div>
-
-        {settings.cityName && (
+      <header className="relative overflow-hidden bg-emerald-deep min-h-[40vh] flex items-center justify-center">
+        {/* Immersive Background Layer */}
+        <div className="absolute inset-0 overflow-hidden">
           <motion.div 
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 px-6 py-3 rounded-full shadow-xl mt-6 mx-auto w-fit"
+            animate={{ opacity: 0.15 }}
+            transition={{ duration: 2 }}
+            className="absolute inset-0 pattern-islamic scale-150 opacity-20" 
+          />
+          
+          {/* Atmospheric Gradients & Light Rays */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-deep/40 to-emerald-deep" />
+          
+          <motion.div 
+            animate={{ 
+              opacity: [0.1, 0.3, 0.1],
+              scale: [1, 1.2, 1],
+              rotate: [0, 5, 0]
+            }}
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-1/4 -right-1/4 w-[100%] h-[100%] bg-gold/10 rounded-full blur-[120px]" 
+          />
+          
+          <motion.div 
+            animate={{ 
+              opacity: [0.1, 0.2, 0.1],
+              scale: [1.2, 1, 1.2],
+              rotate: [0, -5, 0]
+            }}
+            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -bottom-1/4 -left-1/4 w-[80%] h-[80%] bg-emerald-light/10 rounded-full blur-[100px]" 
+          />
+        </div>
+
+        <div className="relative z-10 container max-w-4xl mx-auto px-6 py-16 flex flex-col items-center text-center">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="flex items-center gap-4 mb-8"
           >
-            <MapPin size={16} className="text-gold" />
-            <span className="font-naskh text-white text-sm tracking-wide">
-              {settings.cityName}
+            <div className="h-px w-12 bg-gold/40" />
+            <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-gold">
+              مواقيت الصلاة والأذان
             </span>
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-light animate-pulse" />
+            <div className="h-px w-12 bg-gold/40" />
           </motion.div>
-        )}
-      </QuranHeader>
+
+            <motion.h1 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+              className="font-serif text-5xl sm:text-6xl md:text-7xl font-light text-white mb-6 tracking-tight drop-shadow-lg"
+            >
+              مواقيت الصلاة
+            </motion.h1>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <CairoClock />
+            </motion.div>
+
+            {settings.cityName && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 px-6 py-3 rounded-full shadow-xl"
+            >
+              <MapPin size={16} className="text-gold" />
+              <span className="font-naskh text-white text-sm tracking-wide">
+                {settings.cityName}
+              </span>
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-light animate-pulse" />
+            </motion.div>
+          )}
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.4 }}
+            transition={{ delay: 1 }}
+            className="absolute bottom-8 flex flex-col items-center gap-2"
+          >
+            <div className="w-px h-12 bg-gradient-to-b from-gold/40 to-transparent" />
+          </motion.div>
+        </div>
+
+        {/* Elegant bottom transition */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-20" />
+      </header>
 
       <main className="container max-w-2xl mx-auto px-4 py-6 space-y-5">
         {/* Location setup */}

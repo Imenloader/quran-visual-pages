@@ -513,7 +513,7 @@ const JuzViewer = () => {
               e.stopPropagation();
               toggleFullscreen();
             }}
-            className="w-10 h-10 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 bg-muted/90 backdrop-blur-md text-primary border border-border/40"
+            className="w-10 h-10 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 bg-card/90 backdrop-blur-md text-primary border border-border/40"
             title="وضع ملء الشاشة"
           >
             <Maximize className="size-[18px] md:size-[24px]" />
@@ -525,8 +525,8 @@ const JuzViewer = () => {
       <div className={`transition-all duration-700 ease-[0.16, 1, 0.3, 1] ${isFullscreen && !showControls ? "opacity-0 pointer-events-none -translate-y-full fixed top-0 left-0 right-0 z-[150]" : isFullscreen ? "fixed top-0 left-0 right-0 z-[150] opacity-100 pointer-events-auto" : "relative z-20"}`}>
         {!isFullscreen && <QuranHeader title={juz.nameAr} showBack />}
         {isFullscreen && (
-          <div className="bg-emerald-deep/95 backdrop-blur-md border-b border-border/40 px-4 py-3 flex items-center justify-between">
-            <button onClick={() => navigate(-1)} className="p-2 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-all">
+          <div className="bg-emerald-deep/95 backdrop-blur-md border-b border-white/10 px-4 py-3 flex items-center justify-between">
+            <button onClick={() => navigate(-1)} className="p-2 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all">
               <ChevronRight size={20} />
             </button>
             <h2 className="text-white font-serif text-xl">{juz.nameAr}</h2>
@@ -680,7 +680,7 @@ const JuzViewer = () => {
                 >
                   {/* Page Number Badge */}
                   <div className="absolute top-4 left-4 md:top-6 md:left-6 z-10 flex flex-col items-center gap-0.5 md:gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl bg-primary/20 backdrop-blur-md text-primary flex items-center justify-center font-serif text-xs md:text-sm shadow-sm border border-primary/10">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl bg-emerald-deep/20 backdrop-blur-md text-primary flex items-center justify-center font-serif text-xs md:text-sm shadow-sm border border-primary/10">
                       {page}
                     </div>
                     <span className="text-[6px] md:text-[8px] font-bold text-primary/70 uppercase tracking-widest">Page</span>
@@ -747,7 +747,7 @@ const JuzViewer = () => {
                             togglePageHidden(page);
                           }}
                         >
-                          <div className="bg-muted/60 backdrop-blur-xl p-6 rounded-3xl border border-border/40 shadow-2xl flex flex-col items-center gap-3">
+                          <div className="bg-card/60 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl flex flex-col items-center gap-3">
                             <RefreshCw className="w-10 h-10 text-accent animate-spin-slow" />
                             <p className="text-primary font-serif italic text-sm">انقر للمراجعة</p>
                           </div>
@@ -792,7 +792,7 @@ const JuzViewer = () => {
                               }}
                               className={`flex-1 w-full transition-all duration-500 cursor-pointer pointer-events-auto ${
                                 isLineHidden(currentPage, i) 
-                                  ? "bg-muted/95 backdrop-blur-md border-y border-border/10" 
+                                  ? "bg-card/95 backdrop-blur-md border-y border-border/10" 
                                   : "bg-transparent hover:bg-accent/5"
                               }`}
                             >
@@ -814,7 +814,7 @@ const JuzViewer = () => {
                             togglePageHidden(currentPage);
                           }}
                         >
-                          <div className="bg-muted/60 backdrop-blur-xl p-6 rounded-3xl border border-border/40 shadow-2xl flex flex-col items-center gap-3">
+                          <div className="bg-card/60 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl flex flex-col items-center gap-3">
                             <RefreshCw className="w-10 h-10 text-accent animate-spin-slow" />
                             <p className="text-primary font-serif italic text-sm">انقر للمراجعة</p>
                           </div>
@@ -822,7 +822,7 @@ const JuzViewer = () => {
                       )}
                     </div>
                     <div className="absolute top-6 left-6 z-10 flex flex-col items-center gap-1">
-                      <div className="w-10 h-10 rounded-2xl bg-primary/20 backdrop-blur-md text-primary flex items-center justify-center font-serif text-sm shadow-sm border border-primary/10">
+                      <div className="w-10 h-10 rounded-2xl bg-emerald-deep/20 backdrop-blur-md text-primary flex items-center justify-center font-serif text-sm shadow-sm border border-primary/10">
                         {currentPage}
                       </div>
                     </div>

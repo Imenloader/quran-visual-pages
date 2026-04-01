@@ -244,7 +244,7 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
               className={longPressing ? "animate-long-press-ring" : ""}
             />
           </svg>
-          <div className={`flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-[2rem] bg-primary text-primary-foreground transition-all duration-500 shadow-lg ${longPressing ? "scale-90" : "group-hover:scale-105"}`}>
+          <div className={`flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-[2rem] bg-emerald-deep text-white transition-all duration-500 shadow-lg ${longPressing ? "scale-90" : "group-hover:scale-105"}`}>
             <span className="text-2xl md:text-3xl font-bold font-serif">
               {juz.number}
             </span>

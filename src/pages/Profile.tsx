@@ -102,7 +102,7 @@ const Profile = () => {
           <div className="flex justify-between items-center mb-12">
             <Link 
               to="/" 
-              className="w-10 h-10 rounded-full bg-primary/10 backdrop-blur-md flex items-center justify-center text-primary hover:bg-primary/20 transition-all border border-primary/10"
+              className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all border border-white/10"
             >
               <X size={20} strokeWidth={1.5} />
             </Link>
@@ -151,7 +151,7 @@ const Profile = () => {
                 />
               </svg>
 
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-[2.5rem] md:rounded-[3rem] bg-primary flex items-center justify-center text-primary-foreground shadow-2xl border-4 border-primary/10 overflow-hidden relative z-10">
+              <div className="w-32 h-32 md:w-40 md:h-40 rounded-[2.5rem] md:rounded-[3rem] bg-emerald-deep flex items-center justify-center text-gold shadow-2xl border-4 border-white/10 overflow-hidden relative z-10">
                 {profile.avatar ? (
                   <img src={profile.avatar} alt={profile.name} className="w-full h-full object-cover" />
                 ) : (

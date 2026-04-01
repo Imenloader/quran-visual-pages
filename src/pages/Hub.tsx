@@ -31,7 +31,6 @@ import { dailyVerses } from "@/data/dailyVersesData";
 import { juzData, toArabicNumber, getQuranPageImageUrl } from "@/data/quranData";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
-import QuranHeader from "@/components/QuranHeader";
 
 const Hub = () => {
   const { t, i18n } = useTranslation();
@@ -215,9 +214,21 @@ const Hub = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-24 overflow-x-hidden">
-      <QuranHeader title={t("hub.title")} subtitle={t("hub.subtitle")} variant="compact" />
-      <div className="max-w-7xl mx-auto px-4 mt-12">
+    <div className="min-h-screen bg-background pb-24 pt-6 px-4 overflow-x-hidden">
+      <div className="max-w-7xl mx-auto">
+        <header className="mb-12 text-center relative">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-emerald-deep/5 blur-3xl rounded-full -z-10" />
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-emerald-deep/10 text-emerald-deep mb-6 shadow-islamic relative group"
+          >
+            <div className="absolute inset-0 bg-emerald-deep/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+            <LayoutGrid className="w-10 h-10 relative z-10" />
+          </motion.div>
+          <h1 className="text-4xl md:text-5xl font-bold font-naskh text-foreground tracking-tight">{t("hub.title")}</h1>
+          <p className="text-lg text-muted-foreground font-naskh mt-3 max-w-md mx-auto opacity-80">{t("hub.subtitle")}</p>
+        </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Column: Progress & Offline */}

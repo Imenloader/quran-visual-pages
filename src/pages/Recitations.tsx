@@ -487,7 +487,7 @@ const Recitations = () => {
 
       {/* Tabs: Reciters / Playlists */}
       <div className="sticky top-0 z-40 -mt-8 px-4">
-        <div className="max-w-md mx-auto bg-muted/30 backdrop-blur-2xl border border-border/40 rounded-2xl p-1.5 shadow-2xl shadow-black/20">
+        <div className="max-w-md mx-auto bg-card/60 backdrop-blur-2xl border border-border/40 rounded-2xl p-1.5 shadow-2xl shadow-black/20">
           <div className="flex gap-1">
             <button
               onClick={() => setActiveTab("reciters")}
@@ -838,7 +838,7 @@ const Recitations = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="ابحث عن قارئ..."
-                    className="w-full bg-muted/30 border border-border/40 rounded-2xl pr-14 pl-14 py-4 text-sm font-naskh text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-gold/20 focus:border-gold/30 transition-all shadow-2xl backdrop-blur-xl"
+                    className="w-full bg-card border border-border/40 rounded-2xl pr-14 pl-14 py-4 text-sm font-naskh text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-gold/20 focus:border-gold/30 transition-all shadow-2xl backdrop-blur-xl"
                     aria-label="البحث عن القراء"
                   />
                   {searchQuery && (

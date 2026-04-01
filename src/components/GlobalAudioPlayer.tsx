@@ -65,21 +65,21 @@ const GlobalAudioPlayer = () => {
             <div className="flex justify-between items-center mb-8">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" onClick={() => setIsFullScreen(false)} className="text-foreground">
+                  <Button variant="ghost" size="icon" onClick={() => setIsFullScreen(false)}>
                     <ChevronDown className="size-6" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>{t("player.collapse")}</TooltipContent>
               </Tooltip>
               
-              <span className="font-serif text-lg font-medium text-primary">
+              <span className="font-serif text-lg font-medium text-emerald-800">
                 {activePlaylistName || t("player.nowPlaying")}
               </span>
               
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="ghost" size="icon" onClick={stopPlayer}>
-                    <X className="size-6 text-destructive" />
+                    <X className="size-6 text-red-500" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>{t("player.stop")}</TooltipContent>
@@ -87,21 +87,21 @@ const GlobalAudioPlayer = () => {
             </div>
 
             <div className="flex-1 flex flex-col items-center justify-center gap-8">
-              <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-3xl bg-muted/30 flex items-center justify-center shadow-2xl overflow-hidden group border border-border/40">
+              <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-3xl bg-emerald-50 flex items-center justify-center shadow-2xl overflow-hidden group">
                 <div className="absolute inset-0 pattern-islamic opacity-5 group-hover:opacity-10 transition-opacity" />
-                <Music className="size-32 text-primary/20" />
+                <Music className="size-32 text-emerald-200" />
                 <div className="absolute bottom-4 left-4 right-4 text-center">
-                   <span className="text-muted-foreground font-serif text-sm">
+                   <span className="text-emerald-800/40 font-serif text-sm">
                      {selectedReciterName}
                    </span>
                 </div>
               </div>
 
               <div className="text-center space-y-2 max-w-md">
-                <h2 className="text-3xl font-serif font-bold text-foreground leading-tight">
+                <h2 className="text-3xl font-serif font-bold text-emerald-900 leading-tight">
                   {currentSurah.name}
                 </h2>
-                <p className="text-lg text-primary font-medium">
+                <p className="text-lg text-emerald-600 font-medium">
                   {selectedReciterName}
                 </p>
               </div>
@@ -115,7 +115,7 @@ const GlobalAudioPlayer = () => {
                     onValueChange={handleProgressChange}
                     className="cursor-pointer"
                   />
-                  <div className="flex justify-between text-xs font-mono text-muted-foreground">
+                  <div className="flex justify-between text-xs font-mono text-emerald-600/70">
                     <span>{formatTime(currentTime)}</span>
                     <span>{formatTime(duration)}</span>
                   </div>
@@ -128,7 +128,7 @@ const GlobalAudioPlayer = () => {
                         variant="ghost"
                         size="icon"
                         onClick={() => setIsShuffle(!isShuffle)}
-                        className={cn(isShuffle ? "text-accent" : "text-muted-foreground")}
+                        className={cn(isShuffle ? "text-emerald-600" : "text-muted-foreground")}
                       >
                         <Shuffle className="size-5" />
                       </Button>
@@ -139,7 +139,7 @@ const GlobalAudioPlayer = () => {
                   <div className="flex items-center gap-6">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={playPrevSurah} className="text-foreground">
+                        <Button variant="ghost" size="icon" onClick={playPrevSurah} className="text-emerald-700">
                           <SkipBack className="size-8 fill-current" />
                         </Button>
                       </TooltipTrigger>
@@ -150,7 +150,7 @@ const GlobalAudioPlayer = () => {
                       <TooltipTrigger asChild>
                         <Button
                           onClick={togglePlay}
-                          className="size-16 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/20 transition-transform active:scale-95"
+                          className="size-16 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl shadow-emerald-200 transition-transform active:scale-95"
                         >
                           {isPlaying ? <Pause className="size-8" /> : <Play className="size-8 ml-1" />}
                         </Button>
@@ -160,7 +160,7 @@ const GlobalAudioPlayer = () => {
 
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={playNextSurah} className="text-foreground">
+                        <Button variant="ghost" size="icon" onClick={playNextSurah} className="text-emerald-700">
                           <SkipForward className="size-8 fill-current" />
                         </Button>
                       </TooltipTrigger>
@@ -174,7 +174,7 @@ const GlobalAudioPlayer = () => {
                         variant="ghost"
                         size="icon"
                         onClick={() => setIsRepeat(!isRepeat)}
-                        className={cn(isRepeat ? "text-accent" : "text-muted-foreground")}
+                        className={cn(isRepeat ? "text-emerald-600" : "text-muted-foreground")}
                       >
                         <Repeat className="size-5" />
                       </Button>
@@ -186,7 +186,7 @@ const GlobalAudioPlayer = () => {
                 <div className="flex items-center gap-4 px-4 pt-4">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" onClick={toggleMute} className="text-primary">
+                      <Button variant="ghost" size="icon" onClick={toggleMute} className="text-emerald-600">
                         {isMuted || volume === 0 ? <VolumeX className="size-5" /> : <Volume2 className="size-5" />}
                       </Button>
                     </TooltipTrigger>
@@ -207,7 +207,7 @@ const GlobalAudioPlayer = () => {
             <div className="mt-auto flex justify-center pb-8">
                <Tooltip>
                  <TooltipTrigger asChild>
-                   <Button variant="ghost" className="gap-2 text-primary" onClick={() => {}}>
+                   <Button variant="ghost" className="gap-2 text-emerald-600" onClick={() => {}}>
                      <ListMusic className="size-5" />
                      <span>{t("player.queue")}</span>
                    </Button>
@@ -223,7 +223,7 @@ const GlobalAudioPlayer = () => {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.8, opacity: 0, y: 20 }}
             onClick={() => setIsExpanded(true)}
-            className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-primary rounded-full shadow-lg hover:bg-primary/90 transition-all group pointer-events-auto"
+            className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-emerald-600 rounded-full shadow-lg hover:bg-emerald-700 transition-all group pointer-events-auto"
           >
             <svg className="absolute inset-0 w-full h-full -rotate-90">
               <circle
@@ -231,28 +231,26 @@ const GlobalAudioPlayer = () => {
                 cy="50%"
                 r={radius}
                 fill="none"
-                stroke="currentColor"
+                stroke="rgba(255,255,255,0.2)"
                 strokeWidth="2.5"
-                className="text-primary-foreground/20"
               />
               <motion.circle
                 cx="50%"
                 cy="50%"
                 r={radius}
                 fill="none"
-                stroke="currentColor"
+                stroke="white"
                 strokeWidth="2.5"
                 strokeDasharray={circumference}
                 initial={{ strokeDashoffset: circumference }}
                 animate={{ strokeDashoffset }}
                 transition={{ type: "spring", damping: 20, stiffness: 100 }}
-                className="text-primary-foreground"
               />
             </svg>
             {isPlaying ? (
-              <Pause className="text-primary-foreground relative z-10" size={18} />
+              <Pause className="text-white relative z-10" size={18} />
             ) : (
-              <Play className="text-primary-foreground relative z-10 ml-0.5" size={18} />
+              <Play className="text-white relative z-10 ml-0.5" size={18} />
             )}
           </motion.button>
         ) : (
@@ -261,14 +259,14 @@ const GlobalAudioPlayer = () => {
             initial={{ width: 48, height: 48, opacity: 0, y: 20 }}
             animate={{ width: "auto", height: "auto", opacity: 1, y: 0 }}
             exit={{ width: 48, height: 48, opacity: 0, y: 20 }}
-            className="bg-card/95 backdrop-blur-xl border border-border/40 rounded-2xl shadow-2xl p-3 flex items-center gap-4 min-w-[280px] max-w-[400px] pointer-events-auto"
+            className="bg-white/95 backdrop-blur-xl border border-emerald-100 rounded-2xl shadow-2xl p-3 flex items-center gap-4 min-w-[280px] max-w-[400px] pointer-events-auto"
           >
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="relative shrink-0 group cursor-pointer" onClick={() => setIsFullScreen(true)}>
-                   <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center overflow-hidden">
+                   <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center overflow-hidden">
                      <div className="absolute inset-0 pattern-islamic opacity-5" />
-                     <Music className="size-6 text-primary/40" />
+                     <Music className="size-6 text-emerald-300" />
                    </div>
                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
                      <Maximize2 className="size-4 text-white" />
@@ -280,14 +278,14 @@ const GlobalAudioPlayer = () => {
 
             <div className="flex flex-col min-w-0 flex-1">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-bold text-foreground truncate leading-tight">
+                <span className="text-xs font-bold text-emerald-900 truncate leading-tight">
                   {currentSurah.name}
                 </span>
-                <span className="text-[10px] font-mono text-muted-foreground">
+                <span className="text-[10px] font-mono text-emerald-600/70">
                   {formatTime(currentTime)}
                 </span>
               </div>
-              <span className="text-[10px] text-primary truncate leading-tight mb-2">
+              <span className="text-[10px] text-emerald-600 truncate leading-tight mb-2">
                 {selectedReciterName}
               </span>
               <Slider
@@ -306,7 +304,7 @@ const GlobalAudioPlayer = () => {
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsShuffle(!isShuffle)}
-                    className={cn("size-8 rounded-full", isShuffle ? "text-accent" : "text-muted-foreground/40")}
+                    className={cn("size-8 rounded-full", isShuffle ? "text-emerald-600" : "text-muted-foreground/40")}
                   >
                     <Shuffle size={14} />
                   </Button>
@@ -320,7 +318,7 @@ const GlobalAudioPlayer = () => {
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsRepeat(!isRepeat)}
-                    className={cn("size-8 rounded-full", isRepeat ? "text-accent" : "text-muted-foreground/40")}
+                    className={cn("size-8 rounded-full", isRepeat ? "text-emerald-600" : "text-muted-foreground/40")}
                   >
                     <Repeat size={14} />
                   </Button>
@@ -334,7 +332,7 @@ const GlobalAudioPlayer = () => {
                     variant="ghost"
                     size="icon"
                     onClick={togglePlay}
-                    className="size-8 rounded-full bg-primary/10 text-primary hover:bg-primary/20"
+                    className="size-8 rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
                   >
                     {isPlaying ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
                   </Button>
@@ -347,7 +345,7 @@ const GlobalAudioPlayer = () => {
                   <TooltipTrigger asChild>
                     <button
                       onClick={() => setIsExpanded(false)}
-                      className="p-1 text-muted-foreground/40 hover:text-primary transition-colors"
+                      className="p-1 text-emerald-400 hover:text-emerald-600 transition-colors"
                     >
                       <ChevronDown size={14} />
                     </button>
@@ -359,7 +357,7 @@ const GlobalAudioPlayer = () => {
                   <TooltipTrigger asChild>
                     <button
                       onClick={stopPlayer}
-                      className="p-1 text-destructive/40 hover:text-destructive transition-colors"
+                      className="p-1 text-red-400 hover:text-red-600 transition-colors"
                     >
                       <X size={14} />
                     </button>

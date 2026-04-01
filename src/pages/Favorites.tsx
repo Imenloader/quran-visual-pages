@@ -9,7 +9,6 @@ import { ATHKAR_DATA } from "@/data/athkarData";
 import { useState, useMemo, useCallback } from "react";
 import ScrollReveal from "@/components/ScrollReveal";
 import { motion, AnimatePresence } from "motion/react";
-import QuranHeader from "@/components/QuranHeader";
 
 type TabKey = "all" | "juz" | "athkar" | "recitations" | "reciters";
 
@@ -92,12 +91,54 @@ const Favorites = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col selection:bg-accent/20">
-      <QuranHeader 
-        title={t("hub.favorites")} 
-        subtitle={t("favorites.subtitle")}
-        variant="compact"
-        showBack
-      />
+      {/* Immersive Header */}
+      <header className="relative overflow-hidden pt-12 pb-20 px-6 text-center">
+        {/* Background Layers */}
+        <div className="absolute inset-0 bg-emerald-deep z-0" />
+        <div className="absolute inset-0 pattern-islamic opacity-10 z-0" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-emerald-deep z-0" />
+        
+        {/* Decorative Ornament */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-32 opacity-20 pointer-events-none z-0">
+          <div className="w-full h-full ornament-border opacity-30" />
+        </div>
+
+        <div className="relative z-10 container max-w-4xl mx-auto">
+          <div className="flex justify-between items-center mb-12">
+            <Link 
+              to="/" 
+              className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all border border-white/10"
+            >
+              <X size={20} strokeWidth={1.5} />
+            </Link>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="w-20 h-20 rounded-[2rem] bg-gold/20 backdrop-blur-md flex items-center justify-center mx-auto mb-8 border border-gold/30 shadow-gold-glow">
+              <Heart size={32} className="text-gold" fill="currentColor" />
+            </div>
+            
+            <h1 className="text-4xl sm:text-6xl font-serif font-bold text-white mb-6 tracking-tight">
+              {t('favorites.title')} <span className="italic font-light text-gold/80">{t('favorites.subtitle')}</span>
+            </h1>
+            
+            <p className="text-white/80 font-serif italic text-lg max-w-xl mx-auto leading-relaxed">
+              {t('favorites.description')}
+            </p>
+
+            <div className="flex items-center justify-center gap-6 mt-10">
+              <div className="flex flex-col items-center">
+                <span className="text-2xl font-serif text-gold">{isArabic ? toArabicNumber(counts.all) : counts.all}</span>
+                <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">{t('favorites.totalSaved')}</span>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </header>
 
       {/* Tabs & Search - Exquisite Floating Bar */}
       <div className="sticky top-0 z-30 -mt-8">
