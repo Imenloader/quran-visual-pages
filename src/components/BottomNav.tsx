@@ -152,9 +152,11 @@ const BottomNav = () => {
       </div>
 
       {/* Global Audio Player integrated with Nav Bar */}
-      <div className="pointer-events-auto z-[60] mb-6 md:mb-8">
-        <GlobalAudioPlayer />
-      </div>
+      {!location.pathname.startsWith("/juz/") && (
+        <div className="pointer-events-auto z-[60] mb-6 md:mb-8">
+          <GlobalAudioPlayer />
+        </div>
+      )}
     </div>
   );
 };

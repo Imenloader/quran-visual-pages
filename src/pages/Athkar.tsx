@@ -44,7 +44,7 @@ const getCounters = (): Record<number, number> => {
 
 const TajweedLegend = ({ className }: { className?: string }) => {
   return (
-    <div className={`flex flex-wrap justify-center gap-2 sm:gap-4 p-4 rounded-2xl bg-card/60 backdrop-blur-md border border-border/20 ${className}`}>
+    <div className={`flex flex-wrap justify-center gap-2 sm:gap-4 p-4 rounded-2xl bg-muted/30 backdrop-blur-md border border-border/20 ${className}`}>
       {rules.map((rule) => (
         <div key={rule.name} className="flex items-center gap-2">
           <div 
@@ -257,7 +257,7 @@ const Athkar = () => {
           transition={{ delay: 0.2 }}
           className="relative mb-12"
         >
-          <div className="absolute inset-0 bg-white/40 backdrop-blur-2xl rounded-[2.5rem] shadow-islamic -z-10" />
+          <div className="absolute inset-0 bg-muted/40 backdrop-blur-2xl rounded-[2.5rem] shadow-islamic -z-10" />
           <SearchIcon size={20} className="absolute right-6 top-1/2 -translate-y-1/2 text-primary/70 pointer-events-none" strokeWidth={1.5} />
           <input
             type="text"
