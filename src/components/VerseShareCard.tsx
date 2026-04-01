@@ -3,6 +3,8 @@ import html2canvas from 'html2canvas';
 import { Download, Share2, X, Sparkles, MoonStar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toArabicNumber } from '@/data/quranData';
+import { useTheme } from '@/contexts/ThemeContext';
+import { applyTajweedColors } from '@/lib/tajweedParser';
 
 interface VerseShareCardProps {
   verse: {
@@ -16,6 +18,7 @@ interface VerseShareCardProps {
 
 const VerseShareCard: React.FC<VerseShareCardProps> = ({ verse, translation, onClose }) => {
   const cardRef = useRef<HTMLDivElement>(null);
+  const { tajweedMode } = useTheme();
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<'gold' | 'emerald' | 'night'>('gold');
 
@@ -87,7 +90,7 @@ const VerseShareCard: React.FC<VerseShareCardProps> = ({ verse, translation, onC
 
               <div className="flex-1 flex flex-col justify-center gap-8 text-center">
                 <p className="text-3xl md:text-4xl font-quran leading-relaxed">
-                  {verse.text}
+                  {tajweedMode ? applyTajweedColors(verse.text) : verse.text}
                 </p>
                 {translation && (
                   <p className="text-sm font-naskh opacity-80 leading-loose italic">

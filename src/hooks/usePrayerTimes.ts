@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatInTimeZone, toZonedTime } from "date-fns-tz";
 import { isBefore, addDays } from "date-fns";
 import { toast } from "sonner";
 import { speakPrayerName } from "@/services/ttsService";
@@ -29,7 +29,7 @@ export interface PrayerSettings {
   timeFormat: "12h" | "24h";
 }
 
-const DEFAULT_SETTINGS: PrayerSettings = {
+export const DEFAULT_SETTINGS: PrayerSettings = {
   latitude: 29.9602, // Maadi, Cairo
   longitude: 31.2569,
   cityName: "المعادي، القاهرة (تلقائي)",
@@ -172,33 +172,38 @@ const saveSettings = (settings: PrayerSettings) => {
   localStorage.setItem(PRAYER_SETTINGS_KEY, JSON.stringify(settings));
 };
 
-export const getCairoDate = (): Date => {
-  const now = new Date();
-  try {
-    const cairoString = now.toLocaleString("en-US", { timeZone: "Africa/Cairo" });
-    return new Date(cairoString);
-  } catch (e) {
-    console.error("Error calculating Cairo date:", e);
-    return now;
-  }
+export const getLocalTime = (): Date => {
+  return new Date();
 };
 
-const parseTime = (timeStr: string): Date => {
+export const getCairoDate = (): Date => {
+  return toZonedTime(new Date(), "Africa/Cairo");
+};
+
+export const getEffectiveNow = (settings: PrayerSettings): Date => {
+  const isDefault = !settings.latitude || (
+    Math.abs(settings.latitude - DEFAULT_SETTINGS.latitude) < 0.0001 && 
+    Math.abs(settings.longitude! - DEFAULT_SETTINGS.longitude!) < 0.0001
+  );
+  return isDefault ? getCairoDate() : getLocalTime();
+};
+
+const parseTime = (timeStr: string, now: Date): Date => {
   const [hours, minutes] = timeStr.split(":").map(Number);
-  const now = getCairoDate();
-  now.setHours(hours, minutes, 0, 0);
-  return now;
+  const d = new Date(now);
+  d.setHours(hours, minutes, 0, 0);
+  return d;
 };
 
 const getNextPrayer = (
-  times: PrayerTimesData
+  times: PrayerTimesData,
+  now: Date
 ): { name: keyof PrayerTimesData; time: string } | null => {
-  const now = getCairoDate();
   const prayerOrder: (keyof PrayerTimesData)[] = [
     "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha",
   ];
   for (const name of prayerOrder) {
-    const prayerTime = parseTime(times[name]);
+    const prayerTime = parseTime(times[name], now);
     if (prayerTime > now) {
       return { name, time: times[name] };
     }
@@ -207,9 +212,8 @@ const getNextPrayer = (
   return { name: "Fajr", time: times.Fajr };
 };
 
-const getRemainingTime = (timeStr: string): string => {
-  const now = getCairoDate();
-  const target = parseTime(timeStr);
+const getRemainingTime = (timeStr: string, now: Date): string => {
+  const target = parseTime(timeStr, now);
   if (target <= now) {
     target.setDate(target.getDate() + 1);
   }
@@ -238,7 +242,12 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
   const [audioUnlocked, setAudioUnlocked] = useState(false);
   const notifTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const playPromiseRef = useRef<Promise<void> | null>(null);
   const optionsRef = useRef(options);
+
+  const getNow = useCallback(() => {
+    return getEffectiveNow(settings);
+  }, [settings]);
 
   useEffect(() => {
     optionsRef.current = options;
@@ -251,11 +260,14 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
     // Unlock standard audio
     const audio = new Audio();
     audio.play().then(() => {
-      audio.pause();
+      // Don't pause immediately to avoid interruption error
+      // Just let it be, it's an empty audio anyway
       setAudioUnlocked(true);
       console.log("Audio unlocked");
-    }).catch(() => {
-      console.log("Audio unlock failed - waiting for interaction");
+    }).catch((err) => {
+      if (err.name !== 'AbortError') {
+        console.log("Audio unlock failed - waiting for interaction", err);
+      }
     });
 
     // Unlock SpeechSynthesis
@@ -270,7 +282,7 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
   const playAdhanSound = useCallback(async (soundId: string, prayerNameAr?: string) => {
     const FALLBACK_SOUND = "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3";
     
-    const playAudio = (audioUrl: string, isFallback = false) => {
+    const playAudio = async (audioUrl: string, isFallback = false) => {
       try {
         if (optionsRef.current?.onAdhanStart && !isFallback) {
           optionsRef.current.onAdhanStart();
@@ -278,34 +290,64 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
         
         // Cleanup previous audio
         if (audioRef.current) {
+          if (playPromiseRef.current) {
+            try { await playPromiseRef.current; } catch (e) { /* ignore interruption */ }
+          }
           audioRef.current.pause();
           audioRef.current.removeAttribute("src");
           audioRef.current.load();
         }
         
         const audio = new Audio();
-        audio.crossOrigin = "anonymous";
-        audio.src = audioUrl;
+        // Ensure the URL is clean and has protocol if it's external
+        let finalUrl = audioUrl;
+        if (finalUrl.startsWith("//")) {
+          finalUrl = "https:" + finalUrl;
+        } else if (finalUrl.startsWith("http://")) {
+          finalUrl = finalUrl.replace("http://", "https://");
+        }
+
+        audio.src = finalUrl;
         audio.preload = "auto";
         audioRef.current = audio;
 
         audio.onerror = () => {
-          console.error(`Audio error for ${isFallback ? "fallback" : "primary"} sound:`, audio.error);
+          const err = audio.error;
+          let message = "خطأ في تشغيل صوت التنبيه";
+          
+          if (err) {
+            console.error(`Audio error [${err.code}] for ${isFallback ? "fallback" : "primary"} sound: ${err.message} | URL: ${finalUrl}`);
+            switch (err.code) {
+              case 1: return; // Aborted
+              case 2: message = "خطأ في الشبكة أثناء تحميل الأذان. تحقق من اتصالك."; break;
+              case 3: message = "خطأ في فك تشفير ملف الأذان. قد يكون الملف تالفاً."; break;
+              case 4: message = "ملف الأذان غير مدعوم أو غير موجود حالياً."; break;
+            }
+          }
+
           if (!isFallback) {
             console.log("Attempting fallback sound...");
             playAudio(FALLBACK_SOUND, true);
           } else {
-            toast.error("تعذر تشغيل صوت التنبيه");
+            toast.error(message, {
+              description: finalUrl.split('/').slice(0, 3).join('/') + "..."
+            });
           }
         };
 
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-          playPromise.catch((err) => {
-            if (err.name === "AbortError") return;
-            console.error("Playback failed:", err);
-            if (!isFallback) {
-              playAudio(FALLBACK_SOUND, true);
+        const promise = audio.play();
+        if (promise !== undefined) {
+          playPromiseRef.current = promise;
+          promise.catch((err) => {
+            if (err.name !== "AbortError") {
+              console.error("Playback failed:", err);
+              if (!isFallback) {
+                playAudio(FALLBACK_SOUND, true);
+              }
+            }
+          }).finally(() => {
+            if (playPromiseRef.current === promise) {
+              playPromiseRef.current = null;
             }
           });
         }
@@ -419,7 +461,7 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
       const timeStr = effectiveTimes[prayer];
       const [hours, minutes] = timeStr.split(":").map(Number);
       
-      const now = getCairoDate();
+      const now = getNow();
       
       // 1. Schedule Main Prayer Notification
       const target = new Date(now);
@@ -500,7 +542,7 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
       notifTimersRef.current.forEach(clearTimeout);
       notifTimersRef.current = [];
     };
-  }, [effectiveTimes, settings.notificationsEnabled, settings.adhanSound, settings.cityName, settings.enabledPrayers, settings.prePrayerMinutes, settings.prePrayerNotification, playAdhanSound]);
+  }, [effectiveTimes, settings.notificationsEnabled, settings.adhanSound, settings.cityName, settings.enabledPrayers, settings.prePrayerMinutes, settings.prePrayerNotification, playAdhanSound, getNow]);
 
   const updateSettings = useCallback(
     (partial: Partial<PrayerSettings>) => {
@@ -520,8 +562,11 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
     [fetchTimes]
   );
 
-  const stopAdhan = useCallback(() => {
+  const stopAdhan = useCallback(async () => {
     if (audioRef.current) {
+      if (playPromiseRef.current) {
+        try { await playPromiseRef.current; } catch (e) { /* ignore interruption */ }
+      }
       audioRef.current.pause();
       audioRef.current = null;
     }
@@ -542,26 +587,39 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
   }, [playAdhanSound, stopAdhan]);
 
   const testPrayerNotification = useCallback((prayer: keyof PrayerTimesData) => {
-    if (!effectiveTimes) return;
-    const timeStr = effectiveTimes[prayer];
-    const title = `🕌 Time for ${prayer} Prayer`;
-    const body = `It is now time for ${prayer} prayer - ${timeStr}`;
+    const timeStr = effectiveTimes ? effectiveTimes[prayer] : "--:--";
+    const prayerNameAr = PRAYER_NAMES[prayer];
+    const title = `🕌 حان الآن موعد صلاة ${prayerNameAr}`;
+    const body = `حان الآن موعد أذان صلاة ${prayerNameAr} في ${settings.cityName} - الوقت: ${timeStr}`;
     
     if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
       navigator.serviceWorker.ready.then((reg) => {
         reg.showNotification(title, {
-          body, icon: "/pwa-192x192.png", tag: `test-${prayer}`, dir: "ltr", lang: "en", renotify: true,
+          body, 
+          icon: "/pwa-192x192.png", 
+          tag: `test-${prayer}`, 
+          dir: "rtl", 
+          lang: "ar", 
+          renotify: true,
+          vibrate: [200, 100, 200],
         } as NotificationOptions);
       });
     } else if ("Notification" in window && Notification.permission === "granted") {
-      new Notification(title, { body, icon: "/pwa-192x192.png", tag: `test-${prayer}`, dir: "ltr", lang: "en" });
+      new Notification(title, { 
+        body, 
+        icon: "/pwa-192x192.png", 
+        tag: `test-${prayer}`, 
+        dir: "rtl", 
+        lang: "ar" 
+      });
     }
     
     // Play adhan
-    playAdhanSound(settings.adhanSound, PRAYER_NAMES[prayer]);
+    playAdhanSound(settings.adhanSound, prayerNameAr);
     
-    setTimeout(() => stopAdhan(), 15000);
-  }, [effectiveTimes, settings.adhanSound, playAdhanSound, stopAdhan]);
+    // Stop after 20 seconds
+    setTimeout(() => stopAdhan(), 20000);
+  }, [effectiveTimes, settings.adhanSound, settings.cityName, playAdhanSound, stopAdhan]);
 
   return {
     settings,
@@ -571,8 +629,8 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
     error,
     locationLoading,
     detectLocation,
-    nextPrayer: effectiveTimes ? getNextPrayer(effectiveTimes) : null,
-    getRemainingTime,
+    nextPrayer: effectiveTimes ? getNextPrayer(effectiveTimes, getNow()) : null,
+    getRemainingTime: (timeStr: string) => getRemainingTime(timeStr, getNow()),
     previewAdhan,
     stopAdhan,
     testPrayerNotification,

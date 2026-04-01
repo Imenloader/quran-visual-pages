@@ -6,6 +6,8 @@ import { useTranslation } from "react-i18next";
 import { getJuzAndPageForSurah, juzData as juzList } from "@/data/quranData";
 import { fetchWithCache } from "@/lib/apiClient";
 import { normalizeArabic } from "@/lib/arabicUtils";
+import { useTheme } from "@/contexts/ThemeContext";
+import { applyTajweedColors } from "@/lib/tajweedParser";
 
 interface SearchResult {
   text: string;
@@ -25,6 +27,7 @@ interface JuzMatch {
 const Search = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { tajweedMode } = useTheme();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [surahResults, setSurahResults] = useState<{ number: number; name: string; englishName: string }[]>([]);
@@ -240,7 +243,7 @@ const Search = () => {
                             </Link>
                           </div>
                           <p className="text-sm font-naskh text-foreground leading-loose text-right">
-                            {result.text}
+                            {tajweedMode ? applyTajweedColors(result.text) : result.text}
                           </p>
                         </motion.div>
                       );

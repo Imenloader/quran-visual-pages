@@ -9,6 +9,7 @@ import BottomNav from "./components/BottomNav";
 import GlobalAudioPlayer from "./components/GlobalAudioPlayer";
 import { AudioPlayerProvider } from "./contexts/AudioPlayerContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { UserProvider } from "./contexts/UserContext";
 
 import Index from "./pages/Index";
 import JuzViewer from "./pages/JuzViewer";
@@ -17,7 +18,7 @@ import Recitations from "./pages/Recitations";
 import EmbedView from "./pages/EmbedView";
 import Athkar from "./pages/Athkar";
 import Favorites from "./pages/Favorites";
-import Settings from "./pages/Settings";
+import Profile from "./pages/Profile";
 import PrayerTimes from "./pages/PrayerTimes";
 import Hub from "./pages/Hub";
 import Tasbih from "./pages/tools/Tasbih";
@@ -41,6 +42,9 @@ import NotFound from "./pages/NotFound";
 import { useTranslation } from "react-i18next";
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { useKhatmaNotifications } from "./hooks/useKhatmaNotifications";
+
+import SplashScreen from "./components/SplashScreen";
+import ScrollRestoration from "./components/ScrollRestoration";
 
 const queryClient = new QueryClient();
 
@@ -85,51 +89,54 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <TooltipProvider>
-          <AudioPlayerProvider>
-            <ServiceWorkerRegistration />
-            <LanguageHandler />
-            <NetworkStatus />
-            <div className="page-dimming-overlay" />
-            <Toaster />
-            <Sonner />
-            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-              <Suspense fallback={<PageLoader />}>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/juz/:juzNumber" element={<JuzViewer />} />
-                  <Route path="/install" element={<Install />} />
-                  <Route path="/recitations" element={<Recitations />} />
-                  <Route path="/athkar" element={<Athkar />} />
-                  <Route path="/favorites" element={<Favorites />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/prayer-times" element={<PrayerTimes />} />
-                  <Route path="/hub" element={<Hub />} />
-                  <Route path="/tasbih" element={<Tasbih />} />
-                  <Route path="/qibla" element={<QiblaFinder />} />
-                  <Route path="/names-of-allah" element={<NamesOfAllah />} />
-                  <Route path="/zakat" element={<ZakatCalculator />} />
-                  <Route path="/prayer-tracker" element={<PrayerTracker />} />
-                  <Route path="/khatma" element={<KhatmaPlanner />} />
-                  <Route path="/hijri" element={<HijriCalendar />} />
-                  <Route path="/daily-verse" element={<DailyVerse />} />
-                  <Route path="/mosque-finder" element={<MosqueFinder />} />
-                  <Route path="/halal-places" element={<HalalPlaces />} />
-                  <Route path="/tafsir" element={<Tafsir />} />
-                  <Route path="/search" element={<Search />} />
-                  <Route path="/offline" element={<Offline />} />
-                  <Route path="/friday-sunan" element={<FridaySunan />} />
-                  <Route path="/how-to-use" element={<HowToUse />} />
-                  <Route path="/tajweed" element={<Tajweed />} />
-                  <Route path="/embed/:siteId" element={<EmbedView />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Suspense>
-              <GlobalAudioPlayer />
-              <BottomNav />
-            </BrowserRouter>
-          </AudioPlayerProvider>
-        </TooltipProvider>
+        <UserProvider>
+          <SplashScreen />
+          <TooltipProvider>
+            <AudioPlayerProvider>
+              <ServiceWorkerRegistration />
+              <LanguageHandler />
+              <NetworkStatus />
+              <div className="page-dimming-overlay" />
+              <Toaster />
+              <Sonner />
+              <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                <ScrollRestoration />
+                <Suspense fallback={<PageLoader />}>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/juz/:juzNumber" element={<JuzViewer />} />
+                    <Route path="/install" element={<Install />} />
+                    <Route path="/recitations" element={<Recitations />} />
+                    <Route path="/athkar" element={<Athkar />} />
+                    <Route path="/favorites" element={<Favorites />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/prayer-times" element={<PrayerTimes />} />
+                    <Route path="/hub" element={<Hub />} />
+                    <Route path="/tasbih" element={<Tasbih />} />
+                    <Route path="/qibla" element={<QiblaFinder />} />
+                    <Route path="/names-of-allah" element={<NamesOfAllah />} />
+                    <Route path="/zakat" element={<ZakatCalculator />} />
+                    <Route path="/prayer-tracker" element={<PrayerTracker />} />
+                    <Route path="/khatma" element={<KhatmaPlanner />} />
+                    <Route path="/hijri" element={<HijriCalendar />} />
+                    <Route path="/daily-verse" element={<DailyVerse />} />
+                    <Route path="/mosque-finder" element={<MosqueFinder />} />
+                    <Route path="/halal-places" element={<HalalPlaces />} />
+                    <Route path="/tafsir" element={<Tafsir />} />
+                    <Route path="/search" element={<Search />} />
+                    <Route path="/offline" element={<Offline />} />
+                    <Route path="/friday-sunan" element={<FridaySunan />} />
+                    <Route path="/how-to-use" element={<HowToUse />} />
+                    <Route path="/tajweed" element={<Tajweed />} />
+                    <Route path="/embed/:siteId" element={<EmbedView />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Suspense>
+                <BottomNav />
+              </BrowserRouter>
+            </AudioPlayerProvider>
+          </TooltipProvider>
+        </UserProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

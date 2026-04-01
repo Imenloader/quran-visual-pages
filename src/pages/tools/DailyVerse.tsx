@@ -5,10 +5,13 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { dailyVerses, DailyVerseData } from "@/data/dailyVersesData";
 import { toast } from "sonner";
+import { useTheme } from "@/contexts/ThemeContext";
+import { applyTajweedColors } from "@/lib/tajweedParser";
 
 const DailyVerse = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { tajweedMode } = useTheme();
   const [verse, setVerse] = useState<DailyVerseData | null>(null);
   const [isLiked, setIsLiked] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -133,7 +136,7 @@ const DailyVerse = () => {
                 </div>
                 
                 <p className="text-3xl md:text-4xl font-bold font-naskh text-foreground leading-[1.6] px-2">
-                  {verse.text}
+                  {tajweedMode ? applyTajweedColors(verse.text) : verse.text}
                 </p>
                 
                 <div className="space-y-2 pt-6 border-t border-border/50">

@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { JuzInfo, toArabicNumber, getQuranPageImageUrl } from "@/data/quranData";
+import { useTranslation } from "react-i18next";
+import { JuzInfo, toArabicNumber, getQuranPageImageUrl, surahIndex } from "@/data/quranData";
+import { normalizeArabic } from "@/lib/arabicUtils";
 import { DownloadCloud, Check, Loader2, Wifi, WifiOff, Heart, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -37,9 +39,11 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
   const [cachedPercent, setCachedPercent] = useState<number | null>(wasDone ? 100 : null);
   const [longPressing, setLongPressing] = useState(false);
   const { toggleFavorite, isFavorite } = useFavorites();
+  const { i18n } = useTranslation();
   const isFav = isFavorite("juz", juz.number);
 
   const totalPages = juz.endPage - juz.startPage + 1;
+  const isLastRead = isBookmarked;
 
   const readingProgress = useMemo(() => {
     try {
@@ -51,9 +55,17 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
     }
   }, [juz.number, totalPages]);
 
-  const matchedSurahs = useMemo(() => 
-    searchQuery ? juz.surahs.filter(s => s.includes(searchQuery)) : []
-  , [searchQuery, juz.surahs]);
+  const matchedSurahs = useMemo(() => {
+    if (!searchQuery) return [];
+    const query = searchQuery.toLowerCase().trim();
+    const normalizedQuery = normalizeArabic(query);
+    return juz.surahs.filter(s => {
+      const normalizedS = normalizeArabic(s);
+      if (normalizedS.includes(normalizedQuery)) return true;
+      const surah = surahIndex.find(si => si.name === s);
+      return surah?.nameEn.toLowerCase().includes(query);
+    });
+  }, [searchQuery, juz.surahs]);
 
   useEffect(() => {
     if (wasDone) return;
@@ -130,11 +142,11 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
       setLongPressing(false);
       if (navigator.vibrate) navigator.vibrate(30);
       if (downloadState === "idle") {
-        toast.info(`جاري تحميل ${juz.nameAr} للأوفلاين...`);
+        toast.info(i18n.language === "ar" ? `جاري تحميل ${juz.nameAr} للأوفلاين...` : `Downloading ${juz.nameEn} for offline...`);
         downloadForOffline({ preventDefault: () => {}, stopPropagation: () => {} } as React.MouseEvent);
       }
     }, 600);
-  }, [downloadState, juz.nameAr, downloadForOffline]);
+  }, [downloadState, juz.nameAr, juz.nameEn, i18n.language, downloadForOffline]);
 
   const handlePointerUp = useCallback(() => {
     setLongPressing(false);
@@ -180,7 +192,7 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
         {isBookmarked && (
           <div className="absolute top-0 right-0 bg-accent text-accent-foreground text-[10px] font-serif font-bold px-5 py-2 rounded-bl-3xl z-10 shadow-sm flex items-center gap-2">
             <BookOpen size={12} />
-            <span>متوقف هنا</span>
+            <span>{i18n.language === "ar" ? "متوقف هنا" : "Bookmarked"}</span>
           </div>
         )}
 
@@ -242,17 +254,17 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
         {/* Text Content */}
         <div className="text-center space-y-2">
           <h3 className="font-serif text-2xl md:text-3xl font-medium text-primary group-hover:text-accent transition-colors duration-300">
-            {juz.nameAr}
+            {i18n.language === "ar" ? juz.nameAr : juz.nameEn}
           </h3>
 
           <p className="text-[10px] md:text-xs text-muted-foreground font-naskh leading-relaxed max-w-[240px] mx-auto line-clamp-2">
-            {juz.surahs.join("، ")}
+            {juz.surahs.map(s => i18n.language === "ar" ? s : surahIndex.find(si => si.name === s)?.nameEn || s).join(i18n.language === "ar" ? "، " : ", ")}
           </p>
           
           <div className="flex items-center justify-center gap-2">
             <div className="h-px w-3 md:w-4 bg-border" />
             <p className="text-xs md:text-sm text-muted-foreground font-naskh italic">
-              {juz.startSurah}
+              {i18n.language === "ar" ? juz.startSurah : surahIndex.find(si => si.name === juz.startSurah)?.nameEn || juz.startSurah}
             </p>
             <div className="h-px w-3 md:w-4 bg-border" />
           </div>
@@ -261,7 +273,7 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
             <div className="pt-2 flex flex-wrap justify-center gap-1 md:gap-1.5">
               {matchedSurahs.map(s => (
                 <span key={s} className="text-[8px] md:text-[10px] bg-accent/10 text-accent px-2 py-0.5 rounded-full font-naskh font-medium">
-                  {s}
+                  {i18n.language === "ar" ? s : surahIndex.find(si => si.name === s)?.nameEn || s}
                 </span>
               ))}
             </div>
@@ -269,9 +281,9 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
 
           <div className="pt-3 md:pt-4">
             <div className="inline-flex items-center gap-2 px-3 md:px-4 py-1 md:py-1.5 rounded-full bg-muted text-[9px] md:text-[11px] text-muted-foreground font-naskh">
-              <span>صفحة {juz.startPage}</span>
+              <span>{i18n.language === "ar" ? `صفحة ${toArabicNumber(juz.startPage)}` : `Page ${juz.startPage}`}</span>
               <span className="w-1 h-1 rounded-full bg-border" />
-              <span>{juz.endPage}</span>
+              <span>{i18n.language === "ar" ? toArabicNumber(juz.endPage) : juz.endPage}</span>
             </div>
           </div>
         </div>
@@ -282,18 +294,18 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
             {cachedPercent === 100 ? (
               <div className="flex items-center gap-1 md:gap-1.5 text-emerald-500 text-[8px] md:text-[10px] font-medium">
                 <Wifi size={10} className="md:w-3 md:h-3" />
-                <span>جاهز للأوفلاين</span>
+                <span>{i18n.language === "ar" ? "جاهز للأوفلاين" : "Ready Offline"}</span>
               </div>
             ) : (
               <div className="flex items-center gap-1 md:gap-1.5 text-muted-foreground text-[8px] md:text-[10px]">
                 <WifiOff size={10} className="md:w-3 md:h-3" />
-                <span>{cachedPercent ? `${cachedPercent}%` : "غير محمّل"}</span>
+                <span>{cachedPercent ? `${i18n.language === "ar" ? toArabicNumber(cachedPercent) : cachedPercent}%` : (i18n.language === "ar" ? "غير محمّل" : "Not Downloaded")}</span>
               </div>
             )}
           </div>
           
           <div className="text-[8px] md:text-[10px] text-muted-foreground font-serif uppercase tracking-[0.1em] md:tracking-widest">
-            Juz {juz.number}
+            {i18n.language === "ar" ? `الجزء ${toArabicNumber(juz.number)}` : `Juz ${juz.number}`}
           </div>
         </div>
 

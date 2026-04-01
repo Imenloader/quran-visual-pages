@@ -1,18 +1,23 @@
-import { useParams, Navigate, Link } from "react-router-dom";
+import { useParams, Navigate, Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { juzData, getQuranPageImageUrl, getQuranPageFallbackImageUrl, toArabicNumber } from "@/data/quranData";
+import { juzData, getQuranPageImageUrl, getQuranPageFallbackImageUrl, toArabicNumber, surahIndex } from "@/data/quranData";
 import QuranHeader from "@/components/QuranHeader";
 import ReadingToolbar from "@/components/ReadingToolbar";
 import ProgressBar from "@/components/ProgressBar";
 import PageNavigator from "@/components/PageNavigator";
 import JuzIndex from "@/components/JuzIndex";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
-import { ChevronRight, ChevronLeft, ArrowUp, Maximize, Minimize, ChevronUp, GraduationCap, RefreshCw } from "lucide-react";
+import { ChevronRight, ChevronLeft, ArrowUp, Maximize, Minimize, ChevronUp, GraduationCap, RefreshCw, Music } from "lucide-react";
 import LazyImage from "@/components/LazyImage";
 import QuranTextViewer from "@/components/QuranTextViewer";
+import TajweedLegend from "@/components/TajweedLegend";
+import QuranPlayerBar from "@/components/QuranPlayerBar";
+import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useUser } from "@/contexts/UserContext";
+import { cn } from "@/lib/utils";
 
 const BOOKMARK_KEY = "quran-bookmark";
 
@@ -20,6 +25,7 @@ interface BookmarkData {
   juz: number;
   page: number;
   readingMode: "image" | "text";
+  verseKey?: string;
 }
 
 const getBookmark = (): BookmarkData | null => {
@@ -31,15 +37,17 @@ const getBookmark = (): BookmarkData | null => {
   }
 };
 
-const saveBookmark = (juz: number, page: number, readingMode: "image" | "text") => {
-  localStorage.setItem(BOOKMARK_KEY, JSON.stringify({ juz, page, readingMode }));
+const saveBookmark = (juz: number, page: number, readingMode: "image" | "text", verseKey?: string) => {
+  localStorage.setItem(BOOKMARK_KEY, JSON.stringify({ juz, page, readingMode, verseKey }));
 };
 
 const JuzViewer = () => {
+  const navigate = useNavigate();
   const { juzNumber } = useParams();
   const num = parseInt(juzNumber || "0");
   const juz = juzData.find((j) => j.number === num);
-  const { theme, readingMode, scrollDirection } = useTheme();
+  const { theme, readingMode, scrollDirection, tajweedMode } = useTheme();
+  const { addAyahRead } = useUser();
 
   const pages = useMemo(() => {
     if (!juz) return [];
@@ -165,6 +173,7 @@ const JuzViewer = () => {
   const [showPageNav, setShowPageNav] = useState(false);
   const [showJuzIndex, setShowJuzIndex] = useState(false);
   const [savedBookmark, setSavedBookmark] = useState<BookmarkData | null>(null);
+  const [currentVerseKey, setCurrentVerseKey] = useState<string | undefined>(() => getBookmark()?.verseKey);
 
   // Initialize currentPage to the first page of the Juz or bookmarked page
   useEffect(() => {
@@ -172,6 +181,7 @@ const JuzViewer = () => {
       const bookmark = getBookmark();
       if (bookmark && bookmark.juz === num && pages.includes(bookmark.page)) {
         setCurrentPage(bookmark.page);
+        if (bookmark.verseKey) setCurrentVerseKey(bookmark.verseKey);
         // Initial scroll for vertical mode
         if (scrollDirection === "vertical") {
           setTimeout(() => scrollToPage(bookmark.page), 100);
@@ -203,8 +213,8 @@ const JuzViewer = () => {
   useEffect(() => {
     if (currentPage !== 0 && juz) {
       const timer = setTimeout(() => {
-        saveBookmark(num, currentPage, readingMode);
-        setSavedBookmark({ juz: num, page: currentPage, readingMode });
+        saveBookmark(num, currentPage, readingMode, currentVerseKey);
+        setSavedBookmark({ juz: num, page: currentPage, readingMode, verseKey: currentVerseKey });
 
         // Update reading history for stats
         const history = JSON.parse(localStorage.getItem("quran-reading-history") || "{}");
@@ -213,6 +223,11 @@ const JuzViewer = () => {
         if (!juzHistory.visitedPages.includes(currentPage)) {
           juzHistory.visitedPages.push(currentPage);
           juzHistory.pagesRead = juzHistory.visitedPages.length;
+          
+          // Add points/stats for reading a new page (approx 15 ayahs per page)
+          for (let i = 0; i < 15; i++) {
+            addAyahRead();
+          }
         }
         
         juzHistory.lastPage = currentPage;
@@ -222,7 +237,7 @@ const JuzViewer = () => {
       
       return () => clearTimeout(timer);
     }
-  }, [currentPage, num, readingMode, juz]);
+  }, [currentPage, num, readingMode, juz, currentVerseKey, addAyahRead]);
 
   // Aggressive caching for current Juz
   useEffect(() => {
@@ -238,9 +253,31 @@ const JuzViewer = () => {
   }, [juz, pages]);
 
   const { isFullscreen, setIsFullscreen } = useTheme();
+  const { playAyah, togglePlay, currentSurah } = useAudioPlayer();
   const [showControls, setShowControls] = useState(true);
+  const [isScrollingDown, setIsScrollingDown] = useState(false);
+  const lastScrollY = useRef(0);
   const controlsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pageRefs = useRef<Record<number, HTMLDivElement | null>>({});
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+        setIsScrollingDown(true);
+      } else {
+        setIsScrollingDown(false);
+      }
+      lastScrollY.current = currentScrollY;
+      
+      if (isFullscreen) {
+        resetControlsTimer();
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isFullscreen]);
 
   useEffect(() => {
     setSavedBookmark(getBookmark());
@@ -256,6 +293,11 @@ const JuzViewer = () => {
               setCurrentPage(pageNum);
             }
           }, 500);
+        }
+      } else if (hash.startsWith("#verse-")) {
+        const key = hash.replace("#verse-", "");
+        if (key) {
+          setCurrentVerseKey(key);
         }
       }
     };
@@ -329,6 +371,11 @@ const JuzViewer = () => {
   const getImageUrl = (page: number) => {
     const level = fallbackLevel[page] || 0;
     
+    // If tajweed mode is on, try to get tajweed images first
+    if (tajweedMode && level === 0) {
+      return `https://quran.com/images/quran/tajweed/${page}.png`;
+    }
+    
     if (level === 0) {
       // Local Source (Primary)
       return getQuranPageImageUrl(page);
@@ -352,8 +399,8 @@ const JuzViewer = () => {
 
   const handleSaveBookmark = () => {
     if (currentPage) {
-      saveBookmark(num, currentPage, readingMode);
-      setSavedBookmark({ juz: num, page: currentPage, readingMode });
+      saveBookmark(num, currentPage, readingMode, currentVerseKey);
+      setSavedBookmark({ juz: num, page: currentPage, readingMode, verseKey: currentVerseKey });
     }
   };
 
@@ -384,6 +431,39 @@ const JuzViewer = () => {
     if (!showControls) resetControlsTimer();
   };
 
+  const handleMainPlayToggle = () => {
+    if (!juz) return;
+    
+    // Check if the currently playing surah is part of this Juz
+    const isCurrentJuzPlaying = currentSurah && juz.surahs.includes(currentSurah.name);
+    
+    if (!isCurrentJuzPlaying) {
+      // Parse startSurah to get initial Ayah number
+      const startSurahParts = juz.startSurah.split(" ");
+      const startSurahName = startSurahParts[0];
+      const startAyahNumber = startSurahParts.length > 1 ? parseInt(startSurahParts[1]) : 1;
+      
+      const surahInfo = surahIndex.find(s => s.name === startSurahName);
+      if (surahInfo) {
+        playAyah(surahInfo.number, startAyahNumber);
+      }
+    } else {
+      togglePlay();
+    }
+  };
+
+  const handleVerseInView = (key: string) => {
+    setCurrentVerseKey(key);
+    if (readingMode === "text") {
+      const [sNum] = key.split(":");
+      const surah = surahIndex.find(s => s.number.toString() === sNum);
+      if (surah && surah.startPage !== currentPage) {
+        // Update currentPage so bookmark and home page are consistent
+        setCurrentPage(surah.startPage);
+      }
+    }
+  };
+
   return (
     <div
       className={`min-h-screen bg-background selection:bg-accent/20 ${isFullscreen ? "fullscreen-reading" : ""}`}
@@ -395,14 +475,17 @@ const JuzViewer = () => {
       <div className="fixed inset-0 pattern-islamic opacity-[0.01] pointer-events-none" />
       
       {/* Floating Action Buttons */}
-      <div className={`fixed right-4 md:right-8 z-40 flex flex-col gap-3 md:gap-4 transition-all duration-500 ${isFullscreen ? "bottom-6 md:bottom-8" : "bottom-24 md:bottom-32"}`}>
+      <div className={`fixed right-4 md:right-8 z-[120] flex flex-col gap-3 md:gap-4 transition-all duration-500 ${isFullscreen ? (showControls ? "bottom-6 md:bottom-8 opacity-100" : "bottom-6 md:bottom-8 opacity-0 pointer-events-none") : "bottom-24 md:bottom-32 opacity-100"}`}>
         <AnimatePresence>
           {scrollDirection === "vertical" && progress > 10 && (
             <motion.button
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.5 }}
-              onClick={() => scrollToPage(pages[0])}
+              onClick={(e) => {
+                e.stopPropagation();
+                scrollToPage(pages[0]);
+              }}
               className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-primary text-primary-foreground shadow-2xl flex items-center justify-center hover:scale-110 active:scale-90 transition-all"
               title="العودة للأعلى"
             >
@@ -411,20 +494,45 @@ const JuzViewer = () => {
           )}
         </AnimatePresence>
         
-        <button
-          onClick={toggleFullscreen}
-          className={`w-10 h-10 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 ${
-            isFullscreen ? "bg-accent text-white" : "bg-card/90 backdrop-blur-md text-primary border border-border/40"
-          }`}
-          title={isFullscreen ? "خروج من ملء الشاشة" : "وضع ملء الشاشة"}
-        >
-          {isFullscreen ? <Minimize className="size-[18px] md:size-[24px]" /> : <Maximize className="size-[18px] md:size-[24px]" />}
-        </button>
+        {isFullscreen && showControls && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleFullscreen();
+            }}
+            className="w-10 h-10 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 bg-emerald-deep text-gold border border-white/10"
+            title="الخروج من ملء الشاشة"
+          >
+            <Minimize className="size-[18px] md:size-[24px]" />
+          </button>
+        )}
+
+        {!isFullscreen && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleFullscreen();
+            }}
+            className="w-10 h-10 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 bg-card/90 backdrop-blur-md text-primary border border-border/40"
+            title="وضع ملء الشاشة"
+          >
+            <Maximize className="size-[18px] md:size-[24px]" />
+          </button>
+        )}
       </div>
 
       {/* Header & toolbar - hidden in fullscreen unless controls shown */}
-      <div className={`transition-all duration-700 ease-[0.16, 1, 0.3, 1] ${isFullscreen && !showControls ? "opacity-0 pointer-events-none -translate-y-full fixed top-0 left-0 right-0 z-50" : isFullscreen ? "fixed top-0 left-0 right-0 z-50 opacity-100" : "relative z-20"}`}>
-        <QuranHeader title={juz.nameAr} showBack />
+      <div className={`transition-all duration-700 ease-[0.16, 1, 0.3, 1] ${isFullscreen && !showControls ? "opacity-0 pointer-events-none -translate-y-full fixed top-0 left-0 right-0 z-[150]" : isFullscreen ? "fixed top-0 left-0 right-0 z-[150] opacity-100 pointer-events-auto" : "relative z-20"}`}>
+        {!isFullscreen && <QuranHeader title={juz.nameAr} showBack />}
+        {isFullscreen && (
+          <div className="bg-emerald-deep/95 backdrop-blur-md border-b border-white/10 px-4 py-3 flex items-center justify-between">
+            <button onClick={() => navigate(-1)} className="p-2 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all">
+              <ChevronRight size={20} />
+            </button>
+            <h2 className="text-white font-serif text-xl">{juz.nameAr}</h2>
+            <div className="w-10" /> {/* Spacer */}
+          </div>
+        )}
         <ProgressBar progress={progress} currentPage={currentPage} totalPages={pages.length} startPage={juz.startPage} />
 
         <ReadingToolbar
@@ -513,6 +621,11 @@ const JuzViewer = () => {
         className={`mx-auto px-4 flex flex-col items-center transition-all duration-500 ${isFullscreen ? "pb-12 pt-4" : "pb-40 pt-4"}`}
         onClick={handleScreenTap}
       >
+        {tajweedMode && !hifzMode && (
+          <div className={`w-full max-w-5xl mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ${isFullscreen ? "mt-4" : ""}`}>
+            <TajweedLegend />
+          </div>
+        )}
         {hifzMode && readingMode === "image" && (
           <div className="mb-8 flex flex-wrap justify-center gap-4 sticky top-24 z-30 px-4">
             <button
@@ -743,7 +856,12 @@ const JuzViewer = () => {
               animate={{ opacity: 1, y: 0 }}
               className="w-full bg-card rounded-[2.5rem] border border-border/40 shadow-islamic overflow-hidden"
             >
-              <QuranTextViewer juzNumber={num} hifzMode={hifzMode} />
+              <QuranTextViewer 
+                juzNumber={num} 
+                hifzMode={hifzMode} 
+                initialVerseKey={currentVerseKey}
+                onVerseInView={handleVerseInView}
+              />
             </motion.div>
           )}
         </div>
@@ -766,29 +884,33 @@ const JuzViewer = () => {
 
       {/* Fullscreen Controls - Floating Exquisite Elements */}
       <AnimatePresence>
-        {isFullscreen && (
+        {isFullscreen && showControls && (
           <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: showControls ? 1 : 0.2, scale: 1 }}
-            className="fixed bottom-8 left-8 z-[60] flex items-center gap-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[150] flex items-center gap-4"
           >
-            <button
-              onClick={toggleFullscreen}
-              className="w-14 h-14 rounded-[1.5rem] bg-emerald-deep text-gold flex items-center justify-center shadow-2xl border border-white/10 hover:scale-110 active:scale-95 transition-all"
-              title="الخروج من ملء الشاشة"
-            >
-              <Minimize size={24} strokeWidth={1.5} />
-            </button>
-            
             {currentPage > 0 && (
-              <div className="h-14 px-6 rounded-[1.5rem] bg-card/40 backdrop-blur-xl border border-border/40 flex items-center gap-3 shadow-xl">
-                <span className="text-[10px] font-bold text-accent uppercase tracking-widest">Page</span>
-                <span className="font-serif text-xl font-medium text-primary">{currentPage}</span>
+              <div className="h-12 md:h-14 px-6 rounded-full bg-emerald-deep/90 backdrop-blur-xl border border-white/10 flex items-center gap-3 shadow-2xl">
+                <span className="text-[8px] md:text-[10px] font-bold text-gold uppercase tracking-widest">الصفحة</span>
+                <span className="font-serif text-lg md:text-xl font-medium text-white">{toArabicNumber(currentPage)}</span>
               </div>
             )}
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Audio Player Bar */}
+      <div className={cn(
+        "fixed left-1/2 -translate-x-1/2 z-[130] transition-all duration-700 ease-[0.16, 1, 0.3, 1]",
+        isFullscreen ? "bottom-8" : "bottom-28 md:bottom-32",
+        (isFullscreen && !showControls) || isScrollingDown 
+          ? "opacity-0 pointer-events-none translate-y-20 scale-90" 
+          : "opacity-100 translate-y-0 scale-100"
+      )}>
+        <QuranPlayerBar onPlayFirst={handleMainPlayToggle} isScrollingDown={isScrollingDown} isFullscreen={isFullscreen} />
+      </div>
 
       {/* Juz Index Modal */}
       {showJuzIndex && <JuzIndex onClose={() => setShowJuzIndex(false)} currentJuz={num} />}

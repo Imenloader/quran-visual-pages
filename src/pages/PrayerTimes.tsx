@@ -11,11 +11,13 @@ import { useTranslation } from "react-i18next";
 import {
   usePrayerTimes,
   getCairoDate,
+  getEffectiveNow,
   formatTime,
   ADHAN_SOUNDS,
   CALCULATION_METHODS,
   PRAYER_NAMES,
   type PrayerTimesData,
+  type PrayerSettings,
 } from "@/hooks/usePrayerTimes";
 
 const CustomSelect = ({ 
@@ -89,11 +91,13 @@ const NextPrayerCountdown = ({
   prayerName,
   prayerTime,
   prayerIcon,
+  settings,
   timeFormat = "12h",
 }: {
   prayerName: keyof PrayerTimesData;
   prayerTime: string;
   prayerIcon: string;
+  settings: PrayerSettings;
   timeFormat?: "12h" | "24h";
 }) => {
   const [remaining, setRemaining] = useState({ hours: 0, minutes: 0, seconds: 0 });
@@ -103,7 +107,7 @@ const NextPrayerCountdown = ({
   useEffect(() => {
     const calc = () => {
       const [h, m] = prayerTime.split(":").map(Number);
-      const now = getCairoDate();
+      const now = getEffectiveNow(settings);
       const target = new Date(now);
       target.setHours(h, m, 0, 0);
       if (target <= now) target.setDate(target.getDate() + 1);
@@ -117,7 +121,7 @@ const NextPrayerCountdown = ({
     calc();
     const interval = setInterval(calc, 1000);
     return () => clearInterval(interval);
-  }, [prayerTime]);
+  }, [prayerTime, settings]);
 
   const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -179,7 +183,7 @@ const NextPrayerCountdown = ({
             <h2 className="font-serif text-2xl md:text-4xl font-bold text-foreground mb-0.5 md:mb-1 tracking-tight">
               {PRAYER_NAMES[prayerName]}
             </h2>
-            <p className="text-xs md:text-base text-muted-foreground font-serif italic opacity-80">
+            <p className="text-xs md:text-base text-white/80 font-serif italic opacity-80">
               في تمام الساعة {formatTime(prayerTime, timeFormat)}
             </p>
           </div>
@@ -248,7 +252,7 @@ const CairoClock = () => {
       <div className="absolute inset-0 bg-gold/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
       <div className="relative flex flex-col items-center bg-card/30 backdrop-blur-xl border border-white/10 px-10 py-5 rounded-[2rem] shadow-2xl overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
-        <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gold/80 mb-2 drop-shadow-sm">
+        <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gold mb-2 drop-shadow-sm">
           {isAr ? "توقيت القاهرة الآن" : "Cairo Local Time"}
         </span>
         <span className="font-mono text-4xl font-bold text-foreground tabular-nums tracking-tighter">
@@ -256,7 +260,7 @@ const CairoClock = () => {
         </span>
         <div className="flex items-center gap-1 mt-2">
           <div className="w-1 h-1 rounded-full bg-emerald-deep animate-pulse" />
-          <span className="text-[9px] text-muted-foreground font-serif italic uppercase tracking-widest">
+          <span className="text-[9px] text-primary/70 font-serif italic uppercase tracking-widest">
             {isAr ? "مزامنة مباشرة" : "Live Sync"}
           </span>
         </div>
@@ -464,7 +468,7 @@ const PrayerTimes = () => {
               <MapPin size={28} className="text-primary-foreground" />
             </div>
             <h2 className="font-naskh text-lg font-bold text-foreground mb-2">حدد موقعك</h2>
-            <p className="text-sm text-muted-foreground font-naskh mb-4">
+            <p className="text-sm text-primary/70 font-naskh mb-4">
               لعرض مواقيت الصلاة الصحيحة حسب منطقتك
             </p>
             <button
@@ -491,6 +495,7 @@ const PrayerTimes = () => {
                 prayerName={nextPrayer.name}
                 prayerTime={nextPrayer.time}
                 prayerIcon={prayerIcons[nextPrayer.name]}
+                settings={settings}
                 timeFormat={settings.timeFormat}
               />
             )}
@@ -571,7 +576,7 @@ const PrayerTimes = () => {
                               </motion.div>
                             )}
                           </div>
-                          <div className="flex items-center gap-1.5 md:gap-2 text-muted-foreground font-serif italic text-xs md:text-sm opacity-70">
+                          <div className="flex items-center gap-1.5 md:gap-2 text-primary/70 font-serif italic text-xs md:text-sm opacity-70">
                             <Clock size={12} className="text-gold/60 md:w-3.5 md:h-3.5" />
                             <span>{formatTime(times[prayer], settings.timeFormat)}</span>
                           </div>
@@ -685,7 +690,7 @@ const PrayerTimes = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h2 className="font-naskh text-sm font-bold text-foreground">تنبيه الأذان</h2>
-                  <p className="text-[11px] text-muted-foreground font-naskh">إشعار مع صوت الأذان عند كل صلاة</p>
+                  <p className="text-[11px] text-primary/70 font-naskh">إشعار مع صوت الأذان عند كل صلاة</p>
                 </div>
                 <div className="flex items-center gap-2">
                   {settings.notificationsEnabled && (
@@ -723,7 +728,7 @@ const PrayerTimes = () => {
                 </div>
                 <div>
                   <h2 className="font-serif text-xl font-bold text-foreground">صوت الأذان</h2>
-                  <p className="text-xs text-muted-foreground font-serif italic">اختر المؤذن المفضل للتنبيهات</p>
+                  <p className="text-xs text-primary/70 font-serif italic">اختر المؤذن المفضل للتنبيهات</p>
                 </div>
               </div>
  
@@ -759,7 +764,7 @@ const PrayerTimes = () => {
               </div>
               <div className="flex-1 text-right">
                 <h2 className="font-naskh text-sm font-bold text-foreground">إعدادات متقدمة</h2>
-                <p className="text-[11px] text-muted-foreground font-naskh">طريقة الحساب والموقع</p>
+                <p className="text-[11px] text-primary/70 font-naskh">طريقة الحساب والموقع</p>
               </div>
             </button>
 

@@ -28,9 +28,9 @@
     --ring: 145 60% 8%;
     --radius: 2rem;
     
-    --gold: 38 85% 25%;
-    --gold-light: 38 75% 45%;
-    --gold-dark: 38 85% 12%;
+    --gold: 38 85% 45%;
+    --gold-light: 38 75% 65%;
+    --gold-dark: 38 85% 25%;
     --emerald: 145 60% 8%;
     --emerald-light: 145 60% 20%;
     --emerald-deep: 145 60% 4%;
@@ -208,7 +208,7 @@
 }
 
 .fullscreen-reading {
-  @apply fixed inset-0 z-[100] bg-background overflow-hidden;
+  @apply fixed inset-0 z-[100] bg-background overflow-y-auto;
 }
 
 .glass-card {

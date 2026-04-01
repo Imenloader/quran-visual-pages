@@ -1,18 +1,27 @@
 import { useState, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Clock, Shield, Settings, Home, ChevronUp, LayoutGrid } from "lucide-react";
+import { Clock, Shield, User, Home, ChevronUp, LayoutGrid } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useUser } from "@/contexts/UserContext";
+
+import GlobalAudioPlayer from "./GlobalAudioPlayer";
 
 const BottomNav = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const location = useLocation();
   const { isFullscreen } = useTheme();
+  const { profile } = useUser();
   const [isHidden, setIsHidden] = useState(false);
 
   const NAV_ITEMS = [
-    { path: "/settings", label: t("nav.settings"), icon: Settings },
+    { 
+      path: "/profile", 
+      label: t("nav.profile") === "nav.profile" ? (i18n.language === 'ar' ? "الملف" : "Profile") : t("nav.profile"), 
+      icon: User, 
+      isProfile: true 
+    },
     { path: "/prayer-times", label: t("nav.prayer"), icon: Clock },
     { path: "/", label: t("nav.home"), icon: Home, isCenter: true },
     { path: "/athkar", label: t("nav.athkar"), icon: Shield },
@@ -25,13 +34,21 @@ const BottomNav = () => {
     }
   }, []);
 
+  const handleNavClick = (path: string) => {
+    triggerHaptic();
+    if (location.pathname === path) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   if (isFullscreen) return null;
 
   return (
-    <div className="fixed left-0 right-0 bottom-0 z-50 flex flex-col items-center pointer-events-none">
-      {/* Collapsing Toggle Button */}
-      <div className="pointer-events-auto mb-[-1px]">
-        <motion.button
+    <div className="fixed left-0 right-0 bottom-0 z-50 flex flex-col-reverse items-center pointer-events-none pb-4 md:pb-6">
+      <div className="relative w-full max-w-xl flex flex-col items-center">
+        {/* Collapsing Toggle Button */}
+        <div className="pointer-events-auto mb-[-1px] relative z-50">
+          <motion.button
           initial={false}
           animate={{ 
             y: isHidden ? 0 : 0,
@@ -74,7 +91,7 @@ const BottomNav = () => {
                     <Link
                       key={item.path}
                       to={item.path}
-                      onClick={triggerHaptic}
+                      onClick={() => handleNavClick(item.path)}
                       className={`w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center transition-all shadow-islamic relative group z-20 ${
                         isActive 
                           ? "bg-accent text-accent-foreground scale-110 shadow-accent/20" 
@@ -96,19 +113,23 @@ const BottomNav = () => {
                   <Link
                     key={item.path}
                     to={item.path}
-                    onClick={triggerHaptic}
+                    onClick={() => handleNavClick(item.path)}
                     className="flex flex-col items-center py-1.5 md:py-2 px-0.5 md:px-1 min-w-[56px] md:min-w-[64px] group relative z-10"
                   >
                     <motion.div 
                       whileHover={{ y: -4 }}
                       whileTap={{ scale: 0.9 }}
-                      className={`w-9 h-9 md:w-11 md:h-11 rounded-xl md:rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                      className={`w-9 h-9 md:w-11 md:h-11 rounded-xl md:rounded-2xl flex items-center justify-center transition-all duration-300 overflow-hidden ${
                         isActive
                           ? "bg-accent/15 text-accent shadow-sm"
                           : "text-muted-foreground group-hover:text-primary group-hover:bg-muted"
                       }`}
                     >
-                      <Icon className="size-[18px] md:size-[20px]" strokeWidth={1.5} />
+                      {item.isProfile && profile.avatar ? (
+                        <img src={profile.avatar} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <Icon className="size-[18px] md:size-[20px]" strokeWidth={1.5} />
+                      )}
                     </motion.div>
                     <span className={`font-serif text-[8px] md:text-[9px] mt-1 md:mt-1.5 font-medium tracking-wider transition-colors ${
                       isActive ? "text-primary" : "text-muted-foreground"
@@ -128,6 +149,12 @@ const BottomNav = () => {
           </motion.nav>
         )}
       </AnimatePresence>
+      </div>
+
+      {/* Global Audio Player integrated with Nav Bar */}
+      <div className="pointer-events-auto z-[60] mb-6 md:mb-8">
+        <GlobalAudioPlayer />
+      </div>
     </div>
   );
 };

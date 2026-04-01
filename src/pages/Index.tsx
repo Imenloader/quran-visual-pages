@@ -11,6 +11,7 @@ import { Search, List, Headphones, BookOpen, MoonStar, Settings, BookMarked, Che
 import { Link } from "react-router-dom";
 import ScrollReveal from "@/components/ScrollReveal";
 import { normalizeArabic } from "@/lib/arabicUtils";
+import { applyTajweedColors } from "@/lib/tajweedParser";
 import { motion, AnimatePresence } from "motion/react";
 
 const BOOKMARK_KEY = "quran-bookmark";
@@ -19,6 +20,7 @@ interface BookmarkData {
   juz: number;
   page: number;
   readingMode: "image" | "text";
+  verseKey?: string;
 }
 
 interface AyahMatch {
@@ -49,7 +51,7 @@ const Index = () => {
   const [surahResults, setSurahResults] = useState<SurahInfo[]>([]);
   const [showIndex, setShowIndex] = useState(false);
   const { t, i18n } = useTranslation();
-  const { setReadingMode } = useTheme();
+  const { setReadingMode, tajweedMode } = useTheme();
   const navigate = useNavigate();
   const bookmark = getBookmark();
   const [verseOfDay, setVerseOfDay] = useState<{ text: string; surah: string; number: number } | null>(null);
@@ -72,23 +74,50 @@ const Index = () => {
       if (bookmark.readingMode) {
         setReadingMode(bookmark.readingMode);
       }
-      navigate(`/juz/${bookmark.juz}#page-${bookmark.page}`);
+      const hash = bookmark.readingMode === "text" && bookmark.verseKey 
+        ? `#verse-${bookmark.verseKey}` 
+        : `#page-${bookmark.page}`;
+      navigate(`/juz/${bookmark.juz}${hash}`);
     }
   };
 
-  const bookmarkJuzName = bookmark
-    ? juzData.find((j) => j.number === bookmark.juz)?.nameAr
-    : null;
+  const bookmarkInfo = useMemo(() => {
+    if (!bookmark) return null;
+    const juz = juzData.find((j) => j.number === bookmark.juz);
+    const juzName = juz?.nameAr;
+    
+    if (bookmark.verseKey && bookmark.readingMode === "text") {
+      const [surahNum, ayahNum] = bookmark.verseKey.split(":").map(Number);
+      const surah = surahIndex.find(s => s.number === surahNum);
+      return {
+        juzName,
+        detail: `${surah?.name || ""} • ${t("index.hero.ayah")} ${i18n.language === "ar" ? toArabicNumber(ayahNum) : ayahNum}`
+      };
+    }
+    
+    return {
+      juzName,
+      detail: `${t("index.hero.page") || "صفحة"} ${i18n.language === "ar" ? toArabicNumber(bookmark.page) : bookmark.page}`
+    };
+  }, [bookmark, i18n.language, t]);
 
   const filteredJuz = useMemo(() => {
     if (!searchQuery.trim()) return juzData;
-    const query = normalizeArabic(searchQuery.toLowerCase());
+    const query = searchQuery.toLowerCase().trim();
+    const normalizedQuery = normalizeArabic(query);
+    
     return juzData.filter(
       (j) =>
-        normalizeArabic(j.nameAr).includes(query) ||
+        normalizeArabic(j.nameAr).includes(normalizedQuery) ||
         j.nameEn.toLowerCase().includes(query) ||
         String(j.number ?? "").includes(query) ||
-        j.surahs.some(s => normalizeArabic(s).includes(query))
+        j.surahs.some(s => {
+          const normalizedS = normalizeArabic(s);
+          if (normalizedS.includes(normalizedQuery)) return true;
+          // Look up English name in surahIndex
+          const surah = surahIndex.find(si => si.name === s);
+          return surah?.nameEn.toLowerCase().includes(query);
+        })
     );
   }, [searchQuery]);
 
@@ -99,14 +128,17 @@ const Index = () => {
         return;
       }
 
-      const query = normalizeArabic(searchQuery.trim());
+      const query = searchQuery.toLowerCase().trim();
+      const normalizedQuery = normalizeArabic(query);
+      
       // Search Surahs locally
       const matchedSurahs = surahIndex.filter(s => {
         const normalizedName = normalizeArabic(s.name);
-        return normalizedName.includes(query) || 
+        return normalizedName.includes(normalizedQuery) || 
+               s.nameEn.toLowerCase().includes(query) ||
                s.number.toString() === query ||
                // Handle "سورة" prefix
-               (query.startsWith("سوره ") && normalizedName.includes(query.replace("سوره ", "")))
+               (normalizedQuery.startsWith("سوره ") && normalizedName.includes(normalizedQuery.replace("سوره ", "")))
       });
       setSurahResults(matchedSurahs);
     };
@@ -213,7 +245,7 @@ const Index = () => {
                         <span className="text-[8px] md:text-[10px] text-muted-foreground uppercase tracking-[0.2em] md:tracking-[0.3em] font-bold">{t("index.hero.lastRead")}</span>
                       </div>
                       <span className="text-lg md:text-xl font-naskh font-bold text-primary group-hover:text-accent transition-colors">
-                        {bookmarkJuzName} • {t("index.hero.ayah")} {i18n.language === "ar" ? toArabicNumber(bookmark.page) : bookmark.page}
+                        {bookmarkInfo?.juzName} • {bookmarkInfo?.detail}
                       </span>
                     </div>
                   )}
@@ -253,7 +285,7 @@ const Index = () => {
               {verseOfDay && (
                 <div className="space-y-3 md:space-y-4">
                   <p className="text-xl md:text-3xl font-quran text-primary leading-[1.8] px-2">
-                    {verseOfDay.text}
+                    {tajweedMode ? applyTajweedColors(verseOfDay.text) : verseOfDay.text}
                   </p>
                   <div className="flex items-center justify-center gap-2 md:gap-3 text-[8px] md:text-[10px] font-bold text-accent/60 uppercase tracking-[0.1em] md:tracking-[0.2em] font-serif italic">
                     <span>{t("index.verseOfDay.surah")} {verseOfDay.surah}</span>
@@ -305,7 +337,7 @@ const Index = () => {
                         {i18n.language === "ar" ? toArabicNumber(surah.number) : surah.number}
                       </div>
                       <div className="flex-1 relative z-10">
-                        <div className="font-serif font-bold text-primary text-xl">{t("index.verseOfDay.surah")} {surah.name}</div>
+                        <div className="font-serif font-bold text-primary text-xl">{t("index.verseOfDay.surah")} {i18n.language === "ar" ? surah.name : surah.nameEn}</div>
                         <div className="text-xs text-muted-foreground font-naskh mt-1">{t("index.hero.ayah")} {i18n.language === "ar" ? toArabicNumber(surah.startPage) : surah.startPage}</div>
                       </div>
                       <div className="w-10 h-10 rounded-full bg-muted/20 flex items-center justify-center text-muted-foreground group-hover:bg-accent group-hover:text-white transition-all relative z-10">

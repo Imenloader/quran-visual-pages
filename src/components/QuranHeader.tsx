@@ -1,14 +1,27 @@
-import { BookOpen, Sparkles } from "lucide-react";
+import { BookOpen, Sparkles, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
+import { useNavigate } from "react-router-dom";
 
 interface QuranHeaderProps {
   title?: string;
   showBack?: boolean;
 }
 
-const QuranHeader = ({ title = "القرآن الكريم" }: QuranHeaderProps) => {
+const QuranHeader = ({ title = "القرآن الكريم", showBack = false }: QuranHeaderProps) => {
+  const navigate = useNavigate();
+
   return (
     <header className="relative overflow-hidden bg-emerald-deep min-h-[40vh] md:min-h-[50vh] flex items-center justify-center">
+      {/* Back Button */}
+      {showBack && (
+        <button 
+          onClick={() => navigate(-1)}
+          className="absolute top-6 right-6 z-50 p-3 rounded-2xl bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-all active:scale-90 flex items-center gap-2 group"
+        >
+          <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+          <span className="text-xs font-serif font-bold">العودة</span>
+        </button>
+      )}
       {/* Immersive Background Layer */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div 

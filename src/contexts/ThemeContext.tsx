@@ -79,8 +79,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setIsFullscreenState(v);
     if (v) {
       document.documentElement.classList.add("fullscreen-reading");
+      document.body.style.overflow = "hidden";
     } else {
       document.documentElement.classList.remove("fullscreen-reading");
+      document.body.style.overflow = "";
     }
   };
 

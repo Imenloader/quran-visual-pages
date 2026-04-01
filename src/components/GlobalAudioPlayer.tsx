@@ -1,137 +1,374 @@
-import { useState, useEffect, useRef } from "react";
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, ChevronDown, Loader2, ListMusic, Sparkles } from "lucide-react";
-import { Slider } from "@/components/ui/slider";
+import { useState } from "react";
+import { useLocation } from "react-router-dom";
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, ChevronDown, ChevronUp, X, Maximize2, Minimize2, ListMusic, Music } from "lucide-react";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
+import { motion, AnimatePresence } from "motion/react";
+import { cn } from "@/lib/utils";
+import { Slider } from "@/components/ui/slider";
+import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const formatTime = (seconds: number): string => {
-  if (isNaN(seconds) || !isFinite(seconds)) return "٠٠:٠٠";
+  if (isNaN(seconds) || !isFinite(seconds)) return "00:00";
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
   return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
 };
 
 const GlobalAudioPlayer = () => {
+  const { t } = useTranslation();
+  const location = useLocation();
   const {
     currentSurah, isPlaying, currentTime, duration, audioLoading,
     playerMinimized, selectedReciterName, playlistQueue, playlistQueueIndex,
     activePlaylistName, isShuffle, isRepeat, volume, isMuted, syncMode,
     togglePlay, playNextSurah, playPrevSurah, handleSeek, handleVolume,
-    toggleMute, setIsRepeat, setIsShuffle, setPlayerMinimized, setSyncMode
+    toggleMute, setIsRepeat, setIsShuffle, setPlayerMinimized, setSyncMode,
+    stopPlayer
   } = useAudioPlayer();
 
-  const swipeData = useRef<{ startY: number | null; startTime: number | null }>({
-    startY: null,
-    startTime: null,
-  });
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
-  if (!currentSurah) return null;
+  // Show the player if a surah is active, regardless of page
+  // Hide on juz viewer as requested
+  if (!currentSurah || location.pathname.startsWith("/juz/")) return null;
 
-  // Minimized: floating restore button
-  if (playerMinimized) {
-    return (
-      <button
-        onClick={() => setPlayerMinimized(false)}
-        className="fixed bottom-[76px] right-3 z-[61] w-11 h-11 rounded-full gradient-islamic text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-all animate-fade-in"
-        title="إظهار المشغّل"
-      >
-        {isPlaying ? <Pause size={16} /> : <Play size={16} className="mr-[-1px]" />}
-      </button>
-    );
-  }
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const radius = 14;
+  const circumference = 2 * Math.PI * radius;
+  // Fix: Ensure strokeDashoffset is never undefined or NaN
+  const strokeDashoffset = isFinite(progress) 
+    ? circumference - (progress / 100) * circumference 
+    : circumference;
+
+  const handleProgressChange = (val: number[]) => {
+    handleSeek(val);
+  };
+
+  const handleVolumeChange = (val: number[]) => {
+    handleVolume(val);
+  };
 
   return (
-    <div
-      className="fixed bottom-0 left-0 right-0 z-[60] bg-card/95 backdrop-blur-md border-t border-border shadow-lg pb-[env(safe-area-inset-bottom)] mb-[72px] transition-all duration-300 animate-slide-up"
-      onTouchStart={(e) => {
-        const touch = e.touches[0];
-        swipeData.current = {
-          startY: touch.clientY,
-          startTime: Date.now(),
-        };
-      }}
-      onTouchEnd={(e) => {
-        const { startY, startTime } = swipeData.current;
-        if (startY == null || startTime == null) return;
-        const endY = e.changedTouches[0].clientY;
-        const diff = endY - startY;
-        const elapsed = Date.now() - startTime;
-        if (elapsed < 400 && diff > 40) setPlayerMinimized(true);
-        swipeData.current = { startY: null, startTime: null };
-      }}
-    >
-      {/* Swipe handle + close button */}
-      <div className="flex items-center justify-between px-4 pt-1.5 pb-0.5">
-        <button
-          onClick={() => setPlayerMinimized(true)}
-          className="p-1 rounded-md text-muted-foreground hover:text-foreground transition-colors"
-          title="إخفاء المشغّل"
-        >
-          <ChevronDown size={16} />
-        </button>
-        <div className="w-10 h-1 rounded-full bg-border" />
-        <div className="w-6" />
-      </div>
+    <div className="fixed bottom-20 left-0 right-0 z-[100] px-4 pointer-events-none flex justify-center">
+      <AnimatePresence mode="wait">
+        {isFullScreen ? (
+          <motion.div
+            key="fullscreen"
+            initial={{ y: "100%", opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: "100%", opacity: 0 }}
+            className="fixed inset-0 bg-background/98 backdrop-blur-xl z-[200] pointer-events-auto flex flex-col p-8"
+          >
+            <div className="flex justify-between items-center mb-8">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" onClick={() => setIsFullScreen(false)}>
+                    <ChevronDown className="size-6" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{t("player.collapse")}</TooltipContent>
+              </Tooltip>
+              
+              <span className="font-serif text-lg font-medium text-emerald-800">
+                {activePlaylistName || t("player.nowPlaying")}
+              </span>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" onClick={stopPlayer}>
+                    <X className="size-6 text-red-500" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{t("player.stop")}</TooltipContent>
+              </Tooltip>
+            </div>
 
-      <div>
-        <div className="px-4 pt-2">
-          <Slider value={[currentTime]} min={0} max={duration || 1} step={1} onValueChange={handleSeek} className="w-full" />
-          <div className="flex justify-between text-xs text-muted-foreground font-naskh mt-1">
-            <span>{formatTime(duration)}</span>
-            <span>{formatTime(currentTime)}</span>
-          </div>
-        </div>
+            <div className="flex-1 flex flex-col items-center justify-center gap-8">
+              <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-3xl bg-emerald-50 flex items-center justify-center shadow-2xl overflow-hidden group">
+                <div className="absolute inset-0 pattern-islamic opacity-5 group-hover:opacity-10 transition-opacity" />
+                <Music className="size-32 text-emerald-200" />
+                <div className="absolute bottom-4 left-4 right-4 text-center">
+                   <span className="text-emerald-800/40 font-serif text-sm">
+                     {selectedReciterName}
+                   </span>
+                </div>
+              </div>
 
-        <div className="px-4 pb-3 flex items-center gap-3">
-          <div className="flex-1 min-w-0 text-right">
-            <p className="font-naskh text-sm font-bold text-foreground truncate">سورة {currentSurah.name}</p>
-            <p className="text-xs text-muted-foreground font-naskh truncate">{selectedReciterName}</p>
-            {playlistQueue.length > 0 && activePlaylistName && (
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <ListMusic size={10} className="text-gold shrink-0" />
-                <span className="text-[10px] text-gold font-naskh truncate">
-                  {activePlaylistName} • {playlistQueueIndex + 1}/{playlistQueue.length}
+              <div className="text-center space-y-2 max-w-md">
+                <h2 className="text-3xl font-serif font-bold text-emerald-900 leading-tight">
+                  {currentSurah.name}
+                </h2>
+                <p className="text-lg text-emerald-600 font-medium">
+                  {selectedReciterName}
+                </p>
+              </div>
+
+              <div className="w-full max-w-md space-y-4">
+                <div className="space-y-2">
+                  <Slider
+                    value={[currentTime]}
+                    max={duration || 100}
+                    step={1}
+                    onValueChange={handleProgressChange}
+                    className="cursor-pointer"
+                  />
+                  <div className="flex justify-between text-xs font-mono text-emerald-600/70">
+                    <span>{formatTime(currentTime)}</span>
+                    <span>{formatTime(duration)}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between px-4">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setIsShuffle(!isShuffle)}
+                        className={cn(isShuffle ? "text-emerald-600" : "text-muted-foreground")}
+                      >
+                        <Shuffle className="size-5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{t("player.shuffle")}</TooltipContent>
+                  </Tooltip>
+
+                  <div className="flex items-center gap-6">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" onClick={playPrevSurah} className="text-emerald-700">
+                          <SkipBack className="size-8 fill-current" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>{t("player.previous")}</TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          onClick={togglePlay}
+                          className="size-16 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl shadow-emerald-200 transition-transform active:scale-95"
+                        >
+                          {isPlaying ? <Pause className="size-8" /> : <Play className="size-8 ml-1" />}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>{isPlaying ? t("player.pause") : t("player.play")}</TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" onClick={playNextSurah} className="text-emerald-700">
+                          <SkipForward className="size-8 fill-current" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>{t("player.next")}</TooltipContent>
+                    </Tooltip>
+                  </div>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setIsRepeat(!isRepeat)}
+                        className={cn(isRepeat ? "text-emerald-600" : "text-muted-foreground")}
+                      >
+                        <Repeat className="size-5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{t("player.repeat")}</TooltipContent>
+                  </Tooltip>
+                </div>
+
+                <div className="flex items-center gap-4 px-4 pt-4">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" onClick={toggleMute} className="text-emerald-600">
+                        {isMuted || volume === 0 ? <VolumeX className="size-5" /> : <Volume2 className="size-5" />}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{isMuted ? t("player.unmute") : t("player.mute")}</TooltipContent>
+                  </Tooltip>
+                  
+                  <Slider
+                    value={[isMuted ? 0 : volume]}
+                    max={100}
+                    step={1}
+                    onValueChange={handleVolumeChange}
+                    className="flex-1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-auto flex justify-center pb-8">
+               <Tooltip>
+                 <TooltipTrigger asChild>
+                   <Button variant="ghost" className="gap-2 text-emerald-600" onClick={() => {}}>
+                     <ListMusic className="size-5" />
+                     <span>{t("player.queue")}</span>
+                   </Button>
+                 </TooltipTrigger>
+                 <TooltipContent>{t("player.queue")}</TooltipContent>
+               </Tooltip>
+            </div>
+          </motion.div>
+        ) : !isExpanded ? (
+          <motion.button
+            key="collapsed"
+            initial={{ scale: 0.8, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.8, opacity: 0, y: 20 }}
+            onClick={() => setIsExpanded(true)}
+            className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-emerald-600 rounded-full shadow-lg hover:bg-emerald-700 transition-all group pointer-events-auto"
+          >
+            <svg className="absolute inset-0 w-full h-full -rotate-90">
+              <circle
+                cx="50%"
+                cy="50%"
+                r={radius}
+                fill="none"
+                stroke="rgba(255,255,255,0.2)"
+                strokeWidth="2.5"
+              />
+              <motion.circle
+                cx="50%"
+                cy="50%"
+                r={radius}
+                fill="none"
+                stroke="white"
+                strokeWidth="2.5"
+                strokeDasharray={circumference}
+                initial={{ strokeDashoffset: circumference }}
+                animate={{ strokeDashoffset }}
+                transition={{ type: "spring", damping: 20, stiffness: 100 }}
+              />
+            </svg>
+            {isPlaying ? (
+              <Pause className="text-white relative z-10" size={18} />
+            ) : (
+              <Play className="text-white relative z-10 ml-0.5" size={18} />
+            )}
+          </motion.button>
+        ) : (
+          <motion.div
+            key="expanded"
+            initial={{ width: 48, height: 48, opacity: 0, y: 20 }}
+            animate={{ width: "auto", height: "auto", opacity: 1, y: 0 }}
+            exit={{ width: 48, height: 48, opacity: 0, y: 20 }}
+            className="bg-white/95 backdrop-blur-xl border border-emerald-100 rounded-2xl shadow-2xl p-3 flex items-center gap-4 min-w-[280px] max-w-[400px] pointer-events-auto"
+          >
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="relative shrink-0 group cursor-pointer" onClick={() => setIsFullScreen(true)}>
+                   <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center overflow-hidden">
+                     <div className="absolute inset-0 pattern-islamic opacity-5" />
+                     <Music className="size-6 text-emerald-300" />
+                   </div>
+                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
+                     <Maximize2 className="size-4 text-white" />
+                   </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>{t("player.expand")}</TooltipContent>
+            </Tooltip>
+
+            <div className="flex flex-col min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-bold text-emerald-900 truncate leading-tight">
+                  {currentSurah.name}
+                </span>
+                <span className="text-[10px] font-mono text-emerald-600/70">
+                  {formatTime(currentTime)}
                 </span>
               </div>
-            )}
-          </div>
+              <span className="text-[10px] text-emerald-600 truncate leading-tight mb-2">
+                {selectedReciterName}
+              </span>
+              <Slider
+                value={[currentTime]}
+                max={duration || 100}
+                step={1}
+                onValueChange={handleProgressChange}
+                className="h-1"
+              />
+            </div>
 
-          <div className="flex items-center gap-1">
-            <button 
-              onClick={() => setSyncMode(!syncMode)} 
-              className={`p-2 rounded-full transition-colors ${syncMode ? "text-accent" : "text-muted-foreground hover:text-foreground"}`}
-              title="تزامن الآيات"
-            >
-              <Sparkles size={16} />
-            </button>
-            <button onClick={() => setIsShuffle(!isShuffle)} className={`p-2 rounded-full transition-colors ${isShuffle ? "text-gold" : "text-muted-foreground hover:text-foreground"}`}>
-              <Shuffle size={16} />
-            </button>
-            <button onClick={playPrevSurah} className="p-2 rounded-full text-foreground hover:bg-muted transition-colors">
-              <SkipForward size={18} />
-            </button>
-            <button
-              onClick={togglePlay}
-              className="w-11 h-11 rounded-full gradient-islamic flex items-center justify-center text-primary-foreground shadow-md hover:opacity-90 transition-opacity"
-              disabled={audioLoading}
-            >
-              {audioLoading ? <Loader2 size={20} className="animate-spin" /> : isPlaying ? <Pause size={20} /> : <Play size={20} className="mr-[-2px]" />}
-            </button>
-            <button onClick={playNextSurah} className="p-2 rounded-full text-foreground hover:bg-muted transition-colors">
-              <SkipBack size={18} />
-            </button>
-            <button onClick={() => setIsRepeat(!isRepeat)} className={`p-2 rounded-full transition-colors ${isRepeat ? "text-gold" : "text-muted-foreground hover:text-foreground"}`}>
-              <Repeat size={16} />
-            </button>
-          </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsShuffle(!isShuffle)}
+                    className={cn("size-8 rounded-full", isShuffle ? "text-emerald-600" : "text-muted-foreground/40")}
+                  >
+                    <Shuffle size={14} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{t("player.shuffle")}</TooltipContent>
+              </Tooltip>
 
-          <div className="hidden sm:flex items-center gap-2 w-28">
-            <button onClick={toggleMute} className="text-muted-foreground hover:text-foreground transition-colors">
-              {isMuted || volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
-            </button>
-            <Slider value={[isMuted ? 0 : volume]} min={0} max={100} step={1} onValueChange={handleVolume} className="flex-1" />
-          </div>
-        </div>
-      </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsRepeat(!isRepeat)}
+                    className={cn("size-8 rounded-full", isRepeat ? "text-emerald-600" : "text-muted-foreground/40")}
+                  >
+                    <Repeat size={14} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{t("player.repeat")}</TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={togglePlay}
+                    className="size-8 rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                  >
+                    {isPlaying ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{isPlaying ? t("player.pause") : t("player.play")}</TooltipContent>
+              </Tooltip>
+
+              <div className="flex flex-col gap-1">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => setIsExpanded(false)}
+                      className="p-1 text-emerald-400 hover:text-emerald-600 transition-colors"
+                    >
+                      <ChevronDown size={14} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>{t("player.collapse")}</TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={stopPlayer}
+                      className="p-1 text-red-400 hover:text-red-600 transition-colors"
+                    >
+                      <X size={14} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>{t("player.stop")}</TooltipContent>
+                </Tooltip>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

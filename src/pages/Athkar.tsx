@@ -8,6 +8,9 @@ import ScrollReveal from "@/components/ScrollReveal";
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 
+import { useTheme } from "@/contexts/ThemeContext";
+import { applyTajweedColors, rules } from "@/lib/tajweedParser";
+
 const ICON_MAP: Record<string, React.ReactNode> = {
   sunrise: <Sunrise size={20} />,
   sunset: <Sunset size={20} />,
@@ -39,8 +42,27 @@ const getCounters = (): Record<number, number> => {
   } catch { return {}; }
 };
 
+const TajweedLegend = ({ className }: { className?: string }) => {
+  return (
+    <div className={`flex flex-wrap justify-center gap-2 sm:gap-4 p-4 rounded-2xl bg-card/60 backdrop-blur-md border border-border/20 ${className}`}>
+      {rules.map((rule) => (
+        <div key={rule.name} className="flex items-center gap-2">
+          <div 
+            className="w-3 h-3 rounded-full shadow-sm" 
+            style={{ backgroundColor: rule.color }}
+          />
+          <span className="text-[10px] sm:text-xs font-serif font-bold text-primary/80">
+            {rule.label}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const Athkar = () => {
   const { t, i18n } = useTranslation();
+  const { tajweedMode } = useTheme();
   const isArabic = i18n.language === 'ar';
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const [counters, setCounters] = useState<Record<number, number>>(getCounters());
@@ -259,6 +281,16 @@ const Athkar = () => {
           </AnimatePresence>
         </motion.div>
 
+        {tajweedMode && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mb-12"
+          >
+            <TajweedLegend />
+          </motion.div>
+        )}
+
         {isSearching && (
           <motion.div 
             initial={{ opacity: 0 }}
@@ -333,7 +365,7 @@ const Athkar = () => {
                                 className={`relative p-8 rounded-[2rem] border transition-all duration-500 ${isDone ? "bg-emerald-deep/5 border-emerald-deep/10" : "bg-primary/5 border-primary/5 hover:bg-primary/[0.07]"}`}
                               >
                                 <p className="font-amiri text-2xl sm:text-3xl leading-[1.8] text-primary mb-8 text-right">
-                                  {dhikr.text}
+                                  {tajweedMode ? applyTajweedColors(dhikr.text) : dhikr.text}
                                 </p>
                                 
                                 {dhikr.virtue && (

@@ -2,14 +2,20 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "@/contexts/ThemeContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, AlertCircle, RefreshCw, BookOpen, GraduationCap, Sparkles, Share2, Info } from "lucide-react";
+import { Loader2, AlertCircle, RefreshCw, BookOpen, GraduationCap, Sparkles, Share2, Info, Play, Pause, SkipBack, SkipForward, Music, Settings2, Volume2 } from "lucide-react";
 import { juzData, toArabicNumber, surahIndex } from "@/data/quranData";
 import { juzTextData } from "@/data/juzTextData";
 import { applyTajweedColors } from "@/lib/tajweedParser";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import VerseShareCard from "@/components/VerseShareCard";
 import { fetchWithCache } from "@/lib/apiClient";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { cn } from "@/lib/utils";
+
+import TajweedLegend from "@/components/TajweedLegend";
 
 interface VerseData {
   text: string;
@@ -23,11 +29,24 @@ interface QuranTextViewerProps {
   pageNumber?: number;
   juzNumber?: number;
   hifzMode?: boolean;
+  initialVerseKey?: string;
+  onVerseInView?: (key: string) => void;
 }
 
-const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ pageNumber, juzNumber, hifzMode = false }) => {
+const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ 
+  pageNumber, 
+  juzNumber, 
+  hifzMode = false,
+  initialVerseKey,
+  onVerseInView
+}) => {
   const { theme, tajweedMode } = useTheme();
-  const { currentVerseKey, syncMode } = useAudioPlayer();
+  const { 
+    currentVerseKey, syncMode, setSyncMode, 
+    isPlaying, togglePlay, skipNextAyah, skipPrevAyah,
+    playAyah, selectedEdition, setSelectedEdition, editions,
+    audioLoading, currentAyahs, currentAyahIndex, currentSurah
+  } = useAudioPlayer();
   const [loading, setLoading] = useState(true);
   const [localText, setLocalText] = useState<string | null>(null);
   const [currentJuz, setCurrentJuz] = useState<number | null>(null);
@@ -39,52 +58,8 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ pageNumber, juzNumber
   const [tafsirLoading, setTafsirLoading] = useState(false);
   const [showTafsir, setShowTafsir] = useState(false);
   const [showShareCard, setShowShareCard] = useState(false);
-
-  useEffect(() => {
-    const loadText = () => {
-      setLoading(true);
-      
-      let targetJuz = juzNumber;
-      
-      if (!targetJuz && pageNumber) {
-        // Find which Juz this page belongs to
-        const juz = juzData.find(j => pageNumber >= j.startPage && pageNumber <= j.endPage);
-        if (juz) targetJuz = juz.number;
-      }
-
-      if (targetJuz) {
-        setCurrentJuz(targetJuz);
-        try {
-          // Priority 1: LocalStorage (for real-time updates)
-          const savedText = localStorage.getItem(`quran-juz-text-${targetJuz}`);
-          
-          // Priority 2: Static Code Data (for persistence across deployments)
-          const staticText = juzTextData[targetJuz];
-          
-          setLocalText(savedText || staticText || null);
-        } catch (e) {
-          console.error("Failed to load text from localStorage", e);
-          setLocalText(juzTextData[targetJuz as number] || null);
-        }
-      }
-      
-      setLoading(false);
-    };
-
-    loadText();
-
-    // Listen for updates from the importer
-    const handleUpdate = (e: StorageEvent) => {
-      if (e.key === "quran-text-updated") {
-        loadText();
-      }
-    };
-    window.addEventListener("storage", handleUpdate);
-    
-    return () => {
-      window.removeEventListener("storage", handleUpdate);
-    };
-  }, [pageNumber, juzNumber]);
+  const verseRefs = React.useRef<Record<string, HTMLSpanElement | null>>({});
+  const lastReportedVerseKey = React.useRef<string | undefined>(undefined);
 
   // Split text into verses based on common markers and associate with Surah/Ayah
   const versesData = React.useMemo(() => {
@@ -146,6 +121,95 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ pageNumber, juzNumber
     return result;
   }, [localText, currentJuz]);
 
+  // Scroll to initial verse
+  useEffect(() => {
+    if (!loading && initialVerseKey && verseRefs.current[initialVerseKey]) {
+      // Only scroll if it's NOT the one we just reported as being in view
+      if (initialVerseKey !== lastReportedVerseKey.current) {
+        const timer = setTimeout(() => {
+          verseRefs.current[initialVerseKey]?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 500);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [loading, initialVerseKey]);
+
+  // Intersection Observer for verse tracking
+  useEffect(() => {
+    if (loading || !onVerseInView) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleEntry = entries.find(entry => entry.isIntersecting);
+        if (visibleEntry) {
+          const key = (visibleEntry.target as HTMLElement).dataset.verseKey;
+          if (key) {
+            lastReportedVerseKey.current = key;
+            onVerseInView(key);
+          }
+        }
+      },
+      { threshold: 0.5, rootMargin: "-10% 0px -70% 0px" }
+    );
+
+    const currentRefs = verseRefs.current;
+    Object.values(currentRefs).forEach(ref => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => {
+      Object.values(currentRefs).forEach(ref => {
+        if (ref) observer.unobserve(ref);
+      });
+    };
+  }, [loading, onVerseInView, versesData]);
+
+  useEffect(() => {
+    const loadText = () => {
+      setLoading(true);
+      
+      let targetJuz = juzNumber;
+      
+      if (!targetJuz && pageNumber) {
+        // Find which Juz this page belongs to
+        const juz = juzData.find(j => pageNumber >= j.startPage && pageNumber <= j.endPage);
+        if (juz) targetJuz = juz.number;
+      }
+
+      if (targetJuz) {
+        setCurrentJuz(targetJuz);
+        try {
+          // Priority 1: LocalStorage (for real-time updates)
+          const savedText = localStorage.getItem(`quran-juz-text-${targetJuz}`);
+          
+          // Priority 2: Static Code Data (for persistence across deployments)
+          const staticText = juzTextData[targetJuz];
+          
+          setLocalText(savedText || staticText || null);
+        } catch (e) {
+          console.error("Failed to load text from localStorage", e);
+          setLocalText(juzTextData[targetJuz as number] || null);
+        }
+      }
+      
+      setLoading(false);
+    };
+
+    loadText();
+
+    // Listen for updates from the importer
+    const handleUpdate = (e: StorageEvent) => {
+      if (e.key === "quran-text-updated") {
+        loadText();
+      }
+    };
+    window.addEventListener("storage", handleUpdate);
+    
+    return () => {
+      window.removeEventListener("storage", handleUpdate);
+    };
+  }, [pageNumber, juzNumber]);
+
   // Load hidden verses from localStorage
   useEffect(() => {
     if (currentJuz) {
@@ -203,6 +267,10 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ pageNumber, juzNumber
     if (hifzMode) {
       toggleVerse(index);
       return;
+    }
+
+    if (syncMode) {
+      playAyah(verse.surahNumber, verse.ayahNumber);
     }
 
     setSelectedVerse(verse);
@@ -300,14 +368,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ pageNumber, juzNumber
         </div>
       )}
 
-      {tajweedMode && !hifzMode && (
-        <div className="mb-8 flex justify-center">
-          <div className="px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-            <Sparkles size={14} />
-            <span className="text-[10px] font-bold font-naskh uppercase tracking-wider">التجويد الملون مفعل</span>
-          </div>
-        </div>
-      )}
+      {tajweedMode && !hifzMode && <TajweedLegend />}
 
       <div 
         className="text-3xl md:text-5xl text-primary text-center whitespace-pre-wrap break-words selection:bg-accent/30"
@@ -325,6 +386,8 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ pageNumber, juzNumber
           return (
             <span
               key={index}
+              ref={el => { verseRefs.current[verse.fullKey] = el; }}
+              data-verse-key={verse.fullKey}
               onClick={() => handleVerseClick(verse, index)}
               className={`inline-block transition-all duration-500 cursor-pointer rounded-lg px-1 ${
                 isHidden 
@@ -354,6 +417,16 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ pageNumber, juzNumber
             <div className="flex items-center justify-between">
               <div className="flex gap-2">
                 <button 
+                  onClick={() => {
+                    if (selectedVerse) {
+                      playAyah(selectedVerse.surahNumber, selectedVerse.ayahNumber);
+                    }
+                  }}
+                  className="p-2 rounded-full hover:bg-accent/10 text-accent transition-colors"
+                >
+                  <Play size={18} />
+                </button>
+                <button 
                   onClick={() => setShowShareCard(true)}
                   className="p-2 rounded-full hover:bg-accent/10 text-accent transition-colors"
                 >
@@ -367,9 +440,11 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ pageNumber, juzNumber
                 {selectedVerse?.surahName} - آية {toArabicNumber(selectedVerse?.ayahNumber)}
               </SheetTitle>
             </div>
-            <SheetDescription className="font-naskh text-accent/60 text-sm">
-              التفسير الميسر
-            </SheetDescription>
+            <SheetHeader className="text-right pb-6 border-b border-border/40">
+              <SheetDescription className="font-naskh text-accent/60 text-sm">
+                التفسير الميسر
+              </SheetDescription>
+            </SheetHeader>
           </SheetHeader>
           
           <div className="mt-8 overflow-y-auto max-h-[calc(60vh-150px)] px-2 custom-scrollbar" dir="rtl">
@@ -382,7 +457,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ pageNumber, juzNumber
               <div className="space-y-8 pb-12">
                 <div className="p-6 rounded-2xl bg-accent/5 border border-accent/10">
                   <p className="text-2xl md:text-3xl font-quran leading-relaxed text-primary text-center">
-                    {selectedVerse?.text}
+                    {tajweedMode && selectedVerse?.text ? applyTajweedColors(selectedVerse.text) : selectedVerse?.text}
                   </p>
                 </div>
                 <div className="space-y-4">

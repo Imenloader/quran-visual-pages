@@ -5,55 +5,74 @@ import React from "react";
  * This is a simplified rule-based parser.
  */
 
+export interface TajweedRule {
+  name: string;
+  regex: RegExp;
+  color: string;
+  label: string;
+}
+
+export const rules: TajweedRule[] = [
+  { 
+    name: "madd6",
+    // Madd 6 (Red): Madd symbol ٓ (\u0653) followed by Shaddah or Sukoon
+    regex: new RegExp(`(.\u0653[\u0651\u0652])`, "g"), 
+    color: "#FF0000", 
+    label: "مد 6 حركات" 
+  },
+  { 
+    name: "madd45",
+    // Madd 4-5 (Orange Red): Madd symbol ٓ (\u0653)
+    regex: new RegExp(`(.\u0653)`, "g"), 
+    color: "#FF4500", 
+    label: "مد 4-5 حركات" 
+  },
+  { 
+    name: "ghunnah",
+    // Ghunnah (Jade Green): Noon or Meem with Shaddah
+    regex: new RegExp(`([\u0646\u0645]\u0651)`, "g"), 
+    color: "#00A86B", 
+    label: "غنة" 
+  },
+  { 
+    name: "qalqalah",
+    // Qalqalah (Dodger Blue): Qaf, Ta, Ba, Jeem, Dal with Sukoon
+    regex: new RegExp(`([\u0642\u0637\u0628\u062c\u062f]\u0652)`, "g"), 
+    color: "#1E90FF", 
+    label: "قلقلة" 
+  },
+  { 
+    name: "iqlab",
+    // Iqlab (Light Sea Green): Noon Sakinah or Tanween followed by Ba
+    regex: new RegExp(`([\u0646]\u0652?\\s*[\u0628]|[\u064B\u064C\u064D]\\s*[\u0628])`, "g"), 
+    color: "#20B2AA", 
+    label: "إقلاب" 
+  },
+  { 
+    name: "ikhfa",
+    // Ikhfa (Dark Orange): Noon Sakinah or Tanween followed by Ikhfa letters
+    regex: new RegExp(`([\u0646]\u0652?\\s*[\u062a\u062b\u062c\u062f\u0630\u0632\u0633\u0634\u0635\u0636\u0637\u0638\u0641\u0642\u064a]|[\u064B\u064C\u064D]\\s*[\u062a\u062b\u062c\u062f\u0630\u0632\u0633\u0634\u0635\u0636\u0637\u0638\u0641\u0642\u064a])`, "g"), 
+    color: "#FF8C00", 
+    label: "إخفاء" 
+  },
+  { 
+    name: "idgham",
+    // Idgham (Dark Grey): Noon Sakinah or Tanween followed by Idgham letters (Yarmaloon)
+    regex: new RegExp(`([\u0646]\u0652?\\s*[\u064a\u0631\u0645\u0644\u0648\u0646]|[\u064B\u064C\u064D]\\s*[\u064a\u0631\u0645\u0644\u0648\u0646])`, "g"), 
+    color: "#A9A9A9", 
+    label: "إدغام" 
+  },
+  { 
+    name: "labial_ikhfa",
+    // Labial Ikhfa (Purple): Meem Sakinah followed by Ba
+    regex: new RegExp(`([\u0645][\u0652]?\\s*[\u0628])`, "g"), 
+    color: "#9370DB", 
+    label: "إخفاء شفوي" 
+  }
+];
+
 export const applyTajweedColors = (text: string): React.ReactNode[] => {
   if (!text) return [];
-
-  // Define rules with regex and colors
-  // We use Unicode escape sequences for Arabic characters and diacritics
-  // We include optional following diacritics to ensure the whole character is colored
-  const diacritics = "[\u064B-\u0652\u0670]*";
-  
-  const rules = [
-    { 
-      // Ghunnah (Green): Noon and Meem Mushaddadah
-      // نّ (\u0646\u0651), مّ (\u0645\u0651)
-      regex: new RegExp(`([\u0646\u0645]\u0651${diacritics})`, "g"), 
-      color: "#2ecc71", 
-      label: "Ghunnah" 
-    },
-    { 
-      // Qalqalah (Orange): Qaf, Ta, Ba, Jeem, Dal with Sukun
-      // قْ (\u0642\u0652), طْ (\u0637\u0652), بْ (\u0628\u0652), جْ (\u062C\u0652), دْ (\u062F\u0652)
-      regex: new RegExp(`([\u0642\u0637\u0628\u062C\u062F]\u0652${diacritics})`, "g"), 
-      color: "#e67e22", 
-      label: "Qalqalah" 
-    },
-    { 
-      // Madd (Red): Madd symbol ٓ
-      // ٓ (\u0653)
-      regex: new RegExp(`(.\u0653${diacritics})`, "g"), 
-      color: "#e74c3c", 
-      label: "Madd" 
-    },
-    {
-      // Iqlab (Blue): Noon Sakinah or Tanween followed by small Meem (\u06E2)
-      regex: new RegExp(`([\u0646]\u06E2${diacritics}|[\u064B\u064C\u064D]\u06E2${diacritics})`, "g"),
-      color: "#3498db",
-      label: "Iqlab"
-    },
-    {
-      // Ikhfa (Tan): Noon Sakinah or Tanween followed by Ikhfa letters
-      regex: new RegExp(`([\u0646]\u0652?\\s+[\u062A\u062B\u062C\u062D\u062E\u062F\u0630\u0632\u0633\u0634\u0635\u0636\u0637\u0638\u0641\u0642\u0643])`, "g"),
-      color: "#d35400",
-      label: "Ikhfa"
-    },
-    {
-      // Idgham (Grey): Noon Sakinah or Tanween followed by Yermeloon
-      regex: new RegExp(`([\u0646]\u0652?\\s+[\u064A\u0631\u0645\u0644\u0648\u0646]|[\u064B\u064C\u064D]\\s+[\u064A\u0631\u0645\u0644\u0648\u0646])`, "g"),
-      color: "#95a5a6",
-      label: "Idgham"
-    }
-  ];
 
   let parts: (string | React.ReactNode)[] = [text];
 
@@ -71,7 +90,7 @@ export const applyTajweedColors = (text: string): React.ReactNode[] => {
           // Wrap the matched part in a colored span
           newParts.push(
             <span 
-              key={`${rule.label}-${i}-${Math.random()}`} 
+              key={`${rule.name}-${i}-${Math.random()}`} 
               style={{ color: rule.color }}
               title={rule.label}
             >

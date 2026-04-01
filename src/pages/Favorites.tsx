@@ -2,6 +2,8 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { Heart, BookOpen, Shield, Trash2, Copy, Check, Headphones, Music, Star, User, Search, X } from "lucide-react";
 import { useFavorites, type FavoriteItem } from "@/hooks/useFavorites";
+import { useTheme } from "@/contexts/ThemeContext";
+import { applyTajweedColors, rules } from "@/lib/tajweedParser";
 import { juzData, toArabicNumber } from "@/data/quranData";
 import { ATHKAR_DATA } from "@/data/athkarData";
 import { useState, useMemo, useCallback } from "react";
@@ -18,8 +20,27 @@ const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
   { key: "recitations", label: "التلاوات", icon: <Headphones size={14} /> },
 ];
 
+const TajweedLegend = ({ className }: { className?: string }) => {
+  return (
+    <div className={`flex flex-wrap justify-center gap-2 sm:gap-4 p-4 rounded-2xl bg-card/60 backdrop-blur-md border border-border/20 ${className}`}>
+      {rules.map((rule) => (
+        <div key={rule.name} className="flex items-center gap-2">
+          <div 
+            className="w-3 h-3 rounded-full shadow-sm" 
+            style={{ backgroundColor: rule.color }}
+          />
+          <span className="text-[10px] sm:text-xs font-serif font-bold text-primary/80">
+            {rule.label}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const Favorites = () => {
   const { t, i18n } = useTranslation();
+  const { tajweedMode } = useTheme();
   const isArabic = i18n.language === 'ar';
   const { favorites, toggleFavorite } = useFavorites();
   const [copiedId, setCopiedId] = useState<number | null>(null);
@@ -210,6 +231,16 @@ const Favorites = () => {
                 </div>
               )}
 
+              {tajweedMode && !isEmpty && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="mb-8"
+                >
+                  <TajweedLegend />
+                </motion.div>
+              )}
+
               {/* Favorite Reciters */}
               {showReciters && filteredReciters.length > 0 && (
                 <section>
@@ -327,7 +358,9 @@ const Favorites = () => {
                               </button>
                             </div>
                           </div>
-                          <p className="font-amiri text-2xl leading-[1.8] text-primary mb-6 text-right">{dhikr.text}</p>
+                          <p className="font-amiri text-2xl leading-[1.8] text-primary mb-6 text-right">
+                            {tajweedMode ? applyTajweedColors(dhikr.text) : dhikr.text}
+                          </p>
                           {dhikr.virtue && (
                             <div className="bg-accent/5 border border-accent/10 rounded-2xl p-6 mb-6">
                               <p className="text-sm font-serif italic text-accent/80 leading-relaxed">✨ {dhikr.virtue}</p>

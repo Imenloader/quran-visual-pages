@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { fetchWithCache } from "@/lib/apiClient";
 import { normalizeArabic } from "@/lib/arabicUtils";
+import { useTheme } from "@/contexts/ThemeContext";
+import { applyTajweedColors } from "@/lib/tajweedParser";
 
 interface Surah {
   number: number;
@@ -15,6 +17,7 @@ interface Surah {
 const Tafsir = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { tajweedMode } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
   const [surahs, setSurahs] = useState<Surah[]>([]);
   const [selectedSurah, setSelectedSurah] = useState(1);
@@ -174,7 +177,7 @@ const Tafsir = () => {
               >
                 <div className="p-6 bg-emerald-deep/5 border border-emerald-deep/10 rounded-3xl">
                   <p className="text-lg font-naskh text-emerald-deep text-center leading-loose mb-4">
-                    {ayahText}
+                    {tajweedMode ? applyTajweedColors(ayahText) : ayahText}
                   </p>
                   <div className="h-px bg-emerald-deep/10 w-full mb-4" />
                   <p className="text-sm font-naskh text-foreground leading-relaxed text-right">
