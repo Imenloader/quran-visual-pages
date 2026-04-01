@@ -19,6 +19,14 @@ export async function fetchWithCache(url: string, expiry = CACHE_EXPIRY) {
 
   const response = await fetch(url);
   if (!response.ok) {
+    if (response.status === 404) {
+      try {
+        const errorData = await response.json();
+        return errorData;
+      } catch (e) {
+        // Fall through to generic error if JSON parsing fails
+      }
+    }
     if (response.status === 429) {
       throw new Error("Rate limit exceeded. Please try again later.");
     }

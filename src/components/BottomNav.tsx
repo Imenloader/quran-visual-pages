@@ -60,10 +60,10 @@ const BottomNav = () => {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="w-full max-w-xl px-6 pb-6 pointer-events-auto"
+            className="w-full max-w-xl px-4 md:px-6 pb-4 md:pb-6 pointer-events-auto"
           >
-            <div className="bg-card/95 backdrop-blur-2xl border border-border/40 rounded-[2.5rem] shadow-2xl p-2 flex items-center justify-around relative overflow-hidden">
-              <div className="absolute inset-0 pattern-islamic opacity-[0.03] rounded-[2.5rem] overflow-hidden pointer-events-none" />
+            <div className="bg-card/95 backdrop-blur-2xl border border-border/40 rounded-[2rem] md:rounded-[2.5rem] shadow-2xl p-1.5 md:p-2 flex items-center justify-around relative overflow-hidden">
+              <div className="absolute inset-0 pattern-islamic opacity-[0.03] rounded-[2rem] md:rounded-[2.5rem] overflow-hidden pointer-events-none" />
               
               {NAV_ITEMS.map((item, idx) => {
                 const isActive = location.pathname === item.path;
@@ -75,13 +75,13 @@ const BottomNav = () => {
                       key={item.path}
                       to={item.path}
                       onClick={triggerHaptic}
-                      className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all shadow-islamic relative group z-20 ${
+                      className={`w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center transition-all shadow-islamic relative group z-20 ${
                         isActive 
                           ? "bg-accent text-accent-foreground scale-110 shadow-accent/20" 
                           : "bg-muted text-muted-foreground hover:text-accent hover:bg-muted/80"
                       }`}
                     >
-                      <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
+                      <Icon className="size-[20px] md:size-[24px]" strokeWidth={isActive ? 2.5 : 2} />
                       {isActive && (
                         <motion.div
                           layoutId="nav-indicator-home"
@@ -97,20 +97,20 @@ const BottomNav = () => {
                     key={item.path}
                     to={item.path}
                     onClick={triggerHaptic}
-                    className="flex flex-col items-center py-2 px-1 min-w-[64px] group relative z-10"
+                    className="flex flex-col items-center py-1.5 md:py-2 px-0.5 md:px-1 min-w-[56px] md:min-w-[64px] group relative z-10"
                   >
                     <motion.div 
                       whileHover={{ y: -4 }}
                       whileTap={{ scale: 0.9 }}
-                      className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                      className={`w-9 h-9 md:w-11 md:h-11 rounded-xl md:rounded-2xl flex items-center justify-center transition-all duration-300 ${
                         isActive
                           ? "bg-accent/15 text-accent shadow-sm"
                           : "text-muted-foreground group-hover:text-primary group-hover:bg-muted"
                       }`}
                     >
-                      <Icon size={20} strokeWidth={1.5} />
+                      <Icon className="size-[18px] md:size-[20px]" strokeWidth={1.5} />
                     </motion.div>
-                    <span className={`font-serif text-[9px] mt-1.5 font-medium tracking-wider transition-colors ${
+                    <span className={`font-serif text-[8px] md:text-[9px] mt-1 md:mt-1.5 font-medium tracking-wider transition-colors ${
                       isActive ? "text-primary" : "text-muted-foreground"
                     }`}>
                       {item.label}

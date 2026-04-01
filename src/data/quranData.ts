@@ -188,6 +188,11 @@ export const getJuzAndPageForSurah = (surahNumber: number): { juz: number; page:
 export const getQuranPageImageUrl = (pageNumber: number | string | undefined | null): string => {
   if (!pageNumber) return "";
   const paddedPage = String(pageNumber).padStart(3, '0');
-  // Using reliable remote source as primary since local files are 0 bytes
+  return `/Quran_Images/tajweed-${paddedPage}.jpg`;
+};
+
+export const getQuranPageFallbackImageUrl = (pageNumber: number | string | undefined | null): string => {
+  if (!pageNumber) return "";
+  const paddedPage = String(pageNumber).padStart(3, '0');
   return `https://jahedev.github.io/tajweed-quran-pages/hafs/tajweed-${paddedPage}.jpg`;
 };

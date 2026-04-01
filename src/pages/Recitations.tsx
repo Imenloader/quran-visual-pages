@@ -106,6 +106,7 @@ const Recitations = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [selectedReciter, setSelectedReciter] = useState<Reciter | null>(null);
   const [selectedMoshaf, setSelectedMoshaf] = useState<Moshaf | null>(null);
   const [showReciters, setShowReciters] = useState(true);
@@ -338,8 +339,12 @@ const Recitations = () => {
   const filteredReciters = reciters.filter((r) => {
     const normalizedName = normalizeArabic(r.name);
     const normalizedQuery = normalizeArabic(searchQuery);
-    return normalizedName.includes(normalizedQuery);
+    const matchesSearch = normalizedName.includes(normalizedQuery);
+    const matchesLetter = !selectedLetter || r.letter === selectedLetter;
+    return matchesSearch && matchesLetter;
   });
+
+  const alphabet = Array.from(new Set(reciters.map(r => r.letter))).sort();
   const lastPlayed = getLastPlayed();
 
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -512,8 +517,8 @@ const Recitations = () => {
       </header>
 
       {/* Tabs: Reciters / Playlists */}
-      <div className="sticky top-0 z-30 -mt-8 px-4">
-        <div className="max-w-md mx-auto bg-card/40 backdrop-blur-xl border border-border/40 rounded-2xl p-1.5 shadow-2xl">
+      <div className="sticky top-0 z-40 -mt-8 px-4">
+        <div className="max-w-md mx-auto bg-card/60 backdrop-blur-2xl border border-border/40 rounded-2xl p-1.5 shadow-2xl shadow-black/20">
           <div className="flex gap-1">
             <button
               onClick={() => setActiveTab("reciters")}
@@ -548,7 +553,7 @@ const Recitations = () => {
         </div>
       </div>
 
-      <main className="flex-1 container max-w-4xl mx-auto px-4 py-8">
+      <main className="flex-1 container max-w-6xl mx-auto px-4 py-8">
         {activeTab === "playlists" ? (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}

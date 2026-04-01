@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import { toArabicNumber } from '@/data/quranData';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { TrendingUp, Calendar, BookOpen } from 'lucide-react';
 
 interface ReadingDay {
@@ -79,7 +79,7 @@ const ReadingProgress: React.FC = () => {
       <div className="h-[200px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(var(--accent-rgb), 0.1)" />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--accent) / 0.1)" />
             <XAxis 
               dataKey="date" 
               axisLine={false}
@@ -96,7 +96,7 @@ const ReadingProgress: React.FC = () => {
               tick={{ fontSize: 10, fill: 'currentColor', opacity: 0.5 }}
               tickFormatter={(val) => i18n.language === 'ar' ? toArabicNumber(val) : val}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(var(--accent-rgb), 0.05)', radius: 8 }} />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--accent) / 0.05)', radius: 8 }} />
             <Bar 
               dataKey="pages" 
               radius={[6, 6, 0, 0]}
@@ -105,7 +105,7 @@ const ReadingProgress: React.FC = () => {
               {data.map((entry, index) => (
                 <Cell 
                   key={`cell-${index}`} 
-                  fill={index === data.length - 1 ? 'var(--accent)' : 'rgba(var(--accent-rgb), 0.3)'} 
+                  fill={index === data.length - 1 ? 'hsl(var(--accent))' : 'hsl(var(--accent) / 0.3)'} 
                 />
               ))}
             </Bar>

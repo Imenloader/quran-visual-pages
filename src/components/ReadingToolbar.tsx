@@ -55,25 +55,25 @@ const ReadingToolbar = ({
 
   return (
     <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border/40 shadow-soft">
-      <div className="container max-w-5xl mx-auto px-2 sm:px-4 py-2 md:py-3 flex items-center justify-between gap-2 md:gap-4">
+      <div className="container max-w-5xl mx-auto px-2 md:px-4 py-1.5 md:py-3 flex items-center justify-between gap-1.5 md:gap-4">
         
         {/* Left: Navigation & Index */}
         <div className="flex items-center gap-1 md:gap-2">
-          <button onClick={onToggleJuzIndex} className="toolbar-btn !p-2 md:!p-2.5" title="فهرس الأجزاء">
-            <List className="size-[18px] md:size-[20px]" strokeWidth={1.5} />
+          <button onClick={onToggleJuzIndex} className="toolbar-btn !p-1.5 md:!p-2.5" title="فهرس الأجزاء">
+            <List className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
           </button>
-          <button onClick={onTogglePageNav} className="toolbar-btn !p-2 md:!p-2.5" title="الانتقال لصفحة">
-            <BookOpen className="size-[18px] md:size-[20px]" strokeWidth={1.5} />
+          <button onClick={onTogglePageNav} className="toolbar-btn !p-1.5 md:!p-2.5" title="الانتقال لصفحة">
+            <BookOpen className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
           </button>
-          <div className="h-6 w-px bg-border/40 mx-1 hidden sm:block" />
-          <div className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-xl bg-muted/30 text-xs font-serif text-primary">
+          <div className="h-5 md:h-6 w-px bg-border/40 mx-0.5 md:mx-1 hidden xs:block" />
+          <div className="hidden xs:flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-lg md:rounded-xl bg-muted/30 text-[10px] md:text-xs font-serif text-primary">
             <span className="text-muted-foreground">صفحة</span>
             <span className="font-bold">{currentPage}</span>
           </div>
         </div>
 
         {/* Center: App Title/Logo - Hidden on very small screens to save space */}
-        <div className="hidden xs:flex flex-col items-center">
+        <div className="hidden sm:flex flex-col items-center">
           <span className="text-[8px] md:text-[10px] font-bold tracking-[0.2em] md:tracking-[0.3em] text-accent uppercase">مصحف المدينة</span>
           <span className="text-[10px] md:text-xs text-primary font-serif italic">الإصدار الرقمي</span>
         </div>
@@ -82,26 +82,26 @@ const ReadingToolbar = ({
         <div className="flex items-center gap-1 md:gap-2">
           <button
             onClick={toggleReadingMode}
-            className={`toolbar-btn !p-2 md:!p-2.5 ${readingMode === "text" ? "text-accent bg-accent/10" : ""}`}
+            className={`toolbar-btn !p-1.5 md:!p-2.5 ${readingMode === "text" ? "text-accent bg-accent/10" : ""}`}
             title={readingMode === "text" ? "عرض الصور" : "عرض النص"}
           >
-            {readingMode === "text" ? <FileImage className="size-[18px] md:size-[20px]" strokeWidth={1.5} /> : <Type className="size-[18px] md:size-[20px]" strokeWidth={1.5} />}
+            {readingMode === "text" ? <FileImage className="size-[16px] md:size-[20px]" strokeWidth={1.5} /> : <Type className="size-[16px] md:size-[20px]" strokeWidth={1.5} />}
           </button>
 
           <button
             onClick={onToggleHifzMode}
-            className={`toolbar-btn !p-2 md:!p-2.5 ${hifzMode ? "text-accent bg-accent/10" : ""}`}
+            className={`toolbar-btn !p-1.5 md:!p-2.5 ${hifzMode ? "text-accent bg-accent/10" : ""}`}
             title="وضع التحفيظ والمراجعة"
           >
-            <GraduationCap className="size-[18px] md:size-[20px]" strokeWidth={1.5} />
+            <GraduationCap className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
           </button>
 
           <button
             onClick={toggleScrollDirection}
-            className={`toolbar-btn !p-2 md:!p-2.5 ${scrollDirection === "horizontal" ? "text-accent bg-accent/10" : ""}`}
+            className={`toolbar-btn !p-1.5 md:!p-2.5 ${scrollDirection === "horizontal" ? "text-accent bg-accent/10" : ""}`}
             title={scrollDirection === "horizontal" ? "التمرير الرأسي" : "التمرير الأفقي"}
           >
-            {scrollDirection === "horizontal" ? <ArrowRightLeft className="size-[18px] md:size-[20px]" strokeWidth={1.5} /> : <ArrowDown className="size-[18px] md:size-[20px]" strokeWidth={1.5} />}
+            {scrollDirection === "horizontal" ? <ArrowRightLeft className="size-[16px] md:size-[20px]" strokeWidth={1.5} /> : <ArrowDown className="size-[16px] md:size-[20px]" strokeWidth={1.5} />}
           </button>
 
           <div className="hidden lg:flex items-center gap-1 bg-muted/30 rounded-2xl p-1">
@@ -116,14 +116,14 @@ const ReadingToolbar = ({
             </button>
           </div>
           
-          <div className="h-6 w-px bg-border/40 mx-1 hidden sm:block" />
+          <div className="h-5 md:h-6 w-px bg-border/40 mx-0.5 md:mx-1 hidden xs:block" />
           
           <button
             onClick={toggleTheme}
-            className={`toolbar-btn !p-2 md:!p-2.5 ${theme !== "light" ? "text-accent bg-accent/10" : ""}`}
+            className={`toolbar-btn !p-1.5 md:!p-2.5 ${theme !== "light" ? "text-accent bg-accent/10" : ""}`}
             title="تغيير المظهر"
           >
-            {theme === "dark" ? <Moon className="size-[18px] md:size-[20px]" strokeWidth={1.5} /> : theme === "sepia" ? <Palette className="size-[18px] md:size-[20px]" strokeWidth={1.5} /> : <Sun className="size-[18px] md:size-[20px]" strokeWidth={1.5} />}
+            {theme === "dark" ? <Moon className="size-[16px] md:size-[20px]" strokeWidth={1.5} /> : theme === "sepia" ? <Palette className="size-[16px] md:size-[20px]" strokeWidth={1.5} /> : <Sun className="size-[16px] md:size-[20px]" strokeWidth={1.5} />}
           </button>
           
           <div className="hidden sm:block">
@@ -132,10 +132,10 @@ const ReadingToolbar = ({
           
           <button
             onClick={onSaveBookmark}
-            className={`toolbar-btn !p-2 md:!p-2.5 ${bookmarked ? "text-accent" : ""}`}
+            className={`toolbar-btn !p-1.5 md:!p-2.5 ${bookmarked ? "text-accent" : ""}`}
             title="حفظ موضع القراءة"
           >
-            <Bookmark className="size-[18px] md:size-[20px]" strokeWidth={1.5} fill={bookmarked ? "currentColor" : "none"} />
+            <Bookmark className="size-[16px] md:size-[20px]" strokeWidth={1.5} fill={bookmarked ? "currentColor" : "none"} />
           </button>
         </div>
       </div>

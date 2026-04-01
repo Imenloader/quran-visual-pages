@@ -1,6 +1,6 @@
 import { useParams, Navigate, Link } from "react-router-dom";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { juzData, getQuranPageImageUrl, toArabicNumber } from "@/data/quranData";
+import { juzData, getQuranPageImageUrl, getQuranPageFallbackImageUrl, toArabicNumber } from "@/data/quranData";
 import QuranHeader from "@/components/QuranHeader";
 import ReadingToolbar from "@/components/ReadingToolbar";
 import ProgressBar from "@/components/ProgressBar";
@@ -328,16 +328,15 @@ const JuzViewer = () => {
 
   const getImageUrl = (page: number) => {
     const level = fallbackLevel[page] || 0;
-    const paddedPage = String(page).padStart(3, '0');
     
     if (level === 0) {
-      // Reliable Remote Source (via quranData.ts)
+      // Local Source (Primary)
       return getQuranPageImageUrl(page);
     } else if (level === 1) {
-      // Local Source (may be 0 bytes)
-      return `/quran-images/tajweed-${paddedPage}.jpg`;
+      // Remote Fallback 1 (Jahedev)
+      return getQuranPageFallbackImageUrl(page);
     } else if (level === 2) {
-      // Quran.com Fallback
+      // Remote Fallback 2 (Quran.com)
       return `https://quran.com/images/quran/tajweed/${page}.png`;
     }
     
@@ -396,7 +395,7 @@ const JuzViewer = () => {
       <div className="fixed inset-0 pattern-islamic opacity-[0.01] pointer-events-none" />
       
       {/* Floating Action Buttons */}
-      <div className={`fixed right-6 md:right-8 z-40 flex flex-col gap-4 transition-all duration-500 ${isFullscreen ? "bottom-8" : "bottom-28 md:bottom-32"}`}>
+      <div className={`fixed right-4 md:right-8 z-40 flex flex-col gap-3 md:gap-4 transition-all duration-500 ${isFullscreen ? "bottom-6 md:bottom-8" : "bottom-24 md:bottom-32"}`}>
         <AnimatePresence>
           {scrollDirection === "vertical" && progress > 10 && (
             <motion.button
@@ -404,22 +403,22 @@ const JuzViewer = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.5 }}
               onClick={() => scrollToPage(pages[0])}
-              className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-primary text-primary-foreground shadow-2xl flex items-center justify-center hover:scale-110 active:scale-90 transition-all"
+              className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-primary text-primary-foreground shadow-2xl flex items-center justify-center hover:scale-110 active:scale-90 transition-all"
               title="العودة للأعلى"
             >
-              <ChevronUp className="size-[24px] md:size-[28px]" />
+              <ChevronUp className="size-[20px] md:size-[28px]" />
             </motion.button>
           )}
         </AnimatePresence>
         
         <button
           onClick={toggleFullscreen}
-          className={`w-12 h-12 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 ${
+          className={`w-10 h-10 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 ${
             isFullscreen ? "bg-accent text-white" : "bg-card/90 backdrop-blur-md text-primary border border-border/40"
           }`}
           title={isFullscreen ? "خروج من ملء الشاشة" : "وضع ملء الشاشة"}
         >
-          {isFullscreen ? <Minimize className="size-[20px] md:size-[24px]" /> : <Maximize className="size-[20px] md:size-[24px]" />}
+          {isFullscreen ? <Minimize className="size-[18px] md:size-[24px]" /> : <Maximize className="size-[18px] md:size-[24px]" />}
         </button>
       </div>
 
@@ -471,24 +470,24 @@ const JuzViewer = () => {
 
       {/* Navigation between Juz - Editorial Style */}
       {!isFullscreen && (
-        <div className="flex justify-between items-center container max-w-5xl mx-auto px-6 py-8 relative z-10">
+        <div className="flex justify-between items-center container max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-8 relative z-10">
           <div className="flex-1">
             {num > 1 && (
               <Link
                 to={`/juz/${num - 1}`}
-                className="group flex items-center gap-3 text-sm font-serif font-medium text-muted-foreground hover:text-primary transition-all"
+                className="group flex items-center gap-2 md:gap-3 text-xs md:text-sm font-serif font-medium text-muted-foreground hover:text-primary transition-all"
               >
-                <div className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center group-hover:bg-primary/5 transition-colors">
-                  <ChevronRight size={16} strokeWidth={1.5} />
+                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-muted/50 flex items-center justify-center group-hover:bg-primary/5 transition-colors">
+                  <ChevronRight size={14} strokeWidth={1.5} className="md:w-4 md:h-4" />
                 </div>
-                <span className="group-hover:text-accent italic">الجزء السابق</span>
+                <span className="group-hover:text-accent italic hidden xs:inline">الجزء السابق</span>
               </Link>
             )}
           </div>
           
-          <div className="flex flex-col items-center gap-1">
-            <span className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase">إحصائيات القراءة</span>
-            <span className="text-sm text-primary font-serif italic">
+          <div className="flex flex-col items-center gap-0.5 md:gap-1">
+            <span className="text-[8px] md:text-[10px] font-bold tracking-[0.2em] md:tracking-[0.3em] text-accent uppercase">إحصائيات القراءة</span>
+            <span className="text-xs md:text-sm text-primary font-serif italic">
               {toArabicNumber(pages.length)} صفحة مباركة
             </span>
           </div>
@@ -497,11 +496,11 @@ const JuzViewer = () => {
             {num < 30 && (
               <Link
                 to={`/juz/${num + 1}`}
-                className="group flex items-center gap-3 text-sm font-serif font-medium text-muted-foreground hover:text-primary transition-all"
+                className="group flex items-center gap-2 md:gap-3 text-xs md:text-sm font-serif font-medium text-muted-foreground hover:text-primary transition-all"
               >
-                <span className="group-hover:text-accent italic">الجزء التالي</span>
-                <div className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center group-hover:bg-primary/5 transition-colors">
-                  <ChevronLeft size={16} strokeWidth={1.5} />
+                <span className="group-hover:text-accent italic hidden xs:inline">الجزء التالي</span>
+                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-muted/50 flex items-center justify-center group-hover:bg-primary/5 transition-colors">
+                  <ChevronLeft size={14} strokeWidth={1.5} className="md:w-4 md:h-4" />
                 </div>
               </Link>
             )}
@@ -552,7 +551,7 @@ const JuzViewer = () => {
           </div>
         )}
 
-        <div className="flex flex-col items-center gap-8 sm:gap-12 w-full" style={{ maxWidth: `${isFullscreen ? 9999 : maxWidth}px` }}>
+        <div className="flex flex-col items-center gap-6 md:gap-8 sm:gap-12 w-full" style={{ maxWidth: `${isFullscreen ? 9999 : maxWidth}px` }}>
           {readingMode === "image" ? (
             scrollDirection === "vertical" ? (
               pages.map((page) => (
@@ -564,14 +563,14 @@ const JuzViewer = () => {
                   transition={{ duration: 0.5 }}
                   ref={(el) => { pageRefs.current[page] = el; }}
                   id={`page-${page}`}
-                  className={`relative rounded-[2rem] overflow-hidden border border-border/40 bg-card shadow-islamic transition-all duration-500 w-full group ${currentPage === page ? "ring-2 ring-accent/20" : ""}`}
+                  className={`relative rounded-[1.5rem] md:rounded-[2rem] overflow-hidden border border-border/40 bg-card shadow-islamic transition-all duration-500 w-full group ${currentPage === page ? "ring-2 ring-accent/20" : ""}`}
                 >
                   {/* Page Number Badge */}
-                  <div className="absolute top-6 left-6 z-10 flex flex-col items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    <div className="w-10 h-10 rounded-2xl bg-emerald-deep/20 backdrop-blur-md text-primary flex items-center justify-center font-serif text-sm shadow-sm border border-primary/10">
+                  <div className="absolute top-4 left-4 md:top-6 md:left-6 z-10 flex flex-col items-center gap-0.5 md:gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl bg-emerald-deep/20 backdrop-blur-md text-primary flex items-center justify-center font-serif text-xs md:text-sm shadow-sm border border-primary/10">
                       {page}
                     </div>
-                    <span className="text-[8px] font-bold text-primary/70 uppercase tracking-widest">Page</span>
+                    <span className="text-[6px] md:text-[8px] font-bold text-primary/70 uppercase tracking-widest">Page</span>
                   </div>
 
                   {errorStates[page] && (

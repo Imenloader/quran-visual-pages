@@ -160,7 +160,7 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
       <motion.div 
         whileHover={{ y: -8, scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
-        className={`relative overflow-hidden rounded-[2.5rem] border bg-card p-8 transition-all duration-500 hover:shadow-islamic select-none ${
+        className={`relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] border bg-card p-6 md:p-8 transition-all duration-500 hover:shadow-islamic select-none ${
           isBookmarked ? "border-accent shadow-gold-glow" : "border-border/60 hover:border-primary/40"
         }`}
       >
@@ -185,19 +185,19 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
         )}
 
         {/* Action Buttons Container */}
-        <div className="absolute top-6 left-6 flex flex-col gap-3 z-10">
+        <div className="absolute top-4 left-4 md:top-6 md:left-6 flex flex-col gap-2 md:gap-3 z-10">
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite({ type: "juz", id: juz.number }); }}
-            className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all backdrop-blur-sm ${
+            className={`w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl flex items-center justify-center transition-all backdrop-blur-sm ${
               isFav ? "bg-red-500/10 text-red-500" : "bg-muted text-muted-foreground hover:bg-red-500/5 hover:text-red-400"
             }`}
           >
-            <Heart size={16} fill={isFav ? "currentColor" : "none"} strokeWidth={1.5} />
+            <Heart size={14} fill={isFav ? "currentColor" : "none"} strokeWidth={1.5} className="md:w-4 md:h-4" />
           </button>
 
           <button
             onClick={downloadForOffline}
-            className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all backdrop-blur-sm ${
+            className={`w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl flex items-center justify-center transition-all backdrop-blur-sm ${
               downloadState === "done"
                 ? "bg-emerald-500/10 text-emerald-500"
                 : downloadState === "downloading"
@@ -206,19 +206,19 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
             }`}
           >
             {downloadState === "downloading" ? (
-              <Loader2 size={16} className="animate-spin" />
+              <Loader2 size={14} className="animate-spin md:w-4 md:h-4" />
             ) : downloadState === "done" ? (
-              <Check size={16} />
+              <Check size={14} className="md:w-4 md:h-4" />
             ) : (
-              <DownloadCloud size={16} strokeWidth={1.5} />
+              <DownloadCloud size={14} strokeWidth={1.5} className="md:w-4 md:h-4" />
             )}
           </button>
         </div>
 
         {/* Juz Number Circle */}
-        <div className="relative flex items-center justify-center w-24 h-24 mx-auto mb-8">
+        <div className="relative flex items-center justify-center w-20 h-20 md:w-24 md:h-24 mx-auto mb-6 md:mb-8">
           <svg
-            className={`absolute inset-0 w-24 h-24 -rotate-90 transition-opacity duration-500 ${longPressing ? "opacity-100" : "opacity-0"}`}
+            className={`absolute inset-0 w-20 h-20 md:w-24 md:h-24 -rotate-90 transition-opacity duration-500 ${longPressing ? "opacity-100" : "opacity-0"}`}
             viewBox="0 0 96 96"
           >
             <circle cx="48" cy="48" r="44" fill="none" stroke="hsl(var(--accent))" strokeWidth="2" strokeOpacity="0.1" />
@@ -232,8 +232,8 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
               className={longPressing ? "animate-long-press-ring" : ""}
             />
           </svg>
-          <div className={`flex items-center justify-center w-20 h-20 rounded-[2rem] bg-emerald-deep text-white transition-all duration-500 shadow-lg ${longPressing ? "scale-90" : "group-hover:scale-105"}`}>
-            <span className="text-3xl font-bold font-serif">
+          <div className={`flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-[2rem] bg-emerald-deep text-white transition-all duration-500 shadow-lg ${longPressing ? "scale-90" : "group-hover:scale-105"}`}>
+            <span className="text-2xl md:text-3xl font-bold font-serif">
               {juz.number}
             </span>
           </div>
@@ -241,34 +241,34 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
 
         {/* Text Content */}
         <div className="text-center space-y-2">
-          <h3 className="font-serif text-3xl font-medium text-primary group-hover:text-accent transition-colors duration-300">
+          <h3 className="font-serif text-2xl md:text-3xl font-medium text-primary group-hover:text-accent transition-colors duration-300">
             {juz.nameAr}
           </h3>
 
-          <p className="text-xs text-muted-foreground font-naskh leading-relaxed max-w-[240px] mx-auto">
+          <p className="text-[10px] md:text-xs text-muted-foreground font-naskh leading-relaxed max-w-[240px] mx-auto line-clamp-2">
             {juz.surahs.join("، ")}
           </p>
           
           <div className="flex items-center justify-center gap-2">
-            <div className="h-px w-4 bg-border" />
-            <p className="text-sm text-muted-foreground font-naskh italic">
+            <div className="h-px w-3 md:w-4 bg-border" />
+            <p className="text-xs md:text-sm text-muted-foreground font-naskh italic">
               {juz.startSurah}
             </p>
-            <div className="h-px w-4 bg-border" />
+            <div className="h-px w-3 md:w-4 bg-border" />
           </div>
 
           {matchedSurahs.length > 0 && (
-            <div className="pt-2 flex flex-wrap justify-center gap-1.5">
+            <div className="pt-2 flex flex-wrap justify-center gap-1 md:gap-1.5">
               {matchedSurahs.map(s => (
-                <span key={s} className="text-[10px] bg-accent/10 text-accent px-2 py-0.5 rounded-full font-naskh font-medium">
+                <span key={s} className="text-[8px] md:text-[10px] bg-accent/10 text-accent px-2 py-0.5 rounded-full font-naskh font-medium">
                   {s}
                 </span>
               ))}
             </div>
           )}
 
-          <div className="pt-4">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-muted text-[11px] text-muted-foreground font-naskh">
+          <div className="pt-3 md:pt-4">
+            <div className="inline-flex items-center gap-2 px-3 md:px-4 py-1 md:py-1.5 rounded-full bg-muted text-[9px] md:text-[11px] text-muted-foreground font-naskh">
               <span>صفحة {juz.startPage}</span>
               <span className="w-1 h-1 rounded-full bg-border" />
               <span>{juz.endPage}</span>
@@ -277,22 +277,22 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
         </div>
 
         {/* Status Indicators */}
-        <div className="mt-8 pt-6 border-t border-border/40 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-border/40 flex items-center justify-between">
+          <div className="flex items-center gap-1.5 md:gap-2">
             {cachedPercent === 100 ? (
-              <div className="flex items-center gap-1.5 text-emerald-500 text-[10px] font-medium">
-                <Wifi size={12} />
+              <div className="flex items-center gap-1 md:gap-1.5 text-emerald-500 text-[8px] md:text-[10px] font-medium">
+                <Wifi size={10} className="md:w-3 md:h-3" />
                 <span>جاهز للأوفلاين</span>
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 text-muted-foreground text-[10px]">
-                <WifiOff size={12} />
+              <div className="flex items-center gap-1 md:gap-1.5 text-muted-foreground text-[8px] md:text-[10px]">
+                <WifiOff size={10} className="md:w-3 md:h-3" />
                 <span>{cachedPercent ? `${cachedPercent}%` : "غير محمّل"}</span>
               </div>
             )}
           </div>
           
-          <div className="text-[10px] text-muted-foreground font-serif uppercase tracking-widest">
+          <div className="text-[8px] md:text-[10px] text-muted-foreground font-serif uppercase tracking-[0.1em] md:tracking-widest">
             Juz {juz.number}
           </div>
         </div>

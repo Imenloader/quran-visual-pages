@@ -11,11 +11,11 @@ interface ScrollRevealProps {
 const ScrollReveal = ({ children, className = "", index = 0, delay = 0 }: ScrollRevealProps) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
+    animate={{ opacity: 1, y: 0 }}
     viewport={{ once: true, margin: "-50px" }}
     transition={{
       duration: 0.6,
-      delay: delay || index * 0.1,
+      delay: delay !== undefined ? delay : index * 0.1,
       ease: [0.16, 1, 0.3, 1]
     }}
     className={className}

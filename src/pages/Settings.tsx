@@ -57,24 +57,24 @@ const Settings = () => {
   return (
     <div className="min-h-screen bg-background pb-32 selection:bg-accent/20">
       {/* Immersive Header */}
-      <header className="relative overflow-hidden pt-12 pb-20 px-6 text-center">
+      <header className="relative overflow-hidden pt-8 md:pt-12 pb-16 md:pb-20 px-4 md:px-6 text-center">
         {/* Background Layers */}
         <div className="absolute inset-0 bg-emerald-deep z-0" />
         <div className="absolute inset-0 pattern-islamic opacity-10 z-0" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-emerald-deep z-0" />
         
         {/* Decorative Ornament */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-32 opacity-20 pointer-events-none z-0">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-24 md:h-32 opacity-20 pointer-events-none z-0">
           <div className="w-full h-full ornament-border opacity-30" />
         </div>
 
         <div className="relative z-10 container max-w-4xl mx-auto">
-          <div className="flex justify-between items-center mb-12">
+          <div className="flex justify-between items-center mb-8 md:mb-12">
             <Link 
               to="/" 
-              className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all border border-white/10"
+              className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all border border-white/10"
             >
-              <X size={20} strokeWidth={1.5} />
+              <X className="size-[18px] md:size-[20px]" strokeWidth={1.5} />
             </Link>
           </div>
 
@@ -83,36 +83,36 @@ const Settings = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="w-20 h-20 rounded-[2rem] bg-gold/20 backdrop-blur-md flex items-center justify-center mx-auto mb-8 border border-gold/30 shadow-gold-glow">
-              <RotateCcw size={32} className="text-gold" />
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-[1.5rem] md:rounded-[2rem] bg-gold/20 backdrop-blur-md flex items-center justify-center mx-auto mb-6 md:mb-8 border border-gold/30 shadow-gold-glow">
+              <RotateCcw className="size-[28px] md:size-[32px] text-gold" />
             </div>
             
-            <h1 className="text-4xl sm:text-6xl font-serif font-bold text-white mb-6 tracking-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-serif font-bold text-white mb-4 md:mb-6 tracking-tight">
               {t("settings.title")}
             </h1>
             
-            <p className="text-white/80 font-serif italic text-lg max-w-xl mx-auto leading-relaxed">
+            <p className="text-white/80 font-serif italic text-base md:text-lg max-w-xl mx-auto leading-relaxed px-4">
               {t("settings.subtitle")}
             </p>
           </motion.div>
         </div>
       </header>
 
-      <main className="container max-w-3xl mx-auto px-6 -mt-12 relative z-20 space-y-8">
+      <main className="container max-w-3xl mx-auto px-4 md:px-6 -mt-8 md:-mt-12 relative z-20 space-y-6 md:space-y-8">
         {/* Language Selection */}
         <ScrollReveal index={0}>
-          <section className="bg-card/80 backdrop-blur-2xl rounded-[2.5rem] p-8 shadow-islamic border border-border/20">
-            <div className="flex items-center gap-6 mb-10">
-              <div className="w-14 h-14 rounded-[1.2rem] bg-emerald-deep text-gold flex items-center justify-center shadow-lg">
-                <LayoutGrid size={24} strokeWidth={1.5} />
+          <section className="bg-card/80 backdrop-blur-2xl rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 shadow-islamic border border-border/20">
+            <div className="flex items-center gap-4 md:gap-6 mb-8 md:mb-10">
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-[1rem] md:rounded-[1.2rem] bg-emerald-deep text-gold flex items-center justify-center shadow-lg shrink-0">
+                <LayoutGrid className="size-[20px] md:size-[24px]" strokeWidth={1.5} />
               </div>
               <div>
-                <h2 className="font-serif text-2xl font-bold text-primary">{t("settings.language.title")}</h2>
-                <p className="text-sm text-primary/70 font-serif italic">{t("settings.language.subtitle")}</p>
+                <h2 className="font-serif text-xl md:text-2xl font-bold text-primary">{t("settings.language.title")}</h2>
+                <p className="text-xs md:text-sm text-primary/70 font-serif italic">{t("settings.language.subtitle")}</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 md:gap-4">
               {[
                 { id: "ar", label: "العربية" },
                 { id: "en", label: "English" },
@@ -121,13 +121,13 @@ const Settings = () => {
                   key={lang.id}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => i18n.changeLanguage(lang.id)}
-                  className={`flex flex-col items-center gap-3 p-6 rounded-[2rem] border-2 transition-all ${
+                  className={`flex flex-col items-center gap-2 md:gap-3 p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border-2 transition-all ${
                     i18n.language === lang.id
                       ? "border-accent bg-accent/5 shadow-lg"
                       : "border-primary/5 hover:border-accent/30 bg-primary/5"
                   }`}
                 >
-                  <span className="font-serif text-lg font-bold text-primary">{lang.label}</span>
+                  <span className="font-serif text-base md:text-lg font-bold text-primary">{lang.label}</span>
                 </motion.button>
               ))}
             </div>
@@ -136,36 +136,36 @@ const Settings = () => {
 
         {/* Reading Settings */}
         <ScrollReveal index={1}>
-          <section className="bg-card/80 backdrop-blur-2xl rounded-[2.5rem] p-8 shadow-islamic border border-border/20">
-            <div className="flex items-center gap-6 mb-10">
-              <div className="w-14 h-14 rounded-[1.2rem] bg-emerald-deep text-gold flex items-center justify-center shadow-lg">
-                <Sparkles size={24} strokeWidth={1.5} />
+          <section className="bg-card/80 backdrop-blur-2xl rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 shadow-islamic border border-border/20">
+            <div className="flex items-center gap-4 md:gap-6 mb-8 md:mb-10">
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-[1rem] md:rounded-[1.2rem] bg-emerald-deep text-gold flex items-center justify-center shadow-lg shrink-0">
+                <Sparkles className="size-[20px] md:size-[24px]" strokeWidth={1.5} />
               </div>
               <div>
-                <h2 className="font-serif text-2xl font-bold text-primary">إعدادات القراءة</h2>
-                <p className="text-sm text-primary/70 font-serif italic">تخصيص تجربة عرض المصحف الشريف</p>
+                <h2 className="font-serif text-xl md:text-2xl font-bold text-primary">إعدادات القراءة</h2>
+                <p className="text-xs md:text-sm text-primary/70 font-serif italic">تخصيص تجربة عرض المصحف الشريف</p>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center gap-6 p-6 rounded-[2rem] border border-border/5 bg-card/5 hover:bg-card hover:shadow-lg transition-all group">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 shadow-sm">
-                  <Sparkles size={24} strokeWidth={1.5} />
+            <div className="space-y-3 md:space-y-4">
+              <div className="flex items-center gap-4 md:gap-6 p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border border-border/5 bg-card/5 hover:bg-card hover:shadow-lg transition-all group">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 shadow-sm shrink-0">
+                  <Sparkles className="size-[20px] md:size-[24px]" strokeWidth={1.5} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-serif text-lg font-bold text-primary">التجويد الملون</p>
-                  <p className="text-xs text-muted-foreground font-naskh mt-1">تلوين أحرف المصحف بناءً على أحكام التجويد</p>
+                  <p className="font-serif text-base md:text-lg font-bold text-primary">التجويد الملون</p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground font-naskh mt-0.5 md:mt-1">تلوين أحرف المصحف بناءً على أحكام التجويد</p>
                 </div>
                 <button
                   onClick={() => setTajweedMode(!tajweedMode)}
-                  className={`w-16 h-9 rounded-full transition-all flex items-center p-1 ${
+                  className={`w-14 md:w-16 h-8 md:h-9 rounded-full transition-all flex items-center p-1 shrink-0 ${
                     tajweedMode ? "bg-emerald-deep shadow-lg justify-end" : "bg-primary/10 justify-start"
                   }`}
                   dir="ltr"
                 >
                   <motion.div 
                     layout
-                    className="w-7 h-7 rounded-full bg-white shadow-md" 
+                    className="w-6 h-6 md:w-7 md:h-7 rounded-full bg-white shadow-md" 
                   />
                 </button>
               </div>
@@ -175,31 +175,31 @@ const Settings = () => {
 
         {/* Theme Selection */}
         <ScrollReveal index={1}>
-          <section className="bg-card/80 backdrop-blur-2xl rounded-[2.5rem] p-8 shadow-islamic border border-border/20 overflow-hidden relative">
-            <div className="flex items-center gap-6 mb-10">
-              <div className="w-14 h-14 rounded-[1.2rem] bg-emerald-deep text-gold flex items-center justify-center shadow-lg">
-                <Palette size={24} strokeWidth={1.5} />
+          <section className="bg-card/80 backdrop-blur-2xl rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 shadow-islamic border border-border/20 overflow-hidden relative">
+            <div className="flex items-center gap-4 md:gap-6 mb-8 md:mb-10">
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-[1rem] md:rounded-[1.2rem] bg-emerald-deep text-gold flex items-center justify-center shadow-lg shrink-0">
+                <Palette className="size-[20px] md:size-[24px]" strokeWidth={1.5} />
               </div>
               <div>
-                <h2 className="font-serif text-2xl font-bold text-primary">{t("settings.theme.title")}</h2>
-                <p className="text-sm text-primary/70 font-serif italic">{t("settings.theme.subtitle")}</p>
+                <h2 className="font-serif text-xl md:text-2xl font-bold text-primary">{t("settings.theme.title")}</h2>
+                <p className="text-xs md:text-sm text-primary/70 font-serif italic">{t("settings.theme.subtitle")}</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-3 md:gap-4">
               {THEME_OPTIONS.map(opt => (
                 <motion.button
                   key={opt.id}
                   whileHover={{ y: -4 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setTheme(opt.id)}
-                  className={`relative flex flex-col items-center gap-4 p-6 rounded-[2rem] border-2 transition-all ${
+                  className={`relative flex flex-col items-center gap-2 md:gap-4 p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border-2 transition-all ${
                     theme === opt.id
                       ? "border-accent bg-accent/5 shadow-lg"
                       : "border-primary/5 hover:border-accent/30 bg-primary/5"
                   }`}
                 >
-                  <div className={`w-16 h-16 rounded-full ${opt.preview} border-4 border-card shadow-xl flex items-center justify-center`}>
+                  <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full ${opt.preview} border-2 md:border-4 border-card shadow-xl flex items-center justify-center`}>
                     <motion.div
                       animate={{ rotate: theme === opt.id ? 360 : 0 }}
                       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
@@ -208,11 +208,11 @@ const Settings = () => {
                       {opt.icon}
                     </motion.div>
                   </div>
-                  <span className="font-serif text-sm font-bold text-primary">{opt.label}</span>
+                  <span className="font-serif text-[10px] md:text-sm font-bold text-primary">{opt.label}</span>
                   {theme === opt.id && (
                     <motion.div 
                       layoutId="activeTheme"
-                      className="absolute top-4 left-4 w-3 h-3 rounded-full bg-accent shadow-sm" 
+                      className="absolute top-3 left-3 md:top-4 md:left-4 w-2 h-2 md:w-3 md:h-3 rounded-full bg-accent shadow-sm" 
                     />
                   )}
                 </motion.button>

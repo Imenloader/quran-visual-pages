@@ -15,10 +15,8 @@ export async function searchPlaces(query: string, lat?: number, lng?: number): P
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Find ${query} near the following location: lat=${lat}, lng=${lng}. 
-      Return the results as a JSON array of objects with the following properties: 
-      name, address, rating (number), type. 
-      Also include the Google Maps URL if available from the grounding metadata.`,
+      contents: `Find ${query} near the following location: lat=${lat || "unknown"}, lng=${lng || "unknown"}. 
+      Please provide a list of places with their names and descriptions.`,
       config: {
         tools: [{ googleMaps: {} }],
         toolConfig: {
@@ -29,27 +27,18 @@ export async function searchPlaces(query: string, lat?: number, lng?: number): P
       },
     });
 
-    // Extract grounding chunks for URLs
-    const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-    const mapsUrls = groundingChunks
-      .filter(chunk => chunk.maps?.uri)
-      .map(chunk => ({ uri: chunk.maps?.uri, title: chunk.maps?.title }));
-
-    // The model might return a list of places in the text. 
-    // Since we can't use responseSchema with googleMaps, we'll try to parse the text or just use the grounding metadata if possible.
-    // However, the grounding metadata usually contains the links.
-    
-    // Let's try to extract structured data from the response text if it's JSON-like, 
-    // or just parse the grounding chunks.
-    
     const places: Place[] = [];
-    
+    const groundingMetadata = response.candidates?.[0]?.groundingMetadata;
+    const groundingChunks = groundingMetadata?.groundingChunks || [];
+    const searchQueries = groundingMetadata?.searchQueries || [];
+
+    // Map grounding chunks to places
     if (groundingChunks.length > 0) {
-      groundingChunks.forEach(chunk => {
+      groundingChunks.forEach((chunk) => {
         if (chunk.maps) {
           places.push({
             name: chunk.maps.title || "Unknown Place",
-            address: "", // Grounding chunks might not have full address directly in the same way
+            address: "", // Address might be in the text or snippets
             url: chunk.maps.uri,
             type: query.includes("مسجد") ? "مسجد" : "مكان حلال"
           });
@@ -57,26 +46,31 @@ export async function searchPlaces(query: string, lat?: number, lng?: number): P
       });
     }
 
-    // If no grounding chunks, try parsing the text (fallback)
-    if (places.length === 0) {
-      const text = response.text || "";
-      // Simple regex to find names and URLs if any
+    // If we have text, we can try to enrich the places or find more
+    const text = response.text || "";
+    if (places.length === 0 && text) {
+      // Fallback: try to parse text for names and links if grounding chunks are missing but text has info
       const lines = text.split("\n");
       lines.forEach(line => {
-        if (line.includes("http")) {
-          const match = line.match(/(.*?)[:-]\s*(https?:\/\/\S+)/);
-          if (match) {
+        const urlMatch = line.match(/https?:\/\/[\w\-.]+\.\w+\/\S+/);
+        if (urlMatch) {
+          const url = urlMatch[0];
+          const name = line.replace(url, "").replace(/^[*\-\s]+/, "").replace(/[:-]\s*$/, "").trim();
+          if (name) {
             places.push({
-              name: match[1].trim(),
+              name,
               address: "",
-              url: match[2].trim()
+              url
             });
           }
         }
       });
     }
 
-    return places;
+    // Remove duplicates by URL
+    const uniquePlaces = Array.from(new Map(places.map(p => [p.url, p])).values());
+
+    return uniquePlaces;
   } catch (error) {
     console.error("Error searching places:", error);
     return [];

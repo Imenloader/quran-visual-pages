@@ -1,20 +1,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { RotateCcw, Fingerprint, ChevronLeft, Settings2 } from "lucide-react";
+import { RotateCcw, Fingerprint, ChevronLeft, Settings2, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-
-const CIRCUMFERENCE = 2 * Math.PI * 120;
 
 const Tasbih = () => {
   const { t } = useTranslation();
@@ -28,7 +16,6 @@ const Tasbih = () => {
     const saved = localStorage.getItem("tasbih_total");
     return saved ? parseInt(saved) : 0;
   });
-  const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
@@ -36,165 +23,209 @@ const Tasbih = () => {
     localStorage.setItem("tasbih_total", total.toString());
   }, [count, total]);
 
-  const triggerHaptic = useCallback(() => {
+  const triggerHaptic = useCallback((pattern: number | number[] = 20) => {
     if (window.navigator.vibrate) {
-      window.navigator.vibrate(20);
+      window.navigator.vibrate(pattern);
     }
   }, []);
 
   const handleIncrement = () => {
     setCount(prev => {
       const next = prev + 1;
-      if (next === target) {
-        if (window.navigator.vibrate) window.navigator.vibrate([50, 30, 50]);
+      if (next >= target) {
+        triggerHaptic([50, 30, 50]);
+        return 0;
       }
       return next;
     });
     setTotal(prev => prev + 1);
-    triggerHaptic();
+    triggerHaptic(30);
   };
 
   const handleReset = () => {
     setCount(0);
-    triggerHaptic();
-    setShowResetConfirm(false);
+    triggerHaptic(50);
   };
 
-  const handleSetTarget = (newTarget: number) => {
-    setTarget(newTarget);
+  const handleResetTotal = () => {
+    setTotal(0);
     setCount(0);
+    localStorage.setItem("tasbih_total", "0");
+    localStorage.setItem("tasbih_count", "0");
     setShowSettings(false);
-    triggerHaptic();
+    triggerHaptic([100, 50, 100]);
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-between py-12 px-6">
-      <header className="w-full flex items-center justify-between max-w-md">
+    <div className="min-h-screen bg-background flex flex-col items-center overflow-hidden">
+      {/* Immersive Background */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-gradient-to-b from-gold/10 via-background to-background" />
+        <div className="absolute top-0 left-0 w-full h-full pattern-islamic opacity-[0.02] scale-150" />
+        <motion.div 
+          animate={{ 
+            opacity: [0.1, 0.15, 0.1],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{ duration: 15, repeat: Infinity }}
+          className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-emerald-deep/5 rounded-full blur-[120px]" 
+        />
+      </div>
+
+      <header className="relative z-10 w-full flex items-center justify-between max-w-md px-6 py-8">
         <button 
           onClick={() => navigate("/hub")}
-          className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground"
+          className="w-12 h-12 rounded-2xl bg-card/50 backdrop-blur-md border border-border/40 flex items-center justify-center text-foreground shadow-sm hover:bg-card transition-all"
         >
           <ChevronLeft className="w-6 h-6 rtl:rotate-180" />
         </button>
-        <h1 className="text-xl font-bold font-naskh">{t("hub.tasbih")}</h1>
+        <h1 className="text-2xl font-bold font-naskh text-foreground tracking-tight">{t("hub.tasbih")}</h1>
         <button 
           onClick={() => setShowSettings(true)}
-          className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground"
+          className="w-12 h-12 rounded-2xl bg-card/50 backdrop-blur-md border border-border/40 flex items-center justify-center text-foreground shadow-sm hover:bg-card transition-all"
         >
           <Settings2 className="w-5 h-5" />
         </button>
       </header>
 
-      <div className="flex flex-col items-center gap-8">
-        <div className="relative">
-          <svg className="w-64 h-64 transform -rotate-90">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center w-full max-w-md px-6 gap-12">
+        {/* Progress Ring */}
+        <div className="relative w-72 h-72 flex items-center justify-center">
+          <svg className="absolute inset-0 w-full h-full -rotate-90">
             <circle
-              cx="128"
-              cy="128"
-              r="120"
-              stroke="currentColor"
-              strokeWidth="8"
-              fill="transparent"
-              className="text-muted/20"
+              cx="144"
+              cy="144"
+              r="130"
+              className="stroke-muted/20 fill-none"
+              strokeWidth="12"
             />
             <motion.circle
-              cx="128"
-              cy="128"
-              r="120"
-              stroke="currentColor"
-              strokeWidth="8"
-              fill="transparent"
-              strokeDasharray={CIRCUMFERENCE}
-              initial={{ strokeDashoffset: CIRCUMFERENCE }}
-              animate={{ strokeDashoffset: CIRCUMFERENCE * (1 - (count % target) / target) }}
-              transition={{ type: "spring", stiffness: 100, damping: 20 }}
-              className="text-emerald-deep"
+              cx="144"
+              cy="144"
+              r="130"
+              className="stroke-gold fill-none"
+              strokeWidth="12"
+              strokeLinecap="round"
+              initial={{ strokeDasharray: "816.8", strokeDashoffset: "816.8" }}
+              animate={{ strokeDashoffset: 816.8 - (816.8 * count) / target }}
+              transition={{ type: "spring", stiffness: 50, damping: 15 }}
             />
           </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={count}
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="text-6xl font-bold font-mono text-foreground"
-              >
-                {count}
-              </motion.span>
-            </AnimatePresence>
-            <span className="text-sm text-muted-foreground font-naskh mt-2">{t("tasbih.target")}: {target}</span>
+
+          <div className="text-center space-y-1">
+            <motion.span 
+              key={count}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="text-8xl font-bold font-mono text-foreground block"
+            >
+              {count}
+            </motion.span>
+            <span className="text-xl font-medium text-muted-foreground font-naskh opacity-60">
+              / {target}
+            </span>
           </div>
         </div>
 
-        <div className="text-center">
-          <p className="text-sm text-muted-foreground font-naskh">{t("tasbih.total")}</p>
-          <p className="text-2xl font-bold font-mono text-foreground">{total}</p>
+        {/* Stats Row */}
+        <div className="grid grid-cols-2 gap-4 w-full">
+          <div className="p-6 bg-card/50 backdrop-blur-md rounded-[2rem] border border-border/40 text-center shadow-sm">
+            <p className="text-xs text-muted-foreground font-naskh mb-1 opacity-70">{t("tasbih.total")}</p>
+            <p className="text-2xl font-bold font-mono text-gold">{total}</p>
+          </div>
+          <button 
+            onClick={handleReset}
+            className="p-6 bg-card/50 backdrop-blur-md rounded-[2rem] border border-border/40 text-center shadow-sm hover:bg-card transition-all group"
+          >
+            <p className="text-xs text-muted-foreground font-naskh mb-1 opacity-70">{t("tasbih.reset")}</p>
+            <RotateCcw className="w-6 h-6 text-foreground mx-auto group-active:rotate-[-180deg] transition-transform duration-500" />
+          </button>
         </div>
-      </div>
 
-      <div className="w-full max-w-md flex flex-col items-center gap-6">
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={handleIncrement}
-          className="w-32 h-32 rounded-full bg-emerald-deep text-white shadow-islamic flex items-center justify-center active:bg-emerald-700 transition-colors"
-        >
-          <Fingerprint className="w-16 h-16" />
-        </motion.button>
-
+        {/* Main Button */}
         <button
-          onClick={() => setShowResetConfirm(true)}
-          className="flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors font-naskh"
+          onClick={handleIncrement}
+          className="w-full aspect-square max-w-[280px] rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border-[12px] border-card shadow-islamic flex items-center justify-center relative group active:scale-95 transition-all duration-200"
         >
-          <RotateCcw className="w-4 h-4" />
-          <span>{t("tasbih.reset")}</span>
+          <div className="absolute inset-4 rounded-full border border-gold/20" />
+          <div className="absolute inset-0 rounded-full bg-gold/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="text-center">
+            <div className="w-20 h-20 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4 group-active:scale-110 transition-transform">
+              <Plus className="w-10 h-10 text-gold" />
+            </div>
+            <span className="text-lg font-bold font-naskh text-foreground tracking-wide">اضغط للتسبيح</span>
+          </div>
         </button>
       </div>
 
-      <AlertDialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("tasbih.reset")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("tasbih.confirmReset")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t("settings.themes.light") === "Light" ? "Cancel" : "إلغاء"}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleReset} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              {t("tasbih.reset")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Settings Dialog */}
+      <AnimatePresence>
+        {showSettings && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowSettings(false)}
+              className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40"
+            />
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              className="fixed bottom-0 left-0 right-0 bg-card border-t border-border rounded-t-[3rem] p-8 z-50 shadow-2xl"
+            >
+              <div className="w-12 h-1.5 bg-muted rounded-full mx-auto mb-8" />
+              <h2 className="text-2xl font-bold font-naskh mb-8 text-center">{t("tasbih.target")}</h2>
+              
+              <div className="space-y-8">
+                <div className="space-y-4">
+                  <label className="text-sm font-medium font-naskh px-2">اختر العدد المستهدف</label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {[33, 99, 100, 1000, 5000, 10000].map((val) => (
+                      <button
+                        key={val}
+                        onClick={() => {
+                          setTarget(val);
+                          setCount(0);
+                        }}
+                        className={`py-4 rounded-2xl border transition-all font-mono font-bold ${
+                          target === val 
+                            ? "bg-gold border-gold text-white shadow-lg shadow-gold/20" 
+                            : "bg-muted/50 border-border text-foreground hover:bg-muted"
+                        }`}
+                      >
+                        {val}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-      <AlertDialog open={showSettings} onOpenChange={setShowSettings}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("tasbih.target")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("settings.themes.light") === "Light" ? "Select your target count" : "اختر العدد المستهدف للتسبيح"}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="grid grid-cols-3 gap-3 py-4">
-            {[33, 99, 100, 1000, 5000, 10000].map(val => (
-              <button
-                key={val}
-                onClick={() => handleSetTarget(val)}
-                className={`py-3 rounded-xl border font-bold transition-all ${
-                  target === val 
-                    ? "bg-emerald-deep text-white border-emerald-deep" 
-                    : "bg-muted border-border text-foreground hover:border-emerald-deep/50"
-                }`}
-              >
-                {val}
-              </button>
-            ))}
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t("settings.themes.light") === "Light" ? "Close" : "إغلاق"}</AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+                <button
+                  onClick={handleResetTotal}
+                  className="w-full py-5 rounded-[1.5rem] bg-destructive/10 text-destructive font-bold font-naskh hover:bg-destructive/20 transition-all flex items-center justify-center gap-3"
+                >
+                  <RotateCcw className="w-5 h-5" />
+                  تصفير العداد الإجمالي
+                </button>
+
+                <button
+                  onClick={() => setShowSettings(false)}
+                  className="w-full py-5 rounded-[1.5rem] bg-emerald-deep text-white font-bold font-naskh shadow-lg shadow-emerald-deep/20"
+                >
+                  حفظ الإعدادات
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      <footer className="relative z-10 w-full max-w-md p-6 pb-12">
+        <p className="text-center text-xs text-muted-foreground font-naskh opacity-60">
+          سيتم اهتزاز الهاتف عند كل تسبيحة وعند الوصول للهدف
+        </p>
+      </footer>
     </div>
   );
 };

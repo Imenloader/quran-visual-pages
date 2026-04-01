@@ -128,9 +128,9 @@ const Index = () => {
     <div className="min-h-screen bg-background pb-32">
       <QuranHeader />
       
-      <main className="container max-w-7xl mx-auto px-4 sm:px-6 -mt-16 md:-mt-24 relative z-30">
+      <main className="container-responsive pb-32 -mt-12 md:-mt-24 relative z-30">
         {/* Immersive Bento Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-12 md:mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-16">
           
           {/* Hero Section - The "Heart" of the App */}
           <motion.div 
@@ -148,49 +148,49 @@ const Index = () => {
                   rotate: [0, 5, 0]
                 }}
                 transition={{ duration: 20, repeat: Infinity }}
-                className="absolute -top-1/2 -right-1/4 w-[120%] h-[120%] bg-gold/20 rounded-full blur-[120px]" 
+                className="absolute -top-1/2 -right-1/4 w-[120%] h-[120%] bg-gold/20 rounded-full blur-[80px] md:blur-[120px]" 
               />
               <div className="absolute inset-0 pattern-islamic opacity-[0.03] scale-150" />
             </div>
             
-            <div className="relative z-10 h-full flex flex-col justify-between min-h-[350px]">
+            <div className="relative z-10 h-full flex flex-col justify-between min-h-[300px] md:min-h-[350px]">
               <div>
                 <motion.div 
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="flex items-center gap-4 mb-10"
+                  className="flex items-center gap-3 md:gap-4 mb-6 md:mb-10"
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent shadow-inner">
-                    <Sparkles size={22} strokeWidth={1.5} />
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-accent/10 flex items-center justify-center text-accent shadow-inner">
+                    <Sparkles size={20} strokeWidth={1.5} className="md:w-[22px] md:h-[22px]" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-[10px] font-bold text-accent uppercase tracking-[0.4em]">{t("index.hero.badge")}</span>
+                    <span className="text-[8px] md:text-[10px] font-bold text-accent uppercase tracking-[0.3em] md:tracking-[0.4em]">{t("index.hero.badge")}</span>
                   </div>
                 </motion.div>
                 
-                <h1 className="text-4xl md:text-7xl font-serif font-light mb-6 md:mb-8 text-primary leading-[1.1] tracking-tight">
+                <h1 className="text-3xl sm:text-4xl md:text-7xl font-serif font-light mb-4 md:mb-8 text-primary leading-[1.1] tracking-tight">
                   {t("index.hero.title")}
                   <br />
-                  <span className="text-2xl md:text-4xl text-primary font-naskh mt-3 md:mt-4 block">{t("index.hero.subtitle")}</span>
+                  <span className="text-xl sm:text-2xl md:text-4xl text-primary font-naskh mt-2 md:mt-4 block">{t("index.hero.subtitle")}</span>
                 </h1>
                 
-                <p className="text-muted-foreground font-naskh text-lg md:text-xl max-w-2xl leading-relaxed border-r-2 border-accent/20 pr-4 md:pr-6">
+                <p className="text-muted-foreground font-naskh text-base md:text-xl max-w-2xl leading-relaxed border-r-2 border-accent/20 pr-4 md:pr-6">
                   {t("index.hero.description")}
                 </p>
               </div>
 
-              <div className="mt-14 flex flex-col md:flex-row items-center gap-8">
-                <div className="flex flex-col sm:flex-row items-center gap-8 w-full md:w-auto">
+              <div className="mt-8 md:mt-14 flex flex-col md:flex-row items-center gap-6 md:gap-8">
+                <div className="flex flex-col sm:flex-row items-center gap-4 md:gap-8 w-full md:w-auto">
                   {bookmark ? (
                     <motion.button
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={handleResumeReading}
-                      className="group relative flex items-center gap-4 bg-primary text-primary-foreground px-10 py-5 rounded-[2.5rem] font-serif text-xl font-medium shadow-2xl hover:shadow-gold-glow transition-all duration-500 overflow-hidden w-full sm:w-auto justify-center"
+                      className="group relative flex items-center gap-3 md:gap-4 bg-primary text-primary-foreground px-6 md:px-10 py-4 md:py-5 rounded-2xl md:rounded-[2.5rem] font-serif text-lg md:text-xl font-medium shadow-2xl hover:shadow-gold-glow transition-all duration-500 overflow-hidden w-full sm:w-auto justify-center"
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-gold/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <BookMarked size={24} strokeWidth={1.5} className="relative z-10" />
+                      <BookMarked size={20} strokeWidth={1.5} className="relative z-10 md:w-6 md:h-6" />
                       <span className="relative z-10">{t("index.hero.resume")}</span>
                     </motion.button>
                   ) : (
@@ -198,21 +198,21 @@ const Index = () => {
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setShowIndex(true)}
-                      className="group relative flex items-center gap-4 bg-primary text-primary-foreground px-10 py-5 rounded-[2.5rem] font-serif text-xl font-medium shadow-2xl hover:shadow-gold-glow transition-all duration-500 overflow-hidden w-full sm:w-auto justify-center"
+                      className="group relative flex items-center gap-3 md:gap-4 bg-primary text-primary-foreground px-6 md:px-10 py-4 md:py-5 rounded-2xl md:rounded-[2.5rem] font-serif text-lg md:text-xl font-medium shadow-2xl hover:shadow-gold-glow transition-all duration-500 overflow-hidden w-full sm:w-auto justify-center"
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-gold/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <List size={24} strokeWidth={1.5} className="relative z-10" />
+                      <List size={20} strokeWidth={1.5} className="relative z-10 md:w-6 md:h-6" />
                       <span className="relative z-10">{t("index.hero.start")}</span>
                     </motion.button>
                   )}
 
                   {bookmark && (
-                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center gap-2">
+                    <div className="flex flex-col gap-1 md:gap-2 text-center sm:text-right">
+                      <div className="flex items-center justify-center sm:justify-start gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-[0.3em] font-bold">{t("index.hero.lastRead")}</span>
+                        <span className="text-[8px] md:text-[10px] text-muted-foreground uppercase tracking-[0.2em] md:tracking-[0.3em] font-bold">{t("index.hero.lastRead")}</span>
                       </div>
-                      <span className="text-xl font-naskh font-bold text-primary group-hover:text-accent transition-colors">
+                      <span className="text-lg md:text-xl font-naskh font-bold text-primary group-hover:text-accent transition-colors">
                         {bookmarkJuzName} • {t("index.hero.ayah")} {i18n.language === "ar" ? toArabicNumber(bookmark.page) : bookmark.page}
                       </span>
                     </div>
@@ -221,13 +221,13 @@ const Index = () => {
 
                 {/* Integrated Search Bar */}
                 <div className="flex-1 w-full max-w-md relative group">
-                  <Search size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-accent transition-colors pointer-events-none" />
+                  <Search size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-accent transition-colors pointer-events-none md:w-[18px] md:h-[18px]" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={t("index.search.placeholder")}
-                    className="w-full bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl pr-12 pl-4 py-4 text-sm font-naskh text-primary placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/40 transition-all"
+                    className="w-full bg-white/10 backdrop-blur-md border border-white/10 rounded-xl md:rounded-2xl pr-12 pl-4 py-3 md:py-4 text-sm font-naskh text-primary placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/40 transition-all"
                   />
                 </div>
               </div>
@@ -239,23 +239,23 @@ const Index = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative overflow-hidden rounded-[2.5rem] bg-card/40 backdrop-blur-2xl border border-border/40 p-8 shadow-islamic group lg:col-span-1 flex flex-col justify-between"
+            className="relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-card/40 backdrop-blur-2xl border border-border/40 p-6 md:p-8 shadow-islamic group lg:col-span-1 flex flex-col justify-between min-h-[300px] md:min-h-full"
           >
             <div className="absolute inset-0 pattern-islamic opacity-[0.02] scale-150" />
-            <div className="relative z-10 text-center space-y-6">
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent shadow-inner group-hover:scale-110 transition-transform duration-500">
-                  <Sparkles size={24} strokeWidth={1.5} />
+            <div className="relative z-10 text-center space-y-4 md:space-y-6">
+              <div className="flex flex-col items-center gap-2 md:gap-3">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-accent/10 flex items-center justify-center text-accent shadow-inner group-hover:scale-110 transition-transform duration-500">
+                  <Sparkles size={20} strokeWidth={1.5} className="md:w-6 md:h-6" />
                 </div>
-                <span className="text-[10px] font-bold text-accent uppercase tracking-[0.4em]">{t("hub.verseOfDay")}</span>
+                <span className="text-[8px] md:text-[10px] font-bold text-accent uppercase tracking-[0.3em] md:tracking-[0.4em]">{t("hub.verseOfDay")}</span>
               </div>
 
               {verseOfDay && (
-                <div className="space-y-4">
-                  <p className="text-2xl md:text-3xl font-quran text-primary leading-[1.8] px-2">
+                <div className="space-y-3 md:space-y-4">
+                  <p className="text-xl md:text-3xl font-quran text-primary leading-[1.8] px-2">
                     {verseOfDay.text}
                   </p>
-                  <div className="flex items-center justify-center gap-3 text-[10px] font-bold text-accent/60 uppercase tracking-[0.2em] font-serif italic">
+                  <div className="flex items-center justify-center gap-2 md:gap-3 text-[8px] md:text-[10px] font-bold text-accent/60 uppercase tracking-[0.1em] md:tracking-[0.2em] font-serif italic">
                     <span>{t("index.verseOfDay.surah")} {verseOfDay.surah}</span>
                     <span className="w-1 h-1 rounded-full bg-accent/30" />
                     <span>{t("index.verseOfDay.ayah")} {i18n.language === "ar" ? toArabicNumber(verseOfDay.number) : verseOfDay.number}</span>
@@ -264,10 +264,10 @@ const Index = () => {
               )}
             </div>
             
-            <div className="relative z-10 pt-6 border-t border-border/20 text-center">
+            <div className="relative z-10 pt-4 md:pt-6 border-t border-border/20 text-center">
               <Link 
                 to="/daily-verse"
-                className="text-[10px] font-bold text-primary/40 hover:text-accent transition-colors uppercase tracking-widest"
+                className="text-[8px] md:text-[10px] font-bold text-primary/40 hover:text-accent transition-colors uppercase tracking-widest"
               >
                 عرض جميع آيات التدبر
               </Link>

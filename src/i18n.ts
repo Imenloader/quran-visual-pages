@@ -61,7 +61,8 @@ const resources = {
           "read": "Read"
         },
         "verseOfDay": "Verse of the Day",
-        "quickRecitations": "Quick Recitations"
+        "quickRecitations": "Quick Recitations",
+        "recitersDesc": "Explore a collection of the most beautiful recitations from around the world"
       },
       "recitations": {
         "audioLibrary": "Audio Library",
@@ -116,6 +117,7 @@ const resources = {
         "noItemsInSection": "No items in this section yet"
       },
       "common": {
+        "all": "All",
         "back": "Back",
         "close": "Close"
       },
@@ -218,6 +220,7 @@ const resources = {
         },
         "quickRecitations": {
           "title": "Quick Recitations",
+          "subtitle": "Listen to the most famous surahs with the most beautiful voices",
           "viewAll": "View All"
         },
         "juzSection": {
@@ -289,7 +292,8 @@ const resources = {
           "read": "قرأت"
         },
         "verseOfDay": "آية اليوم",
-        "quickRecitations": "تلاوات سريعة"
+        "quickRecitations": "تلاوات سريعة",
+        "recitersDesc": "استكشف مجموعة من أجمل التلاوات من مختلف أنحاء العالم"
       },
       "recitations": {
         "audioLibrary": "مكتبة التلاوات",
@@ -344,6 +348,7 @@ const resources = {
         "noItemsInSection": "لا توجد عناصر في هذا القسم بعد"
       },
       "common": {
+        "all": "الكل",
         "back": "رجوع",
         "close": "إغلاق"
       },
@@ -446,6 +451,7 @@ const resources = {
         },
         "quickRecitations": {
           "title": "تلاوات سريعة",
+          "subtitle": "استمع لأشهر السور بأجمل الأصوات",
           "viewAll": "عرض الكل"
         },
         "juzSection": {

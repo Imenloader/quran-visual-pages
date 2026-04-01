@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { DownloadCloud, CheckCircle2, Loader2, Trash2, AlertCircle, Wifi, WifiOff } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
-import { getQuranPageImageUrl, toArabicNumber } from "@/data/quranData";
+import { getQuranPageImageUrl, getQuranPageFallbackImageUrl, toArabicNumber } from "@/data/quranData";
 
 const CACHE_NAME = 'quran-pages-cache';
 const TOTAL_PAGES = 604;
@@ -53,12 +53,25 @@ const OfflineManager: React.FC = () => {
       const cache = await caches.open(CACHE_NAME);
       
       const downloadPage = async (page: number, retries = 3) => {
-        const url = getQuranPageImageUrl(page);
+        const localUrl = getQuranPageImageUrl(page);
+        const fallbackUrl = getQuranPageFallbackImageUrl(page);
+        
         for (let attempt = 1; attempt <= retries; attempt++) {
           try {
-            const response = await fetch(url, { mode: 'cors' });
+            // Try local first
+            let response = await fetch(localUrl, { mode: 'cors' });
+            
+            // If local fails (404), try fallback
+            if (!response.ok) {
+              console.log(`Local page ${page} not found, trying fallback...`);
+              response = await fetch(fallbackUrl, { mode: 'cors' });
+            }
+
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            await cache.put(url, response);
+            
+            // Cache the response under the local URL key
+            // This ensures the app finds it when looking for the local file
+            await cache.put(localUrl, response);
             return true;
           } catch (err) {
             if (attempt === retries) {
