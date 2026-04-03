@@ -30,7 +30,7 @@ const FridaySunan = () => {
       id: "kahf",
       title: "قراءة سورة الكهف",
       description: "تضيء لك ما بين الجمعتين",
-      icon: <BookOpen className="text-emerald-deep" />,
+      icon: <BookOpen className="text-primary" />,
       completed: false
     },
     {
@@ -134,23 +134,23 @@ const FridaySunan = () => {
       
       <main className="container max-w-2xl mx-auto px-6 py-8">
         {/* Hero Section */}
-        <section className="relative overflow-hidden rounded-[2.5rem] bg-emerald-deep p-8 mb-8 shadow-islamic">
+        <section className="relative overflow-hidden rounded-[2.5rem] bg-primary p-8 mb-8 shadow-islamic">
           <div className="absolute inset-0 pattern-islamic opacity-10" />
           <div className="relative z-10 flex flex-col items-center text-center">
-            <div className="w-20 h-20 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-6 border border-white/20">
+            <div className="w-20 h-20 rounded-3xl bg-primary/10 backdrop-blur-md flex items-center justify-center mb-6 border border-primary/20">
               <Sparkles className="text-gold" size={40} />
             </div>
             <h1 className="font-serif text-3xl font-bold text-white mb-3">يوم الجمعة</h1>
-            <p className="text-emerald-light/80 font-serif italic text-sm max-w-xs">
+            <p className="text-primary-foreground/80 font-serif italic text-sm max-w-xs">
               "خير يوم طلعت عليه الشمس يوم الجمعة"
             </p>
             
             {isFriday ? (
-              <div className="mt-6 px-6 py-2 rounded-full bg-gold text-emerald-deep font-bold text-sm animate-pulse">
+              <div className="mt-6 px-6 py-2 rounded-full bg-gold text-primary font-bold text-sm animate-pulse">
                 اليوم هو الجمعة المباركة
               </div>
             ) : (
-              <div className="mt-6 px-6 py-2 rounded-full bg-white/10 text-white/80 text-xs font-serif">
+              <div className="mt-6 px-6 py-2 rounded-full bg-primary/10 text-white/80 text-xs font-serif">
                 بانتظار الجمعة القادمة...
               </div>
             )}
@@ -160,7 +160,7 @@ const FridaySunan = () => {
         {/* Reminder Toggle */}
         <section className="bg-card border border-border rounded-3xl p-6 mb-8 shadow-soft flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${reminderEnabled ? "bg-emerald-deep/10 text-emerald-deep" : "bg-muted text-muted-foreground"}`}>
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${reminderEnabled ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
               <Bell size={24} />
             </div>
             <div>
@@ -170,7 +170,7 @@ const FridaySunan = () => {
           </div>
           <button
             onClick={toggleReminder}
-            className={`w-14 h-8 rounded-full transition-all relative ${reminderEnabled ? "bg-emerald-deep" : "bg-muted border border-border"}`}
+            className={`w-14 h-8 rounded-full transition-all relative ${reminderEnabled ? "bg-primary" : "bg-muted border border-border"}`}
           >
             <div className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-sm transition-all ${reminderEnabled ? "left-1" : "left-[calc(100%-1.75rem)]"}`} />
           </button>
@@ -194,20 +194,20 @@ const FridaySunan = () => {
               onClick={() => toggleSunnah(item.id)}
               className={`group relative overflow-hidden rounded-3xl border-2 p-5 transition-all cursor-pointer ${
                 item.completed 
-                  ? "border-emerald-deep bg-emerald-deep/5" 
-                  : "border-border/40 bg-card hover:border-emerald-light/40"
+                  ? "border-primary bg-primary/5" 
+                  : "border-border/40 bg-card hover:border-primary/40"
               }`}
             >
               <div className="flex items-center gap-5 relative z-10">
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
-                  item.completed ? "bg-emerald-deep text-white shadow-lg" : "bg-muted/50 text-muted-foreground"
+                  item.completed ? "bg-primary text-white shadow-lg" : "bg-muted/50 text-muted-foreground"
                 }`}>
                   {item.completed ? <CheckCircle2 size={28} /> : item.icon}
                 </div>
                 
                 <div className="flex-1">
                   <h3 className={`font-serif text-lg font-bold transition-colors ${
-                    item.completed ? "text-emerald-deep" : "text-foreground"
+                    item.completed ? "text-primary" : "text-foreground"
                   }`}>
                     {item.title}
                   </h3>
@@ -229,7 +229,7 @@ const FridaySunan = () => {
               {item.completed && (
                 <motion.div
                   layoutId="check-overlay"
-                  className="absolute inset-0 bg-emerald-deep/5 pointer-events-none"
+                  className="absolute inset-0 bg-primary/5 pointer-events-none"
                 />
               )}
             </motion.div>

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 
 interface LazyImageProps {
   src: string;
@@ -10,83 +10,45 @@ interface LazyImageProps {
 }
 
 const LazyImage = ({ src, alt, className = "", onLoad, onError, priority = false }: LazyImageProps) => {
-  const [isInView, setIsInView] = useState(priority);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const imgRef = useRef<HTMLDivElement>(null);
-  const [prevSrc, setPrevSrc] = useState(src);
-
-  if (src !== prevSrc) {
-    setPrevSrc(src);
-    setHasError(false);
-    setIsLoaded(false);
-  }
 
   useEffect(() => {
-    if (priority) return;
-    
-    const el = imgRef.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsInView(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "600px 0px" } // preload 600px before visible
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [priority]);
-
-  const handleLoad = useCallback(() => {
-    setIsLoaded(true);
-    onLoad?.();
-  }, [onLoad]);
-
-  const handleError = useCallback(() => {
-    setHasError(true);
-    onError?.();
-  }, [onError]);
+    setIsLoaded(false);
+    setHasError(false);
+  }, [src]);
 
   return (
-    <div ref={imgRef} className="relative w-full">
-      {/* Blur placeholder */}
-      <div
-        className={`absolute inset-0 z-[2] transition-opacity duration-500 ${
-          isLoaded ? "opacity-0 pointer-events-none" : "opacity-100"
-        }`}
-      >
-        <div className="w-full h-full bg-gradient-to-b from-muted/80 via-muted/50 to-muted/80 backdrop-blur-sm animate-pulse rounded-lg" />
-        {!hasError && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-8 h-8 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-              <span className="text-xs text-muted-foreground font-naskh">جاري التحميل...</span>
-            </div>
+    <div className="relative w-full">
+      {!isLoaded && !hasError && (
+        <div className="w-full aspect-[3/4] bg-muted/20 animate-pulse flex items-center justify-center rounded-2xl">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 border-2 border-accent/20 border-t-accent rounded-full animate-spin" />
+            <span className="text-[10px] text-primary/40 font-serif italic">جاري التحميل...</span>
           </div>
-        )}
-      </div>
-
-      {/* Aspect ratio placeholder when image not loaded */}
-      {!isLoaded && <div className="w-full aspect-[3/4]" />}
-
-      {/* Actual image */}
-      {isInView && !hasError && (
-        <img
-          src={src}
-          alt={alt}
-          className={`w-full h-auto block transition-opacity duration-500 ${
-            isLoaded ? "opacity-100" : "opacity-0"
-          } ${className}`}
-          onLoad={handleLoad}
-          onError={handleError}
-          decoding="async"
-        />
+        </div>
       )}
+      
+      {hasError && (
+        <div className="w-full aspect-[3/4] bg-destructive/5 flex items-center justify-center rounded-2xl border border-destructive/10">
+          <span className="text-xs text-destructive/60 font-serif">فشل التحميل</span>
+        </div>
+      )}
+
+      <img
+        src={src}
+        alt={alt}
+        className={`${className} ${isLoaded ? "opacity-100" : "opacity-0 absolute inset-0"}`}
+        onLoad={() => {
+          setIsLoaded(true);
+          onLoad?.();
+        }}
+        onError={() => {
+          setHasError(true);
+          onError?.();
+        }}
+        loading={priority ? "eager" : "lazy"}
+      />
     </div>
   );
 };

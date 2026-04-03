@@ -68,7 +68,7 @@ const Tasbih = () => {
             scale: [1, 1.2, 1],
           }}
           transition={{ duration: 15, repeat: Infinity }}
-          className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-emerald-deep/5 rounded-full blur-[120px]" 
+          className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-primary/5 rounded-full blur-[120px]" 
         />
       </div>
 
@@ -211,7 +211,7 @@ const Tasbih = () => {
 
                 <button
                   onClick={() => setShowSettings(false)}
-                  className="w-full py-5 rounded-[1.5rem] bg-emerald-deep text-white font-bold font-naskh shadow-lg shadow-emerald-deep/20"
+                  className="w-full py-5 rounded-[1.5rem] bg-primary text-primary-foreground font-bold font-naskh shadow-lg shadow-primary/20"
                 >
                   حفظ الإعدادات
                 </button>

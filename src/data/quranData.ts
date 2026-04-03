@@ -189,11 +189,20 @@ export const getJuzAndPageForSurah = (surahNumber: number): { juz: number; page:
 export const getQuranPageImageUrl = (pageNumber: number | string | undefined | null): string => {
   if (!pageNumber) return "";
   const paddedPage = String(pageNumber).padStart(3, '0');
-  return `/Quran_Images/tajweed-${paddedPage}.jpg`;
+  // Primary Remote Source (Jahedev GitHub Pages)
+  return `https://jahedev.github.io/tajweed-quran-pages/hafs/tajweed-${paddedPage}.jpg`;
 };
 
-export const getQuranPageFallbackImageUrl = (pageNumber: number | string | undefined | null): string => {
+export const getQuranPageFallbackImageUrl = (pageNumber: number | string | undefined | null, level: number = 0): string => {
   if (!pageNumber) return "";
   const paddedPage = String(pageNumber).padStart(3, '0');
-  return `https://jahedev.github.io/tajweed-quran-pages/hafs/tajweed-${paddedPage}.jpg`;
+  
+  const sources = [
+    `https://quran.com/images/quran/tajweed/${pageNumber}.png`,
+    `https://jahedev.github.io/tajweed-quran-pages/hafs/tajweed-${paddedPage}.jpg`,
+    `https://android.quran.com/data/tajweed/v2/png/page${paddedPage}.png`,
+    `https://raw.githubusercontent.com/Jahedev/tajweed-quran-pages/main/hafs/tajweed-${paddedPage}.jpg`
+  ];
+  
+  return sources[level % sources.length];
 };

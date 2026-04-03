@@ -51,7 +51,7 @@ const JuzImporter = () => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-emerald-deep text-gold font-serif font-bold shadow-lg hover:shadow-emerald-deep/20 transition-all border border-white/10"
+        className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-primary text-gold font-serif font-bold shadow-lg hover:shadow-primary/20 transition-all border border-primary/10"
       >
         <Wand2 size={20} />
         <span>المستورد السحري (Juz Importer)</span>
@@ -77,7 +77,7 @@ const JuzImporter = () => {
               {/* Header */}
               <div className="p-6 border-b border-border/40 flex items-center justify-between bg-emerald-deep text-white">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-gold">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-gold">
                     <Wand2 size={20} />
                   </div>
                   <div>
@@ -87,7 +87,7 @@ const JuzImporter = () => {
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors"
+                  className="w-10 h-10 rounded-full hover:bg-primary/10 flex items-center justify-center transition-colors"
                 >
                   <X size={20} />
                 </button>

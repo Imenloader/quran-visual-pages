@@ -41,6 +41,7 @@ const Search = () => {
       return;
     }
 
+    const controller = new AbortController();
     const delayDebounceFn = setTimeout(async () => {
       setLoading(true);
       try {
@@ -48,10 +49,10 @@ const Search = () => {
         const encodedQuery = encodeURIComponent(query);
         
         // 1. Search in Ayahs
-        const ayahPromise = fetchWithCache(`https://api.alquran.cloud/v1/search/${encodedQuery}/all/ar.quran-simple`);
+        const ayahPromise = fetchWithCache(`https://api.alquran.cloud/v1/search/${encodedQuery}/all/ar.quran-simple`, { signal: controller.signal });
           
         // 2. Search in Surahs (by fetching all and filtering)
-        const surahPromise = fetchWithCache(`https://api.alquran.cloud/v1/surah`);
+        const surahPromise = fetchWithCache(`https://api.alquran.cloud/v1/surah`, { signal: controller.signal });
 
         const [ayahData, surahData] = await Promise.all([ayahPromise, surahPromise]);
 
@@ -86,7 +87,10 @@ const Search = () => {
       }
     }, 500);
 
-    return () => clearTimeout(delayDebounceFn);
+    return () => {
+      clearTimeout(delayDebounceFn);
+      controller.abort();
+    };
   }, [query]);
 
   const recentSearches = [t("search.surahMatches"), t("search.ayahMatches")]; // Placeholder for recent searches
@@ -154,7 +158,7 @@ const Search = () => {
                 exit={{ opacity: 0 }}
                 className="flex flex-col items-center justify-center py-20 space-y-4"
               >
-                <Loader2 className="w-10 h-10 text-emerald-deep animate-spin" />
+                <Loader2 className="w-10 h-10 text-primary animate-spin" />
                 <p className="text-sm text-muted-foreground font-naskh animate-pulse">{t("search.searching")}</p>
               </motion.div>
             ) : query && (results.length > 0 || surahResults.length > 0 || juzResults.length > 0) ? (
@@ -199,10 +203,10 @@ const Search = () => {
                           <Link
                             key={surah.number}
                             to={`/juz/${juz}#page-${page}`}
-                            className="flex items-center justify-between p-4 bg-emerald-deep/5 border border-emerald-deep/10 rounded-2xl hover:bg-emerald-deep/10 transition-colors"
+                            className="flex items-center justify-between p-4 bg-primary/5 border border-primary/10 rounded-2xl hover:bg-primary/10 transition-colors"
                           >
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-emerald-deep text-white flex items-center justify-center text-xs font-bold">
+                              <div className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center text-xs font-bold">
                                 {surah.number}
                               </div>
                               <div className="text-right">
@@ -210,7 +214,7 @@ const Search = () => {
                                 <p className="text-[10px] text-muted-foreground">{surah.englishName}</p>
                               </div>
                             </div>
-                            <BookOpen className="w-4 h-4 text-emerald-deep" />
+                            <BookOpen className="w-4 h-4 text-primary" />
                           </Link>
                         );
                       })}
@@ -237,7 +241,7 @@ const Search = () => {
                             </span>
                             <Link 
                               to={`/juz/${juz}#page-${page}`}
-                              className="text-[10px] text-emerald-deep font-bold"
+                              className="text-[10px] text-primary font-bold"
                             >
                               {t("search.openInQuran")}
                             </Link>

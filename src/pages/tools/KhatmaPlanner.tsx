@@ -76,7 +76,7 @@ const KhatmaPlanner = () => {
               <label className="text-sm font-bold font-naskh text-foreground">
                 {i18n.language === 'ar' ? "مدة الختمة (بالأيام)" : "Khatma Duration (Days)"}
               </label>
-              <span className="text-2xl font-bold text-emerald-deep font-mono">{days}</span>
+              <span className="text-2xl font-bold text-primary font-mono">{days}</span>
             </div>
             <input 
               type="range" 
@@ -84,7 +84,7 @@ const KhatmaPlanner = () => {
               max="60" 
               value={days}
               onChange={(e) => setDays(parseInt(e.target.value))}
-              className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-emerald-deep"
+              className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
             />
             <div className="flex justify-between text-[10px] text-muted-foreground font-mono uppercase tracking-tighter">
               <span>{i18n.language === 'ar' ? "7 أيام" : "7 Days"}</span>
@@ -94,14 +94,14 @@ const KhatmaPlanner = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="p-6 bg-muted/30 rounded-3xl border border-border/50 text-center space-y-2">
-              <BookOpen className="w-6 h-6 text-emerald-deep mx-auto" />
+              <BookOpen className="w-6 h-6 text-primary mx-auto" />
               <p className="text-2xl font-bold text-foreground font-mono">{pagesPerDay}</p>
               <p className="text-[10px] text-muted-foreground font-naskh uppercase tracking-wider">
                 {i18n.language === 'ar' ? "صفحة يومياً" : "Pages Daily"}
               </p>
             </div>
             <div className="p-6 bg-muted/30 rounded-3xl border border-border/50 text-center space-y-2">
-              <Clock className="w-6 h-6 text-emerald-deep mx-auto" />
+              <Clock className="w-6 h-6 text-primary mx-auto" />
               <p className="text-2xl font-bold text-foreground font-mono">{Math.ceil(pagesPerDay * 2)}</p>
               <p className="text-[10px] text-muted-foreground font-naskh uppercase tracking-wider">
                 {i18n.language === 'ar' ? "دقيقة تقريباً" : "Est. Minutes"}
@@ -112,7 +112,7 @@ const KhatmaPlanner = () => {
           <div className="pt-6 border-t border-border/50 space-y-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${notificationsEnabled ? "bg-emerald-deep/10 text-emerald-deep" : "bg-muted text-muted-foreground"}`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${notificationsEnabled ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
                   {notificationsEnabled ? <Bell className="w-5 h-5" /> : <BellOff className="w-5 h-5" />}
                 </div>
                 <div>
@@ -126,7 +126,7 @@ const KhatmaPlanner = () => {
               </div>
               <button 
                 onClick={requestNotificationPermission}
-                className={`w-12 h-6 rounded-full relative transition-colors ${notificationsEnabled ? "bg-emerald-deep" : "bg-muted"}`}
+                className={`w-12 h-6 rounded-full relative transition-colors ${notificationsEnabled ? "bg-primary" : "bg-muted"}`}
               >
                 <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${notificationsEnabled ? "right-7" : "right-1"}`} />
               </button>
@@ -145,14 +145,14 @@ const KhatmaPlanner = () => {
                   type="time" 
                   value={reminderTime}
                   onChange={(e) => setReminderTime(e.target.value)}
-                  className="w-full p-4 bg-muted/50 rounded-2xl border border-border/50 text-foreground font-mono focus:outline-none focus:ring-2 focus:ring-emerald-deep/20"
+                  className="w-full p-4 bg-muted/50 rounded-2xl border border-border/50 text-foreground font-mono focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </motion.div>
             )}
 
             <button 
               onClick={saveSettings}
-              className="w-full py-4 bg-emerald-deep text-white rounded-2xl font-bold font-naskh shadow-islamic active:scale-95 transition-transform"
+              className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-bold font-naskh shadow-islamic active:scale-95 transition-transform"
             >
               {i18n.language === 'ar' ? "حفظ الإعدادات" : "Save Settings"}
             </button>

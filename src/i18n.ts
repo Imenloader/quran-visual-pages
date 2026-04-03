@@ -22,6 +22,7 @@ const resources = {
         "halalPlaces": "Halal Places",
         "hijri": "Hijri Calendar",
         "dailyVerse": "Daily Verse",
+        "ramadan": "Ramadan Hub",
         "tafsir": "Tafsir",
         "tafsirContent": {
           "title": "Tafsir Al-Muyassar",
@@ -67,6 +68,12 @@ const resources = {
         "prayerTimes": "Prayer Times",
         "qiyam": "Qiyam Al-Layl",
         "khatma_external": "Khatma",
+        "khatma_complete": {
+          "badge": "Mubarak! Congratulations!",
+          "title": "Khatma Complete",
+          "description": "May Allah accept your beautiful journey through the Holy Quran. You have completed the entire Mushaf, a light that will guide your path forever.",
+          "button": "Alhamdulillah"
+        },
         "guide": "User Guide",
         "tajweed": "Tajweed Rules",
         "install": "Install App",
@@ -81,6 +88,9 @@ const resources = {
         },
         "verseOfDay": "Verse of the Day",
         "recitersDesc": "Explore a collection of the most beautiful recitations from around the world"
+      },
+      "prayerTimes": {
+        "title": "Prayer Times"
       },
       "recitations": {
         "audioLibrary": "Audio Library",
@@ -137,7 +147,8 @@ const resources = {
       "common": {
         "all": "All",
         "back": "Back",
-        "close": "Close"
+        "close": "Close",
+        "confirm": "Confirm"
       },
       "search": {
         "placeholder": "Search in Quran (Surah or Ayah)...",
@@ -202,6 +213,9 @@ const resources = {
         "adjustFontSize": "Adjust font size for comfortable reading",
         "notifReminders": "Notifications & Reminders",
         "manageReminders": "Manage daily reminder times",
+        "periodicReminders": "Periodic Reminders",
+        "periodicRemindersDesc": "Remind me of Athkar and Quran reading periodically",
+        "reminderInterval": "Reminder Interval (minutes)",
         "notifNotSupported": "Notifications are not supported in your browser",
         "accountManagement": "Account Management",
         "editAccountDesc": "Edit your personal data or reset",
@@ -212,7 +226,33 @@ const resources = {
         "confirmReset": "Are you sure you want to reset all settings?",
         "defaultName": "Honored Guest",
         "testNotification": "Test Adhan Notification",
-        "testNotifSent": "Test notification and Adhan sound sent",
+        "testMorningNotif": "Test Morning Athkar",
+        "testEveningNotif": "Test Evening Athkar",
+        "testQuranNotif": "Test Daily Verse",
+        "testNotifSent": "Test notification sent",
+        "pagesRead": "Pages Read",
+        "juzCompleted": "Juz Completed",
+        "athkarRecited": "Athkar Recited",
+        "pointsToNext": "Points to Next Level",
+        "spiritualProgress": "Spiritual Progress",
+        "keepReading": "Keep reading to reach the next level",
+        "help": "How to Use",
+        "learnHowToUse": "Learn how to navigate and use all features",
+        "juzCompletedMsg": "Juz Completed!",
+        "juzCompletedDesc": "Congratulations! You have completed Juz {{num}}.",
+        "expGuide": {
+          "title": "Experience Guide",
+          "subtitle": "Your journey of spiritual growth and consistent remembrance",
+          "howToEarn": "How to earn points:",
+          "ayahRead": "Reading an Ayah",
+          "pageRead": "Completing a Page",
+          "juzRead": "Completing a Juz",
+          "athkarCount": "Each Athkar count",
+          "dailyLogin": "Daily login bonus",
+          "points": "Points",
+          "levels": "Levels",
+          "levelsDesc": "Levels represent your consistency and dedication. As you earn points, you will unlock new titles reflecting your spiritual journey."
+        },
         "levels": {
           "1": "Beginner",
           "2": "Diligent",
@@ -223,7 +263,17 @@ const resources = {
           "7": "Master",
           "8": "Completer",
           "9": "Quran Ambassador",
-          "10": "Light of Guidance"
+          "10": "Light of Guidance",
+          "11": "Spiritual Voyager",
+          "12": "Devoted Servant",
+          "13": "Wisdom Seeker",
+          "14": "Faith Guardian",
+          "15": "Pillar of Light",
+          "16": "Heart of Peace",
+          "17": "Eternal Reciter",
+          "18": "Celestial Reader",
+          "19": "Divine Scholar",
+          "20": "Ultimate Sage"
         }
       },
       "settings": {
@@ -249,6 +299,20 @@ const resources = {
           "light": "Light",
           "dark": "Dark / Night",
           "sepia": "Warm Sepia"
+        },
+        "update": {
+          "title": "App Updates",
+          "version": "App Version",
+          "check": "Check for Updates",
+          "checking": "Checking...",
+          "available": "New update available!",
+          "install": "Install Now",
+          "upToDate": "App is up to date",
+          "checkFailed": "Failed to check for updates",
+          "newAvailable": "Update Available",
+          "installNow": "Install New Update",
+          "lastCheck": "Last check",
+          "info": "The app updates automatically when connected to the internet. You can manually check here to ensure you have the latest features and fixes."
         }
       },
       "index": {
@@ -322,6 +386,32 @@ const resources = {
         "stop": "Stop Playback",
         "expand": "Expand Player",
         "collapse": "Collapse Player"
+      },
+      "ramadan": {
+        "title": "Ramadan Kareem",
+        "subtitle": "Your comprehensive guide to the blessed month",
+        "virtues": "Virtues of Ramadan",
+        "virtuesDesc": "The month in which the Quran was revealed, a time of mercy, forgiveness, and salvation from the Fire.",
+        "fastingRules": "Fasting Rules",
+        "fastingRulesDesc": "Essential knowledge about what breaks the fast and what is recommended.",
+        "duas": "Ramadan Supplications",
+        "duasDesc": "Selected prayers for Iftar, Suhoor, and the last ten nights.",
+        "tips": "Spiritual Tips",
+        "tipsDesc": "How to make the most of your time and increase your devotion.",
+        "laylatulQadr": "Laylatul Qadr",
+        "laylatulQadrDesc": "The Night of Decree, better than a thousand months.",
+        "zakatAlFitr": "Zakat Al-Fitr",
+        "zakatAlFitrDesc": "Purification for the fasting person and food for the needy.",
+        "countdown": "Countdown to Ramadan",
+        "days": "Days",
+        "hours": "Hours",
+        "minutes": "Minutes",
+        "seconds": "Seconds",
+        "ramadanIsHere": "Ramadan is here! Mubarak!",
+        "hadith": {
+          "title": "Prophetic Hadith",
+          "content": "\"When Ramadan begins, the gates of Paradise are opened, the gates of Hell are closed, and the devils are chained.\""
+        }
       }
     }
   },
@@ -344,6 +434,7 @@ const resources = {
         "halalPlaces": "أماكن حلال",
         "hijri": "التقويم الهجري",
         "dailyVerse": "آية اليوم",
+        "ramadan": "ركن رمضان",
         "tafsir": "التفسير الميسر",
         "tafsirContent": {
           "title": "التفسير الميسر",
@@ -389,6 +480,12 @@ const resources = {
         "prayerTimes": "مواقيت الصلاة",
         "qiyam": "قيام الليل",
         "khatma_external": "ختمة",
+        "khatma_complete": {
+          "badge": "مبارك! هنيئاً لك!",
+          "title": "تم ختم القرآن الكريم",
+          "description": "تقبل الله منك هذه الرحلة المباركة في رحاب كتاب الله. لقد أتممت ختم المصحف كاملاً، ليكون لك نوراً وهدى في الدارين.",
+          "button": "الحمد لله"
+        },
         "guide": "دليل الاستخدام",
         "tajweed": "أحكام التجويد",
         "install": "تثبيت التطبيق",
@@ -403,6 +500,9 @@ const resources = {
         },
         "verseOfDay": "آية اليوم",
         "recitersDesc": "استكشف مجموعة من أجمل التلاوات من مختلف أنحاء العالم"
+      },
+      "prayerTimes": {
+        "title": "مواقيت الصلاة"
       },
       "recitations": {
         "audioLibrary": "مكتبة التلاوات",
@@ -459,7 +559,8 @@ const resources = {
       "common": {
         "all": "الكل",
         "back": "رجوع",
-        "close": "إغلاق"
+        "close": "إغلاق",
+        "confirm": "تأكيد"
       },
       "search": {
         "placeholder": "ابحث في القرآن (سورة أو آية)...",
@@ -524,6 +625,9 @@ const resources = {
         "adjustFontSize": "ضبط حجم الخط لقراءة مريحة",
         "notifReminders": "التنبيهات والتذكيرات",
         "manageReminders": "إدارة أوقات التذكير اليومية",
+        "periodicReminders": "التذكيرات الدورية",
+        "periodicRemindersDesc": "تذكيري بالأذكار وقراءة القرآن بشكل دوري",
+        "reminderInterval": "فترة التذكير (بالدقائق)",
         "notifNotSupported": "التنبيهات غير مدعومة في متصفحك",
         "accountManagement": "إدارة الحساب",
         "editAccountDesc": "تعديل بياناتك الشخصية أو إعادة الضبط",
@@ -534,7 +638,33 @@ const resources = {
         "confirmReset": "هل أنت متأكد من إعادة ضبط جميع الإعدادات؟",
         "defaultName": "زائر كريم",
         "testNotification": "تجربة تنبيه الأذان",
-        "testNotifSent": "تم إرسال تنبيه تجريبي وصوت الأذان",
+        "testMorningNotif": "تجربة أذكار الصباح",
+        "testEveningNotif": "تجربة أذكار المساء",
+        "testQuranNotif": "تجربة آية اليوم",
+        "testNotifSent": "تم إرسال التنبيه التجريبي",
+        "pagesRead": "صفحة مقروءة",
+        "juzCompleted": "أجزاء مكتملة",
+        "athkarRecited": "ذكر مسبح",
+        "pointsToNext": "نقاط للمستوى التالي",
+        "spiritualProgress": "التقدم الروحي",
+        "keepReading": "استمر في القراءة للارتقاء لمستوى جديد",
+        "help": "كيفية الاستخدام",
+        "learnHowToUse": "تعرف على كيفية التنقل واستخدام جميع المميزات",
+        "juzCompletedMsg": "تم ختم الجزء!",
+        "juzCompletedDesc": "مبارك! لقد أتممت قراءة الجزء {{num}}.",
+        "expGuide": {
+          "title": "دليل الخبرة والارتقاء",
+          "subtitle": "رحلتك في النمو الروحي والمداومة على الذكر",
+          "howToEarn": "كيفية كسب النقاط:",
+          "ayahRead": "قراءة آية واحدة",
+          "pageRead": "إتمام صفحة كاملة",
+          "juzRead": "ختم جزء كامل",
+          "athkarCount": "كل تسبيحة أو ذكر",
+          "dailyLogin": "مكافأة الدخول اليومي",
+          "points": "نقاط",
+          "levels": "المستويات",
+          "levelsDesc": "تمثل المستويات مدى مداومتك واجتهادك. كلما كسبت نقاطاً، ستفتح ألقاباً جديدة تعكس رحلتك الروحية."
+        },
         "levels": {
           "1": "مبتدئ",
           "2": "مجتهد",
@@ -545,7 +675,17 @@ const resources = {
           "7": "متقن",
           "8": "خاتم",
           "9": "سفير القرآن",
-          "10": "نور الهداية"
+          "10": "نور الهداية",
+          "11": "السالك الروحاني",
+          "12": "العبد المنيب",
+          "13": "طالب الحكمة",
+          "14": "حارس الإيمان",
+          "15": "ركن الضياء",
+          "16": "قلب السكينة",
+          "17": "المرتل الأبدي",
+          "18": "القارئ الملكوتي",
+          "19": "العالم الرباني",
+          "20": "الحكيم الأسمى"
         }
       },
       "settings": {
@@ -571,6 +711,20 @@ const resources = {
           "light": "فاتح",
           "dark": "داكن / ليلي",
           "sepia": "بني دافئ"
+        },
+        "update": {
+          "title": "تحديثات التطبيق",
+          "version": "إصدار التطبيق",
+          "check": "التحقق من وجود تحديثات",
+          "checking": "جاري التحقق...",
+          "available": "يتوفر تحديث جديد!",
+          "install": "تثبيت الآن",
+          "upToDate": "التطبيق محدث بالفعل",
+          "checkFailed": "فشل التحقق من التحديثات",
+          "newAvailable": "تحديث متاح",
+          "installNow": "تثبيت التحديث الجديد",
+          "lastCheck": "آخر فحص",
+          "info": "يتم تحديث التطبيق تلقائياً عند توفر اتصال بالإنترنت. يمكنك التحقق يدوياً من هنا للتأكد من حصولك على أحدث الميزات والإصلاحات."
         }
       },
       "index": {
@@ -640,10 +794,36 @@ const resources = {
         "pause": "إيقاف مؤقت",
         "mute": "كتم الصوت",
         "unmute": "إلغاء كتم الصوت",
-        "close": "إغلاق المشغل",
+        "close": "إإغلاق المشغل",
         "stop": "إيقاف التشغيل",
         "expand": "توسيع المشغل",
         "collapse": "طي المشغل"
+      },
+      "ramadan": {
+        "title": "رمضان كريم",
+        "subtitle": "دليلك الشامل للشهر الفضيل",
+        "virtues": "فضائل رمضان",
+        "virtuesDesc": "شهر أنزل فيه القرآن، شهر الرحمة والمغفرة والعتق من النار.",
+        "fastingRules": "أحكام الصيام",
+        "fastingRulesDesc": "معلومات أساسية حول مبطلات الصيام والمستحبات.",
+        "duas": "أدعية رمضانية",
+        "duasDesc": "أدعية مختارة للإفطار والسحور والعشر الأواخر.",
+        "tips": "نصائح إيمانية",
+        "tipsDesc": "كيف تستغل وقتك وتزيد من عباداتك في الشهر الكريم.",
+        "laylatulQadr": "ليلة القدر",
+        "laylatulQadrDesc": "ليلة هي خير من ألف شهر، فيها تنزل الملائكة والروح.",
+        "zakatAlFitr": "زكاة الفطر",
+        "zakatAlFitrDesc": "طهرة للصائم وطعمة للمساكين.",
+        "countdown": "العد التنازلي لرمضان",
+        "days": "أيام",
+        "hours": "ساعات",
+        "minutes": "دقائق",
+        "seconds": "ثواني",
+        "ramadanIsHere": "حل شهر رمضان! مبارك عليكم الشهر!",
+        "hadith": {
+          "title": "حديث نبوي",
+          "content": "«إذا دخل رمضان فتحت أبواب الجنة، وغلقت أبواب النار، وسلسلت الشياطين»"
+        }
       }
     }
   }

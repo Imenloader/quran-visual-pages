@@ -16,7 +16,7 @@ const QuranHeader = ({ title = "القرآن الكريم", showBack = false }: 
       {showBack && (
         <button 
           onClick={() => navigate(-1)}
-          className="absolute top-6 right-6 z-50 p-3 rounded-2xl bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-all active:scale-90 flex items-center gap-2 group"
+          className="absolute top-6 right-6 z-50 p-3 rounded-2xl bg-primary/10 backdrop-blur-md text-primary hover:bg-primary/20 transition-all active:scale-90 flex items-center gap-2 group"
         >
           <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
           <span className="text-xs font-serif font-bold">العودة</span>

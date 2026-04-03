@@ -108,7 +108,7 @@ const HijriCalendar = () => {
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-8 bg-emerald-deep text-white rounded-[2.5rem] shadow-islamic text-center space-y-4 relative overflow-hidden"
+                className="p-8 bg-primary text-primary-foreground rounded-[2.5rem] shadow-islamic text-center space-y-4 relative overflow-hidden"
               >
                 <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
                   <CalendarIcon className="w-48 h-48" />
@@ -123,7 +123,7 @@ const HijriCalendar = () => {
                       <p className="text-sm font-mono opacity-80">{toArabicDigits(currentHijri.year)} {i18n.language === 'ar' ? 'هـ' : 'AH'}</p>
                     </div>
                   </div>
-                  <div className="pt-4 border-t border-white/20">
+                  <div className="pt-4 border-t border-primary-foreground/20">
                     <p className="text-sm font-naskh opacity-80">{format(new Date(), "EEEE d MMMM yyyy", { locale: i18n.language === 'ar' ? ar : undefined })}</p>
                   </div>
                 </div>
@@ -160,7 +160,7 @@ const HijriCalendar = () => {
 
             {loading ? (
               <div className="flex items-center justify-center py-20">
-                <Loader2 className="w-8 h-8 text-emerald-deep animate-spin" />
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
               </div>
             ) : (
               <div className="grid grid-cols-7 gap-1 text-center">

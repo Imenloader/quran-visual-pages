@@ -84,7 +84,7 @@ const QiblaFinder = () => {
     <div className="min-h-screen bg-background flex flex-col items-center overflow-hidden">
       {/* Immersive Background */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-deep/20 via-background to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-background to-background" />
         <div className="absolute top-0 left-0 w-full h-full pattern-islamic opacity-[0.03] scale-150" />
         <motion.div 
           animate={{ 
@@ -118,7 +118,7 @@ const QiblaFinder = () => {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1.1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
-                className="absolute inset-0 bg-emerald-deep/20 rounded-full blur-3xl"
+                className="absolute inset-0 bg-primary/20 rounded-full blur-3xl"
               />
             )}
           </AnimatePresence>
@@ -160,18 +160,18 @@ const QiblaFinder = () => {
           >
             <div className="relative w-full h-full flex items-center justify-center">
               {/* The Needle */}
-              <div className={`w-2 h-40 rounded-full relative transition-colors duration-500 ${isFacingQibla ? "bg-emerald-deep" : "bg-gold/40"}`}>
-                <div className={`absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-500 ${isFacingQibla ? "bg-emerald-deep scale-110" : "bg-card border border-border"}`}>
+              <div className={`w-2 h-40 rounded-full relative transition-colors duration-500 ${isFacingQibla ? "bg-primary" : "bg-gold/40"}`}>
+                <div className={`absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-500 ${isFacingQibla ? "bg-primary scale-110" : "bg-card border border-border"}`}>
                   <Compass className={`w-7 h-7 transition-colors duration-500 ${isFacingQibla ? "text-white" : "text-gold"}`} />
                 </div>
                 {/* Arrow head */}
-                <div className={`absolute -top-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[12px] transition-colors duration-500 ${isFacingQibla ? "border-b-emerald-deep" : "border-b-gold/40"}`} />
+                <div className={`absolute -top-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[12px] transition-colors duration-500 ${isFacingQibla ? "border-b-primary" : "border-b-gold/40"}`} />
               </div>
             </div>
           </motion.div>
 
           {/* Center Point */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-background border-4 border-emerald-deep rounded-full z-20 shadow-md" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-background border-4 border-primary rounded-full z-20 shadow-md" />
         </div>
 
         <div className="text-center space-y-4">
@@ -179,13 +179,13 @@ const QiblaFinder = () => {
             animate={isFacingQibla ? { scale: [1, 1.05, 1] } : {}}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            <p className={`text-3xl font-bold font-naskh transition-colors duration-500 ${isFacingQibla ? "text-emerald-deep" : "text-foreground"}`}>
+            <p className={`text-3xl font-bold font-naskh transition-colors duration-500 ${isFacingQibla ? "text-primary" : "text-foreground"}`}>
               {isFacingQibla ? "أنت تواجه القبلة" : "قم بتدوير الهاتف"}
             </p>
           </motion.div>
           <div className="flex items-center justify-center gap-3 bg-card/50 backdrop-blur-md border border-border/40 px-6 py-2 rounded-full shadow-sm">
             <span className="text-sm text-muted-foreground font-naskh">اتجاه القبلة:</span>
-            <span className="text-lg font-bold font-mono text-emerald-deep">{Math.round(qiblaDirection)}°</span>
+            <span className="text-lg font-bold font-mono text-primary">{Math.round(qiblaDirection)}°</span>
           </div>
         </div>
 

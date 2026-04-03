@@ -240,6 +240,7 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
   const [error, setError] = useState<string | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const [audioUnlocked, setAudioUnlocked] = useState(false);
+  const [isAdhanPlaying, setIsAdhanPlaying] = useState(false);
   const notifTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const playPromiseRef = useRef<Promise<void> | null>(null);
@@ -310,6 +311,10 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
         audio.src = finalUrl;
         audio.preload = "auto";
         audioRef.current = audio;
+        
+        audio.onplay = () => setIsAdhanPlaying(true);
+        audio.onended = () => setIsAdhanPlaying(false);
+        audio.onpause = () => setIsAdhanPlaying(false);
 
         audio.onerror = () => {
           const err = audio.error;
@@ -474,7 +479,7 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
           const title = `🕌 حان الآن وقت صلاة ${PRAYER_NAMES[prayer]}`;
           const body = `الله أكبر، الله أكبر.. حان الآن موعد أذان صلاة ${PRAYER_NAMES[prayer]} حسب توقيت ${settings.cityName || "القاهرة"}`;
           
-          if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+          if ("serviceWorker" in navigator) {
             navigator.serviceWorker.ready.then((reg) => {
               reg.showNotification(title, {
                 body,
@@ -484,9 +489,16 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
                 lang: "ar",
                 renotify: true,
                 vibrate: [200, 100, 200, 100, 200],
-              } as NotificationOptions);
+                data: { url: "/prayer-times" }
+              } as NotificationOptions).catch(err => {
+                console.error("Failed to show notification via SW:", err);
+                // Fallback to standard notification
+                if ("Notification" in window && Notification.permission === "granted") {
+                  new Notification(title, { body, icon: "/pwa-192x192.png", tag: `prayer-${prayer}`, dir: "rtl", lang: "ar" });
+                }
+              });
             });
-          } else {
+          } else if ("Notification" in window && Notification.permission === "granted") {
             new Notification(title, {
               body,
               icon: "/pwa-192x192.png",
@@ -512,7 +524,7 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
             const title = `🔔 اقترب موعد صلاة ${PRAYER_NAMES[prayer]}`;
             const body = `بقي ${settings.prePrayerMinutes} دقائق على أذان صلاة ${PRAYER_NAMES[prayer]}`;
             
-            if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+            if ("serviceWorker" in navigator) {
               navigator.serviceWorker.ready.then((reg) => {
                 reg.showNotification(title, {
                   body,
@@ -521,6 +533,7 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
                   dir: "rtl",
                   lang: "ar",
                   renotify: true,
+                  data: { url: "/prayer-times" }
                 } as NotificationOptions);
               });
             } else {
@@ -573,6 +586,7 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
     }
+    setIsAdhanPlaying(false);
   }, []);
 
   const previewAdhan = useCallback((soundId: string) => {
@@ -592,7 +606,7 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
     const title = `🕌 حان الآن موعد صلاة ${prayerNameAr}`;
     const body = `حان الآن موعد أذان صلاة ${prayerNameAr} في ${settings.cityName} - الوقت: ${timeStr}`;
     
-    if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+    if ("serviceWorker" in navigator) {
       navigator.serviceWorker.ready.then((reg) => {
         reg.showNotification(title, {
           body, 
@@ -602,6 +616,7 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
           lang: "ar", 
           renotify: true,
           vibrate: [200, 100, 200],
+          data: { url: "/prayer-times" }
         } as NotificationOptions);
       });
     } else if ("Notification" in window && Notification.permission === "granted") {
@@ -620,6 +635,21 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
     // Stop after 20 seconds
     setTimeout(() => stopAdhan(), 20000);
   }, [effectiveTimes, settings.adhanSound, settings.cityName, playAdhanSound, stopAdhan]);
+
+  // Listen for STOP_ADHAN message from service worker
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+    
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'STOP_ADHAN') {
+        console.log("Received STOP_ADHAN from service worker");
+        stopAdhan();
+      }
+    };
+    
+    navigator.serviceWorker.addEventListener('message', handleMessage);
+    return () => navigator.serviceWorker.removeEventListener('message', handleMessage);
+  }, [stopAdhan]);
 
   return {
     settings,
@@ -640,5 +670,6 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
     },
     unlockAudio,
     audioUnlocked,
+    isAdhanPlaying,
   };
 }

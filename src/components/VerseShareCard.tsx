@@ -1,10 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import html2canvas from 'html2canvas';
 import { Download, Share2, X, Sparkles, MoonStar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toArabicNumber } from '@/data/quranData';
 import { useTheme } from '@/contexts/ThemeContext';
 import { applyTajweedColors } from '@/lib/tajweedParser';
+import { toast } from 'sonner';
 
 interface VerseShareCardProps {
   verse: {
@@ -21,6 +22,7 @@ const VerseShareCard: React.FC<VerseShareCardProps> = ({ verse, translation, onC
   const { tajweedMode } = useTheme();
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<'gold' | 'emerald' | 'night'>('gold');
+  const [preRenderedBlob, setPreRenderedBlob] = useState<Blob | null>(null);
 
   const themes = {
     gold: "bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] border-gold/30 text-gold",
@@ -28,21 +30,126 @@ const VerseShareCard: React.FC<VerseShareCardProps> = ({ verse, translation, onC
     night: "bg-black border-white/10 text-white"
   };
 
+  // Pre-render the image whenever the theme or verse changes
+  useEffect(() => {
+    const preRender = async () => {
+      if (!cardRef.current) return;
+      
+      // Small delay to ensure DOM is fully ready and fonts are loaded
+      await new Promise(resolve => setTimeout(resolve, 400));
+      
+      try {
+        const canvas = await html2canvas(cardRef.current, {
+          scale: 1.5,
+          backgroundColor: null,
+          useCORS: true,
+          logging: false,
+          allowTaint: true,
+          imageTimeout: 0,
+          removeContainer: true,
+        });
+        
+        canvas.toBlob((blob) => {
+          setPreRenderedBlob(blob);
+        }, 'image/png');
+      } catch (error) {
+        console.error("Pre-render failed:", error);
+      }
+    };
+
+    setPreRenderedBlob(null);
+    preRender();
+  }, [selectedTheme, verse, tajweedMode]);
+
   const handleDownload = async () => {
+    if (preRenderedBlob) {
+      const link = document.createElement('a');
+      link.download = `Ayah-${verse.surahName}-${verse.ayahNumber}.png`;
+      link.href = URL.createObjectURL(preRenderedBlob);
+      link.click();
+      toast.success("تم تحميل الصورة بنجاح");
+      return;
+    }
+
     if (!cardRef.current) return;
     setIsGenerating(true);
     try {
       const canvas = await html2canvas(cardRef.current, {
-        scale: 3,
+        scale: 1.5,
         backgroundColor: null,
         useCORS: true,
+        logging: false,
+        allowTaint: true,
       });
       const link = document.createElement('a');
       link.download = `Ayah-${verse.surahName}-${verse.ayahNumber}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
+      toast.success("تم تحميل الصورة بنجاح");
     } catch (error) {
       console.error("Failed to generate image:", error);
+      toast.error("فشل في تحميل الصورة");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleShare = async () => {
+    if (isGenerating) return;
+
+    const performShare = async (blob: Blob) => {
+      const file = new File([blob], `Ayah-${verse.surahName}-${verse.ayahNumber}.png`, { type: 'image/png' });
+      
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: `آية من سورة ${verse.surahName}`,
+            text: `آية ${toArabicNumber(verse.ayahNumber)} من سورة ${verse.surahName}`,
+          });
+        } catch (error) {
+          if ((error as Error).name !== 'AbortError') {
+            console.error("Share failed:", error);
+            if (!(error as Error).message.includes('earlier share')) {
+              toast.error("فشل في المشاركة");
+            }
+          }
+        }
+      } else {
+        const link = document.createElement('a');
+        link.download = `Ayah-${verse.surahName}-${verse.ayahNumber}.png`;
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        toast.info("تم تحميل الصورة (المشاركة غير مدعومة في هذا المتصفح)");
+      }
+    };
+
+    if (preRenderedBlob) {
+      await performShare(preRenderedBlob);
+      return;
+    }
+
+    if (!cardRef.current) return;
+    setIsGenerating(true);
+    try {
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 1.5,
+        backgroundColor: null,
+        useCORS: true,
+        logging: false,
+        allowTaint: true,
+      });
+
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
+      if (!blob) {
+        toast.error("فشل في توليد الصورة");
+        return;
+      }
+
+      await performShare(blob);
+    } catch (error) {
+      console.error("Failed to generate image for sharing:", error);
+      toast.error("فشل في توليد الصورة للمشاركة");
     } finally {
       setIsGenerating(false);
     }
@@ -71,7 +178,8 @@ const VerseShareCard: React.FC<VerseShareCardProps> = ({ verse, translation, onC
           <div className="flex justify-center">
             <div 
               ref={cardRef}
-              className={`w-[400px] aspect-[4/5] rounded-[2rem] p-10 flex flex-col justify-between relative overflow-hidden border-4 shadow-2xl ${themes[selectedTheme]}`}
+              className={`w-[400px] aspect-[4/5] rounded-[2rem] p-10 flex flex-col justify-between relative overflow-hidden border-4 ${themes[selectedTheme]}`}
+              style={{ willChange: 'transform' }}
               dir="rtl"
             >
               {/* Decorative Elements */}
@@ -123,18 +231,32 @@ const VerseShareCard: React.FC<VerseShareCardProps> = ({ verse, translation, onC
             ))}
           </div>
 
-          <button
-            onClick={handleDownload}
-            disabled={isGenerating}
-            className="w-full py-5 rounded-[2rem] bg-accent text-accent-foreground font-serif font-bold text-lg flex items-center justify-center gap-3 hover:shadow-gold-glow transition-all disabled:opacity-50"
-          >
-            {isGenerating ? (
-              <Sparkles className="animate-spin" size={20} />
-            ) : (
-              <Download size={20} />
-            )}
-            {isGenerating ? "جاري التوليد..." : "تحميل الصورة"}
-          </button>
+          <div className="flex gap-4">
+            <button
+              onClick={handleShare}
+              disabled={isGenerating}
+              className="flex-1 py-4 rounded-2xl bg-primary text-primary-foreground font-serif font-bold text-lg flex items-center justify-center gap-3 hover:shadow-lg transition-all disabled:opacity-50"
+              title="مشاركة"
+            >
+              {isGenerating ? (
+                <Sparkles className="animate-spin" size={24} />
+              ) : (
+                <Share2 size={24} />
+              )}
+            </button>
+            <button
+              onClick={handleDownload}
+              disabled={isGenerating}
+              className="flex-1 py-4 rounded-2xl bg-accent text-accent-foreground font-serif font-bold text-lg flex items-center justify-center gap-3 hover:shadow-gold-glow transition-all disabled:opacity-50"
+              title="تحميل الصورة"
+            >
+              {isGenerating ? (
+                <Sparkles className="animate-spin" size={24} />
+              ) : (
+                <Download size={24} />
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </motion.div>

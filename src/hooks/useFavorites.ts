@@ -1,10 +1,10 @@
 import { useState, useCallback, useEffect } from "react";
 
 export type FavoriteItem =
-  | { type: "juz"; id: number }
-  | { type: "dhikr"; id: number; categoryId: string }
-  | { type: "recitation"; id: number; surahName: string; reciterId: number; reciterName: string; moshafId: number; moshafServer: string }
-  | { type: "reciter"; id: number; name: string };
+  | { type: "juz"; id: number; nickname?: string }
+  | { type: "dhikr"; id: number; categoryId: string; nickname?: string }
+  | { type: "recitation"; id: number; surahName: string; reciterId: number; reciterName: string; moshafId: number; moshafServer: string; nickname?: string }
+  | { type: "reciter"; id: number; name: string; nickname?: string };
 
 const STORAGE_KEY = "quran-favorites";
 
@@ -30,6 +30,24 @@ export const useFavorites = () => {
     };
     window.addEventListener("storage", handler);
     return () => window.removeEventListener("storage", handler);
+  }, []);
+
+  const reorderFavorites = useCallback((newOrder: FavoriteItem[]) => {
+    setFavorites(newOrder);
+    saveFavorites(newOrder);
+  }, []);
+
+  const updateFavorite = useCallback((item: FavoriteItem, updates: Partial<FavoriteItem>) => {
+    setFavorites(prev => {
+      const next = prev.map(f => {
+        const isMatch = f.type === item.type && f.id === item.id && 
+          (f.type !== "recitation" || (f.reciterId === item.reciterId && f.moshafId === item.moshafId));
+        
+        return isMatch ? { ...f, ...updates } : f;
+      });
+      saveFavorites(next);
+      return next;
+    });
   }, []);
 
   const toggleFavorite = useCallback((item: FavoriteItem) => {
@@ -75,5 +93,5 @@ export const useFavorites = () => {
     [favorites]
   );
 
-  return { favorites, toggleFavorite, isFavorite };
+  return { favorites, toggleFavorite, isFavorite, reorderFavorites, updateFavorite };
 };

@@ -56,10 +56,10 @@ const PrayerTracker = () => {
 
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-4 bg-emerald-deep/10 border border-emerald-deep/20 rounded-2xl text-center">
-              <Trophy className="w-6 h-6 text-emerald-deep mx-auto mb-2" />
+            <div className="p-4 bg-primary/10 border border-primary/20 rounded-2xl text-center">
+              <Trophy className="w-6 h-6 text-primary mx-auto mb-2" />
               <p className="text-xs text-muted-foreground font-naskh">صلاة اليوم</p>
-              <p className="text-2xl font-bold text-emerald-deep">{completedToday} / 5</p>
+              <p className="text-2xl font-bold text-primary">{completedToday} / 5</p>
             </div>
             <div className="p-4 bg-accent/10 border border-accent/20 rounded-2xl text-center">
               <Calendar className="w-6 h-6 text-accent mx-auto mb-2" />
@@ -79,7 +79,7 @@ const PrayerTracker = () => {
                     onClick={() => togglePrayer(prayer.id)}
                     className={`w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${
                       isCompleted 
-                        ? "border-emerald-deep bg-emerald-deep/5 text-emerald-deep" 
+                        ? "border-primary bg-primary/5 text-primary" 
                         : "border-border text-muted-foreground hover:bg-muted"
                     }`}
                   >

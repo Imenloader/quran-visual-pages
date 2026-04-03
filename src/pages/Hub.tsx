@@ -31,6 +31,7 @@ import { dailyVerses } from "@/data/dailyVersesData";
 import { juzData, toArabicNumber, getQuranPageImageUrl } from "@/data/quranData";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
+import QuranHeader from "@/components/QuranHeader";
 
 const Hub = () => {
   const { t, i18n } = useTranslation();
@@ -195,6 +196,7 @@ const Hub = () => {
       title: t("hub.knowledge"),
       icon: <BookOpen className="w-5 h-5 text-amber-500" />,
       tools: [
+        { name: t("ramadan"), icon: <Moon className="w-5 h-5" />, path: "/ramadan" },
         { name: t("hub.hijri"), icon: <Calendar className="w-5 h-5" />, path: "/hijri" },
         { name: t("hub.dailyVerse"), icon: <BookOpen className="w-5 h-5" />, path: "/daily-verse" },
         { name: t("hub.tafsir"), icon: <BookOpen className="w-5 h-5" />, path: "/tafsir" },
@@ -214,21 +216,9 @@ const Hub = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-24 pt-6 px-4 overflow-x-hidden">
-      <div className="max-w-7xl mx-auto">
-        <header className="mb-12 text-center relative">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-emerald-deep/5 blur-3xl rounded-full -z-10" />
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-emerald-deep/10 text-emerald-deep mb-6 shadow-islamic relative group"
-          >
-            <div className="absolute inset-0 bg-emerald-deep/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-            <LayoutGrid className="w-10 h-10 relative z-10" />
-          </motion.div>
-          <h1 className="text-4xl md:text-5xl font-bold font-naskh text-foreground tracking-tight">{t("hub.title")}</h1>
-          <p className="text-lg text-muted-foreground font-naskh mt-3 max-w-md mx-auto opacity-80">{t("hub.subtitle")}</p>
-        </header>
+    <div className="min-h-screen bg-background pb-24 overflow-x-hidden">
+      <QuranHeader title={t("hub.title")} subtitle={t("hub.subtitle")} variant="compact" />
+      <div className="max-w-7xl mx-auto px-4 mt-12">
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Column: Progress & Offline */}
@@ -243,14 +233,14 @@ const Hub = () => {
               <section
                 className={`bento-card !p-8 border-none relative overflow-hidden group shadow-islamic transition-all duration-500 ${
                   downloadAllState === "done" 
-                    ? "!bg-emerald-deep text-white shadow-emerald-500/20" 
+                    ? "!bg-primary text-primary-foreground shadow-primary/20" 
                     : "!bg-accent/5 text-accent-foreground shadow-accent/5 border border-accent/10"
                 }`}
               >
                 <div className="absolute inset-0 pattern-islamic opacity-[0.03] group-hover:scale-110 transition-transform duration-1000" />
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-8">
-                    <div className={`p-4 rounded-2xl shadow-inner ${downloadAllState === "done" ? "bg-white/10" : "bg-accent/10"}`}>
+                    <div className={`p-4 rounded-2xl shadow-inner ${downloadAllState === "done" ? "bg-primary/10" : "bg-accent/10"}`}>
                       <DownloadCloud strokeWidth={1.5} className={`size-[24px] ${downloadAllState === "done" ? "text-white" : "text-accent"}`} />
                     </div>
                     {downloadAllState === "downloading" && (
@@ -301,7 +291,7 @@ const Hub = () => {
                         {downloadAllState === "downloading" ? (
                           <button 
                             onClick={pauseDownload}
-                            className="flex-1 py-3 rounded-xl bg-white/10 hover:bg-white/20 transition-all font-serif text-sm flex items-center justify-center gap-2 border border-white/10 text-white"
+                            className="flex-1 py-3 rounded-xl bg-primary/10 hover:bg-primary/20 transition-all font-serif text-sm flex items-center justify-center gap-2 border border-primary/10 text-white"
                           >
                             <Pause size={16} />
                             {t("hub.offline.pause")}
@@ -309,7 +299,7 @@ const Hub = () => {
                         ) : downloadAllState === "paused" ? (
                           <button 
                             onClick={downloadAll}
-                            className="flex-1 py-3 rounded-xl bg-white/10 hover:bg-white/20 transition-all font-serif text-sm flex items-center justify-center gap-2 border border-white/10 text-white"
+                            className="flex-1 py-3 rounded-xl bg-primary/10 hover:bg-primary/20 transition-all font-serif text-sm flex items-center justify-center gap-2 border border-primary/10 text-white"
                           >
                             <Play size={16} />
                             {t("hub.offline.resume")}

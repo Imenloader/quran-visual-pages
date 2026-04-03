@@ -15,6 +15,8 @@ interface ThemeContextType {
   setScrollDirection: (direction: ScrollDirection) => void;
   tajweedMode: boolean;
   setTajweedMode: (mode: boolean) => void;
+  hifzMode: boolean;
+  setHifzMode: (mode: boolean) => void;
   isFullscreen: boolean;
   setIsFullscreen: (v: boolean) => void;
 }
@@ -50,6 +52,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return saved === "true";
   });
 
+  const [hifzMode, setHifzModeState] = useState<boolean>(() => {
+    const saved = localStorage.getItem("quran-hifz-mode");
+    return saved === "true";
+  });
+
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
     localStorage.setItem("quran-theme", newTheme);
@@ -73,6 +80,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const setTajweedMode = (newMode: boolean) => {
     setTajweedModeState(newMode);
     localStorage.setItem("quran-tajweed-mode", newMode.toString());
+  };
+
+  const setHifzMode = (newMode: boolean) => {
+    setHifzModeState(newMode);
+    localStorage.setItem("quran-hifz-mode", newMode.toString());
   };
 
   const setIsFullscreen = (v: boolean) => {
@@ -110,6 +122,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       readingMode, setReadingMode,
       scrollDirection, setScrollDirection,
       tajweedMode, setTajweedMode,
+      hifzMode, setHifzMode,
       isFullscreen, setIsFullscreen
     }}>
       {children}

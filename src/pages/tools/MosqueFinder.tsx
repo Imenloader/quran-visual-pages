@@ -111,7 +111,7 @@ const MosqueFinder = () => {
                     className="p-4 bg-card border border-border rounded-2xl shadow-soft flex items-center justify-between group hover:bg-accent/5 transition-colors"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-emerald-deep/10 text-emerald-deep flex items-center justify-center shrink-0">
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
                         <MapPin className="w-6 h-6" />
                       </div>
                       <div className="space-y-1">

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { toArabicNumber } from "@/data/quranData";
 
 interface UserProfile {
   name: string;
@@ -7,6 +8,9 @@ interface UserProfile {
   joinedDate: string;
   points: number;
   totalAyahsRead: number;
+  totalPagesRead: number;
+  totalJuzCompleted: number;
+  totalAthkarRecited: number;
   daysActive: number;
   lastActiveDate: string;
 }
@@ -16,8 +20,12 @@ interface UserContextType {
   updateProfile: (updates: Partial<UserProfile>) => void;
   addPoints: (amount: number) => void;
   addAyahRead: () => void;
+  addPageRead: () => void;
+  addJuzCompleted: () => void;
+  addAthkarRecited: (count?: number) => void;
   level: number;
   nextLevelPoints: number;
+  prevLevelPoints: number;
   levelProgress: number;
   levelName: string;
 }
@@ -29,10 +37,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const DEFAULT_PROFILE: UserProfile = {
     name: t("profile.defaultName"),
-    avatar: "",
+    avatar: "/avatar-man-1.svg",
     joinedDate: new Date().toISOString(),
     points: 0,
     totalAyahsRead: 0,
+    totalPagesRead: 0,
+    totalJuzCompleted: 0,
+    totalAthkarRecited: 0,
     daysActive: 1,
     lastActiveDate: new Date().toISOString().split("T")[0],
   };
@@ -41,7 +52,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const saved = localStorage.getItem("user-profile");
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // Migration for new fields
+        return {
+          ...DEFAULT_PROFILE,
+          ...parsed,
+        };
       } catch (e) {
         console.error("Failed to parse user profile", e);
       }
@@ -68,7 +84,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ...prev,
         lastActiveDate: today,
         daysActive: prev.daysActive + 1,
-        points: prev.points + 10, // 10 points for daily login
+        points: prev.points + 100, // 100 points for daily login bonus
       }));
     }
   }, [profile.lastActiveDate]);
@@ -85,26 +101,59 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(prev => ({
       ...prev,
       totalAyahsRead: prev.totalAyahsRead + 1,
-      points: prev.points + 1, // 1 point per ayah
+      points: prev.points + 10, // 10 points per ayah
     }));
   };
 
-  // Level logic
-  const getLevelInfo = (points: number) => {
-    if (points < 100) return { level: 1, next: 100 };
-    if (points < 300) return { level: 2, next: 300 };
-    if (points < 600) return { level: 3, next: 600 };
-    if (points < 1000) return { level: 4, next: 1000 };
-    if (points < 2000) return { level: 5, next: 2000 };
-    if (points < 4000) return { level: 6, next: 4000 };
-    if (points < 7000) return { level: 7, next: 7000 };
-    if (points < 11000) return { level: 8, next: 11000 };
-    if (points < 16000) return { level: 9, next: 16000 };
-    return { level: 10, next: 1000000 };
+  const addPageRead = () => {
+    setProfile(prev => ({
+      ...prev,
+      totalPagesRead: prev.totalPagesRead + 1,
+      points: prev.points + 150, // 150 points per page
+    }));
   };
 
-  const levelInfo = getLevelInfo(profile.points);
-  const levelName = t(`profile.levels.${levelInfo.level}`);
+  const addJuzCompleted = () => {
+    setProfile(prev => ({
+      ...prev,
+      totalJuzCompleted: prev.totalJuzCompleted + 1,
+      points: prev.points + 3000, // 3000 points per Juz
+    }));
+  };
+
+  const addAthkarRecited = (count: number = 1) => {
+    setProfile(prev => ({
+      ...prev,
+      totalAthkarRecited: prev.totalAthkarRecited + count,
+      points: prev.points + (count * 2), // 2 points per athkar count
+    }));
+  };
+
+  // Level logic: Points = 100 * Level * (Level + 1) / 2
+  // Reverse: Level = (sqrt(8 * Points / 100 + 1) - 1) / 2
+  const calculateLevel = (points: number) => {
+    const level = Math.floor((Math.sqrt(8 * points / 100 + 1) - 1) / 2);
+    return Math.max(1, level + 1);
+  };
+
+  const getThreshold = (level: number) => {
+    if (level <= 1) return 0;
+    const l = level - 1;
+    return 100 * l * (l + 1) / 2;
+  };
+
+  const currentLevel = calculateLevel(profile.points);
+  const nextLevelThreshold = getThreshold(currentLevel + 1);
+  const prevLevelThreshold = getThreshold(currentLevel);
+  
+  const levelProgress = Math.min(100, Math.max(0, 
+    ((profile.points - prevLevelThreshold) / (nextLevelThreshold - prevLevelThreshold)) * 100
+  ));
+
+  // Get level name (use translations for 1-20, then generic for higher)
+  const levelName = currentLevel <= 20 
+    ? t(`profile.levels.${currentLevel}`)
+    : `${t(`profile.levels.${(currentLevel % 10) + 10}`)} (${toArabicNumber(currentLevel)})`;
   
   // Handle default name translation
   const displayProfile = {
@@ -114,17 +163,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       : profile.name
   };
   
-  // Calculate previous level threshold to get accurate progress within current level
-  const getPrevThreshold = (currentLevel: number) => {
-    if (currentLevel <= 1) return 0;
-    // Find the threshold of the level just before current
-    const thresholds = [0, 100, 300, 600, 1000, 2000, 4000, 7000, 11000, 16000];
-    return thresholds[currentLevel - 1] || 0;
-  };
-
-  const prevThreshold = getPrevThreshold(levelInfo.level);
-  const levelProgress = Math.min(100, Math.max(0, ((profile.points - prevThreshold) / (levelInfo.next - prevThreshold)) * 100));
-
   return (
     <UserContext.Provider
       value={{
@@ -132,8 +170,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateProfile,
         addPoints,
         addAyahRead,
-        level: levelInfo.level,
-        nextLevelPoints: levelInfo.next,
+        addPageRead,
+        addJuzCompleted,
+        addAthkarRecited,
+        level: currentLevel,
+        nextLevelPoints: nextLevelThreshold,
+        prevLevelPoints: prevLevelThreshold,
         levelProgress,
         levelName: levelName,
       }}

@@ -59,7 +59,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
       <motion.div 
         layout
         className={cn(
-          "relative flex items-center gap-0.5 sm:gap-2 p-1.5 rounded-full bg-emerald-deep/40 backdrop-blur-2xl border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.4)] transition-all duration-700 ease-[0.16, 1, 0.3, 1] max-w-[98vw] sm:max-w-none overflow-hidden",
+          "relative flex items-center gap-0.5 sm:gap-2 p-1.5 rounded-full bg-primary/40 backdrop-blur-2xl border border-primary/10 shadow-[0_12px_40px_rgba(0,0,0,0.4)] transition-all duration-700 ease-[0.16, 1, 0.3, 1] max-w-[98vw] sm:max-w-none overflow-hidden",
           isExpanded ? "px-2 sm:px-5 py-2.5 rounded-[3rem]" : "p-1.5"
         )}
       >
@@ -112,16 +112,16 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
             >
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9 rounded-full hover:bg-white/10 text-white/80">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9 rounded-full hover:bg-primary/10 text-white/80">
                     <Music size={16} className="sm:size-[18px]" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="bottom" className="h-[50vh] rounded-t-[3rem] border-t-white/10 bg-emerald-deep/98 backdrop-blur-3xl text-white">
-                  <SheetHeader className="text-right pb-6 border-b border-white/5">
+                <SheetContent side="bottom" className="h-[50vh] rounded-t-[3rem] border-t-primary/10 bg-primary/98 backdrop-blur-3xl text-white">
+                  <SheetHeader className="text-right pb-6 border-b border-primary/5">
                     <div className="flex items-center justify-between">
                       <div className="w-10" />
                       <SheetTitle className="font-serif text-3xl text-gold">اختر القارئ</SheetTitle>
-                      <div className="p-2 rounded-full bg-white/5 text-white/40">
+                      <div className="p-2 rounded-full bg-primary/5 text-white/40">
                         <Music size={20} />
                       </div>
                     </div>
@@ -136,8 +136,8 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                           className={cn(
                             "justify-start h-auto py-5 px-6 rounded-[1.5rem] font-naskh text-right transition-all group",
                             selectedEdition?.identifier === edition.identifier 
-                              ? "bg-gold text-emerald-deep shadow-xl scale-[1.02]" 
-                              : "hover:bg-white/5 text-white/70 hover:text-white"
+                              ? "bg-gold text-primary shadow-xl scale-[1.02]" 
+                              : "hover:bg-primary/5 text-white/70 hover:text-white"
                           )}
                           onClick={() => setSelectedEdition(edition)}
                         >
@@ -152,12 +152,12 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                 </SheetContent>
               </Sheet>
 
-              <div className="hidden sm:block h-6 w-px bg-white/10 mx-1" />
+              <div className="hidden sm:block h-6 w-px bg-primary/10 mx-1" />
 
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-8 w-8 sm:h-9 sm:w-9 rounded-full hover:bg-white/10 text-white/80"
+                className="h-8 w-8 sm:h-9 sm:w-9 rounded-full hover:bg-primary/10 text-white/80"
                 onClick={(e) => { e.stopPropagation(); skipPrevAyah(); }}
               >
                 <SkipBack size={16} className="sm:size-[18px]" />
@@ -171,7 +171,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
           size="icon" 
           className={cn(
             "relative z-10 rounded-full transition-all duration-700 ease-[0.16, 1, 0.3, 1] shadow-2xl",
-            isExpanded ? "w-11 h-11 sm:w-14 sm:h-14 bg-gold text-emerald-deep hover:scale-105 shadow-gold/20" : "w-12 h-12 bg-white/10 text-white hover:bg-white/20"
+            isExpanded ? "w-11 h-11 sm:w-14 sm:h-14 bg-gold text-primary hover:scale-105 shadow-gold/20" : "w-12 h-12 bg-primary/10 text-white hover:bg-primary/20"
           )}
           onClick={handlePlayToggle}
         >
@@ -195,20 +195,20 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-8 w-8 sm:h-9 sm:w-9 rounded-full hover:bg-white/10 text-white/80"
+                className="h-8 w-8 sm:h-9 sm:w-9 rounded-full hover:bg-primary/10 text-white/80"
                 onClick={(e) => { e.stopPropagation(); skipNextAyah(); }}
               >
                 <SkipForward size={16} className="sm:size-[18px]" />
               </Button>
 
-              <div className="hidden sm:block h-6 w-px bg-white/10 mx-1" />
+              <div className="hidden sm:block h-6 w-px bg-primary/10 mx-1" />
 
               <Button 
                 variant={syncMode ? "default" : "ghost"} 
                 size="icon" 
                 className={cn(
                   "h-8 w-8 sm:h-9 sm:w-9 rounded-full transition-all",
-                  syncMode ? "bg-gold text-emerald-deep" : "hover:bg-white/10 text-white/80"
+                  syncMode ? "bg-gold text-primary" : "hover:bg-primary/10 text-white/80"
                 )}
                 onClick={(e) => { e.stopPropagation(); setSyncMode(!syncMode); }}
               >
@@ -222,8 +222,8 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
           variant="ghost"
           size="icon"
           className={cn(
-            "h-8 w-8 sm:h-9 sm:w-9 rounded-full hover:bg-white/10 transition-all duration-500",
-            isExpanded ? "text-white/40 ml-0.5 sm:ml-1" : "absolute -top-1 -right-1 bg-emerald-deep/90 backdrop-blur-md border border-white/20 text-gold scale-75 shadow-xl"
+            "h-8 w-8 sm:h-9 sm:w-9 rounded-full hover:bg-primary/10 transition-all duration-500",
+            isExpanded ? "text-white/40 ml-0.5 sm:ml-1" : "absolute -top-1 -right-1 bg-primary/90 backdrop-blur-md border border-primary/20 text-gold scale-75 shadow-xl"
           )}
           onClick={(e) => { e.stopPropagation(); setIsExpanded(!isExpanded); }}
         >
@@ -243,13 +243,13 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="mt-2 px-4 py-1 rounded-full bg-black/20 backdrop-blur-xl border border-white/5 flex items-center gap-4"
+            className="mt-2 px-4 py-1 rounded-full bg-primary/20 backdrop-blur-xl border border-primary/5 flex items-center gap-4"
           >
             <div className="flex items-center gap-2">
               <span className="text-[9px] font-bold text-gold/40 uppercase tracking-widest">الآية</span>
               <span className="text-sm font-serif text-gold font-medium">{toArabicNumber(currentAyahIndex + 1)}</span>
             </div>
-            <div className="h-3 w-px bg-white/5" />
+            <div className="h-3 w-px bg-primary/5" />
             <div className="flex items-center gap-2">
               <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">من</span>
               <span className="text-sm font-serif text-white/60">{toArabicNumber(currentAyahs.length)}</span>

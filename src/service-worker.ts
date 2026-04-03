@@ -50,12 +50,12 @@ registerRoute(
 
 // Quran API - stale while revalidate
 registerRoute(
-  /^https:\/\/mp3quran\.net\/api\/.*/i,
+  /^https:\/\/(?:api\.alquran\.cloud|api\.quran\.com|mp3quran\.net)\/api\/.*/i,
   new StaleWhileRevalidate({
     cacheName: 'quran-api-cache',
     plugins: [
       new ExpirationPlugin({
-        maxEntries: 50,
+        maxEntries: 100,
         maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
       }),
       new CacheableResponsePlugin({
@@ -208,8 +208,16 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const urlToOpen = event.notification.data?.url || '/';
 
+  // Send message to all clients to stop adhan
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      // Send stop signal to all clients
+      windowClients.forEach((client) => {
+        if ('postMessage' in client) {
+          client.postMessage({ type: 'STOP_ADHAN' });
+        }
+      });
+
       for (let i = 0; i < windowClients.length; i++) {
         const client = windowClients[i];
         if (client.url === urlToOpen && 'focus' in client) {

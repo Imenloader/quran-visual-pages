@@ -10,6 +10,8 @@ interface ShareButtonProps {
 const ShareButton = ({ juzNumber, currentPage }: ShareButtonProps) => {
   const [showMenu, setShowMenu] = useState(false);
 
+  const [isSharing, setIsSharing] = useState(false);
+
   const getShareUrl = () => {
     const base = window.location.origin;
     return `${base}/juz/${juzNumber}#page-${currentPage}`;
@@ -18,12 +20,18 @@ const ShareButton = ({ juzNumber, currentPage }: ShareButtonProps) => {
   const shareText = `القرآن الكريم - الجزء ${toArabicNumber(juzNumber)} - صفحة ${toArabicNumber(currentPage)}`;
 
   const handleNativeShare = async () => {
+    if (isSharing) return;
     const url = getShareUrl();
     if (navigator.share) {
+      setIsSharing(true);
       try {
         await navigator.share({ title: shareText, url });
       } catch (err) {
-        // Ignore abort errors or other share failures
+        if ((err as Error).name !== 'AbortError') {
+          console.error("Share failed:", err);
+        }
+      } finally {
+        setIsSharing(false);
       }
     } else {
       setShowMenu((v) => !v);

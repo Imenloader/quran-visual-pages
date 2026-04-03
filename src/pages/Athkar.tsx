@@ -11,6 +11,8 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "@/contexts/ThemeContext";
 import { applyTajweedColors, rules } from "@/lib/tajweedParser";
 
+import { useUser } from "@/contexts/UserContext";
+
 const ICON_MAP: Record<string, React.ReactNode> = {
   sunrise: <Sunrise size={20} />,
   sunset: <Sunset size={20} />,
@@ -44,7 +46,7 @@ const getCounters = (): Record<number, number> => {
 
 const TajweedLegend = ({ className }: { className?: string }) => {
   return (
-    <div className={`flex flex-wrap justify-center gap-2 sm:gap-4 p-4 rounded-2xl bg-card/60 backdrop-blur-md border border-border/20 ${className}`}>
+    <div className={`flex flex-wrap justify-center gap-2 sm:gap-4 p-4 rounded-2xl bg-muted/30 backdrop-blur-md border border-border/20 ${className}`}>
       {rules.map((rule) => (
         <div key={rule.name} className="flex items-center gap-2">
           <div 
@@ -69,6 +71,7 @@ const Athkar = () => {
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const { toggleFavorite, isFavorite } = useFavorites();
+  const { addAthkarRecited } = useUser();
 
   // Strip Arabic diacritics for search
   const stripDiacritics = (s: string) => s.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED]/g, "");
@@ -93,9 +96,10 @@ const Athkar = () => {
     setCounters(prev => {
       const updated = { ...prev, [dhikrId]: (prev[dhikrId] || 0) + 1 };
       localStorage.setItem(COUNTER_KEY, JSON.stringify(updated));
+      addAthkarRecited(1);
       return updated;
     });
-  }, []);
+  }, [addAthkarRecited]);
 
   const resetCounters = useCallback(() => {
     setCounters({});
@@ -176,7 +180,7 @@ const Athkar = () => {
           <div className="flex justify-between items-center mb-16">
             <Link 
               to="/" 
-              className="w-12 h-12 rounded-full bg-white/5 backdrop-blur-md flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all border border-white/10"
+              className="w-12 h-12 rounded-full bg-primary/5 backdrop-blur-md flex items-center justify-center text-white/70 hover:text-white hover:bg-primary/10 transition-all border border-primary/10"
             >
               <ArrowRight size={24} strokeWidth={1.5} className="rtl:rotate-180" />
             </Link>
@@ -184,7 +188,7 @@ const Athkar = () => {
             <div className="flex items-center gap-4">
               <Link 
                 to="/favorites" 
-                className="h-12 px-6 rounded-full bg-white/5 backdrop-blur-md flex items-center gap-3 text-xs font-sans font-bold tracking-widest text-white/70 hover:text-white hover:bg-white/10 transition-all border border-white/10 uppercase"
+                className="h-12 px-6 rounded-full bg-primary/5 backdrop-blur-md flex items-center gap-3 text-xs font-sans font-bold tracking-widest text-white/70 hover:text-white hover:bg-primary/10 transition-all border border-primary/10 uppercase"
               >
                 <Heart size={16} strokeWidth={1.5} />
                 <span>{t("hub.favorites")}</span>
@@ -202,7 +206,7 @@ const Athkar = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8"
+              className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10 backdrop-blur-md mb-8"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
               <span className="text-[10px] font-sans font-bold tracking-[0.2em] text-white/80 uppercase">{t("athkar.spiritualFortress")}</span>
@@ -236,7 +240,7 @@ const Athkar = () => {
                 <span className="text-4xl font-serif text-gold mb-1">{isArabic ? toArabicNumber(ATHKAR_DATA.length) : ATHKAR_DATA.length}</span>
                 <span className="text-[10px] font-sans font-bold text-white/60 uppercase tracking-[0.3em]">{t("athkar.sections")}</span>
               </div>
-              <div className="w-px h-12 bg-white/10" />
+              <div className="w-px h-12 bg-primary/10" />
               <div className="flex flex-col items-center">
                 <span className="text-4xl font-serif text-gold mb-1">{isArabic ? toArabicNumber(totalAthkar) : totalAthkar}</span>
                 <span className="text-[10px] font-sans font-bold text-white/60 uppercase tracking-[0.3em]">{t("athkar.remembrances")}</span>
@@ -257,7 +261,7 @@ const Athkar = () => {
           transition={{ delay: 0.2 }}
           className="relative mb-12"
         >
-          <div className="absolute inset-0 bg-white/40 backdrop-blur-2xl rounded-[2.5rem] shadow-islamic -z-10" />
+          <div className="absolute inset-0 bg-muted/40 backdrop-blur-2xl rounded-[2.5rem] shadow-islamic -z-10" />
           <SearchIcon size={20} className="absolute right-6 top-1/2 -translate-y-1/2 text-primary/70 pointer-events-none" strokeWidth={1.5} />
           <input
             type="text"
@@ -321,7 +325,7 @@ const Athkar = () => {
                     <motion.div 
                       whileHover={{ scale: 1.05, rotate: 5 }}
                       whileTap={{ scale: 0.95 }}
-                      className="w-16 h-16 rounded-[1.5rem] bg-emerald-deep text-gold flex items-center justify-center shrink-0 shadow-lg border border-white/10"
+                      className="w-16 h-16 rounded-[1.5rem] bg-primary text-gold flex items-center justify-center shrink-0 shadow-lg border border-primary/10"
                     >
                       {ICON_MAP[category.iconName] || <BookOpen size={28} strokeWidth={1.5} />}
                     </motion.div>

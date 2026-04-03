@@ -259,7 +259,7 @@ const Index = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={t("index.search.placeholder")}
-                    className="w-full bg-white/10 backdrop-blur-md border border-white/10 rounded-xl md:rounded-2xl pr-12 pl-4 py-3 md:py-4 text-sm font-naskh text-primary placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/40 transition-all"
+                    className="w-full bg-muted/30 backdrop-blur-md border border-border/40 rounded-xl md:rounded-2xl pr-12 pl-4 py-3 md:py-4 text-sm font-naskh text-primary placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/40 transition-all"
                   />
                 </div>
               </div>

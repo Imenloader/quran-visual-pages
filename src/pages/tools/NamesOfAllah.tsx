@@ -56,7 +56,7 @@ const NamesOfAllah = () => {
               onClick={() => setSelectedName(n)}
               className="flex flex-col items-center justify-center p-6 bg-card border border-border rounded-3xl shadow-soft hover:bg-accent/5 transition-colors group"
             >
-              <span className="text-3xl font-bold font-naskh text-emerald-deep mb-2 group-hover:scale-110 transition-transform">{n.name}</span>
+              <span className="text-3xl font-bold font-naskh text-primary mb-2 group-hover:scale-110 transition-transform">{n.name}</span>
               <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest">{n.transliteration}</span>
             </motion.button>
           ))}
@@ -86,17 +86,17 @@ const NamesOfAllah = () => {
                 </button>
 
                 <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
-                  <Heart className="w-32 h-32 text-emerald-deep" />
+                  <Heart className="w-32 h-32 text-primary" />
                 </div>
                 
                 <div className="text-center space-y-6">
-                  <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-emerald-deep/10 text-emerald-deep text-5xl font-bold font-naskh mb-4">
+                  <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-primary/10 text-primary text-5xl font-bold font-naskh mb-4">
                     {selectedName.name}
                   </div>
                   
                   <div className="space-y-1">
                     <h2 className="text-2xl font-bold font-naskh text-foreground">{selectedName.transliteration}</h2>
-                    <p className="text-emerald-deep font-medium font-naskh">{isAr ? selectedName.meaning.ar : selectedName.meaning.en}</p>
+                    <p className="text-primary font-medium font-naskh">{isAr ? selectedName.meaning.ar : selectedName.meaning.en}</p>
                   </div>
 
                   <div className="p-4 bg-muted/50 rounded-2xl border border-border/50 text-sm font-naskh text-muted-foreground leading-relaxed">
@@ -105,7 +105,7 @@ const NamesOfAllah = () => {
 
                   <button
                     onClick={() => setSelectedName(null)}
-                    className="w-full py-4 bg-emerald-deep text-white rounded-2xl font-bold font-naskh shadow-islamic active:scale-95 transition-transform"
+                    className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-bold font-naskh shadow-islamic active:scale-95 transition-transform"
                   >
                     {isAr ? "إغلاق" : "Close"}
                   </button>

@@ -16,6 +16,8 @@ const DailyVerse = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  const [isSharing, setIsSharing] = useState(false);
+
   const getDailyVerse = (isRandom = false) => {
     if (isRandom) {
       const randomIndex = Math.floor(Math.random() * dailyVerses.length);
@@ -72,7 +74,8 @@ const DailyVerse = () => {
   };
 
   const handleShare = async () => {
-    if (!verse) return;
+    if (!verse || isSharing) return;
+    setIsSharing(true);
     const shareData = {
       title: t("hub.dailyVerse"),
       text: `"${verse.text}"\nسورة ${verse.surah} - آية ${verse.number}`,
@@ -86,7 +89,14 @@ const DailyVerse = () => {
         handleCopy();
       }
     } catch (err) {
-      console.error("Error sharing:", err);
+      if ((err as Error).name !== 'AbortError') {
+        console.error("Error sharing:", err);
+        if (!(err as Error).message.includes('earlier share')) {
+          toast.error(i18n.language === 'ar' ? "فشل في المشاركة" : "Share failed");
+        }
+      }
+    } finally {
+      setIsSharing(false);
     }
   };
 
@@ -95,7 +105,7 @@ const DailyVerse = () => {
   return (
     <div className="min-h-screen bg-background pb-24 pt-6 px-4 relative overflow-hidden">
       {/* Decorative Background Elements */}
-      <div className="absolute top-0 left-0 w-full h-64 bg-emerald-deep/5 -skew-y-6 -translate-y-32 pointer-events-none" />
+      <div className="absolute top-0 left-0 w-full h-64 bg-primary/5 -skew-y-6 -translate-y-32 pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-full h-64 bg-accent/5 skew-y-6 translate-y-32 pointer-events-none" />
 
       <div className="max-w-md mx-auto relative z-10">
@@ -112,7 +122,7 @@ const DailyVerse = () => {
             className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-foreground shadow-sm active:rotate-180 transition-transform"
             title={i18n.language === 'ar' ? "آية عشوائية" : "Random Verse"}
           >
-            <RefreshCw className="w-5 h-5 text-emerald-deep" />
+            <RefreshCw className="w-5 h-5 text-primary" />
           </button>
         </header>
 
@@ -127,11 +137,11 @@ const DailyVerse = () => {
               className="relative p-10 md:p-14 bg-card border border-border rounded-[3.5rem] shadow-islamic text-center space-y-10 overflow-hidden group"
             >
               <div className="absolute top-0 left-0 p-8 opacity-[0.05] pointer-events-none transition-transform duration-700 group-hover:scale-110">
-                <Quote className="w-40 h-40 text-emerald-deep" />
+                <Quote className="w-40 h-40 text-primary" />
               </div>
               
               <div className="relative z-10 space-y-10">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-[1.5rem] bg-emerald-deep/10 text-emerald-deep mb-4 rotate-3 group-hover:rotate-0 transition-transform duration-500">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-[1.5rem] bg-primary/10 text-primary mb-4 rotate-3 group-hover:rotate-0 transition-transform duration-500">
                   <BookOpen className="w-8 h-8" />
                 </div>
                 
@@ -140,7 +150,7 @@ const DailyVerse = () => {
                 </p>
                 
                 <div className="space-y-2 pt-6 border-t border-border/50">
-                  <p className="text-xl font-bold font-naskh text-emerald-deep">سورة {verse.surah}</p>
+                  <p className="text-xl font-bold font-naskh text-primary">سورة {verse.surah}</p>
                   <p className="text-sm text-muted-foreground font-mono tracking-widest uppercase">
                     {i18n.language === 'ar' ? `الآية ${verse.number}` : `Ayah ${verse.number}`}
                   </p>
@@ -160,13 +170,13 @@ const DailyVerse = () => {
             </button>
             <button 
               onClick={handleCopy}
-              className="w-16 h-16 rounded-2xl bg-card border border-border flex items-center justify-center text-foreground shadow-soft hover:bg-emerald-deep/10 hover:text-emerald-deep transition-all active:scale-90"
+              className="w-16 h-16 rounded-2xl bg-card border border-border flex items-center justify-center text-foreground shadow-soft hover:bg-primary/10 hover:text-primary transition-all active:scale-90"
             >
               {copied ? <Check className="w-7 h-7 text-emerald-600" /> : <Copy className="w-7 h-7" />}
             </button>
             <button 
               onClick={handleShare}
-              className="w-16 h-16 rounded-2xl bg-card border border-border flex items-center justify-center text-foreground shadow-soft hover:bg-emerald-deep/10 hover:text-emerald-deep transition-all active:scale-90"
+              className="w-16 h-16 rounded-2xl bg-card border border-border flex items-center justify-center text-foreground shadow-soft hover:bg-primary/10 hover:text-primary transition-all active:scale-90"
             >
               <Share2 className="w-7 h-7" />
             </button>
@@ -178,9 +188,9 @@ const DailyVerse = () => {
             transition={{ delay: 0.3 }}
             className="p-8 bg-muted/30 backdrop-blur-sm rounded-[2.5rem] border border-border/50 space-y-4 relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-deep/5 rounded-full -translate-y-12 translate-x-12" />
-            <h3 className="text-sm font-bold font-naskh text-emerald-deep flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-deep" />
+            <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -translate-y-12 translate-x-12" />
+            <h3 className="text-sm font-bold font-naskh text-primary flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary" />
               التفسير الميسر
             </h3>
             <p className="text-sm text-muted-foreground font-naskh leading-relaxed text-right">

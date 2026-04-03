@@ -1,9 +1,11 @@
+import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, BookOpen, Search, Info, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { fetchWithCache } from "@/lib/apiClient";
+import { fetchWithCache, CACHE_EXPIRY } from "@/lib/apiClient";
+import { fetchTafsir, fetchAyahText } from "@/services/tafsirService";
 import { normalizeArabic } from "@/lib/arabicUtils";
 import { useTheme } from "@/contexts/ThemeContext";
 import { applyTajweedColors } from "@/lib/tajweedParser";
@@ -28,7 +30,7 @@ const Tafsir = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchWithCache("https://api.alquran.cloud/v1/surah")
+    fetchWithCache("https://api.alquran.cloud/v1/surah", { expiry: CACHE_EXPIRY })
       .then(data => {
         if (data.status === "OK") {
           setSurahs(data.data);
@@ -50,26 +52,39 @@ const Tafsir = () => {
   }, [selectedSurah, surahs, selectedAyah]);
 
   useEffect(() => {
+    const controller = new AbortController();
     setLoading(true);
-    // Fetch Ayah text and Tafsir
-    Promise.all([
-      fetchWithCache(`https://api.alquran.cloud/v1/ayah/${selectedSurah}:${selectedAyah}/ar.quran-simple`),
-      fetchWithCache(`https://api.alquran.cloud/v1/ayah/${selectedSurah}:${selectedAyah}/ar.muyassar`)
-    ])
-    .then(([ayahData, tafsirData]) => {
-      if (ayahData.status === "OK" && tafsirData.status === "OK") {
-        setAyahText(ayahData.data.text);
-        setTafsir(tafsirData.data.text);
-      } else {
+    
+    const loadData = async () => {
+      try {
+        const [text, tafsirData] = await Promise.all([
+          fetchAyahText(selectedSurah, selectedAyah, controller.signal),
+          fetchTafsir(selectedSurah, selectedAyah, controller.signal)
+        ]);
+        
+        setAyahText(text);
+        setTafsir(tafsirData.text);
+      } catch (err) {
+        if (err instanceof Error && err.message === "Request aborted") return;
+        
+        console.error("Error fetching tafsir:", err);
         setAyahText("");
-        setTafsir(t("hub.tafsirContent.error"));
+        const errorMessage = err instanceof Error ? err.message : "";
+        if (errorMessage.includes("Failed to fetch") || errorMessage.includes("network") || errorMessage.includes("aborted")) {
+          setTafsir("فشل الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.");
+        } else {
+          setTafsir(t("hub.tafsirContent.error"));
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
-      setLoading(false);
-    })
-    .catch(err => {
-      console.error("Error fetching tafsir:", err);
-      setLoading(false);
-    });
+    };
+
+    loadData();
+    
+    return () => controller.abort();
   }, [selectedSurah, selectedAyah, t]);
 
   const handleSearch = () => {
@@ -78,12 +93,15 @@ const Tafsir = () => {
     const normalizedQuery = normalizeArabic(searchQuery);
     const encodedQuery = encodeURIComponent(searchQuery);
     
-    fetchWithCache(`https://api.alquran.cloud/v1/search/${encodedQuery}/all/ar.quran-simple`)
+    fetchWithCache(`https://api.alquran.cloud/v1/search/${encodedQuery}/all/ar.quran-simple`, { expiry: CACHE_EXPIRY })
       .then(data => {
         if (data.status === "OK" && data.data.count > 0) {
           const firstResult = data.data.matches[0];
           setSelectedSurah(firstResult.surah.number);
           setSelectedAyah(firstResult.numberInSurah);
+          toast.success(t("search.ayahMatches") + `: ${data.data.count}`);
+        } else {
+          toast.error(t("search.noResults", { query: searchQuery }));
         }
         setLoading(false);
       })
@@ -126,7 +144,7 @@ const Tafsir = () => {
           </div>
 
           <div className="p-8 bg-card border border-border rounded-[2.5rem] shadow-soft text-center space-y-6">
-            <div className="w-16 h-16 rounded-2xl bg-emerald-deep/10 text-emerald-deep flex items-center justify-center mx-auto">
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto">
               <BookOpen className="w-8 h-8" />
             </div>
             <div className="space-y-2">
@@ -166,7 +184,7 @@ const Tafsir = () => {
                 exit={{ opacity: 0 }}
                 className="flex items-center justify-center py-12"
               >
-                <Loader2 className="w-8 h-8 text-emerald-deep animate-spin" />
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
               </motion.div>
             ) : (
               <motion.div
@@ -175,11 +193,11 @@ const Tafsir = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-4"
               >
-                <div className="p-6 bg-emerald-deep/5 border border-emerald-deep/10 rounded-3xl">
-                  <p className="text-lg font-naskh text-emerald-deep text-center leading-loose mb-4">
+                <div className="p-6 bg-primary/5 border border-primary/10 rounded-3xl">
+                  <p className="text-lg font-naskh text-primary text-center leading-loose mb-4">
                     {tajweedMode ? applyTajweedColors(ayahText) : ayahText}
                   </p>
-                  <div className="h-px bg-emerald-deep/10 w-full mb-4" />
+                  <div className="h-px bg-primary/10 w-full mb-4" />
                   <p className="text-sm font-naskh text-foreground leading-relaxed text-right">
                     {tafsir}
                   </p>

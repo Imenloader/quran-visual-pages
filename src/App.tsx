@@ -35,6 +35,7 @@ import Tafsir from "./pages/tools/Tafsir";
 import Search from "./pages/tools/Search";
 import Offline from "./pages/tools/Offline";
 import FridaySunan from "./pages/tools/FridaySunan";
+import Ramadan from "./pages/tools/Ramadan";
 import HowToUse from "./pages/HowToUse";
 import Tajweed from "./pages/Tajweed";
 import NotFound from "./pages/NotFound";
@@ -82,9 +83,13 @@ const LanguageHandler = () => {
   return null;
 };
 
+import { usePeriodicReminders } from "./hooks/usePeriodicReminders";
+
 const App = () => {
   // Initialize Khatma Notifications
   useKhatmaNotifications();
+  // Initialize Periodic Reminders
+  usePeriodicReminders();
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -126,6 +131,7 @@ const App = () => {
                     <Route path="/search" element={<Search />} />
                     <Route path="/offline" element={<Offline />} />
                     <Route path="/friday-sunan" element={<FridaySunan />} />
+                    <Route path="/ramadan" element={<Ramadan />} />
                     <Route path="/how-to-use" element={<HowToUse />} />
                     <Route path="/tajweed" element={<Tajweed />} />
                     <Route path="/embed/:siteId" element={<EmbedView />} />

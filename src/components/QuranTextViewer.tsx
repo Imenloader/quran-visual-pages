@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTr
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import VerseShareCard from "@/components/VerseShareCard";
 import { fetchWithCache } from "@/lib/apiClient";
+import { fetchTafsir } from "@/services/tafsirService";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -279,15 +280,16 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
     setTafsirContent(null);
 
     try {
-      const data = await fetchWithCache(`https://api.alquran.cloud/v1/ayah/${verse.fullKey}/ar.muyassar`);
-      if (data.code === 200) {
-        setTafsirContent(data.data.text);
-      } else {
-        setTafsirContent("تعذر تحميل التفسير حالياً.");
-      }
+      const data = await fetchTafsir(verse.surahNumber, verse.ayahNumber);
+      setTafsirContent(data.text);
     } catch (error) {
       console.error("Tafsir fetch error:", error);
-      setTafsirContent(error instanceof Error ? error.message : "حدث خطأ أثناء الاتصال بالخادم.");
+      const errorMessage = error instanceof Error ? error.message : "";
+      if (errorMessage.includes("Failed to fetch") || errorMessage.includes("network") || errorMessage.includes("aborted")) {
+        setTafsirContent("فشل الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.");
+      } else {
+        setTafsirContent("حدث خطأ أثناء تحميل التفسير. يرجى المحاولة لاحقاً.");
+      }
     } finally {
       setTafsirLoading(false);
     }

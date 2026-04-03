@@ -52,6 +52,10 @@ const OfflineManager: React.FC = () => {
     let failedCount = 0;
 
     try {
+      if (!('caches' in window)) {
+        toast.error("ميزة التخزين المؤقت غير مدعومة في هذا المتصفح");
+        return;
+      }
       const cache = await caches.open(CACHE_NAME);
       
       const downloadPage = async (page: number, retries = 3) => {
@@ -61,21 +65,23 @@ const OfflineManager: React.FC = () => {
         for (let attempt = 1; attempt <= retries; attempt++) {
           try {
             // Try local first
-            let response = await fetch(localUrl, { mode: 'cors' });
+            let response = await fetch(localUrl);
             
             // If local fails (404), try fallback
             if (!response.ok) {
               console.log(`Local page ${page} not found, trying fallback...`);
-              response = await fetch(fallbackUrl, { mode: 'cors' });
+              response = await fetch(fallbackUrl);
             }
 
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             
             // Cache the response under the local URL key
-            // This ensures the app finds it when looking for the local file
             await cache.put(localUrl, response);
             return true;
           } catch (err) {
+            if (err instanceof Error && (err.name === 'QuotaExceededError' || err.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+              throw err; // Re-throw quota error to catch it in the main block
+            }
             if (attempt === retries) {
               console.error(`Failed to download page ${page} after ${retries} attempts:`, err);
               return false;
@@ -88,8 +94,10 @@ const OfflineManager: React.FC = () => {
       };
 
       // Download in batches to avoid overwhelming the browser
-      const batchSize = 5; // Reduced batch size for better stability
+      const batchSize = 3; // Further reduced batch size for better stability on mobile
       for (let i = 1; i <= TOTAL_PAGES; i += batchSize) {
+        if (!navigator.onLine) throw new Error("Disconnected");
+        
         const batch = [];
         for (let j = i; j < i + batchSize && j <= TOTAL_PAGES; j++) {
           batch.push(
@@ -103,8 +111,8 @@ const OfflineManager: React.FC = () => {
           );
         }
         await Promise.all(batch);
-        // Small delay between batches to be nice to the server
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Small delay between batches
+        await new Promise(resolve => setTimeout(resolve, 50));
       }
       
       if (failedCount > 0) {
@@ -115,7 +123,13 @@ const OfflineManager: React.FC = () => {
       await checkCacheStatus();
     } catch (error) {
       console.error("Download failed:", error);
-      toast.error(t("hub.offline.clearError"));
+      if (error instanceof Error && (error.name === 'QuotaExceededError' || error.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+        toast.error("مساحة التخزين ممتلئة. يرجى توفير مساحة في جهازك.");
+      } else if (error instanceof Error && error.message === "Disconnected") {
+        toast.error(t("hub.offline.offlineStatus"));
+      } else {
+        toast.error(t("hub.offline.clearError"));
+      }
     } finally {
       setIsDownloading(false);
     }

@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { formatInTimeZone, zonedTimeToUtc } from "date-fns-tz";
+import { formatInTimeZone } from "date-fns-tz";
 import { addDays, isBefore } from "date-fns";
+import { dailyVerses } from "../data/dailyVersesData";
+import { ATHKAR_DATA } from "../data/athkarData";
 
 const CAIRO_TZ = "Africa/Cairo";
 const NOTIF_SETTINGS_KEY = "quran-notification-settings";
@@ -44,6 +46,26 @@ const QURAN_READING_MESSAGES = [
 const getRandomMessage = (messages: string[]) =>
   messages[Math.floor(Math.random() * messages.length)];
 
+const getRandomDailyVerse = () => {
+  const verse = dailyVerses[Math.floor(Math.random() * dailyVerses.length)];
+  return {
+    title: `آية اليوم: ${verse.surahName}`,
+    body: `${verse.text}\n\n${verse.translation}`,
+    url: `/quran?surah=${verse.surahNumber}&verse=${verse.verseNumber}`,
+  };
+};
+
+const getRandomAthkar = (type: "morning" | "evening") => {
+  const category = ATHKAR_DATA.find((c) => c.id === type);
+  if (!category) return { title: "أذكار", body: "حان وقت الأذكار", url: "/athkar" };
+  const dhikr = category.athkar[Math.floor(Math.random() * category.athkar.length)];
+  return {
+    title: category.title,
+    body: dhikr.text.length > 100 ? dhikr.text.substring(0, 97) + "..." : dhikr.text,
+    url: `/athkar/${type}`,
+  };
+};
+
 const getSettings = (): NotificationSettings => {
   try {
     const stored = localStorage.getItem(NOTIF_SETTINGS_KEY);
@@ -65,30 +87,27 @@ const getPermission = async (): Promise<boolean> => {
   return result === "granted";
 };
 
-const showNotification = (title: string, body: string, tag: string) => {
+const showNotification = (title: string, body: string, tag: string, url: string = "/") => {
   if (Notification.permission !== "granted") return;
+
+  const options: NotificationOptions = {
+    body,
+    icon: "/pwa-192x192.png",
+    badge: "/pwa-192x192.png",
+    tag,
+    dir: "rtl",
+    lang: "ar",
+    renotify: true,
+    data: { url },
+  };
 
   // Try service worker notification first (works in background)
   if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
     navigator.serviceWorker.ready.then((reg) => {
-      reg.showNotification(title, {
-        body,
-        icon: "/pwa-192x192.png",
-        badge: "/pwa-192x192.png",
-        tag,
-        dir: "rtl",
-        lang: "ar",
-        renotify: true,
-      } as NotificationOptions);
+      reg.showNotification(title, options);
     });
   } else {
-    new Notification(title, {
-      body,
-      icon: "/pwa-192x192.png",
-      tag,
-      dir: "rtl",
-      lang: "ar",
-    });
+    new Notification(title, options);
   }
 };
 
@@ -126,13 +145,14 @@ export function useNotifications() {
   }, []);
 
   const scheduleNotification = useCallback(
-    (timeStr: string, title: string, getMessage: () => string, tag: string) => {
+    (timeStr: string, tag: string, getNotifData: () => { title: string; body: string; url: string }) => {
       const ms = getMsUntilTime(timeStr);
       const timer = setTimeout(() => {
-        showNotification(title, getMessage(), tag);
+        const { title, body, url } = getNotifData();
+        showNotification(title, body, tag, url);
         // Reschedule for next day
         const nextTimer = setTimeout(() => {
-          scheduleNotification(timeStr, title, getMessage, tag);
+          scheduleNotification(timeStr, tag, getNotifData);
         }, 100);
         timersRef.current.push(nextTimer);
       }, ms);
@@ -148,25 +168,22 @@ export function useNotifications() {
     if (settings.athkarMorning) {
       scheduleNotification(
         settings.athkarMorningTime,
-        "أذكار الصباح",
-        () => getRandomMessage(ATHKAR_MORNING_MESSAGES),
-        "athkar-morning"
+        "athkar-morning",
+        () => getRandomAthkar("morning")
       );
     }
     if (settings.athkarEvening) {
       scheduleNotification(
         settings.athkarEveningTime,
-        "أذكار المساء",
-        () => getRandomMessage(ATHKAR_EVENING_MESSAGES),
-        "athkar-evening"
+        "athkar-evening",
+        () => getRandomAthkar("evening")
       );
     }
     if (settings.quranReading) {
       scheduleNotification(
         settings.quranReadingTime,
-        "ورد القرآن اليومي",
-        () => getRandomMessage(QURAN_READING_MESSAGES),
-        "quran-reading"
+        "quran-reading",
+        getRandomDailyVerse
       );
     }
   }, [settings, permissionState, clearAllTimers, scheduleNotification]);
@@ -195,13 +212,16 @@ export function useNotifications() {
 
   const testNotification = useCallback(
     (type: "athkarMorning" | "athkarEvening" | "quranReading") => {
-      const map = {
-        athkarMorning: { title: "أذكار الصباح", msgs: ATHKAR_MORNING_MESSAGES, tag: "test-morning" },
-        athkarEvening: { title: "أذكار المساء", msgs: ATHKAR_EVENING_MESSAGES, tag: "test-evening" },
-        quranReading: { title: "ورد القرآن اليومي", msgs: QURAN_READING_MESSAGES, tag: "test-quran" },
-      };
-      const { title, msgs, tag } = map[type];
-      showNotification(title, getRandomMessage(msgs), tag);
+      if (type === "athkarMorning") {
+        const { title, body, url } = getRandomAthkar("morning");
+        showNotification(title, body, "test-morning", url);
+      } else if (type === "athkarEvening") {
+        const { title, body, url } = getRandomAthkar("evening");
+        showNotification(title, body, "test-evening", url);
+      } else if (type === "quranReading") {
+        const { title, body, url } = getRandomDailyVerse();
+        showNotification(title, body, "test-quran", url);
+      }
     },
     []
   );

@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Heart, BookOpen, Shield, Trash2, Copy, Check, Headphones, Music, Star, User, Search, X } from "lucide-react";
+import { Heart, BookOpen, Shield, Trash2, Copy, Check, Headphones, Music, Star, User, Search, X, GripVertical, Edit2, Save } from "lucide-react";
 import { useFavorites, type FavoriteItem } from "@/hooks/useFavorites";
 import { useTheme } from "@/contexts/ThemeContext";
 import { applyTajweedColors, rules } from "@/lib/tajweedParser";
@@ -8,7 +8,9 @@ import { juzData, toArabicNumber } from "@/data/quranData";
 import { ATHKAR_DATA } from "@/data/athkarData";
 import { useState, useMemo, useCallback } from "react";
 import ScrollReveal from "@/components/ScrollReveal";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, Reorder } from "motion/react";
+import QuranHeader from "@/components/QuranHeader";
+import { toast } from "sonner";
 
 type TabKey = "all" | "juz" | "athkar" | "recitations" | "reciters";
 
@@ -42,109 +44,103 @@ const Favorites = () => {
   const { t, i18n } = useTranslation();
   const { tajweedMode } = useTheme();
   const isArabic = i18n.language === 'ar';
-  const { favorites, toggleFavorite } = useFavorites();
+  const { favorites, toggleFavorite, reorderFavorites, updateFavorite } = useFavorites();
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<TabKey>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [editingItem, setEditingItem] = useState<{ id: number; type: string; nickname: string } | null>(null);
 
-  const favJuzIds = favorites.filter(f => f.type === "juz").map(f => f.id);
-  const favDhikrItems = favorites.filter(f => f.type === "dhikr") as Extract<FavoriteItem, { type: "dhikr" }>[];
-  const favRecitationItems = favorites.filter(f => f.type === "recitation") as Extract<FavoriteItem, { type: "recitation" }>[];
-  const favReciterItems = favorites.filter(f => f.type === "reciter") as Extract<FavoriteItem, { type: "reciter" }>[];
+  const counts = useMemo(() => {
+    return {
+      all: favorites.length,
+      juz: favorites.filter(f => f.type === "juz").length,
+      athkar: favorites.filter(f => f.type === "dhikr").length,
+      recitations: favorites.filter(f => f.type === "recitation").length,
+      reciters: favorites.filter(f => f.type === "reciter").length,
+    };
+  }, [favorites]);
 
-  const favJuzList = useMemo(() => juzData.filter(j => favJuzIds.includes(j.number)), [favJuzIds]);
+  const filteredFavorites = useMemo(() => {
+    let list = favorites;
+    if (activeTab !== "all") {
+      list = list.filter(f => {
+        if (activeTab === "juz") return f.type === "juz";
+        if (activeTab === "athkar") return f.type === "dhikr";
+        if (activeTab === "recitations") return f.type === "recitation";
+        if (activeTab === "reciters") return f.type === "reciter";
+        return true;
+      });
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      list = list.filter(f => {
+        if (f.nickname?.toLowerCase().includes(q)) return true;
+        if (f.type === "juz") {
+          const juz = juzData.find(j => j.number === f.id);
+          return juz?.nameAr.includes(q) || juz?.startSurah.includes(q);
+        }
+        if (f.type === "dhikr") {
+          const cat = ATHKAR_DATA.find(c => c.id === f.categoryId);
+          const dhikr = cat?.athkar.find(d => d.id === f.id);
+          return dhikr?.text.includes(q) || cat?.title.includes(q);
+        }
+        if (f.type === "recitation") {
+          return f.surahName?.toLowerCase().includes(q) || f.reciterName?.toLowerCase().includes(q);
+        }
+        if (f.type === "reciter") {
+          return f.name?.toLowerCase().includes(q);
+        }
+        return false;
+      });
+    }
+    return list;
+  }, [favorites, activeTab, searchQuery]);
 
-  const favDhikrList = useMemo(() => favDhikrItems.map(item => {
-    const cat = ATHKAR_DATA.find(c => c.id === item.categoryId);
-    const dhikr = cat?.athkar.find(d => d.id === item.id);
-    return dhikr ? { ...dhikr, categoryTitle: cat!.title, categoryId: item.categoryId } : null;
-  }).filter(Boolean) as (typeof ATHKAR_DATA[0]["athkar"][0] & { categoryTitle: string; categoryId: string })[], [favDhikrItems]);
+  const handleReorder = (newOrder: FavoriteItem[]) => {
+    // If we are in a filtered tab, we need to merge the new order back into the full favorites list
+    if (activeTab === "all" && !searchQuery.trim()) {
+      reorderFavorites(newOrder);
+    } else {
+      // This is more complex: we only reorder the items currently visible
+      const newFullList = [...favorites];
+      const visibleIds = filteredFavorites.map(f => `${f.type}-${f.id}`);
+      
+      let visibleIdx = 0;
+      for (let i = 0; i < newFullList.length; i++) {
+        const item = newFullList[i];
+        if (visibleIds.includes(`${item.type}-${item.id}`)) {
+          newFullList[i] = newOrder[visibleIdx++];
+        }
+      }
+      reorderFavorites(newFullList);
+    }
+  };
 
-  // Apply search filter
-  const q = searchQuery.trim();
-  const filteredJuz = useMemo(() => q ? favJuzList.filter(j => j.nameAr.includes(q) || j.startSurah.includes(q)) : favJuzList, [q, favJuzList]);
-  const filteredDhikr = useMemo(() => q ? favDhikrList.filter(d => d.text.includes(q) || d.categoryTitle.includes(q)) : favDhikrList, [q, favDhikrList]);
-  const filteredRecitations = useMemo(() => q ? favRecitationItems.filter(r => r.surahName?.includes(q) || r.reciterName?.includes(q)) : favRecitationItems, [q, favRecitationItems]);
-  const filteredReciters = useMemo(() => q ? favReciterItems.filter(r => r.name?.includes(q)) : favReciterItems, [q, favReciterItems]);
-
-  const copyText = useCallback((text: string, id: number) => {
-    navigator.clipboard.writeText(text);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 1500);
-  }, []);
-
-  const isEmpty = favJuzList.length === 0 && favDhikrList.length === 0 && favRecitationItems.length === 0 && favReciterItems.length === 0;
-  const noResults = q && filteredJuz.length === 0 && filteredDhikr.length === 0 && filteredRecitations.length === 0 && filteredReciters.length === 0;
-
-  const showJuz = activeTab === "all" || activeTab === "juz";
-  const showAthkar = activeTab === "all" || activeTab === "athkar";
-  const showRecitations = activeTab === "all" || activeTab === "recitations";
-  const showReciters = activeTab === "all" || activeTab === "reciters";
-
-  const counts: Record<TabKey, number> = {
-    all: favJuzList.length + favDhikrList.length + favRecitationItems.length + favReciterItems.length,
-    juz: favJuzList.length,
-    athkar: favDhikrList.length,
-    recitations: favRecitationItems.length,
-    reciters: favReciterItems.length,
+  const handleUpdateNickname = () => {
+    if (editingItem) {
+      const originalItem = favorites.find(f => f.type === editingItem.type && f.id === editingItem.id);
+      if (originalItem) {
+        updateFavorite(originalItem, { nickname: editingItem.nickname });
+        setEditingItem(null);
+        toast.success(t("profile.successUpdate"));
+      }
+    }
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col selection:bg-accent/20">
-      {/* Immersive Header */}
-      <header className="relative overflow-hidden pt-12 pb-20 px-6 text-center">
-        {/* Background Layers */}
-        <div className="absolute inset-0 bg-emerald-deep z-0" />
-        <div className="absolute inset-0 pattern-islamic opacity-10 z-0" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-emerald-deep z-0" />
-        
-        {/* Decorative Ornament */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-32 opacity-20 pointer-events-none z-0">
-          <div className="w-full h-full ornament-border opacity-30" />
-        </div>
-
-        <div className="relative z-10 container max-w-4xl mx-auto">
-          <div className="flex justify-between items-center mb-12">
-            <Link 
-              to="/" 
-              className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all border border-white/10"
-            >
-              <X size={20} strokeWidth={1.5} />
-            </Link>
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <div className="w-20 h-20 rounded-[2rem] bg-gold/20 backdrop-blur-md flex items-center justify-center mx-auto mb-8 border border-gold/30 shadow-gold-glow">
-              <Heart size={32} className="text-gold" fill="currentColor" />
-            </div>
-            
-            <h1 className="text-4xl sm:text-6xl font-serif font-bold text-white mb-6 tracking-tight">
-              {t('favorites.title')} <span className="italic font-light text-gold/80">{t('favorites.subtitle')}</span>
-            </h1>
-            
-            <p className="text-white/80 font-serif italic text-lg max-w-xl mx-auto leading-relaxed">
-              {t('favorites.description')}
-            </p>
-
-            <div className="flex items-center justify-center gap-6 mt-10">
-              <div className="flex flex-col items-center">
-                <span className="text-2xl font-serif text-gold">{isArabic ? toArabicNumber(counts.all) : counts.all}</span>
-                <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">{t('favorites.totalSaved')}</span>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </header>
+      <QuranHeader 
+        title={t("hub.favorites")} 
+        subtitle={t("favorites.subtitle")}
+        variant="compact"
+        showBack
+      />
 
       {/* Tabs & Search - Exquisite Floating Bar */}
       <div className="sticky top-0 z-30 -mt-8">
         <div className="container max-w-4xl mx-auto px-6">
           <div className="bg-card/80 backdrop-blur-2xl rounded-[2.5rem] shadow-islamic border border-border/20 p-2 flex flex-col gap-2">
-            {!isEmpty && (
+            {favorites.length > 0 && (
               <div className="relative px-4 pt-2">
                 <Search size={18} className="absolute right-8 top-1/2 -translate-y-1/2 text-primary/60 pointer-events-none" strokeWidth={1.5} />
                 <input
@@ -181,7 +177,7 @@ const Favorites = () => {
                   <span>{tab.label}</span>
                   {counts[tab.key] > 0 && (
                     <span className={`min-w-[20px] h-[20px] rounded-full text-[10px] flex items-center justify-center ${
-                      activeTab === tab.key ? "bg-white/10 text-gold" : "bg-foreground/5 text-foreground/40"
+                      activeTab === tab.key ? "bg-primary/10 text-gold" : "bg-foreground/5 text-foreground/40"
                     }`}>{toArabicNumber(counts[tab.key])}</span>
                   )}
                 </motion.button>
@@ -193,7 +189,7 @@ const Favorites = () => {
 
       <main className="flex-1 container max-w-4xl mx-auto px-6 py-12 space-y-12 pb-32">
         <AnimatePresence mode="wait">
-          {isEmpty ? (
+          {favorites.length === 0 ? (
             <motion.div 
               key="empty"
               initial={{ opacity: 0, y: 20 }}
@@ -222,7 +218,7 @@ const Favorites = () => {
               className="space-y-12"
             >
               {/* No search results */}
-              {noResults && (
+              {searchQuery && filteredFavorites.length === 0 && (
                 <div className="text-center py-24 space-y-6">
                   <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center mx-auto">
                     <Search size={32} className="text-primary/10" strokeWidth={1} />
@@ -231,7 +227,7 @@ const Favorites = () => {
                 </div>
               )}
 
-              {tajweedMode && !isEmpty && (
+              {tajweedMode && favorites.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -241,197 +237,158 @@ const Favorites = () => {
                 </motion.div>
               )}
 
-              {/* Favorite Reciters */}
-              {showReciters && filteredReciters.length > 0 && (
-                <section>
-                  <div className="flex items-center gap-4 mb-8">
-                    <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center text-gold">
-                      <Star size={20} strokeWidth={1.5} />
-                    </div>
-                    <h2 className="font-serif text-2xl font-bold text-primary">{t('favorites.reciters')}</h2>
-                    <div className="h-px flex-1 bg-primary/5" />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {filteredReciters.map((item, idx) => (
-                      <ScrollReveal key={item.id} index={idx}>
-                        <motion.div 
-                          whileHover={{ y: -4 }}
-                          className="relative group"
-                        >
-                          <Link
-                            to="/recitations"
-                            className="flex items-center gap-4 bg-card/60 backdrop-blur-sm border border-border/5 rounded-[2rem] p-6 hover:bg-card hover:shadow-islamic transition-all"
-                          >
-                            <div className="w-14 h-14 rounded-[1.2rem] bg-emerald-deep text-gold flex items-center justify-center shrink-0 shadow-lg">
-                              <User size={24} strokeWidth={1.5} />
+              <Reorder.Group axis="y" values={filteredFavorites} onReorder={handleReorder} className="space-y-4">
+                {filteredFavorites.map((item, idx) => {
+                  const itemKey = `${item.type}-${item.id}-${idx}`;
+                  
+                  return (
+                    <Reorder.Item key={itemKey} value={item} className="relative group">
+                      <div className="flex items-center gap-4 bg-card/60 backdrop-blur-sm border border-border/5 rounded-[2rem] p-4 hover:bg-card hover:shadow-islamic transition-all">
+                        <div className="cursor-grab active:cursor-grabbing text-primary/20 hover:text-primary/40 transition-colors px-2">
+                          <GripVertical size={20} />
+                        </div>
+
+                        {item.type === "juz" && (() => {
+                          const juz = juzData.find(j => j.number === item.id);
+                          if (!juz) return null;
+                          
+                          let isCompleted = false;
+                          try {
+                            const history = JSON.parse(localStorage.getItem("quran-reading-history") || "{}");
+                            isCompleted = history[juz.number]?.completed || false;
+                          } catch (e) {
+                            console.error("Error reading reading history:", e);
+                          }
+
+                          return (
+                            <div className="flex-1 flex items-center gap-4">
+                              <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg shrink-0 ${
+                                isCompleted ? "bg-emerald-500 text-white" : "bg-emerald-deep text-gold"
+                              }`}>
+                                {isCompleted ? (
+                                  <Check size={20} strokeWidth={3} />
+                                ) : (
+                                  <span className="text-lg font-bold font-serif">{isArabic ? toArabicNumber(juz.number) : juz.number}</span>
+                                )}
+                              </div>
+                              <Link to={`/juz/${juz.number}`} className="flex-1 text-right">
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-serif text-lg font-bold text-primary">{item.nickname || juz.nameAr}</h3>
+                                  {isCompleted && (
+                                    <span className="text-[8px] bg-emerald-500/10 text-emerald-500 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-tighter">مكتمل</span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-primary/70 font-serif italic">{juz.startSurah}</p>
+                              </Link>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-serif text-lg font-bold text-primary truncate">{item.name}</p>
+                          );
+                        })()}
+
+                        {item.type === "dhikr" && (() => {
+                          const cat = ATHKAR_DATA.find(c => c.id === item.categoryId);
+                          const dhikr = cat?.athkar.find(d => d.id === item.id);
+                          return dhikr ? (
+                            <div className="flex-1 flex items-center gap-4">
+                              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+                                <Shield size={20} />
+                              </div>
+                              <div className="flex-1 text-right">
+                                <span className="inline-block px-2 py-0.5 rounded-lg bg-accent/10 text-[8px] font-bold text-accent uppercase tracking-widest mb-1">{cat?.title}</span>
+                                <p className="font-amiri text-lg leading-relaxed text-primary line-clamp-1">{item.nickname || dhikr.text}</p>
+                              </div>
+                            </div>
+                          ) : null;
+                        })()}
+
+                        {item.type === "reciter" && (
+                          <div className="flex-1 flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-xl bg-gold/10 text-gold flex items-center justify-center shrink-0">
+                              <User size={20} />
+                            </div>
+                            <Link to="/recitations" className="flex-1 text-right">
+                              <p className="font-serif text-lg font-bold text-primary truncate">{item.nickname || item.name}</p>
                               <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest mt-1">{t('favorites.reciter')}</p>
+                            </Link>
+                          </div>
+                        )}
+
+                        {item.type === "recitation" && (
+                          <div className="flex-1 flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0">
+                              <Headphones size={20} />
                             </div>
-                          </Link>
+                            <Link to="/recitations" className="flex-1 text-right">
+                              <p className="font-serif text-lg font-bold text-primary truncate">{item.nickname || `${t('index.verseOfDay.surah')} ${item.surahName}`}</p>
+                              <p className="text-xs text-primary/70 font-serif italic truncate mt-1">{item.reciterName}</p>
+                            </Link>
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                          <button
+                            onClick={() => setEditingItem({ id: item.id, type: item.type, nickname: item.nickname || "" })}
+                            className="w-9 h-9 rounded-xl bg-primary/5 text-primary/40 hover:text-accent hover:bg-accent/10 flex items-center justify-center transition-all"
+                            title="تعديل"
+                          >
+                            <Edit2 size={16} />
+                          </button>
                           <button
                             onClick={() => toggleFavorite(item)}
-                            className="absolute -top-2 -left-2 w-8 h-8 rounded-full bg-red-500 text-white shadow-lg hover:scale-110 transition-all opacity-0 group-hover:opacity-100 z-10 flex items-center justify-center"
-                            title="إزالة من المفضلة"
+                            className="w-9 h-9 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shadow-sm"
+                            title={t('favorites.remove')}
                           >
-                            <Trash2 size={14} strokeWidth={2} />
+                            <Trash2 size={16} />
                           </button>
-                        </motion.div>
-                      </ScrollReveal>
-                    ))}
-                  </div>
-                </section>
-              )}
+                        </div>
+                      </div>
+                    </Reorder.Item>
+                  );
+                })}
+              </Reorder.Group>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-              {/* Favorite Juz */}
-              {showJuz && filteredJuz.length > 0 && (
-                <section>
-                  <div className="flex items-center gap-4 mb-8">
-                    <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
-                      <BookOpen size={20} strokeWidth={1.5} />
-                    </div>
-                    <h2 className="font-serif text-2xl font-bold text-primary">{t('favorites.juz')}</h2>
-                    <div className="h-px flex-1 bg-primary/5" />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredJuz.map((juz, idx) => (
-                      <ScrollReveal key={juz.number} index={idx}>
-                        <motion.div 
-                          whileHover={{ y: -4 }}
-                          className="relative group"
-                        >
-                          <Link to={`/juz/${juz.number}`} className="block bg-card/60 backdrop-blur-sm border border-border/5 rounded-[2.5rem] p-8 hover:bg-card hover:shadow-islamic transition-all text-center">
-                            <div className="w-16 h-16 rounded-full bg-emerald-deep text-gold flex items-center justify-center mx-auto mb-6 shadow-xl border border-foreground/10">
-                              <span className="text-2xl font-bold font-serif">{isArabic ? toArabicNumber(juz.number) : juz.number}</span>
-                            </div>
-                            <h3 className="font-serif text-xl font-bold text-primary mb-2">{juz.nameAr}</h3>
-                            <p className="text-sm text-primary/70 font-serif italic">{juz.startSurah}</p>
-                          </Link>
-                          <button
-                            onClick={() => toggleFavorite({ type: "juz", id: juz.number })}
-                            className="absolute -top-2 -left-2 w-8 h-8 rounded-full bg-red-500 text-white shadow-lg hover:scale-110 transition-all opacity-0 group-hover:opacity-100 z-10 flex items-center justify-center"
-                            title="إزالة من المفضلة"
-                          >
-                            <Trash2 size={14} strokeWidth={2} />
-                          </button>
-                        </motion.div>
-                      </ScrollReveal>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {/* Favorite Athkar */}
-              {showAthkar && filteredDhikr.length > 0 && (
-                <section>
-                  <div className="flex items-center gap-4 mb-8">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-                      <Shield size={20} strokeWidth={1.5} />
-                    </div>
-                    <h2 className="font-serif text-2xl font-bold text-primary">{t('favorites.athkar')}</h2>
-                    <div className="h-px flex-1 bg-primary/5" />
-                  </div>
-                  <div className="space-y-6">
-                    {filteredDhikr.map((dhikr, idx) => (
-                      <ScrollReveal key={dhikr.id} index={idx}>
-                        <motion.div 
-                          whileHover={{ x: -4 }}
-                          className="relative group bg-card/60 backdrop-blur-sm border border-border/5 rounded-[2.5rem] p-8 hover:bg-card hover:shadow-islamic transition-all"
-                        >
-                          <div className="flex items-center justify-between mb-6">
-                            <span className="inline-block px-4 py-1.5 rounded-xl bg-accent/10 text-[10px] font-bold text-accent uppercase tracking-widest">{dhikr.categoryTitle}</span>
-                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                              <button 
-                                onClick={() => copyText(dhikr.text, dhikr.id)} 
-                                className="w-10 h-10 rounded-xl bg-primary/5 text-primary/30 hover:text-accent hover:bg-accent/10 flex items-center justify-center transition-all" 
-                                title={t('athkar.copy')}
-                              >
-                                {copiedId === dhikr.id ? <Check size={16} className="text-accent" strokeWidth={2} /> : <Copy size={16} strokeWidth={1.5} />}
-                              </button>
-                              <button 
-                                onClick={() => toggleFavorite({ type: "dhikr", id: dhikr.id, categoryId: dhikr.categoryId })} 
-                                className="w-10 h-10 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all" 
-                                title={t('favorites.remove')}
-                              >
-                                <Trash2 size={16} strokeWidth={1.5} />
-                              </button>
-                            </div>
-                          </div>
-                          <p className="font-amiri text-2xl leading-[1.8] text-primary mb-6 text-right">
-                            {tajweedMode ? applyTajweedColors(dhikr.text) : dhikr.text}
-                          </p>
-                          {dhikr.virtue && (
-                            <div className="bg-accent/5 border border-accent/10 rounded-2xl p-6 mb-6">
-                              <p className="text-sm font-serif italic text-accent/80 leading-relaxed">✨ {dhikr.virtue}</p>
-                            </div>
-                          )}
-                          <div className="flex items-center justify-between border-t border-primary/5 pt-4">
-                            <span className="text-[10px] font-bold text-primary/20 uppercase tracking-widest">{dhikr.reference}</span>
-                          </div>
-                        </motion.div>
-                      </ScrollReveal>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {/* Favorite Recitations */}
-              {showRecitations && filteredRecitations.length > 0 && (
-                <section>
-                  <div className="flex items-center gap-4 mb-8">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500">
-                      <Headphones size={20} strokeWidth={1.5} />
-                    </div>
-                    <h2 className="font-serif text-2xl font-bold text-primary">{t('favorites.recitations')}</h2>
-                    <div className="h-px flex-1 bg-primary/5" />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {filteredRecitations.map((item, idx) => (
-                      <ScrollReveal key={`${item.reciterId}-${item.moshafId}-${item.id}-${idx}`} index={idx}>
-                        <motion.div 
-                          whileHover={{ x: -4 }}
-                          className="flex items-center gap-6 bg-card/60 backdrop-blur-sm border border-border/5 rounded-[2rem] p-6 group hover:bg-card hover:shadow-islamic transition-all"
-                        >
-                          <div className="w-16 h-16 rounded-[1.2rem] bg-emerald-deep text-gold flex items-center justify-center shrink-0 shadow-lg">
-                            <Music size={28} strokeWidth={1.5} />
-                          </div>
-                          <Link to="/recitations" className="flex-1 min-w-0 text-right">
-                            <p className="font-serif text-lg font-bold text-primary truncate">{t('index.verseOfDay.surah')} {item.surahName}</p>
-                            <p className="text-sm text-primary/70 font-serif italic truncate mt-1">{item.reciterName}</p>
-                          </Link>
-                          <button
-                            onClick={() => toggleFavorite(item)}
-                            className="w-10 h-10 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 shrink-0 shadow-sm"
-                            title="إزالة من المفضلة"
-                          >
-                            <Trash2 size={16} strokeWidth={1.5} />
-                          </button>
-                        </motion.div>
-                      </ScrollReveal>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {/* Empty state for filtered tab */}
-              {!isEmpty && !noResults && (
-                (activeTab === "juz" && filteredJuz.length === 0) ||
-                (activeTab === "athkar" && filteredDhikr.length === 0) ||
-                (activeTab === "recitations" && filteredRecitations.length === 0) ||
-                (activeTab === "reciters" && filteredReciters.length === 0)
-              ) && (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-center py-24 space-y-6"
+        {/* Edit Nickname Modal */}
+        <AnimatePresence>
+          {editingItem && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[600] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+            >
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                className="w-full max-w-md bg-card rounded-[2.5rem] border border-border/20 shadow-2xl p-6 space-y-6"
+              >
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xl font-serif font-bold text-primary">تعديل المسمى</h3>
+                  <button onClick={() => setEditingItem(null)} className="p-2 hover:bg-primary/5 rounded-xl">
+                    <X size={20} />
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-primary/40 uppercase tracking-widest px-2">الاسم المخصص</label>
+                  <input
+                    type="text"
+                    value={editingItem.nickname}
+                    onChange={(e) => setEditingItem({ ...editingItem, nickname: e.target.value })}
+                    className="w-full p-4 rounded-2xl bg-primary/5 border border-primary/10 focus:border-accent outline-none font-serif text-lg transition-all text-right"
+                    placeholder="أدخل اسماً مخصصاً..."
+                    autoFocus
+                  />
+                </div>
+                <button
+                  onClick={handleUpdateNickname}
+                  className="w-full py-4 rounded-2xl bg-emerald-deep text-gold font-serif font-bold text-lg shadow-lg shadow-emerald-deep/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
                 >
-                  <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center mx-auto">
-                    <Heart size={32} className="text-primary/10" strokeWidth={1} />
-                  </div>
-                  <p className="font-serif italic text-primary/70 text-xl">{t('favorites.noItemsInSection')}</p>
-                </motion.div>
-              )}
+                  <Save size={20} />
+                  حفظ التعديلات
+                </button>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>

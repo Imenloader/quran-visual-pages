@@ -20,11 +20,11 @@ export default defineConfig(({ mode }) => ({
       strategies: 'injectManifest',
       srcDir: 'src',
       filename: 'service-worker.ts',
-      registerType: "autoUpdate",
+      registerType: "prompt",
       injectManifest: {
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
-      includeAssets: ["favicon.ico", "robots.txt", "pwa-192x192.png", "pwa-512x512.png", "placeholder.svg"],
+      includeAssets: ["icon.svg", "robots.txt", "pwa-192x192.png", "pwa-512x512.png", "placeholder.svg"],
       manifest: {
         name: "القرآن الكريم - مصحف المدينة المنورة",
         short_name: "القرآن الكريم",
@@ -38,6 +38,18 @@ export default defineConfig(({ mode }) => ({
         start_url: "/",
         icons: [
           {
+            src: "/icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "any",
+          },
+          {
+            src: "/icon.svg",
+            sizes: "512x512",
+            type: "image/svg+xml",
+            purpose: "maskable",
+          },
+          {
             src: "/pwa-192x192.png",
             sizes: "192x192",
             type: "image/png",
@@ -46,12 +58,6 @@ export default defineConfig(({ mode }) => ({
             src: "/pwa-512x512.png",
             sizes: "512x512",
             type: "image/png",
-          },
-          {
-            src: "/pwa-512x512.png",
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "maskable",
           },
         ],
       },

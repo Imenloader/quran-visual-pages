@@ -45,13 +45,17 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
   const totalPages = juz.endPage - juz.startPage + 1;
   const isLastRead = isBookmarked;
 
-  const readingProgress = useMemo(() => {
+  const { readingProgress, isCompleted } = useMemo(() => {
     try {
       const history = JSON.parse(localStorage.getItem("quran-reading-history") || "{}");
-      const juzHistory = history[juz.number] || { pagesRead: 0 };
-      return (juzHistory.pagesRead / totalPages) * 100;
+      const juzHistory = history[juz.number] || { pagesRead: 0, completed: false };
+      const progress = (juzHistory.pagesRead / totalPages) * 100;
+      return { 
+        readingProgress: progress, 
+        isCompleted: juzHistory.completed || progress >= 100
+      };
     } catch {
-      return 0;
+      return { readingProgress: 0, isCompleted: false };
     }
   }, [juz.number, totalPages]);
 
@@ -173,15 +177,49 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
         whileHover={{ y: -8, scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         className={`relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] border bg-card p-6 md:p-8 transition-all duration-500 hover:shadow-islamic select-none ${
-          isBookmarked ? "border-accent shadow-gold-glow" : "border-border/60 hover:border-primary/40"
+          isBookmarked ? "border-accent shadow-gold-glow" : isCompleted ? "border-emerald-500/50" : "border-border/60 hover:border-primary/40"
         }`}
       >
+        {/* Completion Pulsing Border */}
+        {isCompleted && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ 
+              opacity: [0.1, 0.3, 0.1],
+              scale: [1, 1.01, 1]
+            }}
+            transition={{ 
+              duration: 3, 
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute inset-0 rounded-[2rem] md:rounded-[2.5rem] border-2 border-emerald-500 pointer-events-none z-10"
+          />
+        )}
+
+        {/* In-Progress Pulsing Border */}
+        {readingProgress > 0 && !isCompleted && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ 
+              opacity: [0.2, 0.5, 0.2],
+              scale: [1, 1.01, 1]
+            }}
+            transition={{ 
+              duration: 4, 
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute inset-0 rounded-[2rem] md:rounded-[2.5rem] border-2 border-gold pointer-events-none z-10"
+          />
+        )}
+
         {/* Reading Progress Bar */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted/20 z-20">
+        <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-muted/20 z-20">
           <motion.div 
             initial={{ width: 0 }}
             animate={{ width: `${readingProgress}%` }}
-            className="h-full bg-accent/40"
+            className={`h-full transition-colors duration-500 ${isCompleted ? "bg-emerald-500" : "bg-accent"}`}
           />
         </div>
 
@@ -244,10 +282,15 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
               className={longPressing ? "animate-long-press-ring" : ""}
             />
           </svg>
-          <div className={`flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-[2rem] bg-emerald-deep text-white transition-all duration-500 shadow-lg ${longPressing ? "scale-90" : "group-hover:scale-105"}`}>
+          <div className={`flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-[2rem] bg-primary text-primary-foreground transition-all duration-500 shadow-lg ${longPressing ? "scale-90" : "group-hover:scale-105"} ${isCompleted ? "bg-emerald-600" : ""}`}>
             <span className="text-2xl md:text-3xl font-bold font-serif">
               {juz.number}
             </span>
+            {isCompleted && (
+              <div className="absolute -top-2 -right-2 w-6 h-6 md:w-8 md:h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg border-2 border-card animate-in zoom-in duration-500">
+                <Check size={14} strokeWidth={3} className="md:w-5 md:h-5" />
+              </div>
+            )}
           </div>
         </div>
 

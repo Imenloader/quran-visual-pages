@@ -19,6 +19,7 @@ import {
   type PrayerTimesData,
   type PrayerSettings,
 } from "@/hooks/usePrayerTimes";
+import QuranHeader from "@/components/QuranHeader";
 
 const CustomSelect = ({ 
   value, 
@@ -72,8 +73,8 @@ const CustomSelect = ({
                     onChange(opt.id);
                     setIsOpen(false);
                   }}
-                  className={`w-full text-right px-4 py-2.5 text-sm font-naskh transition-colors hover:bg-emerald-deep/10 ${
-                    value === opt.id ? "text-emerald-deep font-bold bg-emerald-deep/5" : "text-foreground"
+                  className={`w-full text-right px-4 py-2.5 text-sm font-naskh transition-colors hover:bg-primary/10 ${
+                    value === opt.id ? "text-primary font-bold bg-primary/5" : "text-foreground"
                   }`}
                 >
                   {opt.label}
@@ -134,9 +135,9 @@ const NextPrayerCountdown = ({
   return (
     <section className="relative overflow-hidden bg-card border border-border/40 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 shadow-islamic group min-h-[200px] md:min-h-[240px] flex items-center">
       {/* Atmospheric Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-emerald-deep/10 via-transparent to-gold/10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-gold/10 pointer-events-none" />
       <div className="absolute top-0 right-0 w-60 h-60 md:w-80 md:h-80 bg-gold/15 rounded-full -mr-30 md:-mr-40 -mt-30 md:-mt-40 blur-[80px] md:blur-[120px] animate-pulse-slow" />
-      <div className="absolute bottom-0 left-0 w-60 h-60 md:w-80 md:h-80 bg-emerald-deep/15 rounded-full -ml-30 md:-ml-40 -mb-30 md:-mb-40 blur-[80px] md:blur-[120px] animate-pulse-slow" />
+      <div className="absolute bottom-0 left-0 w-60 h-60 md:w-80 md:h-80 bg-primary/15 rounded-full -ml-30 md:-ml-40 -mb-30 md:-mb-40 blur-[80px] md:blur-[120px] animate-pulse-slow" />
       
       {/* Floating Particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -171,7 +172,7 @@ const NextPrayerCountdown = ({
         <div className="flex items-center gap-4 md:gap-6">
           <motion.div 
             whileHover={{ scale: 1.05, rotate: 5 }}
-            className="w-16 h-16 md:w-24 md:h-24 rounded-2xl md:rounded-[2rem] gradient-islamic flex items-center justify-center text-3xl md:text-5xl shadow-2xl shadow-emerald-deep/30 border border-white/10"
+            className="w-16 h-16 md:w-24 md:h-24 rounded-2xl md:rounded-[2rem] gradient-islamic flex items-center justify-center text-3xl md:text-5xl shadow-2xl shadow-primary/30 border border-primary/10"
           >
             {prayerIcon}
           </motion.div>
@@ -201,7 +202,7 @@ const NextPrayerCountdown = ({
               <div className="flex flex-col items-center">
                 <motion.div 
                   whileHover={{ y: -5 }}
-                  className="w-14 h-14 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-card/40 backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-2xl relative group/unit overflow-hidden"
+                  className="w-14 h-14 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-card/40 backdrop-blur-xl border border-primary/10 flex items-center justify-center shadow-2xl relative group/unit overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
                   <span className="font-mono text-2xl md:text-4xl font-bold text-primary tabular-nums drop-shadow-md relative z-10">
@@ -250,7 +251,7 @@ const CairoClock = () => {
       className="relative group mt-6"
     >
       <div className="absolute inset-0 bg-gold/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-      <div className="relative flex flex-col items-center bg-card/30 backdrop-blur-xl border border-white/10 px-10 py-5 rounded-[2rem] shadow-2xl overflow-hidden">
+      <div className="relative flex flex-col items-center bg-card/30 backdrop-blur-xl border border-primary/10 px-10 py-5 rounded-[2rem] shadow-2xl overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
         <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gold mb-2 drop-shadow-sm">
           {isAr ? "توقيت القاهرة الآن" : "Cairo Local Time"}
@@ -259,7 +260,7 @@ const CairoClock = () => {
           {time}
         </span>
         <div className="flex items-center gap-1 mt-2">
-          <div className="w-1 h-1 rounded-full bg-emerald-deep animate-pulse" />
+          <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
           <span className="text-[9px] text-primary/70 font-serif italic uppercase tracking-widest">
             {isAr ? "مزامنة مباشرة" : "Live Sync"}
           </span>
@@ -270,13 +271,13 @@ const CairoClock = () => {
 };
 
 const PrayerTimes = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isAr = i18n.language === "ar";
   const { stopPlayer, isPlaying: isQuranPlaying } = useAudioPlayer();
   const {
     settings, updateSettings, times, loading, error,
     locationLoading, detectLocation, nextPrayer, getRemainingTime,
-    previewAdhan, stopAdhan, testPrayerNotification, speakPrayer, unlockAudio, audioUnlocked
+    previewAdhan, stopAdhan, testPrayerNotification, speakPrayer, unlockAudio, audioUnlocked, isAdhanPlaying
   } = usePrayerTimes({
     onAdhanStart: () => {
       if (isQuranPlaying) stopPlayer();
@@ -366,101 +367,65 @@ const PrayerTimes = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <header className="relative overflow-hidden bg-emerald-deep min-h-[40vh] flex items-center justify-center">
-        {/* Immersive Background Layer */}
-        <div className="absolute inset-0 overflow-hidden">
+      <QuranHeader 
+        title={t("prayerTimes.title")} 
+        variant="compact"
+        showBack
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mt-8"
+        >
+          <CairoClock />
+        </motion.div>
+
+        {settings.cityName && (
           <motion.div 
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.15 }}
-            transition={{ duration: 2 }}
-            className="absolute inset-0 pattern-islamic scale-150 opacity-20" 
-          />
-          
-          {/* Atmospheric Gradients & Light Rays */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-deep/40 to-emerald-deep" />
-          
-          <motion.div 
-            animate={{ 
-              opacity: [0.1, 0.3, 0.1],
-              scale: [1, 1.2, 1],
-              rotate: [0, 5, 0]
-            }}
-            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-1/4 -right-1/4 w-[100%] h-[100%] bg-gold/10 rounded-full blur-[120px]" 
-          />
-          
-          <motion.div 
-            animate={{ 
-              opacity: [0.1, 0.2, 0.1],
-              scale: [1.2, 1, 1.2],
-              rotate: [0, -5, 0]
-            }}
-            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -bottom-1/4 -left-1/4 w-[80%] h-[80%] bg-emerald-light/10 rounded-full blur-[100px]" 
-          />
-        </div>
-
-        <div className="relative z-10 container max-w-4xl mx-auto px-6 py-16 flex flex-col items-center text-center">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="flex items-center gap-4 mb-8"
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="flex items-center gap-3 bg-primary/5 backdrop-blur-md border border-primary/10 px-6 py-3 rounded-full shadow-xl mt-6 mx-auto w-fit"
           >
-            <div className="h-px w-12 bg-gold/40" />
-            <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-gold">
-              مواقيت الصلاة والأذان
+            <MapPin size={16} className="text-gold" />
+            <span className="font-naskh text-white text-sm tracking-wide">
+              {settings.cityName}
             </span>
-            <div className="h-px w-12 bg-gold/40" />
+            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
           </motion.div>
-
-            <motion.h1 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-              className="font-serif text-5xl sm:text-6xl md:text-7xl font-light text-white mb-6 tracking-tight drop-shadow-lg"
-            >
-              مواقيت الصلاة
-            </motion.h1>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <CairoClock />
-            </motion.div>
-
-            {settings.cityName && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 px-6 py-3 rounded-full shadow-xl"
-            >
-              <MapPin size={16} className="text-gold" />
-              <span className="font-naskh text-white text-sm tracking-wide">
-                {settings.cityName}
-              </span>
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-light animate-pulse" />
-            </motion.div>
-          )}
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.4 }}
-            transition={{ delay: 1 }}
-            className="absolute bottom-8 flex flex-col items-center gap-2"
-          >
-            <div className="w-px h-12 bg-gradient-to-b from-gold/40 to-transparent" />
-          </motion.div>
-        </div>
-
-        {/* Elegant bottom transition */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-20" />
-      </header>
+        )}
+      </QuranHeader>
 
       <main className="container max-w-2xl mx-auto px-4 py-6 space-y-5">
+        {/* Adhan Playing Banner */}
+        <AnimatePresence>
+          {isAdhanPlaying && (
+            <motion.div
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 50, scale: 0.9 }}
+              className="bg-destructive/90 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between border border-white/20"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                  <Volume2 className="animate-pulse" size={20} />
+                </div>
+                <div>
+                  <p className="font-naskh font-bold text-sm">الأذان يعمل الآن</p>
+                  <p className="text-[10px] opacity-80">يمكنك إيقافه من هنا أو بالضغط على الإشعار</p>
+                </div>
+              </div>
+              <button
+                onClick={stopAdhan}
+                className="bg-white text-destructive px-6 py-2 rounded-xl font-naskh text-sm font-bold hover:bg-white/90 transition-all shadow-lg"
+              >
+                إيقاف
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Location setup */}
         {!settings.latitude ? (
           <section className="bg-card border border-border rounded-2xl p-6 text-center shadow-soft">
@@ -540,7 +505,7 @@ const PrayerTimes = () => {
                         transition={{ delay: prayerOrder.indexOf(prayer) * 0.05 }}
                         className={`group relative flex items-center gap-4 md:gap-6 px-6 md:px-8 py-5 md:py-7 transition-all duration-500 border-b border-border/40 last:border-0 ${
                           isNext 
-                            ? "bg-emerald-deep/[0.03] shadow-[inset_0_0_40px_rgba(16,185,129,0.05)]" 
+                            ? "bg-primary/[0.03] shadow-[inset_0_0_40px_rgba(var(--primary),0.05)]" 
                             : "hover:bg-muted/30"
                         }`}
                       >
@@ -549,7 +514,7 @@ const PrayerTimes = () => {
                         
                         <div className={`relative z-10 w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl flex items-center justify-center text-2xl md:text-3xl shadow-xl transition-all duration-700 ${
                           isNext 
-                            ? "bg-emerald-deep text-white scale-110 shadow-emerald-deep/40 rotate-3 ring-4 ring-emerald-deep/10" 
+                            ? "bg-primary text-white scale-110 shadow-primary/40 rotate-3 ring-4 ring-primary/10" 
                             : "bg-card border border-border/40 text-muted-foreground group-hover:bg-muted group-hover:scale-105 group-hover:-rotate-2"
                         }`}>
                           {prayerIcons[prayer]}
@@ -561,7 +526,7 @@ const PrayerTimes = () => {
                         <div className="flex-1 min-w-0 relative z-10">
                           <div className="flex items-center gap-2 md:gap-3 mb-1 md:mb-1.5">
                             <p className={`font-serif text-xl md:text-2xl font-bold transition-colors tracking-tight ${
-                              isNext ? "text-emerald-deep" : "text-foreground"
+                              isNext ? "text-primary" : "text-foreground"
                             }`}>
                               {PRAYER_NAMES[prayer]}
                             </p>
@@ -569,7 +534,7 @@ const PrayerTimes = () => {
                               <motion.div 
                                 initial={{ scale: 0.8, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
-                                className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-0.5 md:py-1 rounded-full bg-emerald-deep text-white text-[8px] md:text-[10px] font-bold shadow-lg shadow-emerald-deep/20"
+                                className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-0.5 md:py-1 rounded-full bg-primary text-white text-[8px] md:text-[10px] font-bold shadow-lg shadow-primary/20"
                               >
                                 <span className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-white animate-pulse" />
                                 {isAr ? "الصلاة القادمة" : "Next"}
@@ -597,17 +562,17 @@ const PrayerTimes = () => {
                               type="time"
                               value={editValue}
                               onChange={(e) => setEditValue(e.target.value)}
-                              className="text-xs md:text-sm font-serif bg-card border-2 border-emerald-deep/20 rounded-lg md:rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-foreground w-24 md:w-32 focus:ring-4 focus:ring-emerald-deep/10 outline-none transition-all"
+                              className="text-xs md:text-sm font-serif bg-card border-2 border-primary/20 rounded-lg md:rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-foreground w-24 md:w-32 focus:ring-4 focus:ring-primary/10 outline-none transition-all"
                               autoFocus
                             />
-                            <button onClick={saveEdit} className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-emerald-deep text-white flex items-center justify-center shadow-lg shadow-emerald-deep/20 hover:scale-110 transition-transform"><Check size={16} className="md:w-5 md:h-5" /></button>
+                            <button onClick={saveEdit} className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-110 transition-transform"><Check size={16} className="md:w-5 md:h-5" /></button>
                             <button onClick={() => setEditingPrayer(null)} className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-muted text-muted-foreground flex items-center justify-center hover:bg-destructive hover:text-white transition-colors"><X size={16} className="md:w-5 md:h-5" /></button>
                           </div>
                         ) : (
                           <div className="flex items-center gap-4 md:gap-6 relative z-10">
                             <div className="text-right">
                               <span className={`font-mono text-2xl md:text-3xl font-bold tabular-nums transition-colors tracking-tighter ${
-                                isNext ? "text-emerald-deep drop-shadow-sm" : "text-foreground/80"
+                                isNext ? "text-primary drop-shadow-sm" : "text-foreground/80"
                               }`}>
                                 {formatTime(times[prayer], settings.timeFormat)}
                               </span>
@@ -628,7 +593,7 @@ const PrayerTimes = () => {
                                   </button>
                                   <button
                                     onClick={() => handleSpeakPrayer(prayer)}
-                                    className="w-8 h-8 md:w-9 md:h-9 rounded-lg md:rounded-xl bg-emerald-deep/10 text-emerald-deep hover:bg-emerald-deep hover:text-white transition-all flex items-center justify-center shadow-sm"
+                                    className="w-8 h-8 md:w-9 md:h-9 rounded-lg md:rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all flex items-center justify-center shadow-sm"
                                     title="نطق اسم الصلاة"
                                   >
                                     <Volume2 size={14} className="md:w-4 md:h-4" />
@@ -717,13 +682,13 @@ const PrayerTimes = () => {
             </section>
 
             {/* Adhan sound selector */}
-            <section className="bg-card border-2 border-emerald-light/20 rounded-[2.5rem] p-8 shadow-islamic relative z-30">
+            <section className="bg-card border-2 border-primary/20 rounded-[2.5rem] p-8 shadow-islamic relative z-30">
               <div className="absolute inset-0 overflow-hidden rounded-[2.5rem] pointer-events-none">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-light/5 rounded-full -mr-16 -mt-16 blur-3xl" />
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl" />
               </div>
               
               <div className="flex items-center gap-4 mb-8 relative z-10">
-                <div className="w-14 h-14 rounded-2xl gradient-islamic flex items-center justify-center shadow-emerald-deep/20 shadow-lg">
+                <div className="w-14 h-14 rounded-2xl gradient-islamic flex items-center justify-center shadow-primary/20 shadow-lg">
                   <Volume2 size={24} className="text-white" />
                 </div>
                 <div>
@@ -744,8 +709,8 @@ const PrayerTimes = () => {
                   onClick={() => handlePreview(settings.adhanSound)}
                   className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
                     playingAdhan === settings.adhanSound 
-                      ? "bg-emerald-deep text-gold shadow-lg" 
-                      : "bg-muted text-muted-foreground hover:bg-emerald-light/20 hover:text-emerald-deep"
+                      ? "bg-primary text-gold shadow-lg" 
+                      : "bg-muted text-muted-foreground hover:bg-primary/20 hover:text-primary"
                   }`}
                   title="معاينة"
                 >
@@ -830,7 +795,7 @@ const PrayerTimes = () => {
                           }}
                           className={`py-2 px-1 rounded-xl border-2 transition-all font-naskh text-[11px] ${
                             settings.enabledPrayers.includes(prayer)
-                              ? "border-emerald-deep bg-emerald-deep/5 text-emerald-deep font-bold"
+                              ? "border-primary bg-primary/5 text-primary font-bold"
                               : "border-border text-muted-foreground hover:bg-muted"
                           }`}
                         >
@@ -849,7 +814,7 @@ const PrayerTimes = () => {
                       onClick={() => updateSettings({ timeFormat: "12h" })}
                       className={`flex-1 py-2 rounded-xl border-2 transition-all font-naskh text-sm ${
                         settings.timeFormat === "12h"
-                          ? "border-emerald-deep bg-emerald-deep/5 text-emerald-deep font-bold"
+                          ? "border-primary bg-primary/5 text-primary font-bold"
                           : "border-border text-muted-foreground hover:bg-muted"
                       }`}
                     >
@@ -859,7 +824,7 @@ const PrayerTimes = () => {
                       onClick={() => updateSettings({ timeFormat: "24h" })}
                       className={`flex-1 py-2 rounded-xl border-2 transition-all font-naskh text-sm ${
                         settings.timeFormat === "24h"
-                          ? "border-emerald-deep bg-emerald-deep/5 text-emerald-deep font-bold"
+                          ? "border-primary bg-primary/5 text-primary font-bold"
                           : "border-border text-muted-foreground hover:bg-muted"
                       }`}
                     >
