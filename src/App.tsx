@@ -36,6 +36,17 @@ import Search from "./pages/tools/Search";
 import Offline from "./pages/tools/Offline";
 import FridaySunan from "./pages/tools/FridaySunan";
 import Ramadan from "./pages/tools/Ramadan";
+import Library from "./pages/Library";
+import HajjGuide from "./pages/HajjGuide";
+import ProphetStories from "./pages/ProphetStories";
+import NamesDirectory from "./pages/NamesDirectory";
+import DailyAdhkar from "./pages/DailyAdhkar";
+import Virtues from "./pages/ramadan/Virtues";
+import FastingRules from "./pages/ramadan/FastingRules";
+import Duas from "./pages/ramadan/Duas";
+import Tips from "./pages/ramadan/Tips";
+import LaylatulQadr from "./pages/ramadan/LaylatulQadr";
+import ZakatAlFitr from "./pages/ramadan/ZakatAlFitr";
 import HowToUse from "./pages/HowToUse";
 import Tajweed from "./pages/Tajweed";
 import NotFound from "./pages/NotFound";
@@ -84,12 +95,15 @@ const LanguageHandler = () => {
 };
 
 import { usePeriodicReminders } from "./hooks/usePeriodicReminders";
+import { usePrayerNotifications } from "./hooks/usePrayerNotifications";
 
 const App = () => {
   // Initialize Khatma Notifications
   useKhatmaNotifications();
   // Initialize Periodic Reminders
   usePeriodicReminders();
+  // Initialize Prayer Notifications
+  usePrayerNotifications();
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -132,6 +146,17 @@ const App = () => {
                     <Route path="/offline" element={<Offline />} />
                     <Route path="/friday-sunan" element={<FridaySunan />} />
                     <Route path="/ramadan" element={<Ramadan />} />
+                    <Route path="/library" element={<Library />} />
+                    <Route path="/hajj-guide" element={<HajjGuide />} />
+                    <Route path="/prophet-stories" element={<ProphetStories />} />
+                    <Route path="/names-directory" element={<NamesDirectory />} />
+                    <Route path="/daily-adhkar" element={<DailyAdhkar />} />
+                    <Route path="/ramadan/virtues" element={<Virtues />} />
+                    <Route path="/ramadan/fasting-rules" element={<FastingRules />} />
+                    <Route path="/ramadan/duas" element={<Duas />} />
+                    <Route path="/ramadan/tips" element={<Tips />} />
+                    <Route path="/ramadan/laylatul-qadr" element={<LaylatulQadr />} />
+                    <Route path="/ramadan/zakat-al-fitr" element={<ZakatAlFitr />} />
                     <Route path="/how-to-use" element={<HowToUse />} />
                     <Route path="/tajweed" element={<Tajweed />} />
                     <Route path="/embed/:siteId" element={<EmbedView />} />

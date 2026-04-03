@@ -196,7 +196,12 @@ const Hub = () => {
       title: t("hub.knowledge"),
       icon: <BookOpen className="w-5 h-5 text-amber-500" />,
       tools: [
-        { name: t("ramadan"), icon: <Moon className="w-5 h-5" />, path: "/ramadan" },
+        { name: t("ramadan.title"), icon: <Moon className="w-5 h-5" />, path: "/ramadan" },
+        { name: t("hub.library"), icon: <BookOpen className="w-5 h-5" />, path: "/library" },
+        { name: i18n.language === 'ar' ? "دليل الحج والعمرة" : "Hajj & Umrah Guide", icon: <MapPin className="w-5 h-5" />, path: "/hajj-guide" },
+        { name: i18n.language === 'ar' ? "قصص الأنبياء" : "Stories of the Prophets", icon: <BookOpen className="w-5 h-5" />, path: "/prophet-stories" },
+        { name: i18n.language === 'ar' ? "دليل الأسماء الإسلامية" : "Islamic Names Directory", icon: <Fingerprint className="w-5 h-5" />, path: "/names-directory" },
+        { name: i18n.language === 'ar' ? "الأذكار والسنن" : "Daily Adhkar & Sunnan", icon: <Sparkles className="w-5 h-5" />, path: "/daily-adhkar" },
         { name: t("hub.hijri"), icon: <Calendar className="w-5 h-5" />, path: "/hijri" },
         { name: t("hub.dailyVerse"), icon: <BookOpen className="w-5 h-5" />, path: "/daily-verse" },
         { name: t("hub.tafsir"), icon: <BookOpen className="w-5 h-5" />, path: "/tafsir" },

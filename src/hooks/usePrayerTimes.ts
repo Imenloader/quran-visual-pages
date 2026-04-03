@@ -4,7 +4,7 @@ import { isBefore, addDays } from "date-fns";
 import { toast } from "sonner";
 import { speakPrayerName } from "@/services/ttsService";
 
-const PRAYER_SETTINGS_KEY = "prayer-times-settings";
+export const PRAYER_SETTINGS_KEY = "prayer-times-settings";
 
 export interface PrayerTimesData {
   Fajr: string;

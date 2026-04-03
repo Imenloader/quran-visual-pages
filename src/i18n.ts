@@ -21,6 +21,7 @@ const resources = {
         "mosqueFinder": "Mosque Finder",
         "halalPlaces": "Halal Places",
         "hijri": "Hijri Calendar",
+        "library": "Islamic Library",
         "dailyVerse": "Daily Verse",
         "ramadan": "Ramadan Hub",
         "tafsir": "Tafsir",
@@ -433,6 +434,7 @@ const resources = {
         "mosqueFinder": "البحث عن مساجد",
         "halalPlaces": "أماكن حلال",
         "hijri": "التقويم الهجري",
+        "library": "المكتبة الإسلامية",
         "dailyVerse": "آية اليوم",
         "ramadan": "ركن رمضان",
         "tafsir": "التفسير الميسر",
@@ -800,7 +802,7 @@ const resources = {
         "collapse": "طي المشغل"
       },
       "ramadan": {
-        "title": "رمضان كريم",
+        "title": "شَهْرُ رَمَضَانَ",
         "subtitle": "دليلك الشامل للشهر الفضيل",
         "virtues": "فضائل رمضان",
         "virtuesDesc": "شهر أنزل فيه القرآن، شهر الرحمة والمغفرة والعتق من النار.",
