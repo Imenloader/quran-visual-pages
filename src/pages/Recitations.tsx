@@ -678,6 +678,7 @@ const Recitations = () => {
                     whileTap={{ scale: 0.95 }}
                     onClick={handleCreatePlaylist}
                     disabled={!newPlaylistName.trim()}
+                    aria-label={isArabic ? "إنشاء قائمة" : "Create Playlist"}
                     className="w-10 h-10 rounded-xl bg-gold text-black flex items-center justify-center disabled:opacity-30 transition-all shadow-lg shadow-gold/20"
                   >
                     <Plus size={20} />
@@ -716,6 +717,7 @@ const Recitations = () => {
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() => sharePlaylist(pl)}
+                            aria-label={isArabic ? "مشاركة القائمة" : "Share Playlist"}
                             className="w-10 h-10 rounded-full bg-muted text-muted-foreground/40 hover:text-emerald hover:bg-emerald/10 transition-all flex items-center justify-center"
                             title="مشاركة القائمة"
                           >
@@ -726,6 +728,7 @@ const Recitations = () => {
                             whileTap={{ scale: 0.9 }}
                             onClick={() => playPlaylist(pl)}
                             disabled={pl.tracks.length === 0}
+                            aria-label={isArabic ? "تشغيل القائمة" : "Play Playlist"}
                             className="w-12 h-12 rounded-full bg-gold text-black flex items-center justify-center disabled:opacity-30 transition-all shadow-lg shadow-gold/20"
                           >
                             <Play size={20} fill="currentColor" />
@@ -734,6 +737,7 @@ const Recitations = () => {
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() => { deletePlaylist(pl.id); toast.success("تم حذف القائمة"); }}
+                            aria-label={isArabic ? "حذف القائمة" : "Delete Playlist"}
                             className="w-10 h-10 rounded-full bg-muted text-muted-foreground/40 hover:text-red-400 hover:bg-red-400/10 transition-all flex items-center justify-center"
                           >
                             <Trash2 size={18} />
@@ -759,7 +763,10 @@ const Recitations = () => {
                                 className="bg-transparent border-none outline-none text-xs font-naskh text-primary placeholder:text-primary/20 w-full"
                               />
                               {(playlistSearchQuery[pl.id]) && (
-                                <button onClick={() => setPlaylistSearchQuery(prev => ({ ...prev, [pl.id]: "" }))}>
+                                <button 
+                                  onClick={() => setPlaylistSearchQuery(prev => ({ ...prev, [pl.id]: "" }))}
+                                  aria-label={isArabic ? "مسح البحث" : "Clear Search"}
+                                >
                                   <X size={12} className="text-muted-foreground/40" />
                                 </button>
                               )}
@@ -843,6 +850,7 @@ const Recitations = () => {
                                       whileHover={{ scale: 1.1 }}
                                       whileTap={{ scale: 0.9 }}
                                       onClick={() => removeTrack(pl.id, track.surahId, track.reciterId, track.moshafId)}
+                                      aria-label={isArabic ? "إزالة من القائمة" : "Remove from Playlist"}
                                       className="w-8 h-8 rounded-lg text-primary/10 hover:text-red-400 hover:bg-red-400/10 transition-all flex items-center justify-center opacity-0 group-hover/track:opacity-100"
                                     >
                                       <X size={14} />
@@ -929,6 +937,7 @@ const Recitations = () => {
                       e.stopPropagation();
                       toggleFavorite({ type: "reciter", id: selectedReciter.id, name: selectedReciter.name });
                     }}
+                    aria-label={isArabic ? "تفضيل القارئ" : "Favorite Reciter"}
                     className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
                       isFavorite("reciter", selectedReciter.id) 
                         ? "bg-gold text-black shadow-lg shadow-gold/20" 
@@ -964,6 +973,7 @@ const Recitations = () => {
                   {searchQuery && (
                     <button 
                       onClick={() => setSearchQuery("")}
+                      aria-label={isArabic ? "مسح البحث" : "Clear Search"}
                       className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground p-1.5 rounded-full hover:bg-muted transition-all"
                       title="مسح البحث"
                     >
@@ -1044,6 +1054,7 @@ const Recitations = () => {
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() => toggleFavorite({ type: "reciter", id: reciter.id, name: reciter.name })}
+                            aria-label={isArabic ? "تفضيل القارئ" : "Favorite Reciter"}
                             className={`w-10 h-10 rounded-full flex items-center justify-center transition-all relative z-10 ${
                               isFavorite("reciter", reciter.id) 
                                 ? "bg-gold text-black shadow-lg shadow-gold/20" 
@@ -1139,6 +1150,7 @@ const Recitations = () => {
                         // but better to show the modal with a "Add all" context
                         addAllToPlaylist(playlists[0].id);
                       }}
+                      aria-label={isArabic ? "إضافة الكل لقائمة" : "Add All to Playlist"}
                       className="w-16 h-16 rounded-3xl border border-border/40 bg-card flex flex-col items-center justify-center text-gold hover:bg-gold/10 hover:border-gold/30 transition-all shadow-xl shrink-0"
                       title="إضافة الكل لقائمة"
                     >
@@ -1152,6 +1164,7 @@ const Recitations = () => {
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={cancelDl} 
+                        aria-label={isArabic ? "إلغاء التحميل" : "Cancel Download"}
                         className="w-16 h-16 rounded-3xl border border-border/40 bg-card flex items-center justify-center text-muted-foreground/40 hover:text-red-400 hover:bg-red-400/10 hover:border-red-400/30 transition-all shadow-xl shrink-0" 
                         title="إلغاء التحميل"
                       >
@@ -1240,6 +1253,7 @@ const Recitations = () => {
                               moshafId: selectedMoshaf.id, moshafServer: selectedMoshaf.server,
                             });
                           }}
+                          aria-label={isArabic ? "تفضيل التلاوة" : "Favorite Recitation"}
                           className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
                             selectedReciter && selectedMoshaf && isFavorite("recitation", surah.id, selectedReciter.id, selectedMoshaf.id)
                               ? "bg-red-500/10 text-red-500 shadow-lg shadow-red-500/10" 
@@ -1253,6 +1267,7 @@ const Recitations = () => {
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
                           onClick={() => setShowAddToPlaylist(surah)}
+                          aria-label={isArabic ? "إضافة إلى قائمة" : "Add to Playlist"}
                           className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-muted-foreground/20 hover:text-gold hover:bg-gold/10 transition-all"
                         >
                           <Plus size={20} />
@@ -1310,6 +1325,7 @@ const Recitations = () => {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => setShowCreateInModal(!showCreateInModal)}
+                      aria-label={isArabic ? "إنشاء قائمة جديدة" : "Create New Playlist"}
                       className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${showCreateInModal ? "bg-gold text-black" : "bg-muted text-muted-foreground/20 hover:text-gold"}`}
                       title="إنشاء قائمة جديدة"
                     >
@@ -1319,6 +1335,7 @@ const Recitations = () => {
                       whileHover={{ scale: 1.1, rotate: 90 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => setShowAddToPlaylist(null)} 
+                      aria-label={isArabic ? "إغلاق" : "Close"}
                       className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground/20 hover:text-foreground transition-colors"
                     >
                       <X size={20} />

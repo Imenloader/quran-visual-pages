@@ -475,6 +475,7 @@ const PrayerTimes = () => {
                       updateSettings({ method: settings.method }); // re-fetch
                     }
                   }}
+                  aria-label={isAr ? "تحديث المواقيت" : "Refresh prayer times"}
                   className="text-muted-foreground hover:text-foreground transition-colors"
                   title="تحديث"
                 >
@@ -565,8 +566,20 @@ const PrayerTimes = () => {
                               className="text-xs md:text-sm font-serif bg-card border-2 border-primary/20 rounded-lg md:rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-foreground w-24 md:w-32 focus:ring-4 focus:ring-primary/10 outline-none transition-all"
                               autoFocus
                             />
-                            <button onClick={saveEdit} className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-110 transition-transform"><Check size={16} className="md:w-5 md:h-5" /></button>
-                            <button onClick={() => setEditingPrayer(null)} className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-muted text-muted-foreground flex items-center justify-center hover:bg-destructive hover:text-white transition-colors"><X size={16} className="md:w-5 md:h-5" /></button>
+                            <button 
+                              onClick={saveEdit} 
+                              aria-label={isAr ? "حفظ" : "Save"}
+                              className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-110 transition-transform"
+                            >
+                              <Check size={16} className="md:w-5 md:h-5" />
+                            </button>
+                            <button 
+                              onClick={() => setEditingPrayer(null)} 
+                              aria-label={isAr ? "إلغاء" : "Cancel"}
+                              className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-muted text-muted-foreground flex items-center justify-center hover:bg-destructive hover:text-white transition-colors"
+                            >
+                              <X size={16} className="md:w-5 md:h-5" />
+                            </button>
                           </div>
                         ) : (
                           <div className="flex items-center gap-4 md:gap-6 relative z-10">
@@ -586,6 +599,7 @@ const PrayerTimes = () => {
                                       testPrayerNotification(prayer);
                                       toast.success(`تم إرسال تنبيه تجريبي لصلاة ${PRAYER_NAMES[prayer]}`);
                                     }}
+                                    aria-label={isAr ? `تجربة تنبيه ${PRAYER_NAMES[prayer]}` : `Test notification for ${prayer}`}
                                     className="w-8 h-8 md:w-9 md:h-9 rounded-lg md:rounded-xl bg-gold/10 text-gold hover:bg-gold hover:text-white transition-all flex items-center justify-center shadow-sm"
                                     title="تجربة الإشعار"
                                   >
@@ -593,6 +607,7 @@ const PrayerTimes = () => {
                                   </button>
                                   <button
                                     onClick={() => handleSpeakPrayer(prayer)}
+                                    aria-label={isAr ? `نطق وقت ${PRAYER_NAMES[prayer]}` : `Speak time for ${prayer}`}
                                     className="w-8 h-8 md:w-9 md:h-9 rounded-lg md:rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all flex items-center justify-center shadow-sm"
                                     title="نطق اسم الصلاة"
                                   >
@@ -602,6 +617,7 @@ const PrayerTimes = () => {
                               )}
                               <button
                                 onClick={() => handleEditPrayer(prayer)}
+                                aria-label={isAr ? `تعديل وقت ${PRAYER_NAMES[prayer]}` : `Edit time for ${prayer}`}
                                 className="w-8 h-8 md:w-9 md:h-9 rounded-lg md:rounded-xl bg-muted text-muted-foreground hover:bg-foreground hover:text-white transition-all flex items-center justify-center shadow-sm"
                                 title="تعديل يدوي"
                               >

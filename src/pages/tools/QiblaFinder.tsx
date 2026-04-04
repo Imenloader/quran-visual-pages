@@ -100,7 +100,10 @@ const QiblaFinder = () => {
       <header className="relative z-10 w-full flex items-center justify-between max-w-md px-6 py-8">
         <BackButton variant="outline" />
         <h1 className="text-2xl font-bold font-naskh text-foreground tracking-tight">{t("hub.qibla")}</h1>
-        <button className="w-12 h-12 rounded-2xl bg-card/50 backdrop-blur-md border border-border/40 flex items-center justify-center text-foreground shadow-sm">
+        <button 
+          aria-label={t("common.info") || "Information"}
+          className="w-12 h-12 rounded-2xl bg-card/50 backdrop-blur-md border border-border/40 flex items-center justify-center text-foreground shadow-sm"
+        >
           <Info className="w-5 h-5" />
         </button>
       </header>

@@ -340,7 +340,7 @@ const Index = () => {
                         <div className="font-serif font-bold text-primary text-xl">{t("index.verseOfDay.surah")} {i18n.language === "ar" ? surah.name : surah.nameEn}</div>
                         <div className="text-xs text-muted-foreground font-naskh mt-1">{t("index.hero.ayah")} {i18n.language === "ar" ? toArabicNumber(surah.startPage) : surah.startPage}</div>
                       </div>
-                      <div className="w-10 h-10 rounded-full bg-muted/20 flex items-center justify-center text-muted-foreground group-hover:bg-accent group-hover:text-white transition-all relative z-10">
+                      <div className="w-10 h-10 rounded-full bg-muted/20 flex items-center justify-center text-muted-foreground group-hover:bg-accent group-hover:text-white transition-all relative z-10" aria-hidden="true">
                         <ChevronLeft size={18} />
                       </div>
                     </motion.button>
@@ -360,10 +360,18 @@ const Index = () => {
             <h2 className="text-3xl font-serif font-medium text-primary">{t("index.juzSection.title")}</h2>
           </div>
           <div className="flex items-center gap-3">
-            <Link to="/favorites" className="w-12 h-12 rounded-2xl bg-card border border-border/60 text-destructive flex items-center justify-center hover:bg-destructive/5 transition-all">
+            <Link 
+              to="/favorites" 
+              aria-label={t("nav.favorites") || "Favorites"}
+              className="w-12 h-12 rounded-2xl bg-card border border-border/60 text-destructive flex items-center justify-center hover:bg-destructive/5 transition-all"
+            >
               <Heart size={20} fill={filteredJuz.length > 0 ? "none" : "currentColor"} strokeWidth={1.5} />
             </Link>
-            <button onClick={() => setShowIndex(true)} className="w-12 h-12 rounded-2xl bg-card border border-border/60 text-primary flex items-center justify-center hover:bg-muted/50 transition-all">
+            <button 
+              onClick={() => setShowIndex(true)} 
+              aria-label={t("index.hero.start") || "Open Index"}
+              className="w-12 h-12 rounded-2xl bg-card border border-border/60 text-primary flex items-center justify-center hover:bg-muted/50 transition-all"
+            >
               <Settings size={20} strokeWidth={1.5} />
             </button>
           </div>

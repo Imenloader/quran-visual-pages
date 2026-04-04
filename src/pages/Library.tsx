@@ -417,6 +417,7 @@ const Library = () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               disabled={page === 1}
+              aria-label={i18n.language === 'ar' ? "الصفحة السابقة" : "Previous Page"}
               className="w-14 h-14 rounded-2xl border border-border flex items-center justify-center hover:bg-muted disabled:opacity-30 transition-all shadow-sm"
             >
               <ChevronLeft className="w-6 h-6 rtl:rotate-180" />
@@ -429,6 +430,7 @@ const Library = () => {
                 setPage(p => p + 1);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
+              aria-label={i18n.language === 'ar' ? "الصفحة التالية" : "Next Page"}
               className="w-14 h-14 rounded-2xl border border-border flex items-center justify-center hover:bg-muted transition-all shadow-sm"
             >
               <ChevronLeft className="w-6 h-6 rotate-180 rtl:rotate-0" />
@@ -450,6 +452,7 @@ const Library = () => {
               <div className="flex items-center gap-4">
                 <button 
                   onClick={() => setIsReaderOpen(false)}
+                  aria-label={i18n.language === 'ar' ? "إغلاق" : "Close"}
                   className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
                 >
                   <X size={20} />
