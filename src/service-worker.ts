@@ -145,6 +145,19 @@ registerRoute(
   })
 );
 
+// Sitemap.xml - serve as static
+registerRoute(
+  ({ url }) => url.pathname === '/sitemap.xml',
+  new StaleWhileRevalidate({
+    cacheName: 'static-assets-cache',
+    plugins: [
+      new CacheableResponsePlugin({
+        statuses: [0, 200],
+      }),
+    ],
+  })
+);
+
 // MP3 audio files
 registerRoute(
   /\.mp3$/i,
@@ -201,7 +214,7 @@ self.addEventListener('push', (event) => {
   } catch (e) {
     data = { title: 'تنبيه إسلامي', body: event.data ? event.data.text() : 'حان وقت الصلاة أو الذكر' };
   }
-  
+
   const title = data.title || 'تنبيه إسلامي';
   const options = {
     body: data.body || 'حان وقت الصلاة أو الذكر',
