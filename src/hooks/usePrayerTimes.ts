@@ -239,7 +239,6 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
-  const [audioUnlocked, setAudioUnlocked] = useState(false);
   const [isAdhanPlaying, setIsAdhanPlaying] = useState(false);
   const notifTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -253,32 +252,6 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
   useEffect(() => {
     optionsRef.current = options;
   }, [options]);
-
-  // Function to unlock audio on first interaction
-  const unlockAudio = useCallback(() => {
-    if (audioUnlocked) return;
-    
-    // Unlock standard audio
-    const audio = new Audio();
-    audio.play().then(() => {
-      // Don't pause immediately to avoid interruption error
-      // Just let it be, it's an empty audio anyway
-      setAudioUnlocked(true);
-      console.log("Audio unlocked");
-    }).catch((err) => {
-      if (err.name !== 'AbortError') {
-        console.log("Audio unlock failed - waiting for interaction", err);
-      }
-    });
-
-    // Unlock SpeechSynthesis
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.getVoices();
-      // Speak an empty string to unlock TTS on some mobile browsers
-      const utterance = new SpeechSynthesisUtterance("");
-      window.speechSynthesis.speak(utterance);
-    }
-  }, [audioUnlocked]);
 
   const playAdhanSound = useCallback(async (soundId: string, prayerNameAr?: string) => {
     const FALLBACK_SOUND = "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3";
@@ -668,8 +641,6 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
       console.log("speakPrayer hook called for:", prayer);
       return speakPrayerName(prayer);
     },
-    unlockAudio,
-    audioUnlocked,
     isAdhanPlaying,
   };
 }

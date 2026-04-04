@@ -98,6 +98,7 @@ const LanguageHandler = () => {
 
 import { usePeriodicReminders } from "./hooks/usePeriodicReminders";
 import { usePrayerNotifications } from "./hooks/usePrayerNotifications";
+import { AudioUnlockBanner } from "./components/AudioUnlockBanner";
 
 const App = () => {
   // Initialize Khatma Notifications
@@ -117,6 +118,7 @@ const App = () => {
               <ServiceWorkerRegistration />
               <LanguageHandler />
               <NetworkStatus />
+              <AudioUnlockBanner />
               <div className="page-dimming-overlay" />
               <Toaster />
               <Sonner />

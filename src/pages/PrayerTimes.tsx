@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import { useTranslation } from "react-i18next";
+import { useAudioUnlock } from "@/hooks/useAudioUnlock";
 import {
   usePrayerTimes,
   getCairoDate,
@@ -277,12 +278,14 @@ const PrayerTimes = () => {
   const {
     settings, updateSettings, times, loading, error,
     locationLoading, detectLocation, nextPrayer, getRemainingTime,
-    previewAdhan, stopAdhan, testPrayerNotification, speakPrayer, unlockAudio, audioUnlocked, isAdhanPlaying
+    previewAdhan, stopAdhan, testPrayerNotification, speakPrayer, isAdhanPlaying
   } = usePrayerTimes({
     onAdhanStart: () => {
       if (isQuranPlaying) stopPlayer();
     }
   });
+
+  const { isAudioUnlocked, unlockAudio } = useAudioUnlock();
 
   const [showSettings, setShowSettings] = useState(false);
   const [editingPrayer, setEditingPrayer] = useState<keyof PrayerTimesData | null>(null);
@@ -650,7 +653,7 @@ const PrayerTimes = () => {
                   </button>
                 </div>
               )}
-              {!audioUnlocked && (
+              {!isAudioUnlocked && (
                 <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-3">
                   <Volume2 size={18} className="text-amber-500 shrink-0" />
                   <div className="flex-1">
