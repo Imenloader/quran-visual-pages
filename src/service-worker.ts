@@ -214,7 +214,7 @@ self.addEventListener('push', (event) => {
   } catch (e) {
     data = { title: 'تنبيه إسلامي', body: event.data ? event.data.text() : 'حان وقت الصلاة أو الذكر' };
   }
-
+  
   const title = data.title || 'تنبيه إسلامي';
   const options = {
     body: data.body || 'حان وقت الصلاة أو الذكر',
