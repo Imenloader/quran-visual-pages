@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { BookOpen, DownloadCloud, Headphones, Shield, Settings, Smartphone, WifiOff, Hand, Moon, Heart, ListMusic, Star, Maximize, Bell } from "lucide-react";
 import { motion } from "motion/react";
+import BackButton from "@/components/BackButton";
 
 const steps = [
   {
@@ -96,6 +97,9 @@ const HowToUse = () => {
         />
 
         <div className="relative z-10 container max-w-4xl mx-auto">
+          <div className="flex justify-start mb-8">
+            <BackButton variant="ghost" />
+          </div>
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}

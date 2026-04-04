@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { ChevronLeft, BookOpen, Clock, Info, Bell, BellOff } from "lucide-react";
+import { BookOpen, Clock, Info, Bell, BellOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import BackButton from "@/components/BackButton";
 
 const KhatmaPlanner = () => {
   const { t, i18n } = useTranslation();
@@ -60,12 +61,7 @@ const KhatmaPlanner = () => {
     <div className="min-h-screen bg-background pb-24 pt-6 px-4">
       <div className="max-w-md mx-auto space-y-6">
         <header className="flex items-center justify-between mb-8">
-          <button 
-            onClick={() => navigate("/hub")}
-            className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-foreground shadow-sm"
-          >
-            <ChevronLeft className="w-6 h-6 rtl:rotate-180" />
-          </button>
+          <BackButton />
           <h1 className="text-xl font-bold font-naskh text-foreground">{t("hub.khatma")}</h1>
           <div className="w-10 h-10" />
         </header>

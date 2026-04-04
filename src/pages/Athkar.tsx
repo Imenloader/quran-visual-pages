@@ -1,12 +1,13 @@
 import { useState, useMemo, useCallback } from "react";
-import { Link } from "react-router-dom";
-import { Home, Search as SearchIcon, X, Shield, BookOpen, ChevronDown, ChevronUp, Copy, Check, Sunrise, Sunset, Moon, AlarmClock, Building, House, UtensilsCrossed, Plane, Shirt, Volume2, Heart, Stethoscope, Compass, Droplets, DoorOpen, Cloud, Share2, ArrowRight } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Home, Search as SearchIcon, X, Shield, BookOpen, ChevronDown, ChevronUp, Copy, Check, Sunrise, Sunset, Moon, AlarmClock, Building, House, UtensilsCrossed, Plane, Shirt, Volume2, Heart, Stethoscope, Compass, Droplets, DoorOpen, Cloud, Share2 } from "lucide-react";
 import { ATHKAR_DATA, type AthkarCategory } from "@/data/athkarData";
 import { useFavorites } from "@/hooks/useFavorites";
 import { toArabicNumber } from "@/data/quranData";
 import ScrollReveal from "@/components/ScrollReveal";
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
+import BackButton from "@/components/BackButton";
 
 import { useTheme } from "@/contexts/ThemeContext";
 import { applyTajweedColors, rules } from "@/lib/tajweedParser";
@@ -64,6 +65,7 @@ const TajweedLegend = ({ className }: { className?: string }) => {
 
 const Athkar = () => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const { tajweedMode } = useTheme();
   const isArabic = i18n.language === 'ar';
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
@@ -96,9 +98,9 @@ const Athkar = () => {
     setCounters(prev => {
       const updated = { ...prev, [dhikrId]: (prev[dhikrId] || 0) + 1 };
       localStorage.setItem(COUNTER_KEY, JSON.stringify(updated));
-      addAthkarRecited(1);
       return updated;
     });
+    addAthkarRecited(1);
   }, [addAthkarRecited]);
 
   const resetCounters = useCallback(() => {
@@ -178,12 +180,7 @@ const Athkar = () => {
 
         <div className="relative z-10 container max-w-4xl mx-auto px-6">
           <div className="flex justify-between items-center mb-16">
-            <Link 
-              to="/" 
-              className="w-12 h-12 rounded-full bg-primary/5 backdrop-blur-md flex items-center justify-center text-white/70 hover:text-white hover:bg-primary/10 transition-all border border-primary/10"
-            >
-              <ArrowRight size={24} strokeWidth={1.5} className="rtl:rotate-180" />
-            </Link>
+            <BackButton variant="ghost" />
             
             <div className="flex items-center gap-4">
               <Link 

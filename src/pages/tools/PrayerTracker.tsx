@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, CheckCircle2, Circle, Calendar, Trophy } from "lucide-react";
+import { CheckCircle2, Circle, Calendar, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
+import BackButton from "@/components/BackButton";
 
 const PRAYERS = [
   { id: "fajr", name: "الفجر" },
@@ -44,12 +45,7 @@ const PrayerTracker = () => {
     <div className="min-h-screen bg-background pb-24 pt-6 px-4">
       <div className="max-w-md mx-auto">
         <header className="flex items-center justify-between mb-8">
-          <button 
-            onClick={() => navigate("/hub")}
-            className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
+          <BackButton />
           <h1 className="text-xl font-bold font-naskh">{t("hub.prayerTracker")}</h1>
           <div className="w-10 h-10" />
         </header>

@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Heart, BookOpen, Shield, Trash2, Copy, Check, Headphones, Music, Star, User, Search, X, GripVertical, Edit2, Save } from "lucide-react";
+import { Heart, BookOpen, Shield, Trash2, Copy, Check, Headphones, Music, Star, User, Search, X, GripVertical, Edit2, Save, Bookmark } from "lucide-react";
 import { useFavorites, type FavoriteItem } from "@/hooks/useFavorites";
 import { useTheme } from "@/contexts/ThemeContext";
 import { applyTajweedColors, rules } from "@/lib/tajweedParser";
@@ -12,12 +12,13 @@ import { motion, AnimatePresence, Reorder } from "motion/react";
 import QuranHeader from "@/components/QuranHeader";
 import { toast } from "sonner";
 
-type TabKey = "all" | "juz" | "athkar" | "recitations" | "reciters";
+type TabKey = "all" | "juz" | "athkar" | "recitations" | "reciters" | "hadith";
 
 const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
   { key: "all", label: "الكل", icon: <Heart size={14} /> },
   { key: "juz", label: "الأجزاء", icon: <BookOpen size={14} /> },
   { key: "athkar", label: "الأذكار", icon: <Shield size={14} /> },
+  { key: "hadith", label: "الأحاديث", icon: <Bookmark size={14} /> },
   { key: "reciters", label: "القراء", icon: <Star size={14} /> },
   { key: "recitations", label: "التلاوات", icon: <Headphones size={14} /> },
 ];
@@ -57,6 +58,7 @@ const Favorites = () => {
       athkar: favorites.filter(f => f.type === "dhikr").length,
       recitations: favorites.filter(f => f.type === "recitation").length,
       reciters: favorites.filter(f => f.type === "reciter").length,
+      hadith: favorites.filter(f => f.type === "hadith").length,
     };
   }, [favorites]);
 
@@ -68,6 +70,7 @@ const Favorites = () => {
         if (activeTab === "athkar") return f.type === "dhikr";
         if (activeTab === "recitations") return f.type === "recitation";
         if (activeTab === "reciters") return f.type === "reciter";
+        if (activeTab === "hadith") return f.type === "hadith";
         return true;
       });
     }
@@ -83,6 +86,9 @@ const Favorites = () => {
           const cat = ATHKAR_DATA.find(c => c.id === f.categoryId);
           const dhikr = cat?.athkar.find(d => d.id === f.id);
           return dhikr?.text.includes(q) || cat?.title.includes(q);
+        }
+        if (f.type === "hadith") {
+          return f.text.includes(q) || f.bookName.includes(q);
         }
         if (f.type === "recitation") {
           return f.surahName?.toLowerCase().includes(q) || f.reciterName?.toLowerCase().includes(q);
@@ -321,6 +327,18 @@ const Favorites = () => {
                               <p className="font-serif text-lg font-bold text-primary truncate">{item.nickname || `${t('index.verseOfDay.surah')} ${item.surahName}`}</p>
                               <p className="text-xs text-primary/70 font-serif italic truncate mt-1">{item.reciterName}</p>
                             </Link>
+                          </div>
+                        )}
+
+                        {item.type === "hadith" && (
+                          <div className="flex-1 flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+                              <Bookmark size={20} />
+                            </div>
+                            <div className="flex-1 text-right">
+                              <span className="inline-block px-2 py-0.5 rounded-lg bg-amber-500/10 text-[8px] font-bold text-amber-600 uppercase tracking-widest mb-1">{item.bookName}</span>
+                              <p className="font-amiri text-lg leading-relaxed text-primary line-clamp-1">{item.nickname || item.text}</p>
+                            </div>
                           </div>
                         )}
 

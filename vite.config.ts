@@ -20,22 +20,38 @@ export default defineConfig(({ mode }) => ({
       strategies: 'injectManifest',
       srcDir: 'src',
       filename: 'service-worker.ts',
-      registerType: "prompt",
+      registerType: "autoUpdate",
       injectManifest: {
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
       },
-      includeAssets: ["icon.svg", "robots.txt", "pwa-192x192.png", "pwa-512x512.png", "placeholder.svg"],
+      includeAssets: ["icon.svg", "robots.txt", "pwa-192x192.png", "pwa-512x512.png", "placeholder.svg", "Adhan Sounds/*.mp3"],
       manifest: {
         name: "القرآن الكريم - مصحف المدينة المنورة",
         short_name: "القرآن الكريم",
-        description: "تصفح أجزاء المصحف الشريف الثلاثين بجودة عالية",
+        description: "تصفح أجزاء المصحف الشريف الثلاثين بجودة عالية واستمع للتلاوات",
         theme_color: "#1a5c3a",
         background_color: "#f5f0e8",
         display: "standalone",
+        display_override: ["window-controls-overlay", "standalone", "minimal-ui"],
         orientation: "portrait",
         dir: "rtl",
         lang: "ar",
         start_url: "/",
+        categories: ["books", "education", "lifestyle"],
+        shortcuts: [
+          {
+            name: "أوقات الصلاة",
+            short_name: "الصلاة",
+            url: "/prayer-times",
+            icons: [{ src: "/icon.svg", sizes: "192x192" }]
+          },
+          {
+            name: "الأذكار اليومية",
+            short_name: "الأذكار",
+            url: "/daily-adhkar",
+            icons: [{ src: "/icon.svg", sizes: "192x192" }]
+          }
+        ],
         icons: [
           {
             src: "/icon.svg",

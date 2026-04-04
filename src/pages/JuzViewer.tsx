@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useUser } from "@/contexts/UserContext";
+import BackButton from "@/components/BackButton";
 import { cn } from "@/lib/utils";
 
 const BOOKMARK_KEY = "quran-bookmark";
@@ -552,9 +553,7 @@ const JuzViewer = () => {
         {!isFullscreen && <QuranHeader title={juz.nameAr} showBack />}
         {isFullscreen && (
           <div className="bg-emerald-deep/95 backdrop-blur-md border-b border-border/40 px-4 py-3 flex items-center justify-between">
-            <button onClick={() => navigate(-1)} className="p-2 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-all">
-              <ChevronRight size={20} />
-            </button>
+            <BackButton variant="ghost" />
             <h2 className="text-white font-serif text-xl">{juz.nameAr}</h2>
             <div className="w-10" /> {/* Spacer */}
           </div>

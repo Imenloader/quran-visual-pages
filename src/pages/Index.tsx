@@ -158,7 +158,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-32">
-      <QuranHeader />
+      <QuranHeader showBack={false} />
       
       <main className="container-responsive pb-32 -mt-12 md:-mt-24 relative z-30">
         {/* Immersive Bento Grid */}

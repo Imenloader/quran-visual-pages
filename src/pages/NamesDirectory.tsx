@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { 
-  ChevronLeft, 
   Search, 
   Heart, 
   Baby, 
@@ -11,6 +10,7 @@ import {
 } from "lucide-react";
 import QuranHeader from "@/components/QuranHeader";
 import ScrollReveal from "@/components/ScrollReveal";
+import BackButton from "@/components/BackButton";
 import { islamicNames } from "@/data/islamicNamesData";
 
 const NamesDirectory = () => {
@@ -50,10 +50,9 @@ const NamesDirectory = () => {
       />
 
       <div className="max-w-6xl mx-auto px-4 mt-8">
-        <button onClick={() => navigate("/hub")} className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-bold mb-8">
-          <ChevronLeft className="w-5 h-5 rtl:rotate-180" />
-          {i18n.language === 'ar' ? "العودة للمركز" : "Back to Hub"}
-        </button>
+        <div className="mb-8">
+          <BackButton variant="outline" />
+        </div>
 
         <div className="flex flex-col md:flex-row gap-4 mb-12">
           <div className="relative flex-1 group">

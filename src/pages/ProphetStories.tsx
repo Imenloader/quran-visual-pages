@@ -1,24 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { 
-  ChevronLeft, 
   BookOpen, 
   History, 
   Sparkles, 
   Quote,
   ChevronRight,
-  Calendar
+  ChevronLeft,
+  Calendar,
+  Lock,
+  Unlock
 } from "lucide-react";
 import QuranHeader from "@/components/QuranHeader";
 import ScrollReveal from "@/components/ScrollReveal";
+import BackButton from "@/components/BackButton";
 import { prophetStories, ProphetStory } from "@/data/prophetStoriesData";
+import { useWakeLock } from "@/hooks/useWakeLock";
 
 const ProphetStories = () => {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
   const [selectedStory, setSelectedStory] = useState<ProphetStory | null>(null);
+  const { requestWakeLock, releaseWakeLock, isActive } = useWakeLock();
+
+  useEffect(() => {
+    if (selectedStory) {
+      requestWakeLock();
+    } else {
+      releaseWakeLock();
+    }
+    return () => {
+      releaseWakeLock();
+    };
+  }, [selectedStory, requestWakeLock, releaseWakeLock]);
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -29,13 +45,9 @@ const ProphetStories = () => {
       />
 
       <div className="max-w-6xl mx-auto px-4 mt-8">
-        <button 
-          onClick={() => navigate("/hub")}
-          className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-bold mb-8"
-        >
-          <ChevronLeft className="w-5 h-5 rtl:rotate-180" />
-          {i18n.language === 'ar' ? "العودة للمركز" : "Back to Hub"}
-        </button>
+        <div className="mb-8">
+          <BackButton variant="outline" />
+        </div>
 
         {!selectedStory ? (
           <div className="space-y-12">
@@ -108,9 +120,17 @@ const ProphetStories = () => {
               {/* Main Content */}
               <div className="lg:col-span-8 space-y-8">
                 <div className="p-10 rounded-[3rem] bg-card border border-border shadow-xl space-y-8">
-                  <div className="space-y-2">
-                    <h2 className="text-4xl font-bold font-serif">{i18n.language === 'ar' ? selectedStory.name : selectedStory.nameEn}</h2>
-                    <p className="text-xl text-primary font-bold">{i18n.language === 'ar' ? selectedStory.title : selectedStory.titleEn}</p>
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-2">
+                      <h2 className="text-4xl font-bold font-serif">{i18n.language === 'ar' ? selectedStory.name : selectedStory.nameEn}</h2>
+                      <p className="text-xl text-primary font-bold">{i18n.language === 'ar' ? selectedStory.title : selectedStory.titleEn}</p>
+                    </div>
+                    {isActive && (
+                      <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold animate-pulse">
+                        <Lock className="w-3 h-3" />
+                        {i18n.language === 'ar' ? "الشاشة لن تنطفئ" : "Screen Stay On"}
+                      </div>
+                    )}
                   </div>
                   
                   <div className="prose dark:prose-invert max-w-none">

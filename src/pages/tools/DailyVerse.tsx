@@ -1,12 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Share2, Heart, BookOpen, Quote, RefreshCw, Copy, Check } from "lucide-react";
+import { Share2, Heart, BookOpen, Quote, RefreshCw, Copy, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { dailyVerses, DailyVerseData } from "@/data/dailyVersesData";
 import { toast } from "sonner";
 import { useTheme } from "@/contexts/ThemeContext";
 import { applyTajweedColors } from "@/lib/tajweedParser";
+import BackButton from "@/components/BackButton";
 
 const DailyVerse = () => {
   const { t, i18n } = useTranslation();
@@ -110,12 +111,7 @@ const DailyVerse = () => {
 
       <div className="max-w-md mx-auto relative z-10">
         <header className="flex items-center justify-between mb-8">
-          <button 
-            onClick={() => navigate("/hub")}
-            className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-foreground shadow-sm active:scale-90 transition-transform"
-          >
-            <ChevronLeft className="w-6 h-6 rtl:rotate-180" />
-          </button>
+          <BackButton />
           <h1 className="text-xl font-bold font-naskh text-foreground">{t("hub.dailyVerse")}</h1>
           <button 
             onClick={handleRefresh}

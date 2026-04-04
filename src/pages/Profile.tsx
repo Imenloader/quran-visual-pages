@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff, Clock, Send, ChevronLeft, X, BookOpen, Wand2, LayoutGrid, DownloadCloud, Sparkles, User, Trophy, Calendar, RefreshCw, Check, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -13,6 +13,7 @@ import JuzImporter from "@/components/JuzImporter";
 import OfflineManager from "@/components/OfflineManager";
 import UpdateManager from "@/components/UpdateManager";
 import { useTranslation } from "react-i18next";
+import BackButton from "@/components/BackButton";
 
 import { useUser } from "@/contexts/UserContext";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
@@ -25,6 +26,7 @@ const DIMMING_KEY = "quran-page-dimming";
 
 const Profile = () => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const { theme, setTheme, dimming, setDimming, tajweedMode, setTajweedMode } = useTheme();
   const { profile, updateProfile, level, levelName, levelProgress, nextLevelPoints, prevLevelPoints } = useUser();
   const { testPrayerNotification, unlockAudio } = usePrayerTimes();
@@ -174,12 +176,7 @@ const Profile = () => {
 
         <div className="relative z-10 container max-w-4xl mx-auto">
           <div className="flex justify-between items-center mb-12">
-            <Link 
-              to="/" 
-              className="w-10 h-10 rounded-full bg-primary/10 backdrop-blur-md flex items-center justify-center text-primary hover:bg-primary/20 transition-all border border-primary/10"
-            >
-              <X size={20} strokeWidth={1.5} />
-            </Link>
+            <BackButton variant="ghost" />
             
             <motion.button
               whileHover={{ scale: 1.05 }}

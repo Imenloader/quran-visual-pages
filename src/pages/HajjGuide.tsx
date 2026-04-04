@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { 
-  ChevronLeft, 
   Map, 
   CheckCircle2, 
   BookOpen, 
@@ -15,6 +14,7 @@ import {
 } from "lucide-react";
 import QuranHeader from "@/components/QuranHeader";
 import ScrollReveal from "@/components/ScrollReveal";
+import BackButton from "@/components/BackButton";
 import { hajjSteps, packingChecklist, HajjStep } from "@/data/hajjData";
 
 const HajjGuide = () => {
@@ -48,13 +48,9 @@ const HajjGuide = () => {
       />
 
       <div className="max-w-5xl mx-auto px-4 mt-8">
-        <button 
-          onClick={() => navigate("/hub")}
-          className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-bold mb-8"
-        >
-          <ChevronLeft className="w-5 h-5 rtl:rotate-180" />
-          {i18n.language === 'ar' ? "العودة للمركز" : "Back to Hub"}
-        </button>
+        <div className="mb-8">
+          <BackButton variant="outline" />
+        </div>
 
         {/* Progress Bar */}
         <ScrollReveal>
@@ -108,7 +104,7 @@ const HajjGuide = () => {
                   className={`p-6 rounded-3xl border transition-all cursor-pointer ${
                     selectedStep?.id === step.id ? "bg-primary/5 border-primary shadow-lg" : "bg-card border-border hover:border-primary/50"
                   }`}
-                  onClick={() => setSelectedStep(step)}
+                  onClick={() => setSelectedStep(selectedStep?.id === step.id ? null : step)}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">

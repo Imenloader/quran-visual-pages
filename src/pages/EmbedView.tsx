@@ -1,6 +1,7 @@
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { Home, ExternalLink, Loader2, ChevronLeft } from "lucide-react";
+import { Home, ExternalLink, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import BackButton from "@/components/BackButton";
 
 const SITES: Record<string, { title: string; url: string; description: string }> = {
   qiyam: {
@@ -70,12 +71,7 @@ const EmbedView = () => {
     <div className="flex flex-col bg-background h-screen">
       {/* Header */}
       <div className="h-16 px-4 flex items-center justify-between border-b border-border bg-card/50 backdrop-blur-md sticky top-0 z-20">
-        <button 
-          onClick={() => navigate(-1)} 
-          className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-primary"
-        >
-          <ChevronLeft className="w-6 h-6 rtl:rotate-180" />
-        </button>
+        <BackButton variant="ghost" />
         <div className="text-center">
           <h1 className="font-bold text-sm truncate max-w-[200px]">{site.title}</h1>
           <p className="text-[10px] text-muted-foreground truncate max-w-[200px]">{site.description}</p>

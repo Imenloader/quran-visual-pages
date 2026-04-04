@@ -4,7 +4,8 @@ export type FavoriteItem =
   | { type: "juz"; id: number; nickname?: string }
   | { type: "dhikr"; id: number; categoryId: string; nickname?: string }
   | { type: "recitation"; id: number; surahName: string; reciterId: number; reciterName: string; moshafId: number; moshafServer: string; nickname?: string }
-  | { type: "reciter"; id: number; name: string; nickname?: string };
+  | { type: "reciter"; id: number; name: string; nickname?: string }
+  | { type: "hadith"; id: number; bookId: string; bookName: string; text: string; nickname?: string };
 
 const STORAGE_KEY = "quran-favorites";
 

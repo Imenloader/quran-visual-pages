@@ -23,6 +23,7 @@ const resources = {
         "hijri": "Hijri Calendar",
         "library": "Islamic Library",
         "dailyVerse": "Daily Verse",
+        "hadith": "Prophetic Hadiths",
         "ramadan": "Ramadan Hub",
         "tafsir": "Tafsir",
         "tafsirContent": {
@@ -436,6 +437,7 @@ const resources = {
         "hijri": "التقويم الهجري",
         "library": "المكتبة الإسلامية",
         "dailyVerse": "آية اليوم",
+        "hadith": "الأحاديث النبوية",
         "ramadan": "ركن رمضان",
         "tafsir": "التفسير الميسر",
         "tafsirContent": {

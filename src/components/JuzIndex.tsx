@@ -39,7 +39,7 @@ const JuzIndex = ({ onClose, currentJuz }: JuzIndexProps) => {
           </div>
           <button 
             onClick={onClose} 
-            className="w-10 h-10 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-foreground/70 hover:bg-muted hover:text-foreground transition-all"
           >
             <X size={20} />
           </button>

@@ -181,6 +181,19 @@ registerRoute(
 );
 
 // Background Notifications logic
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'refresh-prayer-times') {
+    event.waitUntil(refreshPrayerTimes());
+  }
+});
+
+async function refreshPrayerTimes() {
+  const cache = await caches.open('prayer-times-cache');
+  // This is a simplified version, in a real app you'd get the user's location from IndexedDB
+  // and fetch the latest times to ensure they are ready when the user opens the app.
+  console.log('Periodic sync: Refreshing prayer times...');
+}
+
 self.addEventListener('push', (event) => {
   let data = {};
   try {

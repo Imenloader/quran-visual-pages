@@ -1,26 +1,31 @@
-import { BookOpen, Sparkles, ArrowRight } from "lucide-react";
+import { BookOpen, Sparkles } from "lucide-react";
 import { motion } from "motion/react";
-import { useNavigate } from "react-router-dom";
+import BackButton from "./BackButton";
 
 interface QuranHeaderProps {
   title?: string;
+  subtitle?: string;
   showBack?: boolean;
+  variant?: "full" | "compact";
 }
 
-const QuranHeader = ({ title = "القرآن الكريم", showBack = false }: QuranHeaderProps) => {
-  const navigate = useNavigate();
+const QuranHeader = ({ 
+  title = "القرآن الكريم", 
+  subtitle,
+  showBack = true,
+  variant = "full"
+}: QuranHeaderProps) => {
+  const isCompact = variant === "compact";
 
   return (
-    <header className="relative overflow-hidden bg-emerald-deep min-h-[40vh] md:min-h-[50vh] flex items-center justify-center">
+    <header className={`relative overflow-hidden bg-emerald-deep flex items-center justify-center transition-all duration-500 ${
+      isCompact ? "min-h-[25vh] md:min-h-[30vh]" : "min-h-[40vh] md:min-h-[50vh]"
+    }`}>
       {/* Back Button */}
       {showBack && (
-        <button 
-          onClick={() => navigate(-1)}
-          className="absolute top-6 right-6 z-50 p-3 rounded-2xl bg-primary/10 backdrop-blur-md text-primary hover:bg-primary/20 transition-all active:scale-90 flex items-center gap-2 group"
-        >
-          <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-          <span className="text-xs font-serif font-bold">العودة</span>
-        </button>
+        <div className="absolute top-6 right-6 z-50">
+          <BackButton variant="ghost" />
+        </div>
       )}
       {/* Immersive Background Layer */}
       <div className="absolute inset-0 overflow-hidden">
@@ -131,54 +136,64 @@ const QuranHeader = ({ title = "القرآن الكريم", showBack = false }: 
         </div>
 
         {/* Bismillah - Exquisite Calligraphic Feel */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 1.2 }}
-          className="flex flex-col items-center gap-6 md:gap-8"
-        >
-          <p className="font-quran text-2xl sm:text-4xl md:text-5xl text-gold leading-relaxed italic drop-shadow-md">
-            بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
-          </p>
-          
-          <div className="flex items-center gap-4 md:gap-6">
-            <motion.div 
-              animate={{ scaleX: [0, 1] }}
-              transition={{ delay: 1.2, duration: 1 }}
-              className="h-[1px] w-12 md:w-16 bg-gradient-to-l from-gold/40 to-transparent origin-right" 
-            />
-            <div className="relative">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0 border border-gold/20 rounded-full scale-150"
+        {!isCompact && (
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7, duration: 1.2 }}
+            className="flex flex-col items-center gap-6 md:gap-8"
+          >
+            {subtitle ? (
+              <p className="text-sm md:text-lg text-gold/80 font-naskh max-w-2xl mx-auto px-4">
+                {subtitle}
+              </p>
+            ) : (
+              <p className="font-quran text-2xl sm:text-4xl md:text-5xl text-gold leading-relaxed italic drop-shadow-md">
+                بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+              </p>
+            )}
+            
+            <div className="flex items-center gap-4 md:gap-6">
+              <motion.div 
+                animate={{ scaleX: [0, 1] }}
+                transition={{ delay: 1.2, duration: 1 }}
+                className="h-[1px] w-12 md:w-16 bg-gradient-to-l from-gold/40 to-transparent origin-right" 
               />
-              <BookOpen className="w-5 h-5 md:w-6 md:h-6 text-gold relative z-10" strokeWidth={1} />
+              <div className="relative">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  className="absolute inset-0 border border-gold/20 rounded-full scale-150"
+                />
+                <BookOpen className="w-5 h-5 md:w-6 md:h-6 text-gold relative z-10" strokeWidth={1} />
+              </div>
+              <motion.div 
+                animate={{ scaleX: [0, 1] }}
+                transition={{ delay: 1.2, duration: 1 }}
+                className="h-[1px] w-12 md:w-16 bg-gradient-to-r from-gold/40 to-transparent origin-left" 
+              />
             </div>
-            <motion.div 
-              animate={{ scaleX: [0, 1] }}
-              transition={{ delay: 1.2, duration: 1 }}
-              className="h-[1px] w-12 md:w-16 bg-gradient-to-r from-gold/40 to-transparent origin-left" 
-            />
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
 
         {/* Floating Footer micro-details */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.6 }}
-          transition={{ delay: 1.5 }}
-          className="absolute bottom-12 md:bottom-16 flex flex-col items-center gap-3 md:gap-4"
-        >
-          <span className="text-[8px] md:text-[10px] uppercase tracking-[0.4em] md:tracking-[0.6em] font-bold text-white">
-            تلاوة • تدبّر • حفظ
-          </span>
-          <motion.div 
-            animate={{ height: [0, 48, 32] }}
-            transition={{ duration: 2, delay: 1.8 }}
-            className="w-px bg-gradient-to-b from-gold/60 to-transparent shadow-gold-glow" 
-          />
-        </motion.div>
+        {!isCompact && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.6 }}
+            transition={{ delay: 1.5 }}
+            className="absolute bottom-12 md:bottom-16 flex flex-col items-center gap-3 md:gap-4"
+          >
+            <span className="text-[8px] md:text-[10px] uppercase tracking-[0.4em] md:tracking-[0.6em] font-bold text-white">
+              تلاوة • تدبّر • حفظ
+            </span>
+            <motion.div 
+              animate={{ height: [0, 48, 32] }}
+              transition={{ duration: 2, delay: 1.8 }}
+              className="w-px bg-gradient-to-b from-gold/60 to-transparent shadow-gold-glow" 
+            />
+          </motion.div>
+        )}
       </div>
 
       {/* Elegant bottom transition with layered blurs */}

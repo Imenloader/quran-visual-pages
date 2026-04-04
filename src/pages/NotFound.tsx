@@ -2,6 +2,7 @@ import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
 import { motion } from "motion/react";
 import { Home, Search } from "lucide-react";
+import BackButton from "@/components/BackButton";
 
 const NotFound = () => {
   const location = useLocation();
@@ -12,6 +13,9 @@ const NotFound = () => {
 
   return (
     <div className="min-h-screen bg-emerald-deep flex items-center justify-center p-6 relative overflow-hidden selection:bg-gold/20">
+      <div className="absolute top-6 right-6 z-50">
+        <BackButton variant="ghost" />
+      </div>
       {/* Background Layers */}
       <div className="absolute inset-0 pattern-islamic opacity-10 z-0" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-emerald-deep z-0" />

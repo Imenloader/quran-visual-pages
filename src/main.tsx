@@ -3,12 +3,16 @@ import App from "./App.tsx";
 import "./index.css";
 import "./i18n";
 import { ErrorBoundary } from "./components/ErrorBoundary.tsx";
+import { registerPeriodicSync } from "./lib/pwa-utils";
 
 createRoot(document.getElementById("root")!).render(
   <ErrorBoundary>
     <App />
   </ErrorBoundary>
 );
+
+// Register periodic sync
+registerPeriodicSync();
 
 // Pre-cache embedded sites after app loads
 const preCacheEmbeddedSites = async () => {

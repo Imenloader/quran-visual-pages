@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Search as SearchIcon, History, X, Loader2, BookOpen } from "lucide-react";
+import { Search as SearchIcon, History, X, Loader2, BookOpen } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { getJuzAndPageForSurah, juzData as juzList } from "@/data/quranData";
@@ -8,6 +8,7 @@ import { fetchWithCache } from "@/lib/apiClient";
 import { normalizeArabic } from "@/lib/arabicUtils";
 import { useTheme } from "@/contexts/ThemeContext";
 import { applyTajweedColors } from "@/lib/tajweedParser";
+import BackButton from "@/components/BackButton";
 
 interface SearchResult {
   text: string;
@@ -99,12 +100,7 @@ const Search = () => {
     <div className="min-h-screen bg-background pb-24 pt-6 px-4">
       <div className="max-w-md mx-auto">
         <header className="flex items-center gap-4 mb-8">
-          <button 
-            onClick={() => navigate("/hub")}
-            className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground shrink-0"
-          >
-            <ChevronLeft className="w-6 h-6 rtl:rotate-180" />
-          </button>
+          <BackButton />
           <div className="relative flex-1">
             <SearchIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <input

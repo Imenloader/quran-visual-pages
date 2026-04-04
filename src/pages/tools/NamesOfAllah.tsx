@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, ChevronLeft, Heart, Info, X } from "lucide-react";
+import { Search, Heart, Info, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { NAMES_OF_ALLAH, type NameOfAllah } from "@/data/namesOfAllahData";
+import BackButton from "@/components/BackButton";
 
 const NamesOfAllah = () => {
   const { t, i18n } = useTranslation();
@@ -25,12 +26,7 @@ const NamesOfAllah = () => {
     <div className="min-h-screen bg-background pb-24 pt-6 px-4">
       <div className="max-w-md mx-auto">
         <header className="flex items-center justify-between mb-8">
-          <button 
-            onClick={() => navigate("/hub")}
-            className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground"
-          >
-            <ChevronLeft className="w-6 h-6 rtl:rotate-180" />
-          </button>
+          <BackButton />
           <h1 className="text-xl font-bold font-naskh">{t("hub.namesOfAllah")}</h1>
           <div className="w-10 h-10" />
         </header>
@@ -80,7 +76,7 @@ const NamesOfAllah = () => {
               >
                 <button 
                   onClick={() => setSelectedName(null)}
-                  className="absolute top-6 left-6 w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors z-10"
+                  className="absolute top-6 left-6 w-8 h-8 rounded-full bg-muted flex items-center justify-center text-foreground/70 hover:text-foreground transition-colors z-10"
                 >
                   <X className="w-4 h-4" />
                 </button>

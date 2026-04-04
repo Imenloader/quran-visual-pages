@@ -1,8 +1,9 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { RotateCcw, Fingerprint, ChevronLeft, Settings2, Plus } from "lucide-react";
+import { RotateCcw, Fingerprint, Settings2, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import BackButton from "@/components/BackButton";
 
 const Tasbih = () => {
   const { t } = useTranslation();
@@ -73,12 +74,7 @@ const Tasbih = () => {
       </div>
 
       <header className="relative z-10 w-full flex items-center justify-between max-w-md px-6 py-8">
-        <button 
-          onClick={() => navigate("/hub")}
-          className="w-12 h-12 rounded-2xl bg-card/50 backdrop-blur-md border border-border/40 flex items-center justify-center text-foreground shadow-sm hover:bg-card transition-all"
-        >
-          <ChevronLeft className="w-6 h-6 rtl:rotate-180" />
-        </button>
+        <BackButton variant="outline" />
         <h1 className="text-2xl font-bold font-naskh text-foreground tracking-tight">{t("hub.tasbih")}</h1>
         <button 
           onClick={() => setShowSettings(true)}

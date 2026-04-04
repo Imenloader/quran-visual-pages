@@ -7,71 +7,306 @@ export interface AdhkarItem {
   benefitEn: string;
 }
 
-export const morningAdhkar: AdhkarItem[] = [
-  {
-    id: "m1",
-    text: "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لاَ إِلَهَ إلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
-    translation: "We have reached the morning and at this very time unto Allah belongs all sovereignty...",
-    count: 1,
-    benefit: "من قالها حين يصبح أجير من الجن حتى يمسي",
-    benefitEn: "Whoever says it in the morning will be protected from Jinn until evening"
-  },
-  {
-    id: "m2",
-    text: "اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ وَإِلَيْكَ النُّشُورُ",
-    translation: "O Allah, by Your grace we have reached the morning and by Your grace we have reached the evening...",
-    count: 1,
-    benefit: "سنة نبوية",
-    benefitEn: "Prophetic Sunnah"
-  },
-  {
-    id: "m3",
-    text: "اللَّهُمَّ أَنْتَ رَبِّي لاَ إِلَهَ إلاَّ أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ لِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لاَ يَغْفِرُ الذُّنُوبَ إلاَّ أَنْتَ",
-    translation: "O Allah, You are my Lord, there is none worthy of worship but You. You created me and I am your slave...",
-    count: 1,
-    benefit: "سيد الاستغفار، من قالها موقناً بها فمات من يومه دخل الجنة",
-    benefitEn: "The Master of Forgiveness, whoever says it with conviction and dies that day enters Paradise"
-  },
-  {
-    id: "m4",
-    text: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ: عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ",
-    translation: "Glory be to Allah and praise is to Him, as much as the number of His creation...",
-    count: 3,
-    benefit: "تعدل أضعافاً مضاعفة من الذكر",
-    benefitEn: "Equivalent to many times of regular Dhikr"
-  }
-];
-
-export const eveningAdhkar: AdhkarItem[] = [
-  {
-    id: "e1",
-    text: "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لاَ إِلَهَ إلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
-    translation: "We have reached the evening and at this very time unto Allah belongs all sovereignty...",
-    count: 1,
-    benefit: "حفظ من الجن",
-    benefitEn: "Protection from Jinn"
-  },
-  {
-    id: "e2",
-    text: "اللَّهُمَّ بِكَ أَمْسَيْنَا، وَبِكَ أَصْبَحْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ وَإِلَيْكَ الْمَصِيرُ",
-    translation: "O Allah, by Your grace we have reached the evening and by Your grace we have reached the morning...",
-    count: 1,
-    benefit: "سنة نبوية",
-    benefitEn: "Prophetic Sunnah"
-  },
-  {
-    id: "e3",
-    text: "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ",
-    translation: "I seek refuge in the perfect words of Allah from the evil of what He has created",
-    count: 3,
-    benefit: "لم تضره حمة (لدغة) تلك الليلة",
-    benefitEn: "No sting or bite will harm him that night"
-  }
-];
-
 export const dailySunnan = [
-  { title: "السواك", titleEn: "Siwak", description: "استخدام السواك عند الوضوء والصلاة", descriptionEn: "Using Siwak during Wudu and Prayer" },
-  { title: "صلاة الضحى", titleEn: "Duha Prayer", description: "صلاة ركعتين أو أكثر بعد شروق الشمس", descriptionEn: "Praying two or more units after sunrise" },
-  { title: "قراءة سورة الملك", titleEn: "Surah Al-Mulk", description: "قراءتها قبل النوم للمنجية من عذاب القبر", descriptionEn: "Reading it before sleep as protection from the grave" },
-  { title: "الوضوء قبل النوم", titleEn: "Wudu before sleep", description: "النوم على طهارة", descriptionEn: "Sleeping in a state of purity" }
+  // --- Waking Up ---
+  { 
+    title: "ذكر الله عند الاستيقاظ", 
+    titleEn: "Dhikr upon Waking Up", 
+    description: "مسح أثر النوم عن الوجه باليد، وقول: 'الحمد لله الذي أحيانا بعد ما أماتنا وإليه النشور'. (رواه البخاري)", 
+    descriptionEn: "Wiping the traces of sleep from the face with the hand and saying: 'Praise be to Allah who gave us life after death and to Him is the resurrection.' (Bukhari)" 
+  },
+  { 
+    title: "استخدام السواك عند القيام", 
+    titleEn: "Using Siwak upon Waking", 
+    description: "كان النبي ﷺ إذا قام من الليل يشوص فاه بالسواك. (متفق عليه). فالسواك مطهرة للفم مرضاة للرب.", 
+    descriptionEn: "The Prophet ﷺ used to clean his mouth with Siwak when he woke up at night. (Agreed upon). Siwak purifies the mouth and pleases the Lord." 
+  },
+  { 
+    title: "الاستنثار ثلاثاً", 
+    titleEn: "Snuffing Water three times", 
+    description: "إذا استيقظ أحدكم من منامه فليستنثر ثلاثاً، فإن الشيطان يبيت على خيشومه. (متفق عليه)", 
+    descriptionEn: "When one of you wakes up from sleep, let him snuff water and blow it out three times, for the devil spends the night in his nose. (Agreed upon)" 
+  },
+  { 
+    title: "غسل اليدين ثلاثاً", 
+    titleEn: "Washing Hands three times", 
+    description: "إذا استيقظ أحدكم من نومه فلا يغمس يده في الإناء حتى يغسلها ثلاثاً. (متفق عليه)", 
+    descriptionEn: "When one of you wakes up from sleep, he should not dip his hand into the vessel until he has washed it three times. (Agreed upon)" 
+  },
+
+  // --- Wudu & Prayer ---
+  { 
+    title: "التسمية عند الوضوء", 
+    titleEn: "Saying Bismillah for Wudu", 
+    description: "قول 'بسم الله' في أول الوضوء. قال النبي ﷺ: 'لا وضوء لمن لم يذكر اسم الله عليه'. (رواه أبو داود)", 
+    descriptionEn: "Saying 'Bismillah' at the beginning of Wudu. The Prophet ﷺ said: 'There is no Wudu for one who does not mention the name of Allah over it.' (Abu Dawood)" 
+  },
+  { 
+    title: "المبالغة في الاستنشاق", 
+    titleEn: "Thorough Inhalation", 
+    description: "المبالغة في الاستنشاق إلا أن تكون صائماً. (رواه الترمذي). وهو إيصال الماء إلى أقصى الأنف.", 
+    descriptionEn: "Being thorough in inhaling water into the nose unless you are fasting. (Tirmidhi). It means reaching the water to the furthest part of the nose." 
+  },
+  { 
+    title: "تخليل اللحية والأصابع", 
+    titleEn: "Running Fingers through Beard & Toes", 
+    description: "تخليل اللحية الكثيفة بالماء، وتخليل أصابع اليدين والرجلين أثناء الوضوء. (رواه الترمذي)", 
+    descriptionEn: "Running water through a thick beard and between the fingers and toes during Wudu. (Tirmidhi)" 
+  },
+  { 
+    title: "الذكر بعد الوضوء", 
+    titleEn: "Dhikr after Wudu", 
+    description: "قول: 'أشهد أن لا إله إلا الله وحده لا شريك له وأشهد أن محمداً عبده ورسوله'. تفتح له أبواب الجنة الثمانية. (رواه مسلم)", 
+    descriptionEn: "Saying: 'I bear witness that there is no god but Allah alone... and Muhammad is His servant and Messenger.' The eight gates of Paradise will be opened for him. (Muslim)" 
+  },
+  { 
+    title: "صلاة ركعتين بعد الوضوء", 
+    titleEn: "Two Units after Wudu", 
+    description: "من توضأ فأحسن الوضوء ثم صلى ركعتين لا يحدث فيهما نفسه غفر له ما تقدم من ذنبه. (متفق عليه)", 
+    descriptionEn: "Whoever performs Wudu well and then prays two units without letting his mind wander, his previous sins will be forgiven. (Agreed upon)" 
+  },
+  { 
+    title: "السنن الرواتب", 
+    titleEn: "Sunan Rawatib", 
+    description: "المحافظة على ١٢ ركعة: ٤ قبل الظهر و٢ بعدها، ٢ بعد المغرب، ٢ بعد العشاء، ٢ قبل الفجر. (رواه مسلم)", 
+    descriptionEn: "Maintaining 12 units: 4 before Dhuhr and 2 after, 2 after Maghrib, 2 after Isha, and 2 before Fajr. (Muslim)" 
+  },
+  { 
+    title: "صلاة الضحى", 
+    titleEn: "Duha Prayer", 
+    description: "صلاة ركعتين أو أكثر (إلى ٨ ركعات) من بعد شروق الشمس بربع ساعة إلى قبيل الظهر. وهي صلاة الأوابين.", 
+    descriptionEn: "Praying two or more units (up to 8) from 15 minutes after sunrise until just before Dhuhr. It is the prayer of the oft-returning." 
+  },
+  { 
+    title: "قيام الليل والوتر", 
+    titleEn: "Night Prayer & Witr", 
+    description: "أفضل الصلاة بعد الفريضة صلاة الليل. واجعلوا آخر صلاتكم بالليل وتراً. (متفق عليه)", 
+    descriptionEn: "The best prayer after the obligatory ones is the night prayer. Make your last prayer at night a Witr. (Agreed upon)" 
+  },
+
+  // --- Eating & Drinking ---
+  { 
+    title: "التسمية والأكل باليمين", 
+    titleEn: "Bismillah & Right Hand", 
+    description: "قول 'بسم الله' في أوله، والأكل باليد اليمنى، والأكل مما يليك. (متفق عليه)", 
+    descriptionEn: "Saying 'Bismillah' at the beginning, eating with the right hand, and eating from what is in front of you. (Agreed upon)" 
+  },
+  { 
+    title: "لعق الأصابع والقصعة", 
+    titleEn: "Licking Fingers & Cleaning Plate", 
+    description: "لعق الأصابع بعد الأكل وقبل مسحها، وسلت القصعة (تنظيفها)، فإنكم لا تدرون في أي طعامكم البركة. (رواه مسلم)", 
+    descriptionEn: "Licking the fingers after eating and cleaning the plate, for you do not know in which part of your food the blessing lies. (Muslim)" 
+  },
+  { 
+    title: "حمد الله بعد الطعام", 
+    titleEn: "Praising Allah after Food", 
+    description: "إن الله ليرضى عن العبد أن يأكل الأكلة فيحمده عليها، أو يشرب الشربة فيحمده عليها. (رواه مسلم)", 
+    descriptionEn: "Allah is pleased with a servant who eats a meal and praises Him for it, or drinks and praises Him for it. (Muslim)" 
+  },
+  { 
+    title: "التنفس خارج الإناء", 
+    titleEn: "Breathing outside the Vessel", 
+    description: "التنفس في الشراب ثلاثاً خارج الإناء، وعدم النفخ في الطعام أو الشراب. (متفق عليه)", 
+    descriptionEn: "Breathing three times outside the vessel while drinking, and not blowing into food or drink. (Agreed upon)" 
+  },
+  { 
+    title: "الشرب جالساً", 
+    titleEn: "Drinking while Sitting", 
+    description: "نهى النبي ﷺ عن الشرب قائماً. (رواه مسلم). والسنة الجلوس عند الشرب إلا لضرورة.", 
+    descriptionEn: "The Prophet ﷺ forbade drinking while standing. (Muslim). The Sunnah is to sit while drinking unless necessary." 
+  },
+
+  // --- Dressing & General ---
+  { 
+    title: "البدء باليمين في اللباس", 
+    titleEn: "Starting with Right in Dressing", 
+    description: "البدء باليمين عند لبس الثوب أو النعل، والبدء باليسار عند الخلع. (متفق عليه)", 
+    descriptionEn: "Starting with the right when putting on clothes or shoes, and starting with the left when taking them off. (Agreed upon)" 
+  },
+  { 
+    title: "دعاء لبس الثوب الجديد", 
+    titleEn: "Dua for New Clothes", 
+    description: "اللهم لك الحمد أنت كسوتنيه، أسألك من خيره وخير ما صنع له، وأعوذ بك من شره وشر ما صنع له. (رواه الترمذي)", 
+    descriptionEn: "O Allah, praise be to You, You have clothed me with it. I ask You for its good... and seek refuge from its evil. (Tirmidhi)" 
+  },
+  { 
+    title: "إفشاء السلام", 
+    titleEn: "Spreading Salam", 
+    description: "تقرأ السلام على من عرفت ومن لم تعرف. (متفق عليه). وهو سبب للمحبة ودخول الجنة.", 
+    descriptionEn: "Greeting with Salam those you know and those you do not know. (Agreed upon). It is a cause for love and entering Paradise." 
+  },
+  { 
+    title: "الابتسامة وطلاقة الوجه", 
+    titleEn: "Smiling & Cheerful Face", 
+    description: "تبسمك في وجه أخيك لك صدقة. ولا تحقرن من المعروف شيئاً ولو أن تلقى أخاك بوجه طلق. (رواه الترمذي ومسلم)", 
+    descriptionEn: "Your smiling in the face of your brother is charity. Do not underestimate any good deed, even meeting your brother with a cheerful face. (Tirmidhi & Muslim)" 
+  },
+  { 
+    title: "المصافحة", 
+    titleEn: "Shaking Hands", 
+    description: "ما من مسلمين يلتقيان فيتصافحان إلا غفر لهما قبل أن يفترقا. (رواه أبو داود)", 
+    descriptionEn: "No two Muslims meet and shake hands but they are forgiven before they part. (Abu Dawood)" 
+  },
+  { 
+    title: "تغطية الفم عند التثاؤب", 
+    titleEn: "Covering Mouth when Yawning", 
+    description: "إذا تثاءب أحدكم فليمسك بيده على فيه، فإن الشيطان يدخل. (رواه مسلم)", 
+    descriptionEn: "When one of you yawns, let him hold his hand over his mouth, for the devil enters. (Muslim)" 
+  },
+  { 
+    title: "تشميت العاطس", 
+    titleEn: "Responding to a Sneezer", 
+    description: "إذا عطس أحدكم فليقل: 'الحمد لله'، وليقل له أخوه: 'يرحمك الله'، فيرد: 'يهديكم الله ويصلح بالكم'. (رواه البخاري)", 
+    descriptionEn: "When one of you sneezes, let him say 'Alhamdulillah', and his brother say 'Yarhamukallah', then he replies 'Yahdikumullah...'. (Bukhari)" 
+  },
+
+  // --- Entering & Leaving ---
+  { 
+    title: "دعاء دخول الخلاء والخروج منه", 
+    titleEn: "Entering & Leaving Toilet", 
+    description: "الدخول باليسار وقول: 'اللهم إني أعوذ بك من الخبث والخبائث'. والخروج باليمين وقول: 'غفرانك'. (متفق عليه)", 
+    descriptionEn: "Entering with the left foot saying 'O Allah, I seek refuge from the male and female devils'. Leaving with the right foot saying 'Ghufranak'. (Agreed upon)" 
+  },
+  { 
+    title: "دعاء دخول المسجد والخروج منه", 
+    titleEn: "Entering & Leaving Mosque", 
+    description: "الدخول باليمين وقول: 'اللهم افتح لي أبواب رحمتك'. والخروج باليسار وقول: 'اللهم إني أسألك من فضلك'. (رواه مسلم)", 
+    descriptionEn: "Entering with the right foot saying 'O Allah, open the doors of Your mercy'. Leaving with the left foot saying 'O Allah, I ask You from Your bounty'. (Muslim)" 
+  },
+  { 
+    title: "السلام عند دخول البيت", 
+    titleEn: "Salam upon Entering Home", 
+    description: "فإذا دخلتم بيوتاً فسلموا على أنفسكم تحية من عند الله مباركة طيبة. (سورة النور). وقول: 'بسم الله ولجنا وبسم الله خرجنا'.", 
+    descriptionEn: "When you enter houses, greet one another with a greeting from Allah, blessed and good. (Surah An-Nur). Saying 'Bismillah we enter...'" 
+  },
+
+  // --- Sleeping ---
+  { 
+    title: "الوضوء قبل النوم", 
+    titleEn: "Wudu before Sleep", 
+    description: "إذا أتيت مضجعك فتوضأ وضوءك للصلاة. (متفق عليه). لتبيت طاهراً وتستغفر لك الملائكة.", 
+    descriptionEn: "When you go to bed, perform Wudu as you do for prayer. (Agreed upon). To sleep pure and have angels seek forgiveness for you." 
+  },
+  { 
+    title: "نفض الفراش", 
+    titleEn: "Dusting the Bed", 
+    description: "إذا أوى أحدكم إلى فراشه فلينفض فراشه بداخله إزاره ثلاثاً، فإنه لا يدري ما خلفه عليه. (متفق عليه)", 
+    descriptionEn: "When one of you goes to his bed, let him dust it with the inside of his garment three times, for he does not know what came after him. (Agreed upon)" 
+  },
+  { 
+    title: "النوم على الشق الأيمن", 
+    titleEn: "Sleeping on the Right Side", 
+    description: "ثم اضطجع على شقك الأيمن، وضع يدك اليمنى تحت خدك الأيمن. (متفق عليه)", 
+    descriptionEn: "Then lie down on your right side and place your right hand under your right cheek. (Agreed upon)" 
+  },
+  { 
+    title: "قراءة المعوذات والنفث", 
+    titleEn: "Reciting Mu'awwidhat & Blowing", 
+    description: "قراءة الإخلاص والفلق والناس، والنفث في الكفين ومسح ما استطاع من الجسد ثلاث مرات قبل النوم. (رواه البخاري)", 
+    descriptionEn: "Reciting Al-Ikhlas, Al-Falaq, and An-Nas, blowing into the palms, and wiping as much of the body as possible three times. (Bukhari)" 
+  },
+  { 
+    title: "قراءة آية الكرسي", 
+    titleEn: "Reciting Ayatul Kursi", 
+    description: "من قرأها إذا أوى إلى فراشه لم يزل عليه من الله حافظ ولا يقربه شيطان حتى يصبح. (رواه البخاري)", 
+    descriptionEn: "Whoever recites it when going to bed, Allah will appoint a protector for him and no devil will approach him until morning. (Bukhari)" 
+  },
+  { 
+    title: "قراءة سورة الملك", 
+    titleEn: "Reciting Surah Al-Mulk", 
+    description: "سورة من القرآن ثلاثون آية شفعت لرجل حتى غفر له. وكان النبي ﷺ لا ينام حتى يقرأها. (رواه الترمذي)", 
+    descriptionEn: "A Surah of thirty verses interceded for a man until he was forgiven. The Prophet ﷺ never slept until he recited it. (Tirmidhi)" 
+  },
+
+  // --- Social & Speech ---
+  { 
+    title: "كفارة المجلس", 
+    titleEn: "Expiation of the Gathering", 
+    description: "قول: 'سبحانك اللهم وبحمدك، أشهد أن لا إله إلا أنت، أستغفرك وأتوب إليك' قبل القيام من المجلس. (رواه الترمذي)", 
+    descriptionEn: "Saying: 'Glory be to You, O Allah, and praise... I seek Your forgiveness and turn to You' before standing up from a gathering. (Tirmidhi)" 
+  },
+  { 
+    title: "الكلمة الطيبة", 
+    titleEn: "Kind Word", 
+    description: "الكلمة الطيبة صدقة. (متفق عليه). وهي كل كلام حسن يسر السامع ويؤلف القلوب.", 
+    descriptionEn: "A kind word is charity. (Agreed upon). It includes any good speech that pleases the listener and unites hearts." 
+  },
+  { 
+    title: "التأني في الكلام", 
+    titleEn: "Deliberation in Speech", 
+    description: "كان كلام النبي ﷺ فصلاً يفهمه كل من يسمعه، ولم يكن يسرد الكلام سرداً. (رواه أبو داود)", 
+    descriptionEn: "The Prophet's ﷺ speech was distinct and understood by everyone who heard it; he did not speak rapidly. (Abu Dawood)" 
+  },
+
+  // --- Friday Sunnan ---
+  { 
+    title: "الاغتسال يوم الجمعة", 
+    titleEn: "Ghusl on Friday", 
+    description: "غسل الجمعة واجب على كل محتلم (سنة مؤكدة). (متفق عليه). وهو من تمام النظافة والزينة.", 
+    descriptionEn: "Taking a bath on Friday is a highly recommended Sunnah for every adult. (Agreed upon). It is part of complete cleanliness." 
+  },
+  { 
+    title: "التطيب والسواك للجمعة", 
+    titleEn: "Perfume & Siwak for Friday", 
+    description: "أن يمس من طيب بيته، ويستعمل السواك، ويلبس أحسن ثيابه لصلاة الجمعة. (رواه البخاري)", 
+    descriptionEn: "To use perfume from one's house, use Siwak, and wear one's best clothes for the Friday prayer. (Bukhari)" 
+  },
+  { 
+    title: "التبكير إلى المسجد", 
+    titleEn: "Going Early to the Mosque", 
+    description: "التبكير لصلاة الجمعة، فمن راح في الساعة الأولى فكأنما قرب بدنة. (متفق عليه)", 
+    descriptionEn: "Going early for the Friday prayer; whoever goes in the first hour is like one who sacrificed a camel. (Agreed upon)" 
+  },
+  { 
+    title: "قراءة سورة الكهف", 
+    titleEn: "Reciting Surah Al-Kahf", 
+    description: "من قرأ سورة الكهف في يوم الجمعة أضاء له من النور ما بين الجمعتين. (رواه الحاكم)", 
+    descriptionEn: "Whoever recites Surah Al-Kahf on Friday, a light will shine for him between the two Fridays. (Al-Hakim)" 
+  },
+  { 
+    title: "الإكثار من الصلاة على النبي", 
+    titleEn: "Abundant Blessings on the Prophet", 
+    description: "أكثروا الصلاة علي يوم الجمعة وليلة الجمعة. (رواه البيهقي). فإن صلاتكم معروضة علي.", 
+    descriptionEn: "Increase your prayers upon me on Friday and the night before Friday. (Al-Bayhaqi). For your prayers are presented to me." 
+  },
+
+  // --- Travel Sunnan ---
+  { 
+    title: "دعاء السفر", 
+    titleEn: "Travel Dua", 
+    description: "قول: 'سبحان الذي سخر لنا هذا وما كنا له مقرنين وإنا إلى ربنا لمنقلبون' عند ركوب الدابة أو وسيلة المواصلات. (رواه مسلم)", 
+    descriptionEn: "Saying: 'Glory be to Him who has subjected this to us...' when mounting a riding animal or any means of transport. (Muslim)" 
+  },
+  { 
+    title: "التكبير عند الصعود والتسبيح عند النزول", 
+    titleEn: "Takbir when Ascending & Tasbih when Descending", 
+    description: "كنا إذا صعدنا كبرنا، وإذا نزلنا سبحنا. (رواه البخاري). وذلك في السفر عند المرتفعات والمنخفضات.", 
+    descriptionEn: "We used to say 'Allahu Akbar' when going uphill and 'SubhanAllah' when going downhill. (Bukhari). This is done during travel." 
+  },
+  { 
+    title: "صلاة ركعتين عند القدوم من السفر", 
+    titleEn: "Two Units upon Returning from Travel", 
+    description: "كان النبي ﷺ إذا قدم من سفر بدأ بالمسجد فصلى فيه ركعتين. (متفق عليه)", 
+    descriptionEn: "When the Prophet ﷺ returned from a journey, he would first go to the mosque and pray two units. (Agreed upon)" 
+  },
+
+  // --- General Daily Practices ---
+  { 
+    title: "إماطة الأذى عن الطريق", 
+    titleEn: "Removing Harm from the Path", 
+    description: "وتميط الأذى عن الطريق صدقة. (متفق عليه). وهي من شعب الإيمان.", 
+    descriptionEn: "Removing harmful things from the road is charity. (Agreed upon). It is one of the branches of faith." 
+  },
+  { 
+    title: "سجود الشكر", 
+    titleEn: "Prostration of Gratitude", 
+    description: "كان النبي ﷺ إذا أتاه أمر يسر به خر ساجداً شكراً لله. (رواه أبو داود)", 
+    descriptionEn: "When the Prophet ﷺ received news that pleased him, he would fall down in prostration to thank Allah. (Abu Dawood)" 
+  },
+  { 
+    title: "عيادة المريض", 
+    titleEn: "Visiting the Sick", 
+    description: "حق المسلم على المسلم خمس، منها: عيادة المريض. (متفق عليه). ولها أجر عظيم وثمار في المحبة.", 
+    descriptionEn: "The rights of a Muslim over another are five, including: visiting the sick. (Agreed upon). It has a great reward." 
+  }
 ];

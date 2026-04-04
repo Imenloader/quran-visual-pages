@@ -41,6 +41,7 @@ import HajjGuide from "./pages/HajjGuide";
 import ProphetStories from "./pages/ProphetStories";
 import NamesDirectory from "./pages/NamesDirectory";
 import DailyAdhkar from "./pages/DailyAdhkar";
+import Hadith from "./pages/tools/Hadith";
 import Virtues from "./pages/ramadan/Virtues";
 import FastingRules from "./pages/ramadan/FastingRules";
 import Duas from "./pages/ramadan/Duas";
@@ -151,6 +152,7 @@ const App = () => {
                     <Route path="/prophet-stories" element={<ProphetStories />} />
                     <Route path="/names-directory" element={<NamesDirectory />} />
                     <Route path="/daily-adhkar" element={<DailyAdhkar />} />
+                    <Route path="/hadith" element={<Hadith />} />
                     <Route path="/ramadan/virtues" element={<Virtues />} />
                     <Route path="/ramadan/fasting-rules" element={<FastingRules />} />
                     <Route path="/ramadan/duas" element={<Duas />} />

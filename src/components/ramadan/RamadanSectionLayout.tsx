@@ -34,16 +34,6 @@ const RamadanSectionLayout: React.FC<RamadanSectionLayoutProps> = ({
 
       <div className="max-w-4xl mx-auto px-4 mt-8 space-y-8">
         <ScrollReveal>
-          <button 
-            onClick={() => navigate("/ramadan")}
-            className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6"
-          >
-            <ChevronRight className="w-5 h-5 rotate-180" />
-            <span>{t("common.back")}</span>
-          </button>
-        </ScrollReveal>
-
-        <ScrollReveal>
           <div className={`relative overflow-hidden rounded-[2.5rem] ${color} p-8 md:p-12 text-white shadow-xl`}>
             <div className="absolute inset-0 pattern-islamic opacity-10" />
             <div className="relative z-10 flex flex-col items-center text-center space-y-6">

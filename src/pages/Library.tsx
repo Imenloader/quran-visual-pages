@@ -9,7 +9,6 @@ import {
   Download, 
   Eye, 
   Filter, 
-  ChevronLeft, 
   Loader2,
   BookOpen,
   Bookmark,
@@ -18,10 +17,12 @@ import {
   ArrowRight,
   X,
   Globe,
-  Languages
+  Languages,
+  ChevronLeft
 } from "lucide-react";
 import QuranHeader from "@/components/QuranHeader";
 import ScrollReveal from "@/components/ScrollReveal";
+import BackButton from "@/components/BackButton";
 
 interface BookData {
   identifier: string;
@@ -226,13 +227,7 @@ const Library = () => {
       />
 
       <div className="max-w-7xl mx-auto px-4 mt-4">
-        <button 
-          onClick={() => navigate("/hub")}
-          className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-bold"
-        >
-          <ChevronLeft className="w-5 h-5 rtl:rotate-180" />
-          {i18n.language === 'ar' ? "العودة للمركز" : "Back to Hub"}
-        </button>
+        <BackButton variant="outline" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 mt-8 space-y-8">

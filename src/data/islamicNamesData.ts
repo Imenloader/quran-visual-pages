@@ -61,7 +61,6 @@ export const islamicNames: IslamicName[] = [
   { name: "حليمة", nameEn: "Halima", meaning: "الصبورة، العاقلة، اسم مرضعة النبي ﷺ", meaningEn: "Patient, gentle, name of the Prophet's wet nurse", gender: "girl", origin: "عربي", originEn: "Arabic" },
   { name: "آسية", nameEn: "Asiya", meaning: "المواساة، اسم امرأة فرعون الصالحة", meaningEn: "Consolation, name of the righteous wife of Pharaoh", gender: "girl", origin: "عربي", originEn: "Arabic" },
   { name: "هاجر", nameEn: "Hajar", meaning: "المهاجرة، اسم أم إسماعيل عليه السلام", meaningEn: "Emigrant, name of Prophet Ishmael's mother", gender: "girl", origin: "عربي", originEn: "Arabic" },
-  { name: "سارة", nameEn: "Sarah", meaning: "الأميرة، المبهجة، اسم زوجة إبراهيم عليه السلام", meaningEn: "Princess, joyful, name of Prophet Ibrahim's wife", gender: "girl", origin: "عبري/عربي", originEn: "Hebrew/Arabic" },
   { name: "جنى", nameEn: "Jana", meaning: "ما يجنى من الثمار، بستان", meaningEn: "Harvest, garden", gender: "girl", origin: "عربي", originEn: "Arabic" },
   { name: "تسنيم", nameEn: "Tasneem", meaning: "عين ماء في الجنة", meaningEn: "A spring in Paradise", gender: "girl", origin: "عربي", originEn: "Arabic" },
   { name: "سلسبيل", nameEn: "Salsabil", meaning: "عين في الجنة، الماء العذب", meaningEn: "A spring in Paradise, sweet water", gender: "girl", origin: "عربي", originEn: "Arabic" },

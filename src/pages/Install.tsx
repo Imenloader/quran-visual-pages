@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { DownloadCloud, Smartphone, Share, MoreVertical, Plus, ArrowRight, CheckCircle2, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
+import BackButton from "@/components/BackButton";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -64,6 +65,9 @@ const Install = () => {
         />
 
         <div className="relative z-10 container max-w-4xl mx-auto">
+          <div className="flex justify-start mb-8">
+            <BackButton variant="ghost" />
+          </div>
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
