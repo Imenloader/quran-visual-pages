@@ -23,7 +23,8 @@ import {
   Zap,
   Moon,
   Shield,
-  ChevronRight
+  ChevronRight,
+  Users
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import ReadingProgress from "@/components/ReadingProgress";
@@ -179,6 +180,7 @@ const Hub = () => {
       icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />,
       tools: [
         { name: t("hub.khatma"), icon: <BookOpen className="w-5 h-5" />, path: "/khatma" },
+        { name: i18n.language === 'ar' ? "الختمة الجماعية" : "Collaborative Khatma", icon: <Users className="w-5 h-5" />, path: "/khatma-jamaaiya" },
         { name: "سنن الجمعة", icon: <Sparkles className="w-5 h-5" />, path: "/friday-sunan" },
         { name: t("hub.prayerTracker"), icon: <CheckCircle2 className="w-5 h-5" />, path: "/prayer-tracker" },
         { name: t("hub.qiyam"), icon: <Moon className="w-5 h-5" />, path: "/embed/qiyam" },

@@ -7,13 +7,15 @@ interface QuranHeaderProps {
   subtitle?: string;
   showBack?: boolean;
   variant?: "full" | "compact";
+  children?: React.ReactNode;
 }
 
 const QuranHeader = ({ 
   title = "القرآن الكريم", 
   subtitle,
   showBack = true,
-  variant = "full"
+  variant = "full",
+  children
 }: QuranHeaderProps) => {
   const isCompact = variant === "compact";
 
@@ -194,6 +196,8 @@ const QuranHeader = ({
             />
           </motion.div>
         )}
+
+        {children}
       </div>
 
       {/* Elegant bottom transition with layered blurs */}

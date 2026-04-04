@@ -3,6 +3,7 @@ import { Volume2, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAudioUnlock } from "@/hooks/useAudioUnlock";
 import { useTranslation } from "react-i18next";
+import { PRAYER_SETTINGS_KEY, DEFAULT_SETTINGS } from "@/hooks/usePrayerTimes";
 
 export const AudioUnlockBanner = () => {
   const { isAudioUnlocked, unlockAudio } = useAudioUnlock();
@@ -11,13 +12,32 @@ export const AudioUnlockBanner = () => {
   const isAr = i18n.language === "ar";
 
   useEffect(() => {
-    // Show banner after a short delay if not unlocked
-    const timer = setTimeout(() => {
-      if (!isAudioUnlocked) {
-        setIsVisible(true);
+    const checkVisibility = () => {
+      try {
+        const stored = localStorage.getItem(PRAYER_SETTINGS_KEY);
+        const settings = stored ? { ...DEFAULT_SETTINGS, ...JSON.parse(stored) } : DEFAULT_SETTINGS;
+        
+        // Show banner only if notifications are NOT enabled AND audio is not unlocked
+        if (!settings.notificationsEnabled && !isAudioUnlocked) {
+          setIsVisible(true);
+        } else {
+          setIsVisible(false);
+        }
+      } catch (e) {
+        if (!isAudioUnlocked) setIsVisible(true);
       }
-    }, 2000);
-    return () => clearTimeout(timer);
+    };
+
+    // Show banner after a short delay
+    const timer = setTimeout(checkVisibility, 2000);
+    
+    // Also listen for storage events to update visibility if settings change
+    window.addEventListener('storage', checkVisibility);
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('storage', checkVisibility);
+    };
   }, [isAudioUnlocked]);
 
   if (isAudioUnlocked || !isVisible) return null;

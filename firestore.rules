@@ -1,0 +1,105 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: users
+// Document ID: user UID
+// Fields:
+//   - name: string (required, 1-100 chars)
+//   - avatar: string (required)
+//   - joinedDate: timestamp (required)
+//   - points: number (required, >= 0)
+//   - totalAyahsRead: number (optional)
+//   - totalPagesRead: number (optional)
+//   - totalJuzCompleted: number (optional)
+//   - totalAthkarRecited: number (optional)
+//   - daysActive: number (optional)
+//   - lastActiveDate: string (optional, YYYY-MM-DD)
+//   - role: string (required, 'user' | 'admin')
+//
+// ===============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (
+          (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
+          (request.auth.token.email == "3wdkyarb@gmail.com" && request.auth.token.email_verified == true)
+        );
+    }
+
+    function isRecent(time) {
+      return time != null && 
+             time > request.time - duration.value(10, 'm') &&
+             time < request.time + duration.value(10, 'm');
+    }
+
+    function isValidKhatma(data) {
+      return data.title is string && data.title.size() >= 1 && data.title.size() <= 100 &&
+             data.type in ['public', 'private'] &&
+             data.status in ['active', 'completed'] &&
+             data.portions is map &&
+             data.portions.keys().size() == 30;
+    }
+
+    function isValidUser(data) {
+      return data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+             data.avatar is string &&
+             data.points is number && data.points >= 0 &&
+             data.role in ['user', 'admin'];
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      
+      allow create: if isAuthenticated() && 
+                    isOwner(userId) && 
+                    isValidUser(request.resource.data) &&
+                    request.resource.data.role == 'user';
+      
+      allow update: if isAuthenticated() && 
+                    isValidUser(request.resource.data) &&
+                    (
+                      (isOwner(userId) && request.resource.data.role == resource.data.role) ||
+                      isAdmin()
+                    );
+    }
+
+    match /khatmas/{khatmaId} {
+      allow read: if isAuthenticated();
+
+      allow create: if isAuthenticated() &&
+                    isValidKhatma(request.resource.data) &&
+                    (request.resource.data.createdBy == request.auth.uid || request.resource.data.createdBy == 'system') &&
+                    isRecent(request.resource.data.createdAt);
+
+      allow update: if isAuthenticated() &&
+                    isValidKhatma(request.resource.data) &&
+                    request.resource.data.createdBy == resource.data.createdBy &&
+                    request.resource.data.createdAt == resource.data.createdAt &&
+                    request.resource.data.type == resource.data.type;
+
+      allow delete: if isAuthenticated() && (resource.data.createdBy == request.auth.uid || isAdmin());
+    }
+  }
+}

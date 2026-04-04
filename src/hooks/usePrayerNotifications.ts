@@ -7,15 +7,14 @@ import {
   type PrayerSettings, 
   type PrayerTimesData,
   getEffectiveNow,
-  ADHAN_SOUNDS
 } from './usePrayerTimes';
 import { isBefore } from 'date-fns';
-import { speakPrayerName } from '@/services/ttsService';
+import { useAdhan } from '@/contexts/AdhanContext';
 
 export const usePrayerNotifications = () => {
   const { i18n } = useTranslation();
   const timersRef = useRef<NodeJS.Timeout[]>([]);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { playAdhan } = useAdhan();
 
   const getSettings = (): PrayerSettings => {
     try {
@@ -24,49 +23,6 @@ export const usePrayerNotifications = () => {
     } catch {
       return DEFAULT_SETTINGS;
     }
-  };
-
-  const playAdhan = async (soundId: string, prayerNameAr: string) => {
-    const FALLBACK_SOUND = "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3";
-
-    if (soundId === "tts_arabic") {
-      const prayerKey = (Object.keys(PRAYER_NAMES) as (keyof PrayerTimesData)[]).find(
-        key => PRAYER_NAMES[key] === prayerNameAr
-      );
-      if (prayerKey) speakPrayerName(prayerKey);
-      return;
-    }
-
-    const soundUrl = ADHAN_SOUNDS.find(s => s.id === soundId)?.url || ADHAN_SOUNDS[0].url;
-    
-    // Clean URL
-    let finalUrl = soundUrl;
-    if (finalUrl.startsWith("//")) {
-      finalUrl = "https:" + finalUrl;
-    } else if (finalUrl.startsWith("http://")) {
-      finalUrl = finalUrl.replace("http://", "https://");
-    }
-
-    const playAudio = async (url: string, isFallback = false) => {
-      try {
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current = null;
-        }
-
-        const audio = new Audio(url);
-        audioRef.current = audio;
-        
-        await audio.play();
-      } catch (err) {
-        console.error(`Adhan playback failed (${isFallback ? 'fallback' : 'primary'}):`, err);
-        if (!isFallback) {
-          playAudio(FALLBACK_SOUND, true);
-        }
-      }
-    };
-
-    playAudio(finalUrl);
   };
 
   useEffect(() => {
@@ -168,28 +124,10 @@ export const usePrayerNotifications = () => {
     // Re-schedule every 6 hours to stay updated
     const refreshInterval = setInterval(scheduleNotifications, 6 * 60 * 60 * 1000);
 
-    // Listen for STOP_ADHAN message from service worker
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data && event.data.type === 'STOP_ADHAN') {
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current = null;
-        }
-      }
-    };
-    
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.addEventListener('message', handleMessage);
-    }
-
     return () => {
       timersRef.current.forEach(clearTimeout);
-      if (audioRef.current) audioRef.current.pause();
       clearInterval(refreshInterval);
       window.removeEventListener('storage', handleStorageChange);
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.removeEventListener('message', handleMessage);
-      }
     };
-  }, [i18n.language]);
+  }, [i18n.language, playAdhan]);
 };

@@ -32,6 +32,7 @@ interface QuranTextViewerProps {
   hifzMode?: boolean;
   initialVerseKey?: string;
   onVerseInView?: (key: string) => void;
+  readOnly?: boolean;
 }
 
 const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ 
@@ -39,7 +40,8 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
   juzNumber, 
   hifzMode = false,
   initialVerseKey,
-  onVerseInView
+  onVerseInView,
+  readOnly = false
 }) => {
   const { theme, tajweedMode } = useTheme();
   const { 
@@ -239,7 +241,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
 
   // Track reading progress
   useEffect(() => {
-    if (currentJuz) {
+    if (currentJuz && !readOnly) {
       const today = new Date().toISOString().split('T')[0];
       const history = JSON.parse(localStorage.getItem("quran-reading-history-daily") || "[]");
       
@@ -253,7 +255,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
         localStorage.setItem("quran-reading-history-daily", JSON.stringify(history));
       }
     }
-  }, [currentJuz]);
+  }, [currentJuz, readOnly]);
 
   const toggleVerse = (index: number) => {
     setHiddenVerses(prev => {

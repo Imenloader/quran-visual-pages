@@ -21,6 +21,7 @@ import {
   type PrayerSettings,
 } from "@/hooks/usePrayerTimes";
 import QuranHeader from "@/components/QuranHeader";
+import CairoClock from "@/components/CairoClock";
 
 const CustomSelect = ({ 
   value, 
@@ -223,53 +224,7 @@ const NextPrayerCountdown = ({
   );
 };
 
-const CairoClock = () => {
-  const [time, setTime] = useState("");
-  const { i18n } = useTranslation();
-  const isAr = i18n.language === "ar";
 
-  useEffect(() => {
-    const updateTime = () => {
-      const now = getCairoDate();
-      const options: Intl.DateTimeFormatOptions = {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: true,
-      };
-      setTime(new Intl.DateTimeFormat(isAr ? "ar-EG" : "en-US", options).format(now));
-    };
-
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, [isAr]);
-
-  return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="relative group mt-6"
-    >
-      <div className="absolute inset-0 bg-gold/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-      <div className="relative flex flex-col items-center bg-card/30 backdrop-blur-xl border border-primary/10 px-10 py-5 rounded-[2rem] shadow-2xl overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
-        <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gold mb-2 drop-shadow-sm">
-          {isAr ? "توقيت القاهرة الآن" : "Cairo Local Time"}
-        </span>
-        <span className="font-mono text-4xl font-bold text-foreground tabular-nums tracking-tighter">
-          {time}
-        </span>
-        <div className="flex items-center gap-1 mt-2">
-          <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
-          <span className="text-[9px] text-primary/70 font-serif italic uppercase tracking-widest">
-            {isAr ? "مزامنة مباشرة" : "Live Sync"}
-          </span>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
 
 const PrayerTimes = () => {
   const { t, i18n } = useTranslation();
@@ -653,7 +608,7 @@ const PrayerTimes = () => {
                   </button>
                 </div>
               )}
-              {!isAudioUnlocked && (
+              {!isAudioUnlocked && !settings.notificationsEnabled && (
                 <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-3">
                   <Volume2 size={18} className="text-amber-500 shrink-0" />
                   <div className="flex-1">

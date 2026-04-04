@@ -3,6 +3,7 @@ import { formatInTimeZone, toZonedTime } from "date-fns-tz";
 import { isBefore, addDays } from "date-fns";
 import { toast } from "sonner";
 import { speakPrayerName } from "@/services/ttsService";
+import { useAdhan } from "@/contexts/AdhanContext";
 
 export const PRAYER_SETTINGS_KEY = "prayer-times-settings";
 
@@ -239,10 +240,8 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
-  const [isAdhanPlaying, setIsAdhanPlaying] = useState(false);
+  const { isAdhanPlaying, playAdhan, stopAdhan } = useAdhan();
   const notifTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const playPromiseRef = useRef<Promise<void> | null>(null);
   const optionsRef = useRef(options);
 
   const getNow = useCallback(() => {
@@ -254,100 +253,11 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
   }, [options]);
 
   const playAdhanSound = useCallback(async (soundId: string, prayerNameAr?: string) => {
-    const FALLBACK_SOUND = "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3";
-    
-    const playAudio = async (audioUrl: string, isFallback = false) => {
-      try {
-        if (optionsRef.current?.onAdhanStart && !isFallback) {
-          optionsRef.current.onAdhanStart();
-        }
-        
-        // Cleanup previous audio
-        if (audioRef.current) {
-          if (playPromiseRef.current) {
-            try { await playPromiseRef.current; } catch (e) { /* ignore interruption */ }
-          }
-          audioRef.current.pause();
-          audioRef.current.removeAttribute("src");
-          audioRef.current.load();
-        }
-        
-        const audio = new Audio();
-        // Ensure the URL is clean and has protocol if it's external
-        let finalUrl = audioUrl;
-        if (finalUrl.startsWith("//")) {
-          finalUrl = "https:" + finalUrl;
-        } else if (finalUrl.startsWith("http://")) {
-          finalUrl = finalUrl.replace("http://", "https://");
-        }
-
-        audio.src = finalUrl;
-        audio.preload = "auto";
-        audioRef.current = audio;
-        
-        audio.onplay = () => setIsAdhanPlaying(true);
-        audio.onended = () => setIsAdhanPlaying(false);
-        audio.onpause = () => setIsAdhanPlaying(false);
-
-        audio.onerror = () => {
-          const err = audio.error;
-          let message = "خطأ في تشغيل صوت التنبيه";
-          
-          if (err) {
-            console.error(`Audio error [${err.code}] for ${isFallback ? "fallback" : "primary"} sound: ${err.message} | URL: ${finalUrl}`);
-            switch (err.code) {
-              case 1: return; // Aborted
-              case 2: message = "خطأ في الشبكة أثناء تحميل الأذان. تحقق من اتصالك."; break;
-              case 3: message = "خطأ في فك تشفير ملف الأذان. قد يكون الملف تالفاً."; break;
-              case 4: message = "ملف الأذان غير مدعوم أو غير موجود حالياً."; break;
-            }
-          }
-
-          if (!isFallback) {
-            console.log("Attempting fallback sound...");
-            playAudio(FALLBACK_SOUND, true);
-          } else {
-            toast.error(message, {
-              description: finalUrl.split('/').slice(0, 3).join('/') + "..."
-            });
-          }
-        };
-
-        const promise = audio.play();
-        if (promise !== undefined) {
-          playPromiseRef.current = promise;
-          promise.catch((err) => {
-            if (err.name !== "AbortError") {
-              console.error("Playback failed:", err);
-              if (!isFallback) {
-                playAudio(FALLBACK_SOUND, true);
-              }
-            }
-          }).finally(() => {
-            if (playPromiseRef.current === promise) {
-              playPromiseRef.current = null;
-            }
-          });
-        }
-      } catch (err) {
-        console.error("Error in playAudio:", err);
-        if (!isFallback) playAudio(FALLBACK_SOUND, true);
-      }
-    };
-
-    if (soundId === "tts_arabic" && prayerNameAr) {
-      // Find the key for the prayerNameAr to get the English name
-      const prayerKey = (Object.keys(PRAYER_NAMES) as (keyof PrayerTimesData)[]).find(
-        key => PRAYER_NAMES[key] === prayerNameAr
-      );
-      const englishName = prayerKey || prayerNameAr;
-      console.log("Calling speakPrayerName for:", englishName);
-      speakPrayerName(englishName);
-    } else {
-      const soundUrl = ADHAN_SOUNDS.find(s => s.id === soundId)?.url || ADHAN_SOUNDS[0].url;
-      playAudio(soundUrl);
+    if (optionsRef.current?.onAdhanStart) {
+      optionsRef.current.onAdhanStart();
     }
-  }, []);
+    return playAdhan(soundId, prayerNameAr || "");
+  }, [playAdhan]);
 
   const fetchTimes = useCallback(async (lat: number, lng: number, method: number) => {
     setLoading(true);
@@ -548,20 +458,6 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
     [fetchTimes]
   );
 
-  const stopAdhan = useCallback(async () => {
-    if (audioRef.current) {
-      if (playPromiseRef.current) {
-        try { await playPromiseRef.current; } catch (e) { /* ignore interruption */ }
-      }
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
-    setIsAdhanPlaying(false);
-  }, []);
-
   const previewAdhan = useCallback((soundId: string) => {
     playAdhanSound(soundId, "العصر"); // Use Asr as preview example
     
@@ -608,21 +504,6 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
     // Stop after 20 seconds
     setTimeout(() => stopAdhan(), 20000);
   }, [effectiveTimes, settings.adhanSound, settings.cityName, playAdhanSound, stopAdhan]);
-
-  // Listen for STOP_ADHAN message from service worker
-  useEffect(() => {
-    if (!("serviceWorker" in navigator)) return;
-    
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data && event.data.type === 'STOP_ADHAN') {
-        console.log("Received STOP_ADHAN from service worker");
-        stopAdhan();
-      }
-    };
-    
-    navigator.serviceWorker.addEventListener('message', handleMessage);
-    return () => navigator.serviceWorker.removeEventListener('message', handleMessage);
-  }, [stopAdhan]);
 
   return {
     settings,

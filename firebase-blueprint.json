@@ -1,0 +1,93 @@
+{
+  "entities": {
+    "Khatma": {
+      "title": "Khatma",
+      "description": "A collaborative Quran reading group",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "The name of the Khatma group" },
+        "type": { "type": "string", "enum": ["public", "private"], "description": "Whether anyone can join or only those with a link" },
+        "createdBy": { "type": "string", "description": "The UID of the user who created the group" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the group was created" },
+        "status": { "type": "string", "enum": ["active", "completed"], "description": "The current status of the Khatma" },
+        "portions": {
+          "type": "object",
+          "description": "A map of the 30 Juz portions and their status",
+          "properties": {
+            "1": { "$ref": "Portion" },
+            "2": { "$ref": "Portion" },
+            "3": { "$ref": "Portion" },
+            "4": { "$ref": "Portion" },
+            "5": { "$ref": "Portion" },
+            "6": { "$ref": "Portion" },
+            "7": { "$ref": "Portion" },
+            "8": { "$ref": "Portion" },
+            "9": { "$ref": "Portion" },
+            "10": { "$ref": "Portion" },
+            "11": { "$ref": "Portion" },
+            "12": { "$ref": "Portion" },
+            "13": { "$ref": "Portion" },
+            "14": { "$ref": "Portion" },
+            "15": { "$ref": "Portion" },
+            "16": { "$ref": "Portion" },
+            "17": { "$ref": "Portion" },
+            "18": { "$ref": "Portion" },
+            "19": { "$ref": "Portion" },
+            "20": { "$ref": "Portion" },
+            "21": { "$ref": "Portion" },
+            "22": { "$ref": "Portion" },
+            "23": { "$ref": "Portion" },
+            "24": { "$ref": "Portion" },
+            "25": { "$ref": "Portion" },
+            "26": { "$ref": "Portion" },
+            "27": { "$ref": "Portion" },
+            "28": { "$ref": "Portion" },
+            "29": { "$ref": "Portion" },
+            "30": { "$ref": "Portion" }
+          }
+        }
+      },
+      "required": ["title", "type", "createdBy", "createdAt", "status", "portions"]
+    },
+    "Portion": {
+      "title": "Portion",
+      "description": "A single Juz portion of the Quran",
+      "type": "object",
+      "properties": {
+        "status": { "type": "string", "enum": ["available", "claimed", "completed"], "description": "The status of this portion" },
+        "claimedBy": { "type": "string", "description": "The UID of the user who claimed this portion" },
+        "claimedAt": { "type": "string", "format": "date-time", "description": "When the portion was claimed" },
+        "completedAt": { "type": "string", "format": "date-time", "description": "When the portion was marked as read" }
+      }
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile and statistics",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Display name" },
+        "avatar": { "type": "string", "description": "Avatar URL or identifier" },
+        "joinedDate": { "type": "string", "format": "date-time", "description": "When the user joined" },
+        "points": { "type": "integer", "description": "Total points earned" },
+        "totalAyahsRead": { "type": "integer", "description": "Total ayahs read" },
+        "totalPagesRead": { "type": "integer", "description": "Total pages read" },
+        "totalJuzCompleted": { "type": "integer", "description": "Total Juz completed" },
+        "totalAthkarRecited": { "type": "integer", "description": "Total Athkar recited" },
+        "daysActive": { "type": "integer", "description": "Number of days active" },
+        "lastActiveDate": { "type": "string", "format": "date", "description": "Last date the user was active" },
+        "role": { "type": "string", "enum": ["user", "admin"], "description": "User role" }
+      },
+      "required": ["name", "avatar", "joinedDate", "points", "role"]
+    }
+  },
+  "firestore": {
+    "/khatmas/{khatmaId}": {
+      "schema": "Khatma",
+      "description": "A collection of collaborative Khatma groups"
+    },
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile documents"
+    }
+  }
+}

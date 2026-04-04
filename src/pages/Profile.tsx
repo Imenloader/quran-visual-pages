@@ -17,6 +17,8 @@ import BackButton from "@/components/BackButton";
 
 import { useUser } from "@/contexts/UserContext";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
+import { auth } from "@/firebase";
+import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 
 type ThemeMode = "light" | "dark" | "sepia";
 
@@ -883,8 +885,41 @@ const Profile = () => {
                     {activeCategory === "account" && (
                       <section className="space-y-4">
                         <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                          <h3 className="text-sm font-serif font-bold text-primary">{t("profile.accountManagement")}</h3>
-                          <p className="text-[8px] text-primary/80">{t("profile.editAccountDesc")}</p>
+                          <h3 className="text-sm font-serif font-bold text-primary">{t("profile.account")}</h3>
+                          <p className="text-[8px] text-primary/70">{t("profile.syncDesc") || "Sync your progress across devices"}</p>
+                        </div>
+                        
+                        <div className="p-4 rounded-2xl bg-primary/5 border border-primary/5 space-y-4">
+                          {auth.currentUser ? (
+                            <div className="space-y-4">
+                              <div className="flex items-center gap-3">
+                                <img src={auth.currentUser.photoURL || "/avatar-man-1.svg"} className="w-10 h-10 rounded-full" referrerPolicy="no-referrer" />
+                                <div className={`${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                                  <p className="text-xs font-bold font-serif text-primary">{auth.currentUser.displayName}</p>
+                                  <p className="text-[10px] text-primary/60 font-serif">{auth.currentUser.email}</p>
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => signOut(auth)}
+                                className="w-full py-2 bg-red-500/10 text-red-500 rounded-xl text-xs font-bold font-serif hover:bg-red-500/20 transition-all"
+                              >
+                                {i18n.language === 'ar' ? "تسجيل الخروج" : (t("profile.logout") || "Sign Out")}
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="space-y-4 text-center">
+                              <p className="text-xs text-primary/70 font-serif leading-relaxed">
+                                {t("profile.loginPrompt")}
+                              </p>
+                              <button
+                                onClick={() => signInWithPopup(auth, new GoogleAuthProvider())}
+                                className="w-full py-3 bg-primary text-primary-foreground rounded-xl text-xs font-bold font-serif shadow-lg flex items-center justify-center gap-2"
+                              >
+                                <Sparkles size={14} />
+                                {t("profile.loginWithGoogle")}
+                              </button>
+                            </div>
+                          )}
                         </div>
 
                         {/* Character Preview Card */}
@@ -893,7 +928,7 @@ const Profile = () => {
                           <div className="relative z-10 flex flex-col items-center gap-1.5">
                             <div className="w-12 h-12 rounded-lg bg-primary/10 backdrop-blur-md border border-primary/20 flex items-center justify-center overflow-hidden">
                               {profile.avatar ? (
-                                <img src={profile.avatar} alt="" className="w-full h-full object-cover" />
+                                <img src={profile.avatar} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                               ) : (
                                 <User size={18} />
                               )}
