@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://ais-dev-bp6drsgtmreuadsbdib6pz-112279074966.us-east5.run.app/sitemap.xml
+Sitemap: https://quraaniatvip.vercel.app/sitemap.xml
