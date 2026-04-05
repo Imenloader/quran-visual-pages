@@ -84,10 +84,10 @@ const Tasbih = () => {
         </button>
       </header>
 
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center w-full max-w-md px-6 gap-12">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center w-full max-w-md px-4 sm:px-6 gap-6 sm:gap-12 py-4">
         {/* Progress Ring */}
-        <div className="relative w-72 h-72 flex items-center justify-center">
-          <svg className="absolute inset-0 w-full h-full -rotate-90">
+        <div className="relative w-[50vw] max-w-[288px] aspect-square flex items-center justify-center">
+          <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 288 288">
             <circle
               cx="144"
               cy="144"
@@ -113,43 +113,43 @@ const Tasbih = () => {
               key={count}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="text-8xl font-bold font-mono text-foreground block"
+              className="text-5xl sm:text-8xl font-bold font-mono text-foreground block"
             >
               {count}
             </motion.span>
-            <span className="text-xl font-medium text-muted-foreground font-naskh opacity-60">
+            <span className="text-lg sm:text-xl font-medium text-muted-foreground font-naskh opacity-60">
               / {target}
             </span>
           </div>
         </div>
 
         {/* Stats Row */}
-        <div className="grid grid-cols-2 gap-4 w-full">
-          <div className="p-6 bg-card/50 backdrop-blur-md rounded-[2rem] border border-border/40 text-center shadow-sm">
-            <p className="text-xs text-muted-foreground font-naskh mb-1 opacity-70">{t("tasbih.total")}</p>
-            <p className="text-2xl font-bold font-mono text-gold">{total}</p>
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full">
+          <div className="p-4 sm:p-6 bg-card/50 backdrop-blur-md rounded-[1.5rem] sm:rounded-[2rem] border border-border/40 text-center shadow-sm">
+            <p className="text-[10px] sm:text-xs text-muted-foreground font-naskh mb-1 opacity-70">{t("tasbih.total")}</p>
+            <p className="text-xl sm:text-2xl font-bold font-mono text-gold">{total}</p>
           </div>
           <button 
             onClick={handleReset}
-            className="p-6 bg-card/50 backdrop-blur-md rounded-[2rem] border border-border/40 text-center shadow-sm hover:bg-card transition-all group"
+            className="p-4 sm:p-6 bg-card/50 backdrop-blur-md rounded-[1.5rem] sm:rounded-[2rem] border border-border/40 text-center shadow-sm hover:bg-card transition-all group"
           >
-            <p className="text-xs text-muted-foreground font-naskh mb-1 opacity-70">{t("tasbih.reset")}</p>
-            <RotateCcw className="w-6 h-6 text-foreground mx-auto group-active:rotate-[-180deg] transition-transform duration-500" />
+            <p className="text-[10px] sm:text-xs text-muted-foreground font-naskh mb-1 opacity-70">{t("tasbih.reset")}</p>
+            <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6 text-foreground mx-auto group-active:rotate-[-180deg] transition-transform duration-500" />
           </button>
         </div>
 
         {/* Main Button */}
         <button
           onClick={handleIncrement}
-          className="w-full aspect-square max-w-[280px] rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border-[12px] border-card shadow-islamic flex items-center justify-center relative group active:scale-95 transition-all duration-200"
+          className="w-[60vw] max-w-[280px] aspect-square rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border-[8px] sm:border-[12px] border-card shadow-islamic flex items-center justify-center relative group active:scale-95 transition-all duration-200"
         >
-          <div className="absolute inset-4 rounded-full border border-gold/20" />
+          <div className="absolute inset-2 sm:inset-4 rounded-full border border-gold/20" />
           <div className="absolute inset-0 rounded-full bg-gold/10 opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="text-center">
-            <div className="w-20 h-20 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4 group-active:scale-110 transition-transform">
-              <Plus className="w-10 h-10 text-gold" />
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-2 sm:mb-4 group-active:scale-110 transition-transform">
+              <Plus className="w-8 h-8 sm:w-10 sm:h-10 text-gold" />
             </div>
-            <span className="text-lg font-bold font-naskh text-foreground tracking-wide">اضغط للتسبيح</span>
+            <span className="text-sm sm:text-lg font-bold font-naskh text-foreground tracking-wide">اضغط للتسبيح</span>
           </div>
         </button>
       </div>

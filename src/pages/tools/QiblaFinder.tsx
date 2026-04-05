@@ -43,13 +43,14 @@ const QiblaFinder = () => {
       }
     );
 
-    const handleOrientation = (e: DeviceOrientationEvent) => {
-      const webkitHeading = (e as DeviceOrientationEvent & { webkitCompassHeading?: number }).webkitCompassHeading;
-      if (webkitHeading !== undefined) {
-        setHeading(webkitHeading);
-      } else if (e.alpha !== null) {
-        setHeading(360 - e.alpha);
+    const handleOrientation = (e: DeviceOrientationEvent | Record<string, unknown>) => {
+      let newHeading = 0;
+      if ('webkitCompassHeading' in e && typeof e.webkitCompassHeading === 'number') {
+        newHeading = e.webkitCompassHeading;
+      } else if ('alpha' in e && typeof e.alpha === 'number' && e.alpha !== null) {
+        newHeading = 360 - e.alpha;
       }
+      setHeading(newHeading);
     };
 
     if (window.DeviceOrientationEvent) {
@@ -67,7 +68,12 @@ const QiblaFinder = () => {
             }
           });
       } else {
-        window.addEventListener("deviceorientation", handleOrientation);
+        // Use deviceorientationabsolute for Android if available
+        if ('ondeviceorientationabsolute' in window) {
+          window.addEventListener("deviceorientationabsolute", handleOrientation as EventListener);
+        } else {
+          window.addEventListener("deviceorientation", handleOrientation);
+        }
       }
     } else {
       setError("المستشعرات غير مدعومة في هذا الجهاز");
@@ -75,6 +81,9 @@ const QiblaFinder = () => {
 
     return () => {
       window.removeEventListener("deviceorientation", handleOrientation);
+      if ('ondeviceorientationabsolute' in window) {
+        window.removeEventListener("deviceorientationabsolute", handleOrientation as EventListener);
+      }
     };
   }, []);
 
@@ -108,8 +117,8 @@ const QiblaFinder = () => {
         </button>
       </header>
 
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center gap-16 w-full max-w-md px-6">
-        <div className="relative w-80 h-80">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center gap-8 sm:gap-16 w-full max-w-md px-4 sm:px-6 py-4">
+        <div className="relative w-[70vw] max-w-[320px] aspect-square">
           {/* Outer Glow */}
           <AnimatePresence>
             {isFacingQibla && (
@@ -159,12 +168,12 @@ const QiblaFinder = () => {
           >
             <div className="relative w-full h-full flex items-center justify-center">
               {/* The Needle */}
-              <div className={`w-2 h-40 rounded-full relative transition-colors duration-500 ${isFacingQibla ? "bg-primary" : "bg-gold/40"}`}>
-                <div className={`absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-500 ${isFacingQibla ? "bg-primary scale-110" : "bg-card border border-border"}`}>
-                  <Compass className={`w-7 h-7 transition-colors duration-500 ${isFacingQibla ? "text-white" : "text-gold"}`} />
+              <div className={`w-1.5 sm:w-2 h-[50%] rounded-full relative transition-colors duration-500 ${isFacingQibla ? "bg-primary" : "bg-gold/40"}`}>
+                <div className={`absolute -top-4 sm:-top-6 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-500 ${isFacingQibla ? "bg-primary scale-110" : "bg-card border border-border"}`}>
+                  <Compass className={`w-6 h-6 sm:w-7 sm:h-7 transition-colors duration-500 ${isFacingQibla ? "text-white" : "text-gold"}`} />
                 </div>
                 {/* Arrow head */}
-                <div className={`absolute -top-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[12px] transition-colors duration-500 ${isFacingQibla ? "border-b-primary" : "border-b-gold/40"}`} />
+                <div className={`absolute -top-1 sm:-top-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] sm:border-l-[8px] border-l-transparent border-r-[6px] sm:border-r-[8px] border-r-transparent border-b-[10px] sm:border-b-[12px] transition-colors duration-500 ${isFacingQibla ? "border-b-primary" : "border-b-gold/40"}`} />
               </div>
             </div>
           </motion.div>
@@ -178,7 +187,7 @@ const QiblaFinder = () => {
             animate={isFacingQibla ? { scale: [1, 1.05, 1] } : {}}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            <p className={`text-3xl font-bold font-naskh transition-colors duration-500 ${isFacingQibla ? "text-primary" : "text-foreground"}`}>
+            <p className={`text-2xl sm:text-3xl font-bold font-naskh transition-colors duration-500 ${isFacingQibla ? "text-primary" : "text-foreground"}`}>
               {isFacingQibla ? "أنت تواجه القبلة" : "قم بتدوير الهاتف"}
             </p>
           </motion.div>

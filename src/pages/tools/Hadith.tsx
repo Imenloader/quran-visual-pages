@@ -157,13 +157,12 @@ const Hadith = () => {
   };
 
   const verifyOnDorar = (text: string) => {
-    // Remove diacritics (Tashkeel) for better search matching
-    const noTashkeel = text.replace(/[\u064B-\u065F]/g, "");
+    // Remove diacritics (Tashkeel) and punctuation for better search matching
+    const noTashkeel = text.replace(/[\u064B-\u065F\u0640]/g, "").replace(/[^\u0600-\u06FF\s]/g, " ");
     
     // Try to find the start of the Matn (the actual Hadith text)
-    // We look for the last "قال" or "يقول" or "سمعت" in the first 60% of the text
-    // This is more robust for books like Musnad Ahmad which have long narrator chains
-    const searchLimit = Math.floor(noTashkeel.length * 0.6);
+    // We look for the last "قال" or "يقول" or "سمعت" in the first 70% of the text
+    const searchLimit = Math.floor(noTashkeel.length * 0.7);
     const prefix = noTashkeel.substring(0, searchLimit);
     
     // Common markers for the end of Isnad (narrator chain)
@@ -181,27 +180,28 @@ const Hadith = () => {
 
     let matn = noTashkeel;
     if (lastMarkerIndex !== -1) {
-      // Start after the marker and any following punctuation/space
-      const afterMarker = noTashkeel.substring(lastMarkerIndex + foundMarker.length);
-      // Skip common honorifics that might follow the marker
-      const cleanedAfter = afterMarker.replace(/^\s*(صلى الله عليه وسلم|عليه الصلاة والسلام|رسول الله|النبي)?[:\s]*/, "");
-      matn = cleanedAfter.trim();
+      // Start after the marker
+      matn = noTashkeel.substring(lastMarkerIndex + foundMarker.length);
     }
 
-    // Clean up common honorifics from the middle of the text as well
+    // Clean up common honorifics
     const finalCleaned = matn
       .replace(/صلى الله عليه وسلم/g, "")
+      .replace(/عليه الصلاة والسلام/g, "")
+      .replace(/رسول الله/g, "")
+      .replace(/النبي/g, "")
       .replace(/عليه السلام/g, "")
-      .replace(/رضي الله عنه/g, "")
-      .replace(/رضي الله عنها/g, "")
       .replace(/رضي الله عنهم/g, "")
+      .replace(/رضي الله عنها/g, "")
+      .replace(/رضي الله عنه/g, "")
       .trim();
 
     // If cleaning made it too short, fallback to original
     const queryBase = finalCleaned.length > 15 ? finalCleaned : noTashkeel;
     
-    // Take a significant chunk of the text (around 12-15 words)
-    const terms = queryBase.split(/\s+/).slice(0, 15).join(' ');
+    // Take a small chunk of the text (around 4-6 words) to ensure we get matches
+    // Longer queries often fail due to slight variations in text between books
+    const terms = queryBase.split(/\s+/).filter(w => w.length > 1).slice(0, 5).join(' ');
     
     setSearchTerms(terms);
     updateDorarUrl(terms);

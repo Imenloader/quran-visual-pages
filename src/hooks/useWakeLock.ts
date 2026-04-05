@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 export const useWakeLock = () => {
   const [isSupported, setIsSupported] = useState(false);
-  const [wakeLock, setWakeLock] = useState<WakeLockSentinel | null>(null);
+  const [isActive, setIsActive] = useState(false);
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
 
   useEffect(() => {
     setIsSupported('wakeLock' in navigator);
@@ -13,10 +14,12 @@ export const useWakeLock = () => {
 
     try {
       const lock = await navigator.wakeLock.request('screen');
-      setWakeLock(lock);
+      wakeLockRef.current = lock;
+      setIsActive(true);
       
       lock.addEventListener('release', () => {
-        setWakeLock(null);
+        wakeLockRef.current = null;
+        setIsActive(false);
       });
       
       console.log('Screen Wake Lock is active');
@@ -30,23 +33,24 @@ export const useWakeLock = () => {
   }, [isSupported]);
 
   const releaseWakeLock = useCallback(async () => {
-    if (wakeLock) {
-      await wakeLock.release();
-      setWakeLock(null);
+    if (wakeLockRef.current) {
+      await wakeLockRef.current.release();
+      wakeLockRef.current = null;
+      setIsActive(false);
     }
-  }, [wakeLock]);
+  }, []);
 
   // Re-request wake lock when page becomes visible again
   useEffect(() => {
     const handleVisibilityChange = async () => {
-      if (wakeLock !== null && document.visibilityState === 'visible') {
+      if (wakeLockRef.current !== null && document.visibilityState === 'visible') {
         await requestWakeLock();
       }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [wakeLock, requestWakeLock]);
+  }, [requestWakeLock]);
 
-  return { isSupported, requestWakeLock, releaseWakeLock, isActive: !!wakeLock };
+  return { isSupported, requestWakeLock, releaseWakeLock, isActive };
 };
