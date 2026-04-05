@@ -100,6 +100,7 @@ const LanguageHandler = () => {
 
 import { usePeriodicReminders } from "./hooks/usePeriodicReminders";
 import { usePrayerNotifications } from "./hooks/usePrayerNotifications";
+import { useGoalNotifications } from "./hooks/useGoalNotifications";
 import { AudioUnlockBanner } from "./components/AudioUnlockBanner";
 
 const NotificationInitializer = () => {
@@ -109,6 +110,8 @@ const NotificationInitializer = () => {
   usePeriodicReminders();
   // Initialize Prayer Notifications
   usePrayerNotifications();
+  // Initialize Goal Notifications
+  useGoalNotifications();
   return null;
 };
 

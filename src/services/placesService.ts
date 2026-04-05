@@ -13,7 +13,14 @@ export interface Place {
 
 export async function searchPlaces(query: string, lat?: number, lng?: number): Promise<Place[]> {
   try {
-    const config: any = {
+    const config: { 
+      tools: { googleMaps: Record<string, never> }[]; 
+      toolConfig?: { 
+        retrievalConfig: { 
+          latLng: { latitude: number; longitude: number } 
+        } 
+      } 
+    } = {
       tools: [{ googleMaps: {} }],
     };
 
@@ -42,7 +49,7 @@ export async function searchPlaces(query: string, lat?: number, lng?: number): P
 
     // Map grounding chunks to places
     if (groundingChunks.length > 0) {
-      groundingChunks.forEach((chunk: any) => {
+      groundingChunks.forEach((chunk: { maps?: { title?: string; uri?: string }; web?: { title?: string; uri?: string } }) => {
         if (chunk.maps) {
           places.push({
             name: chunk.maps.title || "Unknown Place",
