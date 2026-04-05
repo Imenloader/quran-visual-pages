@@ -163,7 +163,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-32 selection:bg-accent/20 overflow-x-hidden">
+    <div className="relative min-h-screen bg-background pb-32 selection:bg-accent/20 overflow-x-hidden">
       {/* Immersive Profile Header */}
       <header className="relative overflow-hidden pt-12 pb-24 px-6 text-center">
         {/* Background Layers */}

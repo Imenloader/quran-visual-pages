@@ -91,7 +91,7 @@ const QiblaFinder = () => {
   const isFacingQibla = Math.abs(relativeQibla) < 5 || Math.abs(relativeQibla - 360) < 5;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center overflow-y-auto overflow-x-hidden">
+    <div className="relative min-h-screen bg-background flex flex-col items-center overflow-y-auto overflow-x-hidden">
       {/* Immersive Background */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-background to-background" />

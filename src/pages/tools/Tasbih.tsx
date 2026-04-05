@@ -58,7 +58,7 @@ const Tasbih = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center overflow-y-auto overflow-x-hidden">
+    <div className="relative min-h-screen bg-background flex flex-col items-center overflow-y-auto overflow-x-hidden">
       {/* Immersive Background */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-b from-gold/10 via-background to-background" />

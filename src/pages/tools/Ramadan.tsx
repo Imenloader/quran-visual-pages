@@ -147,7 +147,7 @@ const Ramadan = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-24 overflow-x-hidden">
+    <div className="relative min-h-screen bg-background pb-24 overflow-x-hidden">
       <QuranHeader 
         title={t("ramadan.title")} 
         subtitle={t("ramadan.subtitle")} 

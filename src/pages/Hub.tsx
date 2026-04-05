@@ -225,7 +225,7 @@ const Hub = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-24 overflow-x-hidden">
+    <div className="relative min-h-screen bg-background pb-24 overflow-x-hidden">
       <QuranHeader title={t("hub.title")} subtitle={t("hub.subtitle")} variant="compact" />
       <div className="max-w-7xl mx-auto px-4 mt-12">
 
