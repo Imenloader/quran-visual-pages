@@ -91,7 +91,7 @@ const QiblaFinder = () => {
   const isFacingQibla = Math.abs(relativeQibla) < 5 || Math.abs(relativeQibla - 360) < 5;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col items-center overflow-y-auto overflow-x-hidden">
       {/* Immersive Background */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-background to-background" />
@@ -117,8 +117,8 @@ const QiblaFinder = () => {
         </button>
       </header>
 
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center gap-8 sm:gap-16 w-full max-w-md px-4 sm:px-6 py-4">
-        <div className="relative w-[70vw] max-w-[320px] aspect-square">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center gap-6 sm:gap-12 w-full max-w-md px-4 sm:px-6 py-4">
+        <div className="relative w-[80vw] max-w-[300px] aspect-square">
           {/* Outer Glow */}
           <AnimatePresence>
             {isFacingQibla && (

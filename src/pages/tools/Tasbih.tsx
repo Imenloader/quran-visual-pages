@@ -58,7 +58,7 @@ const Tasbih = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col items-center overflow-y-auto overflow-x-hidden">
       {/* Immersive Background */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-b from-gold/10 via-background to-background" />
@@ -84,9 +84,9 @@ const Tasbih = () => {
         </button>
       </header>
 
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center w-full max-w-md px-4 sm:px-6 gap-6 sm:gap-12 py-4">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center w-full max-w-md px-4 sm:px-6 gap-4 sm:gap-8 py-4">
         {/* Progress Ring */}
-        <div className="relative w-[50vw] max-w-[288px] aspect-square flex items-center justify-center">
+        <div className="relative w-[60vw] max-w-[240px] aspect-square flex items-center justify-center">
           <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 288 288">
             <circle
               cx="144"
@@ -141,7 +141,7 @@ const Tasbih = () => {
         {/* Main Button */}
         <button
           onClick={handleIncrement}
-          className="w-[60vw] max-w-[280px] aspect-square rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border-[8px] sm:border-[12px] border-card shadow-islamic flex items-center justify-center relative group active:scale-95 transition-all duration-200"
+          className="w-[70vw] max-w-[240px] aspect-square rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border-[8px] sm:border-[12px] border-card shadow-islamic flex items-center justify-center relative group active:scale-95 transition-all duration-200"
         >
           <div className="absolute inset-2 sm:inset-4 rounded-full border border-gold/20" />
           <div className="absolute inset-0 rounded-full bg-gold/10 opacity-0 group-hover:opacity-100 transition-opacity" />
