@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, memo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Clock, Shield, User, Home, ChevronUp, LayoutGrid } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -7,6 +7,17 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useUser } from "@/contexts/UserContext";
 
 import GlobalAudioPlayer from "./GlobalAudioPlayer";
+
+// Pre-load components for smoother navigation
+const preloadPage = (path: string) => {
+  switch (path) {
+    case "/": import("../pages/Index"); break;
+    case "/prayer-times": import("../pages/PrayerTimes"); break;
+    case "/athkar": import("../pages/Athkar"); break;
+    case "/hub": import("../pages/Hub"); break;
+    case "/profile": import("../pages/Profile"); break;
+  }
+};
 
 const BottomNav = () => {
   const { t, i18n } = useTranslation();
@@ -91,6 +102,7 @@ const BottomNav = () => {
                     <Link
                       key={item.path}
                       to={item.path}
+                      onMouseEnter={() => preloadPage(item.path)}
                       onClick={() => handleNavClick(item.path)}
                       className={`w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center transition-all shadow-islamic relative group z-20 ${
                         isActive 
@@ -113,6 +125,7 @@ const BottomNav = () => {
                   <Link
                     key={item.path}
                     to={item.path}
+                    onMouseEnter={() => preloadPage(item.path)}
                     onClick={() => handleNavClick(item.path)}
                     className="flex flex-col items-center py-1.5 md:py-2 px-0.5 md:px-1 min-w-[56px] md:min-w-[64px] group relative z-10"
                   >
@@ -161,4 +174,4 @@ const BottomNav = () => {
   );
 };
 
-export default BottomNav;
+export default memo(BottomNav);

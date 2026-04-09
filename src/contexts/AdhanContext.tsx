@@ -16,17 +16,33 @@ export const AdhanProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const playPromiseRef = useRef<Promise<void> | null>(null);
 
   const stopAdhan = useCallback(() => {
-    if (audioRef.current) {
-      if (playPromiseRef.current) {
-        playPromiseRef.current.then(() => {
-          audioRef.current?.pause();
-          if (audioRef.current) audioRef.current.src = "";
-        }).catch(() => {});
+    const currentAudio = audioRef.current;
+    const currentPromise = playPromiseRef.current;
+
+    if (currentAudio) {
+      const cleanup = () => {
+        try {
+          currentAudio.pause();
+          currentAudio.src = "";
+        } catch (e) {
+          // Ignore errors during cleanup
+        }
+        
+        // Only clear refs if they still point to this audio instance
+        if (audioRef.current === currentAudio) {
+          audioRef.current = null;
+          playPromiseRef.current = null;
+        }
+      };
+
+      if (currentPromise) {
+        // Wait for play() to resolve before calling pause() to avoid browser errors
+        currentPromise.then(cleanup).catch(cleanup);
       } else {
-        audioRef.current.pause();
-        audioRef.current.src = "";
+        cleanup();
       }
     }
+
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
     }
@@ -59,19 +75,29 @@ export const AdhanProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const playAudio = async (url: string, isFallback = false): Promise<void> => {
       try {
+        // Stop any currently playing audio first
         stopAdhan();
 
         const audio = new Audio(url);
-        audioRef.current = audio;
         
         audio.onplay = () => setIsAdhanPlaying(true);
         audio.onended = () => setIsAdhanPlaying(false);
         audio.onpause = () => setIsAdhanPlaying(false);
 
+        // Start playback
         const promise = audio.play();
+        
+        // Update refs atomically after play() has been initiated
+        audioRef.current = audio;
         playPromiseRef.current = promise;
+        
         await promise;
       } catch (err) {
+        // Ignore AbortError which happens when pause() interrupts play()
+        if (err instanceof Error && (err.name === 'AbortError' || err.message.includes('interrupted'))) {
+          return;
+        }
+        
         console.error(`Adhan playback failed (${isFallback ? 'fallback' : 'primary'}):`, err);
         if (!isFallback) {
           return playAudio(FALLBACK_SOUND, true);
