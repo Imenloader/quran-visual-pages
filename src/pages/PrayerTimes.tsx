@@ -22,6 +22,7 @@ import {
 } from "@/hooks/usePrayerTimes";
 import QuranHeader from "@/components/QuranHeader";
 import CairoClock from "@/components/CairoClock";
+import { Button } from "@/components/ui/button";
 
 const CustomSelect = ({ 
   value, 
@@ -592,9 +593,9 @@ const PrayerTimes = () => {
             </section>
 
             {/* Notifications toggle */}
-            <section className="bg-card border border-border rounded-2xl p-5 shadow-soft">
+            <section className="bg-card border border-border rounded-2xl p-5 shadow-soft space-y-4">
               {settings.notificationsEnabled && Notification.permission !== "granted" && (
-                <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-3">
+                <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-3">
                   <BellOff size={18} className="text-destructive shrink-0" />
                   <div className="flex-1">
                     <p className="text-[11px] text-destructive font-naskh font-bold">إذن التنبيهات مطلوب</p>
@@ -608,21 +609,7 @@ const PrayerTimes = () => {
                   </button>
                 </div>
               )}
-              {!isAudioUnlocked && !settings.notificationsEnabled && (
-                <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-3">
-                  <Volume2 size={18} className="text-amber-500 shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-[11px] text-amber-600 font-naskh font-bold">تفعيل الصوت مطلوب</p>
-                    <p className="text-[10px] text-amber-600 font-naskh">اضغط على أي زر لتفعيل صوت الأذان في المتصفح</p>
-                  </div>
-                  <button 
-                    onClick={unlockAudio}
-                    className="px-3 py-1 bg-amber-500 text-white text-[10px] font-naskh rounded-lg font-bold"
-                  >
-                    تفعيل الآن
-                  </button>
-                </div>
-              )}
+              
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl gradient-gold flex items-center justify-center">
                   <Bell size={18} className="text-foreground" />
@@ -634,7 +621,11 @@ const PrayerTimes = () => {
                 <div className="flex items-center gap-2">
                   {settings.notificationsEnabled && (
                     <button
-                      onClick={() => testPrayerNotification("Dhuhr")}
+                      onClick={() => {
+                        unlockAudio();
+                        testPrayerNotification("Dhuhr");
+                        toast.success(`تم إرسال تنبيه تجريبي لصلاة الظهر`);
+                      }}
                       className="px-3 py-1 bg-gold/10 border border-gold/20 text-gold text-[10px] font-naskh rounded-lg font-bold hover:bg-gold/20 transition-all"
                       title="تجربة التنبيه"
                     >
@@ -653,6 +644,31 @@ const PrayerTimes = () => {
                   </button>
                 </div>
               </div>
+
+              {!isAudioUnlocked && (
+                <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex flex-col gap-3">
+                  <div className="flex items-center gap-3">
+                    <Volume2 size={20} className="text-amber-600 shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-xs text-amber-700 font-bold font-naskh">تفعيل صوت الأذان</p>
+                      <p className="text-[10px] text-amber-600 font-naskh leading-tight">
+                        تتطلب المتصفحات تفاعلاً من المستخدم لتشغيل الصوت. اضغط على الزر أدناه لضمان عمل الأذان.
+                      </p>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full h-9 rounded-xl border-amber-500/30 text-amber-700 hover:bg-amber-500 hover:text-white transition-all text-[10px] font-bold"
+                    onClick={() => {
+                      unlockAudio();
+                      toast.success("تم تفعيل الصوت بنجاح");
+                    }}
+                  >
+                    تفعيل الصوت الآن
+                  </Button>
+                </div>
+              )}
             </section>
 
             {/* Adhan sound selector */}

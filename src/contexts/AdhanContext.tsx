@@ -52,14 +52,15 @@ export const AdhanProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const playAdhan = useCallback(async (soundId: string, prayerNameAr: string) => {
     const FALLBACK_SOUND = "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3";
 
+    // Stop any currently playing audio first and wait for it to be fully stopped
+    stopAdhan();
+
     if (soundId === "tts_arabic") {
       const prayerKey = (Object.keys(PRAYER_NAMES) as (keyof PrayerTimesData)[]).find(
         key => PRAYER_NAMES[key] === prayerNameAr
       );
       if (prayerKey) speakPrayerName(prayerKey);
       setIsAdhanPlaying(true);
-      // TTS doesn't have an easy "ended" event for the whole sequence here, 
-      // but we can set a timeout or just leave it.
       setTimeout(() => setIsAdhanPlaying(false), 10000);
       return;
     }
@@ -74,25 +75,41 @@ export const AdhanProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     const playAudio = async (url: string, isFallback = false): Promise<void> => {
+      const audio = new Audio(url);
+      audio.preload = "auto";
+      
+      // Store the current audio instance locally to check against the ref later
+      const currentInstance = audio;
+
+      audio.onplay = () => {
+        if (audioRef.current === currentInstance) {
+          setIsAdhanPlaying(true);
+        }
+      };
+      audio.onended = () => {
+        if (audioRef.current === currentInstance) {
+          setIsAdhanPlaying(false);
+          audioRef.current = null;
+          playPromiseRef.current = null;
+        }
+      };
+      audio.onpause = () => {
+        if (audioRef.current === currentInstance) {
+          setIsAdhanPlaying(false);
+        }
+      };
+
       try {
-        // Stop any currently playing audio first
-        stopAdhan();
-
-        const audio = new Audio(url);
-        
-        audio.onplay = () => setIsAdhanPlaying(true);
-        audio.onended = () => setIsAdhanPlaying(false);
-        audio.onpause = () => setIsAdhanPlaying(false);
-
-        // Start playback
-        const promise = audio.play();
-        
-        // Update refs atomically after play() has been initiated
+        // Update refs before playing
         audioRef.current = audio;
+        const promise = audio.play();
         playPromiseRef.current = promise;
         
         await promise;
       } catch (err) {
+        // If this instance is no longer the current one, just ignore the error
+        if (audioRef.current !== currentInstance) return;
+
         // Ignore AbortError which happens when pause() interrupts play()
         if (err instanceof Error && (err.name === 'AbortError' || err.message.includes('interrupted'))) {
           return;

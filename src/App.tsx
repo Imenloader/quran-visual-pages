@@ -45,6 +45,14 @@ const NamesDirectory = lazy(() => import("./pages/NamesDirectory"));
 const DailyAdhkar = lazy(() => import("./pages/DailyAdhkar"));
 const KhatmaJamaaiya = lazy(() => import("./pages/KhatmaJamaaiya"));
 const Hadith = lazy(() => import("./pages/tools/Hadith"));
+const SeerahTimeline = lazy(() => import("./pages/tools/SeerahTimeline"));
+const IslamicQuiz = lazy(() => import("./pages/tools/IslamicQuiz"));
+const InheritanceCalculator = lazy(() => import("./pages/tools/InheritanceCalculator"));
+const FastingTracker = lazy(() => import("./pages/tools/FastingTracker"));
+const RoutineBuilder = lazy(() => import("./pages/tools/RoutineBuilder"));
+const SadaqahLogger = lazy(() => import("./pages/tools/SadaqahLogger"));
+const DuaLibrary = lazy(() => import("./pages/tools/DuaLibrary"));
+const MoonTracker = lazy(() => import("./pages/tools/MoonTracker"));
 const Virtues = lazy(() => import("./pages/ramadan/Virtues"));
 const FastingRules = lazy(() => import("./pages/ramadan/FastingRules"));
 const Duas = lazy(() => import("./pages/ramadan/Duas"));
@@ -167,6 +175,14 @@ const App = () => {
                       <Route path="/daily-adhkar" element={<DailyAdhkar />} />
                       <Route path="/khatma-jamaaiya" element={<KhatmaJamaaiya />} />
                       <Route path="/hadith" element={<Hadith />} />
+                      <Route path="/seerah-timeline" element={<SeerahTimeline />} />
+                      <Route path="/islamic-quiz" element={<IslamicQuiz />} />
+                      <Route path="/inheritance-calculator" element={<InheritanceCalculator />} />
+                      <Route path="/fasting-tracker" element={<FastingTracker />} />
+                      <Route path="/routine-builder" element={<RoutineBuilder />} />
+                      <Route path="/sadaqah-logger" element={<SadaqahLogger />} />
+                      <Route path="/dua-library" element={<DuaLibrary />} />
+                      <Route path="/moon-tracker" element={<MoonTracker />} />
                       <Route path="/ramadan/virtues" element={<Virtues />} />
                       <Route path="/ramadan/fasting-rules" element={<FastingRules />} />
                       <Route path="/ramadan/duas" element={<Duas />} />

@@ -10,6 +10,7 @@ import {
   MapPin, 
   Book,
   BookOpen, 
+  Brain,
   CheckCircle2, 
   Search, 
   Download,
@@ -172,6 +173,8 @@ const Hub = () => {
         { name: t("hub.qibla"), icon: <Compass className="w-5 h-5" />, path: "/qibla" },
         { name: t("hub.tasbih"), icon: <Fingerprint className="w-5 h-5" />, path: "/tasbih" },
         { name: t("hub.zakat"), icon: <Calculator className="w-5 h-5" />, path: "/zakat" },
+        { name: i18n.language === 'ar' ? "سجل الصدقات" : "Sadaqah Logger", icon: <Heart className="w-5 h-5" />, path: "/sadaqah-logger" },
+        { name: i18n.language === 'ar' ? "مكتبة الأدعية" : "Dua Library", icon: <Sparkles className="w-5 h-5" />, path: "/dua-library" },
         { name: t("hub.namesOfAllah"), icon: <Heart className="w-5 h-5" />, path: "/names-of-allah" },
       ]
     },
@@ -181,6 +184,8 @@ const Hub = () => {
       tools: [
         { name: t("hub.khatma"), icon: <BookOpen className="w-5 h-5" />, path: "/khatma" },
         { name: i18n.language === 'ar' ? "الختمة الجماعية" : "Collaborative Khatma", icon: <Users className="w-5 h-5" />, path: "/khatma-jamaaiya" },
+        { name: i18n.language === 'ar' ? "الروتين الروحاني" : "Routine Builder", icon: <Zap className="w-5 h-5" />, path: "/routine-builder" },
+        { name: i18n.language === 'ar' ? "متتبع الصيام" : "Fasting Tracker", icon: <Moon className="w-5 h-5" />, path: "/fasting-tracker" },
         { name: "سنن الجمعة", icon: <Sparkles className="w-5 h-5" />, path: "/friday-sunan" },
         { name: t("hub.prayerTracker"), icon: <CheckCircle2 className="w-5 h-5" />, path: "/prayer-tracker" },
         { name: t("hub.qiyam"), icon: <Moon className="w-5 h-5" />, path: "/embed/qiyam" },
@@ -193,6 +198,7 @@ const Hub = () => {
       tools: [
         { name: t("hub.mosqueFinder"), icon: <MapPin className="w-5 h-5" />, path: "/mosque-finder" },
         { name: t("hub.halalPlaces"), icon: <MapPin className="w-5 h-5" />, path: "/halal-places" },
+        { name: i18n.language === 'ar' ? "راصد الأهلة" : "Moon Tracker", icon: <Moon className="w-5 h-5" />, path: "/moon-tracker" },
       ]
     },
     {
@@ -201,6 +207,9 @@ const Hub = () => {
       tools: [
         { name: t("ramadan.title"), icon: <Moon className="w-5 h-5" />, path: "/ramadan" },
         { name: t("hub.library"), icon: <BookOpen className="w-5 h-5" />, path: "/library" },
+        { name: i18n.language === 'ar' ? "السيرة النبوية" : "Seerah Timeline", icon: <Calendar className="w-5 h-5" />, path: "/seerah-timeline" },
+        { name: i18n.language === 'ar' ? "المسابقة الإسلامية" : "Islamic Quiz", icon: <Brain className="w-5 h-5" />, path: "/islamic-quiz" },
+        { name: i18n.language === 'ar' ? "حاسبة المواريث" : "Inheritance Calc", icon: <Calculator className="w-5 h-5" />, path: "/inheritance-calculator" },
         { name: i18n.language === 'ar' ? "دليل الحج والعمرة" : "Hajj & Umrah Guide", icon: <MapPin className="w-5 h-5" />, path: "/hajj-guide" },
         { name: i18n.language === 'ar' ? "قصص الأنبياء" : "Stories of the Prophets", icon: <BookOpen className="w-5 h-5" />, path: "/prophet-stories" },
         { name: i18n.language === 'ar' ? "دليل الأسماء الإسلامية" : "Islamic Names Directory", icon: <Fingerprint className="w-5 h-5" />, path: "/names-directory" },
