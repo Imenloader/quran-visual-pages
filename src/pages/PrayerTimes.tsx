@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
+// --- التعديل هنا: إضافة lazy و Suspense ---
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
 import {
   MapPin, Clock, Bell, BellOff, Volume2, VolumeX,
   Settings, Loader2, RefreshCw, Edit3, Check, X,
@@ -225,6 +226,8 @@ const NextPrayerCountdown = ({
   );
 };
 
+
+
 const PrayerTimes = () => {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === "ar";
@@ -334,11 +337,11 @@ const PrayerTimes = () => {
           transition={{ delay: 0.3 }}
           className="mt-8"
         >
-          {/* --- التعديل هنا: إضافة Suspense --- */}
+          {/* --- التعديل هنا: استخدام Suspense حول CairoClock --- */}
           <Suspense fallback={<div className="h-32 flex items-center justify-center"><Loader2 className="animate-spin text-white" /></div>}>
             <CairoClock />
           </Suspense>
-          {/* ---------------------------------- */}
+          {/* ---------------------------------------------------- */}
         </motion.div>
 
         {settings.cityName && (
@@ -428,7 +431,7 @@ const PrayerTimes = () => {
                 <button
                   onClick={() => {
                     if (settings.latitude && settings.longitude) {
-                      updateSettings({ method: settings.method });
+                      updateSettings({ method: settings.method }); 
                     }
                   }}
                   aria-label={isAr ? "تحديث المواقيت" : "Refresh prayer times"}
