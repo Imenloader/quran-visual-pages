@@ -105,14 +105,9 @@ const getAudioUrl = (server: string, surahId: number | string | undefined | null
   // Clean the server URL
   let httpsServer = server.trim();
   
-  // Force https if server starts with http:// or // to avoid mixed content issues
-  if (httpsServer.startsWith("http://")) {
-    httpsServer = httpsServer.replace("http://", "https://");
-  } else if (httpsServer.startsWith("//")) {
+  // Relax https force if user is having SSL issues
+  if (httpsServer.startsWith("//")) {
     httpsServer = "https:" + httpsServer;
-  } else if (!httpsServer.startsWith("https://")) {
-    // If no protocol, assume https
-    httpsServer = "https://" + httpsServer;
   }
   
   // Ensure trailing slash
@@ -463,9 +458,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    if (url.startsWith("http://")) {
-      url = url.replace("http://", "https://");
-    } else if (url.startsWith("//")) {
+    if (url.startsWith("//")) {
       url = "https:" + url;
     }
     

@@ -198,10 +198,10 @@ export const getQuranPageFallbackImageUrl = (pageNumber: number | string | undef
   const paddedPage = String(pageNumber).padStart(3, '0');
   
   const sources = [
-    `https://quran.com/images/quran/tajweed/${pageNumber}.png`,
     `https://jahedev.github.io/tajweed-quran-pages/hafs/tajweed-${paddedPage}.jpg`,
+    `https://raw.githubusercontent.com/Jahedev/tajweed-quran-pages/main/hafs/tajweed-${paddedPage}.jpg`,
     `https://android.quran.com/data/tajweed/v2/png/page${paddedPage}.png`,
-    `https://raw.githubusercontent.com/Jahedev/tajweed-quran-pages/main/hafs/tajweed-${paddedPage}.jpg`
+    `https://quran.com/images/quran/tajweed/${pageNumber}.png`
   ];
   
   return sources[level % sources.length];

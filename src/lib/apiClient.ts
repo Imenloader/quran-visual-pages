@@ -58,7 +58,14 @@ export async function fetchWithCache(
         }
       }
 
-      const response = await fetch(url, { 
+      let currentUrl = url;
+      // If a previous attempt failed with a potential certificate error, try HTTP
+      if (i > 0 && lastError instanceof TypeError && (currentUrl.includes("alquran.cloud") || currentUrl.includes("quran.com"))) {
+        currentUrl = currentUrl.replace("https://", "http://");
+        console.warn(`Retrying with HTTP due to potential SSL issue: ${currentUrl}`);
+      }
+
+      const response = await fetch(currentUrl, { 
         signal: controller.signal
       });
       
