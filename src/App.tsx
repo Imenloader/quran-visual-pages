@@ -1,35 +1,34 @@
-import { useEffect, Suspense, lazy } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useTranslation } from "react-i18next";
-import { useRegisterSW } from 'virtual:pwa-register/react';
-
-// UI Components
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect, Suspense, lazy } from "react";
 import NetworkStatus from "./components/NetworkStatus";
 import BottomNav from "./components/BottomNav";
 import GlobalAudioPlayer from "./components/GlobalAudioPlayer";
-import SplashScreen from "./components/SplashScreen";
-import ScrollRestoration from "./components/ScrollRestoration";
-import { AudioUnlockBanner } from "./components/AudioUnlockBanner";
-
-// Contexts & Providers
 import { AudioPlayerProvider } from "./contexts/AudioPlayerContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { UserProvider } from "./contexts/UserContext";
 import { AdhanProvider } from "./contexts/AdhanContext";
 
-// Hooks
+import { useTranslation } from "react-i18next";
+import { useRegisterSW } from 'virtual:pwa-register/react';
 import { useKhatmaNotifications } from "./hooks/useKhatmaNotifications";
 import { usePeriodicReminders } from "./hooks/usePeriodicReminders";
 import { usePrayerNotifications } from "./hooks/usePrayerNotifications";
 import { useGoalNotifications } from "./hooks/useGoalNotifications";
+import { AudioUnlockBanner } from "./components/AudioUnlockBanner";
+import SplashScreen from "./components/SplashScreen";
+import ScrollRestoration from "./components/ScrollRestoration";
 
-// Lazy load page components
-const Index = lazy(() => import("./pages/Index"));
-const JuzViewer = lazy(() => import("./pages/JuzViewer"));
+// --- التعديل الأساسي هنا ---
+// تم تغيير تحميل الصفحات الأساسية ليكون بشكل عادي وليس Lazy لحل مشكلة الـ PWA Caching في الـ APK
+import Index from "./pages/Index";
+import JuzViewer from "./pages/JuzViewer";
+// ----------------------------
+
+// باقي الصفحات زي ما هي Lazy load مفيش مشكلة
 const Install = lazy(() => import("./pages/Install"));
 const Recitations = lazy(() => import("./pages/Recitations"));
 const EmbedView = lazy(() => import("./pages/EmbedView"));
@@ -106,7 +105,6 @@ const LanguageHandler = () => {
     document.documentElement.dir = dir;
     document.documentElement.lang = i18n.language;
     
-    // Add language-specific class to body for font styling
     document.body.classList.remove("lang-ar", "lang-en");
     document.body.classList.add(`lang-${i18n.language}`);
   }, [i18n.language]);
@@ -115,13 +113,9 @@ const LanguageHandler = () => {
 };
 
 const NotificationInitializer = () => {
-  // Initialize Khatma Notifications
   useKhatmaNotifications();
-  // Initialize Periodic Reminders
   usePeriodicReminders();
-  // Initialize Prayer Notifications
   usePrayerNotifications();
-  // Initialize Goal Notifications
   useGoalNotifications();
   return null;
 };
