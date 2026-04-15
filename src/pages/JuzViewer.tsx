@@ -1,5 +1,6 @@
 import { useParams, Navigate, Link, useNavigate } from "react-router-dom";
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+// --- التعديل هنا: إضافة lazy و Suspense ---
+import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from "react";
 import { juzData, getQuranPageImageUrl, getQuranPageFallbackImageUrl, toArabicNumber, surahIndex } from "@/data/quranData";
 import QuranHeader from "@/components/QuranHeader";
 import ReadingToolbar from "@/components/ReadingToolbar";
@@ -12,7 +13,6 @@ import LazyImage from "@/components/LazyImage";
 import QuranTextViewer from "@/components/QuranTextViewer";
 import TajweedLegend from "@/components/TajweedLegend";
 import QuranPlayerBar from "@/components/QuranPlayerBar";
-import KhatmaCelebration from "@/components/KhatmaCelebration";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
@@ -20,6 +20,10 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useUser } from "@/contexts/UserContext";
 import BackButton from "@/components/BackButton";
 import { cn } from "@/lib/utils";
+
+// --- التعديل هنا: تحميل KhatmaCelebration بشكل Lazy ---
+const KhatmaCelebration = lazy(() => import("@/components/KhatmaCelebration"));
+// ---------------------------------------------------
 
 const BOOKMARK_KEY = "quran-bookmark";
 
@@ -153,10 +157,8 @@ const JuzViewer = () => {
     onSwipeRight: scrollDirection === "horizontal" ? handlePrevPage : undefined 
   });
 
-  // Keyboard Navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // In RTL: Left arrow for next page, Right arrow for previous page
       if (e.key === "ArrowLeft") {
         handleNextPage();
       } else if (e.key === "ArrowRight") {
@@ -174,14 +176,12 @@ const JuzViewer = () => {
   const [savedBookmark, setSavedBookmark] = useState<BookmarkData | null>(null);
   const [currentVerseKey, setCurrentVerseKey] = useState<string | undefined>(() => getBookmark()?.verseKey);
 
-  // Initialize currentPage to the first page of the Juz or bookmarked page
   useEffect(() => {
     if (pages.length > 0 && currentPage === 0) {
       const bookmark = getBookmark();
       if (bookmark && bookmark.juz === num && pages.includes(bookmark.page)) {
         setCurrentPage(bookmark.page);
         if (bookmark.verseKey) setCurrentVerseKey(bookmark.verseKey);
-        // Initial scroll for vertical mode
         if (scrollDirection === "vertical") {
           setTimeout(() => scrollToPage(bookmark.page), 100);
         }
@@ -189,33 +189,29 @@ const JuzViewer = () => {
         setCurrentPage(pages[0]);
       }
     }
-  }, [pages, num, scrollDirection]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [pages, num, scrollDirection]);
 
   const prevScrollDirectionRef = useRef(scrollDirection);
   const prevReadingModeRef = useRef(readingMode);
 
-  // Sync scroll position when switching to vertical mode OR back to image mode
   useEffect(() => {
     const switchingToVertical = scrollDirection === "vertical" && prevScrollDirectionRef.current === "horizontal";
     const switchingToImage = readingMode === "image" && prevReadingModeRef.current === "text";
 
     if ((switchingToVertical || switchingToImage) && scrollDirection === "vertical" && currentPage !== 0) {
-      // Small delay to ensure DOM is ready after mode switch
       setTimeout(() => scrollToPage(currentPage), 100);
     }
     
     prevScrollDirectionRef.current = scrollDirection;
     prevReadingModeRef.current = readingMode;
-  }, [scrollDirection, readingMode]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [scrollDirection, readingMode]);
 
-  // Auto-save bookmark whenever page changes (debounced)
   useEffect(() => {
     if (currentPage !== 0 && juz) {
       const timer = setTimeout(() => {
         saveBookmark(num, currentPage, readingMode, currentVerseKey);
         setSavedBookmark({ juz: num, page: currentPage, readingMode, verseKey: currentVerseKey });
 
-        // Update reading history for stats
         const history = JSON.parse(localStorage.getItem("quran-reading-history") || "{}");
         const juzHistory = history[num] || { pagesRead: 0, lastPage: 0, visitedPages: [] };
         
@@ -223,20 +219,17 @@ const JuzViewer = () => {
           juzHistory.visitedPages.push(currentPage);
           juzHistory.pagesRead = juzHistory.visitedPages.length;
           
-          // Add points/stats for reading a new page
           addPageRead();
 
-          // Check if Juz is completed
           if (juzHistory.pagesRead === pages.length && !juzHistory.completed) {
             juzHistory.completed = true;
             addJuzCompleted();
             
-            // Special celebration for Juz 30 (Khatma)
             if (num === 30) {
               setShowKhatmaCelebration(true);
             } else {
-              toast.success(t("profile.juzCompletedMsg"), {
-                description: t("profile.juzCompletedDesc", { num: toArabicNumber(num) }),
+              toast.success("تم الانتهاء من قراءة الجزء", {
+                description: `تهانينا على إتمام الجزء ${toArabicNumber(num)}`,
                 icon: <Trophy className="text-gold" />
               });
             }
@@ -246,18 +239,16 @@ const JuzViewer = () => {
         juzHistory.lastPage = currentPage;
         history[num] = juzHistory;
         localStorage.setItem("quran-reading-history", JSON.stringify(history));
-      }, 1500); // Wait 1.5s before saving to avoid lag during fast scrolling
+      }, 1500); 
       
       return () => clearTimeout(timer);
     }
   }, [currentPage, num, readingMode, juz, currentVerseKey, addAyahRead, addPageRead, addJuzCompleted, pages.length]);
 
-  // Aggressive caching for current Juz and neighboring pages
   useEffect(() => {
     if (!juz || pages.length === 0) return;
     
     const cacheImages = async () => {
-      // Cache current page and 5 pages ahead/behind
       const start = Math.max(0, pages.indexOf(currentPage) - 5);
       const end = Math.min(pages.length - 1, pages.indexOf(currentPage) + 10);
       
@@ -271,7 +262,7 @@ const JuzViewer = () => {
     };
     
     cacheImages();
-  }, [juz, pages, currentPage, tajweedMode]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [juz, pages, currentPage, tajweedMode]);
 
   const { isFullscreen, setIsFullscreen } = useTheme();
   const { playAyah, togglePlay, currentSurah } = useAudioPlayer();
@@ -330,7 +321,6 @@ const JuzViewer = () => {
 
   const observerRef = useRef<IntersectionObserver | null>(null);
 
-  // IntersectionObserver for vertical scrolling
   const currentPageRef = useRef(currentPage);
   useEffect(() => {
     currentPageRef.current = currentPage;
@@ -341,12 +331,11 @@ const JuzViewer = () => {
 
     const options = {
       root: null,
-      rootMargin: "-45% 0px -45% 0px", // Focus on a narrow strip in the middle of the screen
+      rootMargin: "-45% 0px -45% 0px", 
       threshold: [0, 0.5, 1.0],
     };
 
     const handleIntersect = (entries: IntersectionObserverEntry[]) => {
-      // Find the entry that is most visible in our target area
       const visibleEntry = entries.find(entry => entry.isIntersecting);
       
       if (visibleEntry) {
@@ -361,13 +350,11 @@ const JuzViewer = () => {
     const observer = new IntersectionObserver(handleIntersect, options);
     observerRef.current = observer;
     
-    // Observe all pages
     pages.forEach(page => {
       const el = document.getElementById(`page-${page}`);
       if (el) observer.observe(el);
     });
 
-    // Also observe the first page immediately to ensure it's set
     if (pages.length > 0) {
       const firstPageEl = document.getElementById(`page-${pages[0]}`);
       if (firstPageEl) {
@@ -397,7 +384,6 @@ const JuzViewer = () => {
   const handleImageError = (page: number) => {
     const currentLevel = fallbackLevel[page] || 0;
     if (currentLevel < 2) {
-      console.log(`Image load failed for page ${page} at level ${currentLevel}, trying next fallback...`);
       setFallbackLevel((prev) => ({ ...prev, [page]: currentLevel + 1 }));
     } else {
       setLoadingStates((prev) => ({ ...prev, [page]: false }));
@@ -407,13 +393,9 @@ const JuzViewer = () => {
 
   const getImageUrl = (page: number) => {
     const level = fallbackLevel[page] || 0;
-    
-    // If tajweed mode is on, try to get tajweed images first
     if (tajweedMode && level === 0) {
       return `https://quran.com/images/quran/tajweed/${page}.png`;
     }
-    
-    // Use the new fallback level logic from quranData
     return getQuranPageFallbackImageUrl(page, level);
   };
 
@@ -460,12 +442,9 @@ const JuzViewer = () => {
 
   const handleMainPlayToggle = () => {
     if (!juz) return;
-    
-    // Check if the currently playing surah is part of this Juz
     const isCurrentJuzPlaying = currentSurah && juz.surahs.includes(currentSurah.name);
     
     if (!isCurrentJuzPlaying) {
-      // Parse startSurah to get initial Ayah number
       const startSurahParts = juz.startSurah.split(" ");
       const startSurahName = startSurahParts[0];
       const startAyahNumber = startSurahParts.length > 1 ? parseInt(startSurahParts[1]) : 1;
@@ -485,7 +464,6 @@ const JuzViewer = () => {
       const [sNum] = key.split(":");
       const surah = surahIndex.find(s => s.number.toString() === sNum);
       if (surah && surah.startPage !== currentPage) {
-        // Update currentPage so bookmark and home page are consistent
         setCurrentPage(surah.startPage);
       }
     }
@@ -498,10 +476,8 @@ const JuzViewer = () => {
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
-      {/* Immersive Background Elements */}
       <div className="fixed inset-0 pattern-islamic opacity-[0.01] pointer-events-none" />
       
-      {/* Floating Action Buttons */}
       <div className={`fixed right-4 md:right-8 z-[120] flex flex-col gap-3 md:gap-4 transition-all duration-500 ${isFullscreen ? (showControls ? "bottom-6 md:bottom-8 opacity-100" : "bottom-6 md:bottom-8 opacity-0 pointer-events-none") : "bottom-24 md:bottom-32 opacity-100"}`}>
         <AnimatePresence>
           {scrollDirection === "vertical" && progress > 10 && (
@@ -548,14 +524,13 @@ const JuzViewer = () => {
         )}
       </div>
 
-      {/* Header & toolbar - hidden in fullscreen unless controls shown */}
       <div className={`transition-all duration-700 ease-[0.16, 1, 0.3, 1] ${isFullscreen && !showControls ? "opacity-0 pointer-events-none -translate-y-full fixed top-0 left-0 right-0 z-[150]" : isFullscreen ? "fixed top-0 left-0 right-0 z-[150] opacity-100 pointer-events-auto" : "relative z-20"}`}>
         {!isFullscreen && <QuranHeader title={juz.nameAr} showBack />}
         {isFullscreen && (
           <div className="bg-emerald-deep/95 backdrop-blur-md border-b border-border/40 px-4 py-3 flex items-center justify-between">
             <BackButton variant="ghost" />
             <h2 className="text-white font-serif text-xl">{juz.nameAr}</h2>
-            <div className="w-10" /> {/* Spacer */}
+            <div className="w-10" />
           </div>
         )}
         <ProgressBar progress={progress} currentPage={currentPage} totalPages={pages.length} startPage={juz.startPage} />
@@ -576,7 +551,6 @@ const JuzViewer = () => {
             const nextMode = !hifzMode;
             setHifzMode(nextMode);
             if (nextMode) {
-              // Hide all lines of the current page by default when entering hifzMode
               hideAllLines(currentPage);
               toast.success("تم تفعيل وضع التحفيظ والمراجعة", {
                 description: "انقر على الأسطر لإخفائها أو إظهارها"
@@ -601,12 +575,15 @@ const JuzViewer = () => {
         />
       )}
 
-      <KhatmaCelebration 
-        isVisible={showKhatmaCelebration} 
-        onClose={() => setShowKhatmaCelebration(false)} 
-      />
+      {/* --- التعديل هنا: استخدام Suspense حول KhatmaCelebration --- */}
+      <Suspense fallback={null}>
+        <KhatmaCelebration 
+          isVisible={showKhatmaCelebration} 
+          onClose={() => setShowKhatmaCelebration(false)} 
+        />
+      </Suspense>
+      {/* -------------------------------------------------------- */}
 
-      {/* Navigation between Juz - Editorial Style */}
       {!isFullscreen && (
         <div className="flex justify-between items-center container max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-8 relative z-10">
           <div className="flex-1">
@@ -646,7 +623,6 @@ const JuzViewer = () => {
         </div>
       )}
 
-      {/* Pages Container */}
       <main
         className={`mx-auto px-4 flex flex-col items-center transition-all duration-500 ${isFullscreen ? "pb-12 pt-4" : "pb-40 pt-4"}`}
         onClick={handleScreenTap}
@@ -680,7 +656,6 @@ const JuzViewer = () => {
                   id={`page-${page}`}
                   className={`relative rounded-[1.5rem] md:rounded-[2rem] border border-border/40 bg-card shadow-islamic transition-all duration-500 w-full group min-h-[600px] md:min-h-[900px] ${currentPage === page ? "ring-2 ring-accent/20" : ""}`}
                 >
-                  {/* Hifz Mode Per-Page Controls */}
                   {hifzMode && (
                     <div className="sticky top-4 md:top-6 z-30 flex justify-end px-4 md:px-6 pointer-events-none">
                       <div className="flex flex-row gap-1 bg-background/80 backdrop-blur-xl p-1 rounded-2xl border border-border/20 shadow-2xl pointer-events-auto">
@@ -718,7 +693,6 @@ const JuzViewer = () => {
                     </div>
                   )}
 
-                  {/* Page Number Badge */}
                   <div className="absolute top-4 left-4 md:top-6 md:left-6 z-10 flex flex-col items-center gap-0.5 md:gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                     <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl bg-primary/20 backdrop-blur-md text-primary flex items-center justify-center font-serif text-xs md:text-sm shadow-sm border border-primary/10">
                       {page}
@@ -751,7 +725,6 @@ const JuzViewer = () => {
                         />
                       </div>
 
-                      {/* Line-by-line overlays in Hifz mode */}
                       {hifzMode && !isPageHidden(page) && (
                         <div className="absolute inset-0 flex flex-col pointer-events-none z-20">
                           {Array.from({ length: 15 }).map((_, i) => (
@@ -776,7 +749,6 @@ const JuzViewer = () => {
                           ))}
                         </div>
                       )}
-                      {/* Subtle overlay for better reading comfort */}
                       <div className="absolute inset-0 bg-primary/5 mix-blend-multiply pointer-events-none opacity-20" />
                       
                       {isPageHidden(page) && (
@@ -812,7 +784,6 @@ const JuzViewer = () => {
                     className="relative rounded-[2.5rem] md:rounded-[3rem] border border-border/40 bg-card shadow-2xl w-full"
                   >
                     <div className="relative">
-                      {/* Hifz Mode Per-Page Controls */}
                       {hifzMode && (
                         <div className="absolute top-4 right-4 md:top-6 md:right-6 z-30 flex flex-col gap-2">
                           <div className="flex flex-col gap-1 bg-background/80 backdrop-blur-xl p-1 rounded-2xl border border-border/20 shadow-2xl">
@@ -862,7 +833,6 @@ const JuzViewer = () => {
                         />
                       </div>
 
-                      {/* Line-by-line overlays in Hifz mode */}
                       {hifzMode && !isPageHidden(currentPage) && (
                         <div className="absolute inset-0 flex flex-col pointer-events-none z-20">
                           {Array.from({ length: 15 }).map((_, i) => (
@@ -949,7 +919,6 @@ const JuzViewer = () => {
         </div>
       </main>
 
-      {/* Back to top - Refined */}
       {!isFullscreen && (
         <div className="text-center pb-12">
           <button
@@ -964,7 +933,6 @@ const JuzViewer = () => {
         </div>
       )}
 
-      {/* Fullscreen Controls - Floating Exquisite Elements */}
       <AnimatePresence>
         {isFullscreen && showControls && (
           <motion.div 
@@ -983,7 +951,6 @@ const JuzViewer = () => {
         )}
       </AnimatePresence>
 
-      {/* Audio Player Bar */}
       <div className={cn(
         "fixed left-1/2 -translate-x-1/2 z-[130] transition-all duration-700 ease-[0.16, 1, 0.3, 1]",
         isFullscreen ? "bottom-8" : "bottom-28 md:bottom-32",
@@ -994,7 +961,6 @@ const JuzViewer = () => {
         <QuranPlayerBar onPlayFirst={handleMainPlayToggle} isScrollingDown={isScrollingDown} isFullscreen={isFullscreen} />
       </div>
 
-      {/* Juz Index Modal */}
       {showJuzIndex && <JuzIndex onClose={() => setShowJuzIndex(false)} currentJuz={num} />}
     </div>
   );
