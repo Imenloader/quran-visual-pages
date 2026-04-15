@@ -1,16 +1,31 @@
+import { useEffect, Suspense, lazy } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { useRegisterSW } from 'virtual:pwa-register/react';
+
+// UI Components
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useEffect, Suspense, lazy } from "react";
 import NetworkStatus from "./components/NetworkStatus";
 import BottomNav from "./components/BottomNav";
 import GlobalAudioPlayer from "./components/GlobalAudioPlayer";
+import SplashScreen from "./components/SplashScreen";
+import ScrollRestoration from "./components/ScrollRestoration";
+import { AudioUnlockBanner } from "./components/AudioUnlockBanner";
+
+// Contexts & Providers
 import { AudioPlayerProvider } from "./contexts/AudioPlayerContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { UserProvider } from "./contexts/UserContext";
 import { AdhanProvider } from "./contexts/AdhanContext";
+
+// Hooks
+import { useKhatmaNotifications } from "./hooks/useKhatmaNotifications";
+import { usePeriodicReminders } from "./hooks/usePeriodicReminders";
+import { usePrayerNotifications } from "./hooks/usePrayerNotifications";
+import { useGoalNotifications } from "./hooks/useGoalNotifications";
 
 // Lazy load page components
 const Index = lazy(() => import("./pages/Index"));
@@ -63,13 +78,6 @@ const HowToUse = lazy(() => import("./pages/HowToUse"));
 const Tajweed = lazy(() => import("./pages/Tajweed"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-import { useTranslation } from "react-i18next";
-import { useRegisterSW } from 'virtual:pwa-register/react';
-import { useKhatmaNotifications } from "./hooks/useKhatmaNotifications";
-
-import SplashScreen from "./components/SplashScreen";
-import ScrollRestoration from "./components/ScrollRestoration";
-
 const queryClient = new QueryClient();
 
 const PageLoader = () => (
@@ -105,11 +113,6 @@ const LanguageHandler = () => {
 
   return null;
 };
-
-import { usePeriodicReminders } from "./hooks/usePeriodicReminders";
-import { usePrayerNotifications } from "./hooks/usePrayerNotifications";
-import { useGoalNotifications } from "./hooks/useGoalNotifications";
-import { AudioUnlockBanner } from "./components/AudioUnlockBanner";
 
 const NotificationInitializer = () => {
   // Initialize Khatma Notifications
