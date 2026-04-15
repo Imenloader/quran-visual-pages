@@ -1,0 +1,1 @@
+import{j as e,m as n}from"./index-BfOMcRNY.js";const s=({children:o,className:t="",index:a=0,delay:i=0})=>e.jsx(n.div,{initial:{opacity:0,y:20},animate:{opacity:1,y:0},viewport:{once:!0,margin:"-50px"},transition:{duration:.6,delay:i!==void 0?i:a*.1,ease:[.16,1,.3,1]},className:t,children:o});export{s as S};

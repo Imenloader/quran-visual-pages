@@ -4,6 +4,8 @@ import { isBefore, addDays } from "date-fns";
 import { toast } from "sonner";
 import { speakPrayerName } from "@/services/ttsService";
 import { useAdhan } from "@/contexts/AdhanContext";
+import { Preferences } from "@capacitor/preferences";
+import { Capacitor } from "@capacitor/core";
 
 export const PRAYER_SETTINGS_KEY = "prayer-times-settings";
 
@@ -213,6 +215,17 @@ const getNextPrayer = (
   return { name: "Fajr", time: times.Fajr };
 };
 
+const syncToNativeWidget = async (name: string, time: string, city: string) => {
+  if (Capacitor.getPlatform() !== "android") return;
+  try {
+    await Preferences.set({ key: "next_prayer_name", value: PRAYER_NAMES[name as keyof PrayerTimesData] || name });
+    await Preferences.set({ key: "next_prayer_time", value: time });
+    await Preferences.set({ key: "city_name", value: city });
+  } catch (err) {
+    console.error("Failed to sync to widget:", err);
+  }
+};
+
 const getRemainingTime = (timeStr: string, now: Date): string => {
   const target = parseTime(timeStr, now);
   if (target <= now) {
@@ -329,6 +342,16 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
       fetchTimes(settings.latitude, settings.longitude, settings.method);
     }
   }, [settings.latitude, settings.longitude, settings.method, fetchTimes]);
+
+  // Sync to widget whenever times or settings change
+  useEffect(() => {
+    if (effectiveTimes && settings.cityName) {
+      const next = getNextPrayer(effectiveTimes, getNow());
+      if (next) {
+        syncToNativeWidget(next.name, next.time, settings.cityName);
+      }
+    }
+  }, [effectiveTimes, settings.cityName, getNow]);
 
   // Apply manual overrides
   const effectiveTimes = useMemo<PrayerTimesData | null>(() => {

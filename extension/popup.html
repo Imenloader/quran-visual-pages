@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قرآنيات - مواقيت الصلاة</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="icons/icon48.png" alt="Logo" class="logo">
+            <h1>قرآنيات</h1>
+        </header>
+
+        <main>
+            <div class="prayer-card">
+                <span class="next-prayer-label">الصلاة القادمة</span>
+                <h2 id="next-prayer-name">جاري التحميل...</h2>
+                <div class="countdown" id="countdown">--:--:--</div>
+            </div>
+
+            <div class="prayer-list" id="prayer-list">
+                <!-- Prayer times will be injected here -->
+            </div>
+
+            <div class="daily-verse">
+                <h3>آية اليوم</h3>
+                <p id="verse-text">جاري جلب الآية...</p>
+                <span id="verse-info"></span>
+            </div>
+        </main>
+
+        <footer>
+            <a href="https://quraaniat.app" target="_blank" class="web-link">فتح الموقع الكامل</a>
+        </footer>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>
