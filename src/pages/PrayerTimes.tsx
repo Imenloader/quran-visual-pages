@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
 import {
   MapPin, Clock, Bell, BellOff, Volume2, VolumeX,
   Settings, Loader2, RefreshCw, Edit3, Check, X,
@@ -21,8 +21,11 @@ import {
   type PrayerSettings,
 } from "@/hooks/usePrayerTimes";
 import QuranHeader from "@/components/QuranHeader";
-import CairoClock from "@/components/CairoClock";
 import { Button } from "@/components/ui/button";
+
+// --- التعديل هنا: تحميل CairoClock بشكل Lazy ---
+const CairoClock = lazy(() => import("@/components/CairoClock"));
+// ------------------------------------------------
 
 const CustomSelect = ({ 
   value, 
@@ -137,12 +140,10 @@ const NextPrayerCountdown = ({
 
   return (
     <section className="relative overflow-hidden bg-card border border-border/40 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 shadow-islamic group min-h-[200px] md:min-h-[240px] flex items-center">
-      {/* Atmospheric Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-gold/10 pointer-events-none" />
       <div className="absolute top-0 right-0 w-60 h-60 md:w-80 md:h-80 bg-gold/15 rounded-full -mr-30 md:-mr-40 -mt-30 md:-mt-40 blur-[80px] md:blur-[120px] animate-pulse-slow" />
       <div className="absolute bottom-0 left-0 w-60 h-60 md:w-80 md:h-80 bg-primary/15 rounded-full -ml-30 md:-ml-40 -mb-30 md:-mb-40 blur-[80px] md:blur-[120px] animate-pulse-slow" />
       
-      {/* Floating Particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(6)].map((_, i) => (
           <motion.div
@@ -167,7 +168,6 @@ const NextPrayerCountdown = ({
         ))}
       </div>
 
-      {/* Light Rays Effect */}
       <div className="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-transparent via-gold/30 to-transparent rotate-12 blur-md opacity-50" />
       <div className="absolute top-0 left-1/3 w-px h-full bg-gradient-to-b from-transparent via-gold/20 to-transparent -rotate-12 blur-md opacity-50" />
       
@@ -225,8 +225,6 @@ const NextPrayerCountdown = ({
   );
 };
 
-
-
 const PrayerTimes = () => {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === "ar";
@@ -249,7 +247,7 @@ const PrayerTimes = () => {
   const [playingAdhan, setPlayingAdhan] = useState<string | null>(null);
 
   const handleEnableNotifications = useCallback(async () => {
-    unlockAudio(); // Unlock audio on interaction
+    unlockAudio();
     if (!("Notification" in window)) {
       toast.error("متصفحك لا يدعم التنبيهات");
       return;
@@ -291,7 +289,7 @@ const PrayerTimes = () => {
   }, [settings.manualOverrides, updateSettings]);
 
   const handlePreview = useCallback((soundId: string) => {
-    unlockAudio(); // Unlock audio on interaction
+    unlockAudio();
     if (playingAdhan === soundId) {
       stopAdhan();
       setPlayingAdhan(null);
@@ -325,7 +323,6 @@ const PrayerTimes = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
       <QuranHeader 
         title={t("prayerTimes.title")} 
         variant="compact"
@@ -337,7 +334,11 @@ const PrayerTimes = () => {
           transition={{ delay: 0.3 }}
           className="mt-8"
         >
-          <CairoClock />
+          {/* --- التعديل هنا: إضافة Suspense --- */}
+          <Suspense fallback={<div className="h-32 flex items-center justify-center"><Loader2 className="animate-spin text-white" /></div>}>
+            <CairoClock />
+          </Suspense>
+          {/* ---------------------------------- */}
         </motion.div>
 
         {settings.cityName && (
@@ -357,7 +358,6 @@ const PrayerTimes = () => {
       </QuranHeader>
 
       <main className="container max-w-2xl mx-auto px-4 py-6 space-y-5">
-        {/* Adhan Playing Banner */}
         <AnimatePresence>
           {isAdhanPlaying && (
             <motion.div
@@ -385,7 +385,6 @@ const PrayerTimes = () => {
           )}
         </AnimatePresence>
 
-        {/* Location setup */}
         {!settings.latitude ? (
           <section className="bg-card border border-border rounded-2xl p-6 text-center shadow-soft">
             <div className="w-16 h-16 rounded-full gradient-islamic flex items-center justify-center mx-auto mb-4">
@@ -413,7 +412,6 @@ const PrayerTimes = () => {
           </section>
         ) : (
           <>
-            {/* Next prayer banner with live countdown */}
             {nextPrayer && times && (
               <NextPrayerCountdown
                 prayerName={nextPrayer.name}
@@ -424,14 +422,13 @@ const PrayerTimes = () => {
               />
             )}
 
-            {/* Prayer times list */}
             <section className="bg-card border border-border rounded-2xl overflow-hidden shadow-soft">
               <div className="flex items-center justify-between px-5 py-3 border-b border-border">
                 <h2 className="font-naskh text-base font-bold text-foreground">مواقيت اليوم</h2>
                 <button
                   onClick={() => {
                     if (settings.latitude && settings.longitude) {
-                      updateSettings({ method: settings.method }); // re-fetch
+                      updateSettings({ method: settings.method });
                     }
                   }}
                   aria-label={isAr ? "تحديث المواقيت" : "Refresh prayer times"}
@@ -469,7 +466,6 @@ const PrayerTimes = () => {
                             : "hover:bg-muted/30"
                         }`}
                       >
-                        {/* Timeline Line */}
                         <div className="absolute left-10 md:left-12 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-border/40 to-transparent" />
                         
                         <div className={`relative z-10 w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl flex items-center justify-center text-2xl md:text-3xl shadow-xl transition-all duration-700 ${
@@ -592,7 +588,6 @@ const PrayerTimes = () => {
               ) : null}
             </section>
 
-            {/* Notifications toggle */}
             <section className="bg-card border border-border rounded-2xl p-5 shadow-soft space-y-4">
               {settings.notificationsEnabled && Notification.permission !== "granted" && (
                 <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-3">
@@ -671,7 +666,6 @@ const PrayerTimes = () => {
               )}
             </section>
 
-            {/* Adhan sound selector */}
             <section className="bg-card border-2 border-primary/20 rounded-[2.5rem] p-8 shadow-islamic relative z-30">
               <div className="absolute inset-0 overflow-hidden rounded-[2.5rem] pointer-events-none">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl" />
@@ -709,7 +703,6 @@ const PrayerTimes = () => {
               </div>
             </section>
 
-            {/* Settings */}
             <button
               onClick={() => setShowSettings(!showSettings)}
               className="w-full flex items-center gap-3 bg-card border border-border rounded-2xl p-5 shadow-soft hover:border-accent/40 transition-all"
@@ -725,7 +718,6 @@ const PrayerTimes = () => {
 
             {showSettings && (
               <section className="bg-card border border-border rounded-2xl p-5 shadow-soft space-y-4">
-                {/* Calculation method */}
                 <div className="space-y-4">
                   <div>
                     <CustomSelect
@@ -736,7 +728,6 @@ const PrayerTimes = () => {
                     />
                   </div>
 
-                  {/* Pre-prayer notification */}
                   <div className="p-4 bg-muted/50 rounded-2xl border border-border/50 space-y-3">
                     <div className="flex items-center justify-between">
                       <div>
@@ -769,7 +760,6 @@ const PrayerTimes = () => {
                     )}
                   </div>
 
-                  {/* Enabled prayers selection */}
                   <div>
                     <label className="font-naskh text-sm font-bold text-foreground mb-3 block">تفعيل التنبيهات لـ:</label>
                     <div className="grid grid-cols-3 gap-2">
@@ -796,7 +786,6 @@ const PrayerTimes = () => {
                   </div>
                 </div>
 
-                {/* Time format */}
                 <div>
                   <label className="font-naskh text-sm font-bold text-foreground mb-2 block">نظام الوقت</label>
                   <div className="flex gap-2">
@@ -823,7 +812,6 @@ const PrayerTimes = () => {
                   </div>
                 </div>
 
-                {/* Location info */}
                 <div>
                   <label className="font-naskh text-sm font-bold text-foreground mb-2 block">الموقع</label>
                   <div className="flex items-center gap-2">
@@ -843,7 +831,6 @@ const PrayerTimes = () => {
                   </div>
                 </div>
 
-                {/* Manual coordinates */}
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="font-naskh text-[11px] text-muted-foreground mb-1 block">خط العرض</label>
