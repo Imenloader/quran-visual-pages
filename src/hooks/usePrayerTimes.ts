@@ -1,3 +1,9 @@
+import { toZonedTime } from "date-fns-tz"; // تأكد إن دي موجودة في الـ imports فوق
+
+export const getCairoDate = (): Date => {
+  return toZonedTime(new Date(), "Africa/Cairo");
+};
+
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { formatInTimeZone, toZonedTime } from "date-fns-tz";
 import { isBefore, addDays } from "date-fns";
