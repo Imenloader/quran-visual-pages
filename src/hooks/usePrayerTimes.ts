@@ -9,9 +9,6 @@ import { speakPrayerName } from "@/services/ttsService";
 import { useAdhan } from "@/contexts/AdhanContext";
 import { Preferences } from "@capacitor/preferences";
 import { Capacitor } from "@capacitor/core";
-export const getCairoDate = (): Date => {
-  return toZonedTime(new Date(), "Africa/Cairo");
-};
 
 export const PRAYER_SETTINGS_KEY = "prayer-times-settings";
 
