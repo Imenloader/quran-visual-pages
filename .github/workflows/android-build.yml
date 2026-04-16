@@ -11,6 +11,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      KEYSTORE_EXIST: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -39,17 +41,17 @@ jobs:
 
       - name: Decode Keystore
         id: decode_keystore
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        if: env.KEYSTORE_EXIST != ''
         run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release-key.keystore
 
       - name: Build Android Artifacts
         run: |
           cd android
           chmod +x gradlew
-          
+
           echo "Building Debug APK..."
           ./gradlew assembleDebug
-          
+
           if [ -f "app/release-key.keystore" ]; then
             echo "Building Signed Release App Bundle (.aab)..."
             ./gradlew bundleRelease \
@@ -74,7 +76,7 @@ jobs:
           retention-days: 7
 
       - name: Upload Release Bundle (.aab)
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        if: env.KEYSTORE_EXIST != ''
         uses: actions/upload-artifact@v4
         with:
           name: quraaniat-release-bundle
