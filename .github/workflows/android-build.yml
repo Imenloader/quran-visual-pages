@@ -45,7 +45,22 @@ jobs:
         env:
           BASE64_KEY: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
-          echo "$BASE64_KEY" | tr -d '\n ' | base64 --decode > android/app/release-key.keystore
+          # Use printf to avoid trailing newline/interpretation issues
+          printf "%s" "$BASE64_KEY" | tr -d '\n\r ' | base64 --decode > android/app/release-key.keystore
+          
+          # Troubleshooting info (visible in logs)
+          echo "Checking file size..."
+          ls -l android/app/release-key.keystore
+          echo "Checking file type..."
+          file android/app/release-key.keystore
+
+      - name: Verify Keystore Integrity
+        if: env.KEYSTORE_EXIST != ''
+        env:
+          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          echo "Testing keystore access..."
+          keytool -list -keystore android/app/release-key.keystore -storepass "$STORE_PASSWORD"
 
       - name: Build Android Artifacts
         env:
