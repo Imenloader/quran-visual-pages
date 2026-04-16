@@ -21,8 +21,9 @@ export const useGoalNotifications = () => {
         let updated = false;
         const newTodayGoals = todayGoals.map((goal: { completed: boolean; notifyTime: string; notified: boolean; text: string }) => {
           if (!goal.completed && goal.notifyTime === currentTime && !goal.notified) {
-            if (Notification.permission === 'granted') {
-              new Notification('تذكير بالهدف', { body: goal.text, icon: '/icon-192x192.png' });
+            const winNotif = (window as any).Notification;
+            if (winNotif && winNotif.permission === 'granted') {
+              new winNotif('تذكير بالهدف', { body: goal.text, icon: '/icon-192x192.png' });
             }
             toast.info(`تذكير بهدف اليوم: ${goal.text}`);
             updated = true;

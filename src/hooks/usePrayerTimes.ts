@@ -278,7 +278,8 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
     // Skip web notifications on native platforms
     if (Capacitor.isNativePlatform()) return;
 
-    if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
+    const winNotif = (window as any).Notification;
+    if (!winNotif || winNotif.permission !== "granted") return;
 
     const prayersToNotify = settings.enabledPrayers;
 
@@ -313,19 +314,23 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
               } as NotificationOptions).catch(err => {
                 console.error("Failed to show notification via SW:", err);
                 // Fallback to standard notification
-                if (typeof Notification !== "undefined" && Notification.permission === "granted") {
-                  new Notification(title, { body, icon: "/pwa-192x192.png", tag: `prayer-${prayer}`, dir: "rtl", lang: "ar" });
+                const winNotif2 = (window as any).Notification;
+                if (winNotif2 && winNotif2.permission === "granted") {
+                  new winNotif2(title, { body, icon: "/pwa-192x192.png", tag: `prayer-${prayer}`, dir: "rtl", lang: "ar" });
                 }
               });
             });
-          } else if (typeof Notification !== "undefined" && Notification.permission === "granted") {
-            new Notification(title, {
-              body,
-              icon: "/pwa-192x192.png",
-              tag: `prayer-${prayer}`,
-              dir: "rtl",
-              lang: "ar",
-            });
+          } else {
+            const winNotif3 = (window as any).Notification;
+            if (winNotif3 && winNotif3.permission === "granted") {
+              new winNotif3(title, {
+                body,
+                icon: "/pwa-192x192.png",
+                tag: `prayer-${prayer}`,
+                dir: "rtl",
+                lang: "ar",
+              });
+            }
           }
 
           playAdhanSound(settings.adhanSound, PRAYER_NAMES[prayer]);
@@ -356,14 +361,17 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
                   data: { url: "/prayer-times" }
                 } as NotificationOptions);
               });
-            } else if (typeof Notification !== "undefined") {
-              new Notification(title, {
-                body,
-                icon: "/pwa-192x192.png",
-                tag: `pre-prayer-${prayer}`,
-                dir: "rtl",
-                lang: "ar",
-              });
+            } else {
+              const winNotif4 = (window as any).Notification;
+              if (winNotif4) {
+                new winNotif4(title, {
+                  body,
+                  icon: "/pwa-192x192.png",
+                  tag: `pre-prayer-${prayer}`,
+                  dir: "rtl",
+                  lang: "ar",
+                });
+              }
             }
           }, preMs);
           notifTimersRef.current.push(preTimer);
@@ -424,14 +432,17 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
           data: { url: "/prayer-times" }
         } as NotificationOptions);
       });
-    } else if (typeof Notification !== "undefined" && Notification.permission === "granted") {
-      new Notification(title, { 
-        body, 
-        icon: "/pwa-192x192.png", 
-        tag: `test-${prayer}`, 
-        dir: "rtl", 
-        lang: "ar" 
-      });
+    } else {
+      const winNotif5 = (window as any).Notification;
+      if (winNotif5 && winNotif5.permission === "granted") {
+        new winNotif5(title, { 
+          body, 
+          icon: "/pwa-192x192.png", 
+          tag: `test-${prayer}`, 
+          dir: "rtl", 
+          lang: "ar" 
+        });
+      }
     }
     
     // Play adhan

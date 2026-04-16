@@ -80,15 +80,17 @@ const saveSettings = (settings: NotificationSettings) => {
 };
 
 const getPermission = async (): Promise<boolean> => {
-  if (!("Notification" in window)) return false;
-  if (Notification.permission === "granted") return true;
-  if (Notification.permission === "denied") return false;
-  const result = await Notification.requestPermission();
+  const winNotif = (window as any).Notification;
+  if (!winNotif) return false;
+  if (winNotif.permission === "granted") return true;
+  if (winNotif.permission === "denied") return false;
+  const result = await winNotif.requestPermission();
   return result === "granted";
 };
 
 const showNotification = (title: string, body: string, tag: string, url: string = "/") => {
-  if (Notification.permission !== "granted") return;
+  const winNotif = (window as any).Notification;
+  if (!winNotif || winNotif.permission !== "granted") return;
 
   const options: NotificationOptions = {
     body,
@@ -107,7 +109,10 @@ const showNotification = (title: string, body: string, tag: string, url: string 
       reg.showNotification(title, options);
     });
   } else {
-    new Notification(title, options);
+    const winNotif = (window as any).Notification;
+    if (winNotif) {
+      new winNotif(title, options);
+    }
   }
 };
 
@@ -134,9 +139,10 @@ const getMsUntilTime = (timeStr: string): number => {
 
 export function useNotifications() {
   const [settings, setSettings] = useState<NotificationSettings>(getSettings);
-  const [permissionState, setPermissionState] = useState<NotificationPermission>(
-    "Notification" in window ? Notification.permission : "denied"
-  );
+  const [permissionState, setPermissionState] = useState<NotificationPermission>(() => {
+    const winNotif = (window as any).Notification;
+    return winNotif ? winNotif.permission : "denied";
+  });
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const clearAllTimers = useCallback(() => {
@@ -232,6 +238,6 @@ export function useNotifications() {
     permissionState,
     requestPermission,
     testNotification,
-    isSupported: "Notification" in window,
+    isSupported: !!(window as any).Notification,
   };
 }

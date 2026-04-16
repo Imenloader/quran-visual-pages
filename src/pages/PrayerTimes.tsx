@@ -261,16 +261,17 @@ export default function PrayerTimes() {
         }
       }
     } else {
-      if (typeof Notification === "undefined") {
+      const winNotif = (window as any).Notification;
+      if (!winNotif) {
         toast.error("متصفحك لا يدعم التنبيهات");
         return;
       }
-      if (Notification.permission === "denied") {
+      if (winNotif.permission === "denied") {
         toast.error("تم رفض إذن التنبيهات. فعّلها من إعدادات المتصفح");
         return;
       }
-      if (Notification.permission !== "granted") {
-        const result = await Notification.requestPermission();
+      if (winNotif.permission !== "granted") {
+        const result = await winNotif.requestPermission();
         if (result !== "granted") {
           toast.error("تم رفض إذن التنبيهات");
           return;
@@ -602,7 +603,7 @@ export default function PrayerTimes() {
             </section>
 
             <section className="bg-card border border-border rounded-2xl p-5 shadow-soft space-y-4">
-              {settings.notificationsEnabled && Notification.permission !== "granted" && (
+              {settings.notificationsEnabled && (window as any).Notification && (window as any).Notification.permission !== "granted" && (
                 <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-3">
                   <BellOff size={18} className="text-destructive shrink-0" />
                   <div className="flex-1">

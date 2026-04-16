@@ -28,17 +28,18 @@ export const usePeriodicReminders = () => {
   };
 
   const showNotification = (title: string, body: string) => {
-    if (!("Notification" in window)) return;
+    const winNotif = (window as any).Notification;
+    if (!winNotif) return;
 
-    if (Notification.permission === "granted") {
-      new Notification(title, {
+    if (winNotif.permission === "granted") {
+      new winNotif(title, {
         body,
         icon: "/pwa-192x192.png",
       });
-    } else if (Notification.permission !== "denied") {
-      Notification.requestPermission().then((permission) => {
+    } else if (winNotif.permission !== "denied") {
+      winNotif.requestPermission().then((permission: string) => {
         if (permission === "granted") {
-          new Notification(title, {
+          new winNotif(title, {
             body,
             icon: "/pwa-192x192.png",
           });

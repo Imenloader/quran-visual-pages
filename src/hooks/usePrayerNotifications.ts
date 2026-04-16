@@ -44,9 +44,10 @@ export const usePrayerNotifications = () => {
           await LocalNotifications.requestPermissions();
         }
       } else {
-        if (typeof Notification === "undefined") return;
-        if (Notification.permission !== "granted") {
-          await Notification.requestPermission();
+        const winNotif = (window as any).Notification;
+        if (!winNotif) return;
+        if (winNotif.permission !== "granted") {
+          await winNotif.requestPermission();
         }
       }
 
@@ -132,14 +133,17 @@ export const usePrayerNotifications = () => {
                       data: { url: "/prayer-times" }
                     } as NotificationOptions);
                   });
-                } else if (typeof Notification !== "undefined") {
-                  new Notification(title, { 
-                    body, 
-                    icon: "/pwa-192x192.png", 
-                    tag: `prayer-${prayer}`, 
-                    dir: "rtl", 
-                    lang: "ar" 
-                  });
+                } else {
+                  const winNotif2 = (window as any).Notification;
+                  if (winNotif2) {
+                    new winNotif2(title, { 
+                      body, 
+                      icon: "/pwa-192x192.png", 
+                      tag: `prayer-${prayer}`, 
+                      dir: "rtl", 
+                      lang: "ar" 
+                    });
+                  }
                 }
 
                 playAdhan(settings.adhanSound, PRAYER_NAMES[prayer]);

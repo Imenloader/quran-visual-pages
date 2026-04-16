@@ -16,7 +16,8 @@ export const useKhatmaNotifications = () => {
         const { notificationsEnabled, reminderTime } = JSON.parse(saved);
         if (!notificationsEnabled || !reminderTime) return;
 
-        if (!("Notification" in window) || Notification.permission !== "granted") return;
+        const winNotif = (window as any).Notification;
+        if (!winNotif || winNotif.permission !== "granted") return;
 
         const [hours, minutes] = reminderTime.split(":").map(Number);
         const now = new Date();
@@ -47,10 +48,13 @@ export const useKhatmaNotifications = () => {
               });
             });
           } else {
-            new Notification(title, {
-              body,
-              icon: "/pwa-192x192.png",
-            });
+            const winNotif2 = (window as any).Notification;
+            if (winNotif2) {
+              new winNotif2(title, {
+                body,
+                icon: "/pwa-192x192.png",
+              });
+            }
           }
 
           // Reschedule for next day
