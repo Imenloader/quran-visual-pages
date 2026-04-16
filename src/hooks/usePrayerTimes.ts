@@ -4,9 +4,21 @@ import { isBefore, addDays } from "date-fns";
 import { toast } from "sonner";
 import { speakPrayerName } from "@/services/ttsService";
 import { useAdhan } from "@/contexts/AdhanContext";
-import { Preferences } from "@capacitor/preferences";
+import { Geolocation } from "@capacitor/geolocation";
 import { Capacitor } from "@capacitor/core";
+import { Preferences } from "@capacitor/preferences";
+import { storage } from "@/lib/storage";
 // Import constants from the dedicated file to avoid circular dependencies
+export { 
+  PRAYER_SETTINGS_KEY, 
+  DEFAULT_SETTINGS, 
+  ADHAN_SOUNDS, 
+  CALCULATION_METHODS, 
+  PRAYER_NAMES,
+  type PrayerTimesData, 
+  type PrayerSettings 
+} from "@/data/prayerConstants";
+
 import { 
   PRAYER_SETTINGS_KEY, 
   DEFAULT_SETTINGS, 
@@ -103,7 +115,8 @@ export const formatTime = (timeStr: string, format: "12h" | "24h"): string => {
 };
 
 export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
-  const [settings, setSettings] = useState<PrayerSettings>(getSettings);
+  const [settings, setSettings] = useState<PrayerSettings>(DEFAULT_SETTINGS);
+  const [isSettingsLoaded, setIsSettingsLoaded] = useState(false);
   const [times, setTimes] = useState<PrayerTimesData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -111,6 +124,22 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
   const { isAdhanPlaying, playAdhan, stopAdhan } = useAdhan();
   const notifTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const optionsRef = useRef(options);
+
+  // Load settings on mount
+  useEffect(() => {
+    const loadSettings = async () => {
+      const stored = await storage.get(PRAYER_SETTINGS_KEY);
+      if (stored) {
+        try {
+          setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(stored) });
+        } catch (e) {
+          console.error("Failed to parse settings", e);
+        }
+      }
+      setIsSettingsLoaded(true);
+    };
+    loadSettings();
+  }, []);
 
   const getNow = useCallback(() => {
     return getEffectiveNow(settings);
@@ -158,38 +187,69 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
   }, []);
 
   const detectLocation = useCallback(async () => {
-    if (!navigator.geolocation) {
-      setError("المتصفح لا يدعم تحديد الموقع");
-      return;
-    }
     setLocationLoading(true);
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const { latitude, longitude } = pos.coords;
-        // Reverse geocode for city name
-        let cityName = "موقعك الحالي";
-        try {
-          const geoRes = await fetch(
-            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=ar`
-          );
-          if (geoRes.ok) {
-            const geoData = await geoRes.json();
-            cityName = geoData.city || geoData.locality || geoData.principalSubdivision || cityName;
+    setError(null);
+
+    try {
+      let latitude: number;
+      let longitude: number;
+
+      if (Capacitor.isNativePlatform()) {
+        const permissions = await Geolocation.checkPermissions();
+        if (permissions.location !== 'granted') {
+          const request = await Geolocation.requestPermissions();
+          if (request.location !== 'granted') {
+            throw new Error("تم رفض إذن تحديد الموقع");
           }
-        } catch { /* ignore */ }
-        const newSettings = { ...settings, latitude, longitude, cityName };
-        setSettings(newSettings);
-        saveSettings(newSettings);
-        await fetchTimes(latitude, longitude, settings.method);
-        setLocationLoading(false);
-      },
-      () => {
-        setError("تم رفض إذن تحديد الموقع. يمكنك إدخال الإحداثيات يدوياً");
-        setLocationLoading(false);
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
+        }
+        const position = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 10000
+        });
+        latitude = position.coords.latitude;
+        longitude = position.coords.longitude;
+      } else {
+        if (!navigator.geolocation) {
+          throw new Error("المتصفح لا يدعم تحديد الموقع");
+        }
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000
+          });
+        });
+        latitude = position.coords.latitude;
+        longitude = position.coords.longitude;
+      }
+
+      // Reverse geocode for city name
+      let cityName = "موقعك الحالي";
+      try {
+        const geoRes = await fetch(
+          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=ar`
+        );
+        if (geoRes.ok) {
+          const geoData = await geoRes.json();
+          cityName = geoData.city || geoData.locality || geoData.principalSubdivision || cityName;
+        }
+      } catch { /* ignore */ }
+
+      const newSettings = { ...settings, latitude, longitude, cityName };
+      setSettings(newSettings);
+      await storage.set(PRAYER_SETTINGS_KEY, JSON.stringify(newSettings));
+      await fetchTimes(latitude, longitude, settings.method);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "تعذر تحديد الموقع";
+      setError(errorMessage);
+    } finally {
+      setLocationLoading(false);
+    }
   }, [settings, fetchTimes]);
+
+  // Apply manual overrides
+  const effectiveTimes = useMemo<PrayerTimesData | null>(() => {
+    return times ? { ...times, ...settings.manualOverrides } : null;
+  }, [times, settings.manualOverrides]);
 
   // Load times on mount if we have coordinates
   useEffect(() => {
@@ -208,18 +268,17 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
     }
   }, [effectiveTimes, settings.cityName, getNow]);
 
-  // Apply manual overrides
-  const effectiveTimes = useMemo<PrayerTimesData | null>(() => {
-    return times ? { ...times, ...settings.manualOverrides } : null;
-  }, [times, settings.manualOverrides]);
-
   // Schedule notifications
   useEffect(() => {
     notifTimersRef.current.forEach(clearTimeout);
     notifTimersRef.current = [];
 
     if (!settings.notificationsEnabled || !effectiveTimes) return;
-    if (!("Notification" in window) || Notification.permission !== "granted") return;
+    
+    // Skip web notifications on native platforms
+    if (Capacitor.isNativePlatform()) return;
+
+    if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
 
     const prayersToNotify = settings.enabledPrayers;
 
@@ -254,12 +313,12 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
               } as NotificationOptions).catch(err => {
                 console.error("Failed to show notification via SW:", err);
                 // Fallback to standard notification
-                if ("Notification" in window && Notification.permission === "granted") {
+                if (typeof Notification !== "undefined" && Notification.permission === "granted") {
                   new Notification(title, { body, icon: "/pwa-192x192.png", tag: `prayer-${prayer}`, dir: "rtl", lang: "ar" });
                 }
               });
             });
-          } else if ("Notification" in window && Notification.permission === "granted") {
+          } else if (typeof Notification !== "undefined" && Notification.permission === "granted") {
             new Notification(title, {
               body,
               icon: "/pwa-192x192.png",
@@ -297,7 +356,7 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
                   data: { url: "/prayer-times" }
                 } as NotificationOptions);
               });
-            } else {
+            } else if (typeof Notification !== "undefined") {
               new Notification(title, {
                 body,
                 icon: "/pwa-192x192.png",
@@ -319,21 +378,20 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
   }, [effectiveTimes, settings.notificationsEnabled, settings.adhanSound, settings.cityName, settings.enabledPrayers, settings.prePrayerMinutes, settings.prePrayerNotification, playAdhanSound, getNow]);
 
   const updateSettings = useCallback(
-    (partial: Partial<PrayerSettings>) => {
-      setSettings((prev) => {
-        const next = { ...prev, ...partial };
-        saveSettings(next);
-        // Refetch if method or coords changed
-        if (
-          (partial.method !== undefined || partial.latitude !== undefined || partial.longitude !== undefined) &&
-          next.latitude && next.longitude
-        ) {
-          fetchTimes(next.latitude, next.longitude, next.method);
-        }
-        return next;
-      });
+    async (partial: Partial<PrayerSettings>) => {
+      const next = { ...settings, ...partial };
+      setSettings(next);
+      await storage.set(PRAYER_SETTINGS_KEY, JSON.stringify(next));
+      
+      // Refetch if method or coords changed
+      if (
+        (partial.method !== undefined || partial.latitude !== undefined || partial.longitude !== undefined) &&
+        next.latitude && next.longitude
+      ) {
+        fetchTimes(next.latitude, next.longitude, next.method);
+      }
     },
-    [fetchTimes]
+    [settings, fetchTimes]
   );
 
   const previewAdhan = useCallback((soundId: string) => {
@@ -366,7 +424,7 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
           data: { url: "/prayer-times" }
         } as NotificationOptions);
       });
-    } else if ("Notification" in window && Notification.permission === "granted") {
+    } else if (typeof Notification !== "undefined" && Notification.permission === "granted") {
       new Notification(title, { 
         body, 
         icon: "/pwa-192x192.png", 

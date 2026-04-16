@@ -10,15 +10,18 @@ import {
 } from './usePrayerTimes';
 import { isBefore } from 'date-fns';
 import { useAdhan } from '@/contexts/AdhanContext';
+import { LocalNotifications } from '@capacitor/local-notifications';
+import { Capacitor } from '@capacitor/core';
+import { storage } from '@/lib/storage';
 
 export const usePrayerNotifications = () => {
   const { i18n } = useTranslation();
   const timersRef = useRef<NodeJS.Timeout[]>([]);
   const { playAdhan } = useAdhan();
 
-  const getSettings = (): PrayerSettings => {
+  const getSettings = async (): Promise<PrayerSettings> => {
     try {
-      const stored = localStorage.getItem(PRAYER_SETTINGS_KEY);
+      const stored = await storage.get(PRAYER_SETTINGS_KEY);
       return stored ? { ...DEFAULT_SETTINGS, ...JSON.parse(stored) } : DEFAULT_SETTINGS;
     } catch {
       return DEFAULT_SETTINGS;
@@ -31,9 +34,21 @@ export const usePrayerNotifications = () => {
       timersRef.current.forEach(clearTimeout);
       timersRef.current = [];
 
-      const settings = getSettings();
+      const settings = await getSettings();
       if (!settings.notificationsEnabled || !settings.latitude || !settings.longitude) return;
-      if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+      // Request permissions for native
+      if (Capacitor.isNativePlatform()) {
+        const status = await LocalNotifications.checkPermissions();
+        if (status.display !== 'granted') {
+          await LocalNotifications.requestPermissions();
+        }
+      } else {
+        if (typeof Notification === "undefined") return;
+        if (Notification.permission !== "granted") {
+          await Notification.requestPermission();
+        }
+      }
 
       try {
         const now = getEffectiveNow(settings);
@@ -52,52 +67,87 @@ export const usePrayerNotifications = () => {
           const data = await res.json();
           const times = data.data.timings;
 
-          prayerOrder.forEach(prayer => {
-            if (!settings.enabledPrayers.includes(prayer)) return;
+          if (Capacitor.isNativePlatform()) {
+            // Cancel existing notifications for these prayers
+            await LocalNotifications.cancel({
+              notifications: prayerOrder.map((_, i) => ({ id: i + 100 }))
+            });
 
-            const timeStr = settings.manualOverrides[prayer] || times[prayer];
-            const [hours, minutes] = timeStr.split(":").map(Number);
-            const target = new Date(date);
-            target.setHours(hours, minutes, 0, 0);
+            const pendingNotifications = [];
 
-            if (isBefore(target, now)) {
-              // Already passed
-              return;
+            prayerOrder.forEach((prayer, index) => {
+              if (!settings.enabledPrayers.includes(prayer)) return;
+
+              const timeStr = settings.manualOverrides[prayer] || times[prayer];
+              const [hours, minutes] = timeStr.split(":").map(Number);
+              const target = new Date(date);
+              target.setHours(hours, minutes, 0, 0);
+
+              if (isBefore(target, now)) return;
+
+              pendingNotifications.push({
+                title: `🕌 حان الآن وقت صلاة ${PRAYER_NAMES[prayer]}`,
+                body: `الله أكبر، الله أكبر.. حان الآن موعد أذان صلاة ${PRAYER_NAMES[prayer]}`,
+                id: index + 100,
+                schedule: { at: target },
+                sound: 'adhan.wav', // Assuming adhan.wav is in assets
+                attachments: [],
+                actionTypeId: '',
+                extra: null
+              });
+            });
+
+            if (pendingNotifications.length > 0) {
+              await LocalNotifications.schedule({
+                notifications: pendingNotifications
+              });
             }
+          } else {
+            // Web implementation using setTimeout
+            prayerOrder.forEach(prayer => {
+              if (!settings.enabledPrayers.includes(prayer)) return;
 
-            const delay = target.getTime() - now.getTime();
-            const timer = setTimeout(() => {
-              const title = `🕌 حان الآن وقت صلاة ${PRAYER_NAMES[prayer]}`;
-              const body = `الله أكبر، الله أكبر.. حان الآن موعد أذان صلاة ${PRAYER_NAMES[prayer]}`;
+              const timeStr = settings.manualOverrides[prayer] || times[prayer];
+              const [hours, minutes] = timeStr.split(":").map(Number);
+              const target = new Date(date);
+              target.setHours(hours, minutes, 0, 0);
 
-              if ("serviceWorker" in navigator) {
-                navigator.serviceWorker.ready.then((reg) => {
-                  reg.showNotification(title, {
-                    body,
-                    icon: "/pwa-192x192.png",
-                    tag: `prayer-${prayer}`,
-                    dir: "rtl",
-                    lang: "ar",
-                    renotify: true,
-                    vibrate: [200, 100, 200, 100, 200],
-                    data: { url: "/prayer-times" }
-                  } as NotificationOptions);
-                });
-              } else {
-                new Notification(title, { 
-                  body, 
-                  icon: "/pwa-192x192.png", 
-                  tag: `prayer-${prayer}`, 
-                  dir: "rtl", 
-                  lang: "ar" 
-                });
-              }
+              if (isBefore(target, now)) return;
 
-              playAdhan(settings.adhanSound, PRAYER_NAMES[prayer]);
-            }, delay);
+              const delay = target.getTime() - now.getTime();
+              const timer = setTimeout(() => {
+                const title = `🕌 حان الآن وقت صلاة ${PRAYER_NAMES[prayer]}`;
+                const body = `الله أكبر، الله أكبر.. حان الآن موعد أذان صلاة ${PRAYER_NAMES[prayer]}`;
 
-            timersRef.current.push(timer);
-          });
+                if ("serviceWorker" in navigator) {
+                  navigator.serviceWorker.ready.then((reg) => {
+                    reg.showNotification(title, {
+                      body,
+                      icon: "/pwa-192x192.png",
+                      tag: `prayer-${prayer}`,
+                      dir: "rtl",
+                      lang: "ar",
+                      renotify: true,
+                      vibrate: [200, 100, 200, 100, 200],
+                      data: { url: "/prayer-times" }
+                    } as NotificationOptions);
+                  });
+                } else if (typeof Notification !== "undefined") {
+                  new Notification(title, { 
+                    body, 
+                    icon: "/pwa-192x192.png", 
+                    tag: `prayer-${prayer}`, 
+                    dir: "rtl", 
+                    lang: "ar" 
+                  });
+                }
+
+                playAdhan(settings.adhanSound, PRAYER_NAMES[prayer]);
+              }, delay);
+
+              timersRef.current.push(timer);
+            });
+          }
         };
 
         // Schedule for today and tomorrow

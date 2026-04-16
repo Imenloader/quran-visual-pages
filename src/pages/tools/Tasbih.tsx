@@ -4,25 +4,38 @@ import { RotateCcw, Fingerprint, Settings2, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import BackButton from "@/components/BackButton";
+import { storage } from "@/lib/storage";
 
 const Tasbih = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [count, setCount] = useState(() => {
-    const saved = localStorage.getItem("tasbih_count");
-    return saved ? parseInt(saved) : 0;
-  });
+  const [count, setCount] = useState(0);
   const [target, setTarget] = useState(33);
-  const [total, setTotal] = useState(() => {
-    const saved = localStorage.getItem("tasbih_total");
-    return saved ? parseInt(saved) : 0;
-  });
+  const [total, setTotal] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem("tasbih_count", count.toString());
-    localStorage.setItem("tasbih_total", total.toString());
-  }, [count, total]);
+    const loadData = async () => {
+      const savedCount = await storage.get("tasbih_count");
+      const savedTotal = await storage.get("tasbih_total");
+      const savedTarget = await storage.get("tasbih_target");
+      
+      if (savedCount) setCount(parseInt(savedCount));
+      if (savedTotal) setTotal(parseInt(savedTotal));
+      if (savedTarget) setTarget(parseInt(savedTarget));
+      setIsLoaded(true);
+    };
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+      storage.set("tasbih_count", count.toString());
+      storage.set("tasbih_total", total.toString());
+      storage.set("tasbih_target", target.toString());
+    }
+  }, [count, total, target, isLoaded]);
 
   const triggerHaptic = useCallback((pattern: number | number[] = 20) => {
     if (window.navigator.vibrate) {
@@ -48,11 +61,11 @@ const Tasbih = () => {
     triggerHaptic(50);
   };
 
-  const handleResetTotal = () => {
+  const handleResetTotal = async () => {
     setTotal(0);
     setCount(0);
-    localStorage.setItem("tasbih_total", "0");
-    localStorage.setItem("tasbih_count", "0");
+    await storage.set("tasbih_total", "0");
+    await storage.set("tasbih_count", "0");
     setShowSettings(false);
     triggerHaptic([100, 50, 100]);
   };
