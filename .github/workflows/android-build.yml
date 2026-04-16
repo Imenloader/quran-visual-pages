@@ -55,7 +55,7 @@ jobs:
           if [ -f "app/release-key.keystore" ]; then
             echo "Building Signed Release App Bundle (.aab)..."
             ./gradlew bundleRelease \
-              -Pandroid.injected.signing.store.file=release-key.keystore \
+              -Pandroid.injected.signing.store.file=$GITHUB_WORKSPACE/android/app/release-key.keystore \
               -Pandroid.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }} \
               -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }} \
               -Pandroid.injected.signing.key.password=${{ secrets.ANDROID_KEY_PASSWORD }}
