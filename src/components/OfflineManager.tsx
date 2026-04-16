@@ -4,6 +4,16 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { getQuranPageImageUrl, getQuranPageFallbackImageUrl, toArabicNumber } from "@/data/quranData";
 import { useTranslation } from "react-i18next";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const CACHE_NAME = 'quran-pages-cache';
 const TOTAL_PAGES = 604;
@@ -14,6 +24,8 @@ const OfflineManager: React.FC = () => {
   const [progress, setProgress] = useState(0);
   const [downloadedCount, setDownloadedCount] = useState(0);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -136,8 +148,6 @@ const OfflineManager: React.FC = () => {
   };
 
   const clearCache = async () => {
-    if (!confirm(t("hub.offline.clearConfirm"))) return;
-    
     try {
       await caches.delete(CACHE_NAME);
       setDownloadedCount(0);
@@ -145,6 +155,8 @@ const OfflineManager: React.FC = () => {
       toast.success(t("hub.offline.clearSuccess"));
     } catch (error) {
       toast.error(t("hub.offline.clearError"));
+    } finally {
+      setIsAlertOpen(false);
     }
   };
 
@@ -218,13 +230,37 @@ const OfflineManager: React.FC = () => {
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          onClick={clearCache}
+          onClick={() => setIsAlertOpen(true)}
           className="h-14 rounded-2xl border-2 border-red-200 text-red-500 font-serif font-bold hover:bg-red-50 transition-all flex items-center justify-center gap-3"
         >
           <Trash2 size={20} />
           {t("hub.offline.deleteData")}
         </motion.button>
       </div>
+
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent className="rounded-[2.5rem] border-primary/10">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-serif">
+              {i18n.language === 'ar' ? "مسح البيانات المخزنة؟" : "Clear cached data?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="font-serif">
+              {t("hub.offline.clearConfirm")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row gap-2 mt-4">
+            <AlertDialogCancel className="flex-1 rounded-xl h-12 border-primary/10 font-serif">
+              {i18n.language === 'ar' ? "إلغاء" : "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={clearCache}
+              className="flex-1 rounded-xl h-12 bg-red-500 hover:bg-red-600 text-white font-serif"
+            >
+              {i18n.language === 'ar' ? "نعم، مسح" : "Yes, clear"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div className="p-4 rounded-2xl bg-gold/5 border border-gold/10 flex items-start gap-3">
         <AlertCircle size={18} className="text-gold shrink-0 mt-0.5" />

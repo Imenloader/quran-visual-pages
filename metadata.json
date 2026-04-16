@@ -1,5 +1,5 @@
 {
-  "name": "القرآن الكريم - Quran Viewer",
+  "name": "Quraaniat — قرآنيات",
   "description": "تطبيق قرآني متكامل يضم المصحف الشريف، أوقات الصلاة، القبلة، والأذكار بتصميم عصري وتجربة مستخدم فريدة.",
   "requestFramePermissions": ["geolocation", "microphone", "screen-wake-lock"]
 }

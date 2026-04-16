@@ -69,6 +69,7 @@ const FastingTracker = lazy(() => import("./pages/tools/FastingTracker"));
 const RoutineBuilder = lazy(() => import("./pages/tools/RoutineBuilder"));
 const SadaqahLogger = lazy(() => import("./pages/tools/SadaqahLogger"));
 const DuaLibrary = lazy(() => import("./pages/tools/DuaLibrary"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const MoonTracker = lazy(() => import("./pages/tools/MoonTracker"));
 const Virtues = lazy(() => import("./pages/ramadan/Virtues"));
 const FastingRules = lazy(() => import("./pages/ramadan/FastingRules"));
@@ -198,6 +199,7 @@ const App = () => {
                       <Route path="/routine-builder" element={<RoutineBuilder />} />
                       <Route path="/sadaqah-logger" element={<SadaqahLogger />} />
                       <Route path="/dua-library" element={<DuaLibrary />} />
+                      <Route path="/privacy" element={<PrivacyPolicy />} />
                       <Route path="/moon-tracker" element={<MoonTracker />} />
                       <Route path="/ramadan/virtues" element={<Virtues />} />
                       <Route path="/ramadan/fasting-rules" element={<FastingRules />} />

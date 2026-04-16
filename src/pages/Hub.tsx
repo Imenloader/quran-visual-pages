@@ -379,6 +379,42 @@ const Hub = () => {
           </div>
         </div>
       </div>
+
+      {/* Footer / Knowledge Base */}
+      <footer className="mt-20 py-12 border-t border-border/40 relative">
+        <div className="absolute inset-0 pattern-islamic opacity-[0.02]" />
+        <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className={`text-center ${i18n.language === 'ar' ? 'md:text-right' : 'md:text-left'}`}>
+            <h3 className="text-lg font-serif font-bold text-primary mb-2">Quraaniat — قرآنيات</h3>
+            <p className="text-xs text-muted-foreground font-serif leading-relaxed italic max-w-sm">
+              {i18n.language === 'ar' 
+                ? "تطبيق شامل يهدف إلى تقريب المسلم من كتاب الله وسنة نبيه عبر تجربة رقمية فاخرة."
+                : "A comprehensive app aiming to bring Muslims closer to the Book of Allah and the Sunnah of His Prophet through a premium digital experience."}
+            </p>
+          </div>
+          
+          <div className="flex flex-wrap justify-center gap-6">
+            <Link to="/privacy" className="text-xs font-serif text-muted-foreground hover:text-accent transition-colors flex items-center gap-2">
+              <Shield size={14} />
+              {i18n.language === 'ar' ? "سياسة الخصوصية" : "Privacy Policy"}
+            </Link>
+            <Link to="/how-to-use" className="text-xs font-serif text-muted-foreground hover:text-accent transition-colors flex items-center gap-2">
+              <BookOpen size={14} />
+              {i18n.language === 'ar' ? "دليل المستخدم" : "User Guide"}
+            </Link>
+            <a href="mailto:GreenFeeda@gmail.com" className="text-xs font-serif text-muted-foreground hover:text-accent transition-colors flex items-center gap-2">
+              <Sparkles size={14} />
+              {i18n.language === 'ar' ? "تواصل معنا" : "Contact Us"}
+            </a>
+          </div>
+          
+          <div className="text-center md:text-left">
+            <p className="text-[10px] text-muted-foreground font-bold tracking-[0.2em] uppercase">
+              Version 1.0.0 • 2026
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

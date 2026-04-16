@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff, Clock, Send, ChevronLeft, X, BookOpen, Wand2, LayoutGrid, DownloadCloud, Sparkles, User, Trophy, Calendar, RefreshCw, Check, type LucideIcon } from "lucide-react";
+import { Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff, Clock, Send, ChevronLeft, X, BookOpen, Wand2, LayoutGrid, DownloadCloud, Sparkles, User, Trophy, Calendar, RefreshCw, Check, Shield, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useNotifications } from "@/hooks/useNotifications";
 import { usePeriodicReminders } from "@/hooks/usePeriodicReminders";
@@ -932,6 +932,20 @@ const Profile = () => {
                               </button>
                             </div>
                           )}
+                        </div>
+
+                        {/* Privacy & Legal */}
+                        <div className="pt-2">
+                          <Link 
+                            to="/privacy" 
+                            onClick={() => setIsSettingsOpen(false)}
+                            className="flex items-center gap-2 text-[10px] text-primary/40 hover:text-primary transition-colors justify-center"
+                          >
+                            <Shield size={10} />
+                            <span className="font-serif">
+                              {i18n.language === 'ar' ? "سياسة الخصوصية والأمان" : "Privacy & Security Policy"}
+                            </span>
+                          </Link>
                         </div>
 
                         {/* Character Preview Card */}

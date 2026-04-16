@@ -164,8 +164,19 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
       const dd = String(today.getDate()).padStart(2, "0");
       const mm = String(today.getMonth() + 1).padStart(2, "0");
       const yyyy = today.getFullYear();
+      const dateKey = `${dd}-${mm}-${yyyy}`;
+      const cacheKey = `prayer_times_${lat.toFixed(2)}_${lng.toFixed(2)}_${method}_${dateKey}`;
+      
+      // Try local storage cache first
+      const cached = await storage.get(cacheKey);
+      if (cached) {
+        setTimes(JSON.parse(cached));
+        setLoading(false);
+        return;
+      }
+
       const res = await fetch(
-        `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=${method}`
+        `https://api.aladhan.com/v1/timings/${dateKey}?latitude=${lat}&longitude=${lng}&method=${method}`
       );
       if (!res.ok) throw new Error("فشل في جلب المواقيت");
       const data = await res.json();
@@ -179,6 +190,8 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
         Isha: t.Isha,
       };
       setTimes(prayerTimes);
+      // Cache for 24 hours
+      await storage.set(cacheKey, JSON.stringify(prayerTimes));
     } catch {
       setError("تعذر جلب مواقيت الصلاة. تحقق من الاتصال بالإنترنت");
     } finally {

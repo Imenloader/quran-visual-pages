@@ -1,6 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from "react";
-import { Button } from "@/components/ui/button";
-import { AlertTriangle, RefreshCcw } from "lucide-react";
+import { AlertTriangle, RefreshCw, Home } from "lucide-react";
+import { Button } from "./ui/button";
 
 interface Props {
   children: ReactNode;
@@ -11,7 +11,7 @@ interface State {
   error: Error | null;
 }
 
-export class ErrorBoundary extends Component<Props, State> {
+class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,
     error: null,
@@ -27,45 +27,63 @@ export class ErrorBoundary extends Component<Props, State> {
 
   private handleReset = () => {
     this.setState({ hasError: false, error: null });
+    window.location.reload();
+  };
+
+  private handleGoHome = () => {
+    this.setState({ hasError: false, error: null });
     window.location.href = "/";
   };
 
   public render() {
     if (this.state.hasError) {
+      const isAr = document.documentElement.lang === "ar";
+
       return (
-        <div className="min-h-screen flex items-center justify-center bg-background p-4">
-          <div className="max-w-md w-full text-center space-y-6 animate-in fade-in zoom-in duration-300">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10 text-destructive mb-4">
-              <AlertTriangle size={40} />
+        <div className="min-h-screen bg-background flex items-center justify-center p-4 text-center">
+          <div className="max-w-md w-full space-y-6">
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />
+              <div className="relative w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto border border-primary/20">
+                <AlertTriangle className="w-12 h-12 text-primary animate-pulse" />
+              </div>
             </div>
-            
+
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold tracking-tight">Something went wrong</h1>
-              <p className="text-muted-foreground">
-                An unexpected error occurred. We've been notified and are working to fix it.
+              <h1 className="text-2xl font-serif font-bold text-primary">
+                {isAr ? "عذراً، حدث خطأ غير متوقع" : "Oops, something went wrong"}
+              </h1>
+              <p className="text-sm text-muted-foreground font-naskh">
+                {isAr 
+                  ? "نعتذر عن هذا الخلل. حاول إعادة تحميل الصفحة أو العودة للرئيسية."
+                  : "We apologize for the inconvenience. Try reloading or going back home."}
               </p>
             </div>
 
             {this.state.error && (
-              <div className="p-4 bg-muted rounded-lg text-left overflow-auto max-h-40 text-xs font-mono border border-border">
-                {String(this.state.error)}
+              <div className="p-4 bg-muted/50 rounded-2xl border border-border/50 text-left overflow-hidden">
+                <p className="text-[10px] font-mono text-muted-foreground break-all">
+                  {this.state.error.message}
+                </p>
               </div>
             )}
 
-            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button 
-                variant="default" 
                 onClick={this.handleReset}
-                className="gap-2"
+                variant="default"
+                className="flex-1 h-12 rounded-xl gap-2 shadow-lg"
               >
-                <RefreshCcw size={16} />
-                Reload Application
+                <RefreshCw className="w-4 h-4" />
+                {isAr ? "إعادة المحاولة" : "Try Again"}
               </Button>
               <Button 
-                variant="outline" 
-                onClick={() => window.history.back()}
+                onClick={this.handleGoHome}
+                variant="outline"
+                className="flex-1 h-12 rounded-xl gap-2"
               >
-                Go Back
+                <Home className="w-4 h-4" />
+                {isAr ? "الرئيسية" : "Home"}
               </Button>
             </div>
           </div>
@@ -76,3 +94,5 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
+
+export default ErrorBoundary;
