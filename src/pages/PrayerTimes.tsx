@@ -261,7 +261,7 @@ export default function PrayerTimes() {
         }
       }
     } else {
-      if (!("Notification" in window)) {
+      if (typeof Notification === "undefined") {
         toast.error("متصفحك لا يدعم التنبيهات");
         return;
       }

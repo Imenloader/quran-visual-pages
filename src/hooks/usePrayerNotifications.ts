@@ -44,7 +44,7 @@ export const usePrayerNotifications = () => {
           await LocalNotifications.requestPermissions();
         }
       } else {
-        if (!("Notification" in window)) return;
+        if (typeof Notification === "undefined") return;
         if (Notification.permission !== "granted") {
           await Notification.requestPermission();
         }
@@ -132,7 +132,7 @@ export const usePrayerNotifications = () => {
                       data: { url: "/prayer-times" }
                     } as NotificationOptions);
                   });
-                } else {
+                } else if (typeof Notification !== "undefined") {
                   new Notification(title, { 
                     body, 
                     icon: "/pwa-192x192.png", 

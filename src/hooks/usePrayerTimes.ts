@@ -274,7 +274,11 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
     notifTimersRef.current = [];
 
     if (!settings.notificationsEnabled || !effectiveTimes) return;
-    if (!("Notification" in window) || Notification.permission !== "granted") return;
+    
+    // Skip web notifications on native platforms
+    if (Capacitor.isNativePlatform()) return;
+
+    if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
 
     const prayersToNotify = settings.enabledPrayers;
 
@@ -309,12 +313,12 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
               } as NotificationOptions).catch(err => {
                 console.error("Failed to show notification via SW:", err);
                 // Fallback to standard notification
-                if ("Notification" in window && Notification.permission === "granted") {
+                if (typeof Notification !== "undefined" && Notification.permission === "granted") {
                   new Notification(title, { body, icon: "/pwa-192x192.png", tag: `prayer-${prayer}`, dir: "rtl", lang: "ar" });
                 }
               });
             });
-          } else if ("Notification" in window && Notification.permission === "granted") {
+          } else if (typeof Notification !== "undefined" && Notification.permission === "granted") {
             new Notification(title, {
               body,
               icon: "/pwa-192x192.png",
@@ -352,7 +356,7 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
                   data: { url: "/prayer-times" }
                 } as NotificationOptions);
               });
-            } else {
+            } else if (typeof Notification !== "undefined") {
               new Notification(title, {
                 body,
                 icon: "/pwa-192x192.png",
@@ -420,7 +424,7 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
           data: { url: "/prayer-times" }
         } as NotificationOptions);
       });
-    } else if ("Notification" in window && Notification.permission === "granted") {
+    } else if (typeof Notification !== "undefined" && Notification.permission === "granted") {
       new Notification(title, { 
         body, 
         icon: "/pwa-192x192.png", 
