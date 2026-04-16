@@ -14,16 +14,16 @@ import {
   getCairoDate,
   getEffectiveNow,
   formatTime,
-  type PrayerTimesData,
-  type PrayerSettings,
-} from "@/hooks/usePrayerTimes";
-import {
   ADHAN_SOUNDS,
   CALCULATION_METHODS,
   PRAYER_NAMES,
-} from "@/data/prayerConstants";
+  type PrayerTimesData,
+  type PrayerSettings,
+} from "@/hooks/usePrayerTimes";
 import QuranHeader from "@/components/QuranHeader";
 import { Button } from "@/components/ui/button";
+import { Capacitor } from "@capacitor/core";
+import { LocalNotifications } from "@capacitor/local-notifications";
 
 const CairoClock = lazy(() => import("@/components/CairoClock"));
 
@@ -250,21 +250,34 @@ export default function PrayerTimes() {
 
   const handleEnableNotifications = useCallback(async () => {
     unlockAudio();
-    if (!("Notification" in window)) {
-      toast.error("متصفحك لا يدعم التنبيهات");
-      return;
-    }
-    if (Notification.permission === "denied") {
-      toast.error("تم رفض إذن التنبيهات. فعّلها من إعدادات المتصفح");
-      return;
-    }
-    if (Notification.permission !== "granted") {
-      const result = await Notification.requestPermission();
-      if (result !== "granted") {
-        toast.error("تم رفض إذن التنبيهات");
+    
+    if (Capacitor.isNativePlatform()) {
+      const status = await LocalNotifications.checkPermissions();
+      if (status.display !== 'granted') {
+        const request = await LocalNotifications.requestPermissions();
+        if (request.display !== 'granted') {
+          toast.error("تم رفض إذن التنبيهات");
+          return;
+        }
+      }
+    } else {
+      if (!("Notification" in window)) {
+        toast.error("متصفحك لا يدعم التنبيهات");
         return;
       }
+      if (Notification.permission === "denied") {
+        toast.error("تم رفض إذن التنبيهات. فعّلها من إعدادات المتصفح");
+        return;
+      }
+      if (Notification.permission !== "granted") {
+        const result = await Notification.requestPermission();
+        if (result !== "granted") {
+          toast.error("تم رفض إذن التنبيهات");
+          return;
+        }
+      }
     }
+    
     updateSettings({ notificationsEnabled: !settings.notificationsEnabled });
     toast.success(settings.notificationsEnabled ? "تم إيقاف تنبيهات الصلاة" : "تم تفعيل تنبيهات الصلاة");
   }, [settings.notificationsEnabled, updateSettings, unlockAudio]);

@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
+import { storage } from "@/lib/storage";
 
 export type FavoriteItem =
   | { type: "juz"; id: number; nickname?: string }
@@ -9,77 +10,72 @@ export type FavoriteItem =
 
 const STORAGE_KEY = "quran-favorites";
 
-const loadFavorites = (): FavoriteItem[] => {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-  } catch {
-    return [];
-  }
-};
-
-const saveFavorites = (items: FavoriteItem[]) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-};
-
 export const useFavorites = () => {
-  const [favorites, setFavorites] = useState<FavoriteItem[]>(loadFavorites);
+  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Sync across tabs
   useEffect(() => {
-    const handler = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY) setFavorites(loadFavorites());
-    };
-    window.addEventListener("storage", handler);
-    return () => window.removeEventListener("storage", handler);
-  }, []);
-
-  const reorderFavorites = useCallback((newOrder: FavoriteItem[]) => {
-    setFavorites(newOrder);
-    saveFavorites(newOrder);
-  }, []);
-
-  const updateFavorite = useCallback((item: FavoriteItem, updates: Partial<FavoriteItem>) => {
-    setFavorites(prev => {
-      const next = prev.map(f => {
-        const isMatch = f.type === item.type && f.id === item.id && 
-          (f.type !== "recitation" || (f.reciterId === item.reciterId && f.moshafId === item.moshafId));
-        
-        return isMatch ? { ...f, ...updates } : f;
-      });
-      saveFavorites(next);
-      return next;
-    });
-  }, []);
-
-  const toggleFavorite = useCallback((item: FavoriteItem) => {
-    setFavorites(prev => {
-      let exists: boolean;
-      if (item.type === "recitation") {
-        exists = prev.some(
-          f => f.type === "recitation" && f.id === item.id && f.reciterId === item.reciterId && f.moshafId === item.moshafId
-        );
-      } else if (item.type === "reciter") {
-        exists = prev.some(f => f.type === "reciter" && f.id === item.id);
-      } else {
-        exists = prev.some(f => f.type === item.type && f.id === item.id);
-      }
-
-      let next: FavoriteItem[];
-      if (exists) {
-        if (item.type === "recitation") {
-          next = prev.filter(f => !(f.type === "recitation" && f.id === item.id && f.reciterId === item.reciterId && f.moshafId === item.moshafId));
-        } else if (item.type === "reciter") {
-          next = prev.filter(f => !(f.type === "reciter" && f.id === item.id));
-        } else {
-          next = prev.filter(f => !(f.type === item.type && f.id === item.id));
+    const loadData = async () => {
+      const stored = await storage.get(STORAGE_KEY);
+      if (stored) {
+        try {
+          setFavorites(JSON.parse(stored));
+        } catch (e) {
+          console.error("Failed to parse favorites", e);
         }
-      } else {
-        next = [...prev, item];
       }
-      saveFavorites(next);
-      return next;
-    });
+      setIsLoaded(true);
+    };
+    loadData();
   }, []);
+
+  const saveFavorites = useCallback(async (items: FavoriteItem[]) => {
+    await storage.set(STORAGE_KEY, JSON.stringify(items));
+  }, []);
+
+  const reorderFavorites = useCallback(async (newOrder: FavoriteItem[]) => {
+    setFavorites(newOrder);
+    await saveFavorites(newOrder);
+  }, [saveFavorites]);
+
+  const updateFavorite = useCallback(async (item: FavoriteItem, updates: Partial<FavoriteItem>) => {
+    const next = favorites.map(f => {
+      const isMatch = f.type === item.type && f.id === item.id && 
+        (f.type !== "recitation" || (f.reciterId === item.reciterId && f.moshafId === item.moshafId));
+      
+      return isMatch ? { ...f, ...updates } : f;
+    });
+    setFavorites(next);
+    await saveFavorites(next);
+  }, [favorites, saveFavorites]);
+
+  const toggleFavorite = useCallback(async (item: FavoriteItem) => {
+    let exists: boolean;
+    if (item.type === "recitation") {
+      exists = favorites.some(
+        f => f.type === "recitation" && f.id === item.id && f.reciterId === item.reciterId && f.moshafId === item.moshafId
+      );
+    } else if (item.type === "reciter") {
+      exists = favorites.some(f => f.type === "reciter" && f.id === item.id);
+    } else {
+      exists = favorites.some(f => f.type === item.type && f.id === item.id);
+    }
+
+    let next: FavoriteItem[];
+    if (exists) {
+      if (item.type === "recitation") {
+        next = favorites.filter(f => !(f.type === "recitation" && f.id === item.id && f.reciterId === item.reciterId && f.moshafId === item.moshafId));
+      } else if (item.type === "reciter") {
+        next = favorites.filter(f => !(f.type === "reciter" && f.id === item.id));
+      } else {
+        next = favorites.filter(f => !(f.type === item.type && f.id === item.id));
+      }
+    } else {
+      next = [...favorites, item];
+    }
+    setFavorites(next);
+    await saveFavorites(next);
+  }, [favorites, saveFavorites]);
 
   const isFavorite = useCallback(
     (type: FavoriteItem["type"], id: number, reciterId?: number, moshafId?: number) => {
