@@ -198,6 +198,11 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
     }
   }, [settings.latitude, settings.longitude, settings.method, fetchTimes]);
 
+  // Apply manual overrides
+  const effectiveTimes = useMemo<PrayerTimesData | null>(() => {
+    return times ? { ...times, ...settings.manualOverrides } : null;
+  }, [times, settings.manualOverrides]);
+
   // Sync to widget whenever times or settings change
   useEffect(() => {
     if (effectiveTimes && settings.cityName) {
@@ -207,11 +212,6 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
       }
     }
   }, [effectiveTimes, settings.cityName, getNow]);
-
-  // Apply manual overrides
-  const effectiveTimes = useMemo<PrayerTimesData | null>(() => {
-    return times ? { ...times, ...settings.manualOverrides } : null;
-  }, [times, settings.manualOverrides]);
 
   // Schedule notifications
   useEffect(() => {
