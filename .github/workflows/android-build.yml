@@ -48,10 +48,10 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-
+          
           echo "Building Debug APK..."
           ./gradlew assembleDebug
-
+          
           if [ -f "app/release-key.keystore" ]; then
             echo "Building Signed Release App Bundle (.aab)..."
             ./gradlew bundleRelease \
