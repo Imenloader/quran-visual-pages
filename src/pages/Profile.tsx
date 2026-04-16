@@ -912,7 +912,19 @@ const Profile = () => {
                                 {t("profile.loginPrompt")}
                               </p>
                               <button
-                                onClick={() => signInWithPopup(auth, new GoogleAuthProvider())}
+                                onClick={async () => {
+                                  try {
+                                    const { signInWithRedirect, GoogleAuthProvider } = await import("firebase/auth");
+                                    await signInWithRedirect(auth, new GoogleAuthProvider());
+                                  } catch (error: any) {
+                                    console.error("Login error:", error);
+                                    if (error.code === "auth/unauthorized-domain") {
+                                      toast.error("هذا النطاق غير مصرح به. يرجى إضافة localhost و النطاق الحالي إلى القائمة البيضاء في Firebase.");
+                                    } else {
+                                      toast.error("فشل تسجيل الدخول: " + (error.message || "خطأ غير معروف"));
+                                    }
+                                  }
+                                }}
                                 className="w-full py-3 bg-primary text-primary-foreground rounded-xl text-xs font-bold font-serif shadow-lg flex items-center justify-center gap-2"
                               >
                                 <Sparkles size={14} />

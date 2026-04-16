@@ -4,6 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect, Suspense, lazy } from "react";
+import { getRedirectResult } from "firebase/auth";
+import { auth } from "./firebase";
+import { toast } from "sonner";
 import NetworkStatus from "./components/NetworkStatus";
 import BottomNav from "./components/BottomNav";
 import GlobalAudioPlayer from "./components/GlobalAudioPlayer";
@@ -121,6 +124,22 @@ const NotificationInitializer = () => {
 };
 
 const App = () => {
+  useEffect(() => {
+    // Handle redirect result on mount
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          toast.success(`مرحباً بك، ${result.user.displayName}`);
+        }
+      })
+      .catch((error) => {
+        console.error("Redirect login error:", error);
+        if (error.code === "auth/unauthorized-domain") {
+          toast.error("هذا النطاق غير مصرح به. يرجى إضافة localhost و النطاق الحالي إلى Firebase.");
+        }
+      });
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
