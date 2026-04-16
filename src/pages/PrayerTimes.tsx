@@ -14,12 +14,14 @@ import {
   getCairoDate,
   getEffectiveNow,
   formatTime,
-  ADHAN_SOUNDS,
-  CALCULATION_METHODS,
-  PRAYER_NAMES,
   type PrayerTimesData,
   type PrayerSettings,
 } from "@/hooks/usePrayerTimes";
+import {
+  ADHAN_SOUNDS,
+  CALCULATION_METHODS,
+  PRAYER_NAMES,
+} from "@/data/prayerConstants";
 import QuranHeader from "@/components/QuranHeader";
 import { Button } from "@/components/ui/button";
 
