@@ -6,8 +6,8 @@ import {
   PRAYER_NAMES, 
   type PrayerSettings, 
   type PrayerTimesData,
-  getEffectiveNow,
-} from './usePrayerTimes';
+} from '@/data/prayerConstants';
+import { getEffectiveNow } from './usePrayerTimes';
 import { isBefore } from 'date-fns';
 import { useAdhan } from '@/contexts/AdhanContext';
 
