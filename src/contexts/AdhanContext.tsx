@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useRef, useCallback, useEffect } from "react";
-import { PRAYER_SETTINGS_KEY, DEFAULT_SETTINGS, type PrayerSettings, ADHAN_SOUNDS, PRAYER_NAMES, type PrayerTimesData } from "@/hooks/usePrayerTimes";
+import { PRAYER_SETTINGS_KEY, DEFAULT_SETTINGS, type PrayerSettings, ADHAN_SOUNDS, PRAYER_NAMES, type PrayerTimesData } from "@/data/prayerConstants";
 import { speakPrayerName } from "@/services/ttsService";
 
 interface AdhanContextType {

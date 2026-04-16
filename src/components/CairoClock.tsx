@@ -1,9 +1,14 @@
-import { getCairoDate } from "@/hooks/usePrayerTimes";
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { toZonedTime } from "date-fns-tz";
-
+
+// Inline getCairoDate to avoid circular dependency
+const getCairoDate = (): Date => {
+  return toZonedTime(new Date(), "Africa/Cairo");
+};
+
+
 const CairoClock = () => {
   const [time, setTime] = useState("");
   const { i18n } = useTranslation();
