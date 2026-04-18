@@ -8,17 +8,6 @@ import { Geolocation } from "@capacitor/geolocation";
 import { Capacitor } from "@capacitor/core";
 import { Preferences } from "@capacitor/preferences";
 import { storage } from "@/lib/storage";
-// Import constants from the dedicated file to avoid circular dependencies
-export { 
-  PRAYER_SETTINGS_KEY, 
-  DEFAULT_SETTINGS, 
-  ADHAN_SOUNDS, 
-  CALCULATION_METHODS, 
-  PRAYER_NAMES,
-  type PrayerTimesData, 
-  type PrayerSettings 
-} from "@/data/prayerConstants";
-
 import { 
   PRAYER_SETTINGS_KEY, 
   DEFAULT_SETTINGS, 
@@ -28,6 +17,16 @@ import {
   type PrayerTimesData, 
   type PrayerSettings 
 } from "@/data/prayerConstants";
+
+export { 
+  PRAYER_SETTINGS_KEY, 
+  DEFAULT_SETTINGS, 
+  ADHAN_SOUNDS, 
+  CALCULATION_METHODS, 
+  PRAYER_NAMES,
+  type PrayerTimesData, 
+  type PrayerSettings 
+};
 
 const getSettings = (): PrayerSettings => {
   try {
