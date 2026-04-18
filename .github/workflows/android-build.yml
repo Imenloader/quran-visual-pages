@@ -76,13 +76,18 @@ jobs:
           echo "--- DEBUG: Deleting potential problematic assets ---"
           find . -name "ic_launcher_background.png" -delete
           
+          # Delete legacy density folders that often cause compilation issues with modern assets
+          echo "--- CLEANING LEGACY MISMITS ---"
+          rm -rf app/src/main/res/mipmap-ldpi
+          rm -rf app/src/main/res/mipmap-mdpi
+          
           # Fix for AAPT: error: file failed to compile (PNG errors)
           echo "--- FIXING PNG ASSETS ---"
           sudo apt-get update && sudo apt-get install -y optipng
           find app/src/main/res -name "*.png" -exec optipng -quiet -strip all {} + || true
           
           echo "Building Debug APK..."
-          ./gradlew assembleDebug
+          ./gradlew clean assembleDebug
           
           if [ -f "app/release-key.keystore" ]; then
             echo "Building Signed Release App Bundle (.aab)..."
