@@ -393,10 +393,7 @@ const JuzViewer = () => {
 
   const getImageUrl = (page: number) => {
     const level = fallbackLevel[page] || 0;
-    if (tajweedMode && level === 0) {
-      return `https://quran.com/images/quran/tajweed/${page}.png`;
-    }
-    return getQuranPageFallbackImageUrl(page, level);
+    return getQuranPageFallbackImageUrl(page, level, tajweedMode);
   };
 
   const scrollToPage = (page: number) => {

@@ -4,4 +4,5 @@
     <string name="title_activity_main">Quraaniat</string>
     <string name="package_name">com.quraaniat.app</string>
     <string name="custom_url_scheme">com.quraaniat.app</string>
+    <string name="server_client_id">130128331336-jsf2phje1obt9ln0lj5f5nlfsgl6rssn.apps.googleusercontent.com</string>
 </resources>

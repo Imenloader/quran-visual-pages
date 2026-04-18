@@ -914,14 +914,38 @@ const Profile = () => {
                               <button
                                 onClick={async () => {
                                   try {
-                                    const { signInWithRedirect, GoogleAuthProvider } = await import("firebase/auth");
-                                    await signInWithRedirect(auth, new GoogleAuthProvider());
+                                    const { Capacitor } = await import("@capacitor/core");
+                                    const { GoogleAuthProvider, signInWithPopup, signInWithCredential } = await import("firebase/auth");
+                                    
+                                    if (Capacitor.isNativePlatform()) {
+                                      // Native Android/iOS Google Sign In
+                                      const { GoogleAuth } = await import("@codetrix-studio/capacitor-google-auth");
+                                      
+                                      // Note: This needs the real Web Client ID to work
+                                      GoogleAuth.initialize({
+                                        clientId: "130128331336-jsf2phje1obt9ln0lj5f5nlfsgl6rssn.apps.googleusercontent.com",
+                                        scopes: ['profile', 'email'],
+                                        grantOfflineAccess: true,
+                                      });
+                                      
+                                      const googleUser = await GoogleAuth.signIn();
+                                      
+                                      if (googleUser.authentication.idToken) {
+                                        const credential = GoogleAuthProvider.credential(googleUser.authentication.idToken);
+                                        await signInWithCredential(auth, credential);
+                                      } else {
+                                        throw new Error("Missing ID Token from Google Sign In");
+                                      }
+                                    } else {
+                                      // Web fallback
+                                      await signInWithPopup(auth, new GoogleAuthProvider());
+                                    }
                                   } catch (error: any) {
                                     console.error("Login error:", error);
                                     if (error.code === "auth/unauthorized-domain") {
-                                      toast.error("هذا النطاق غير مصرح به. يرجى إضافة localhost و النطاق الحالي إلى القائمة البيضاء في Firebase.");
+                                      toast.error(i18n.language === 'ar' ? "هذا النطاق غير مصرح به." : "This domain is not authorized.");
                                     } else {
-                                      toast.error("فشل تسجيل الدخول: " + (error.message || "خطأ غير معروف"));
+                                      toast.error((i18n.language === 'ar' ? "فشل تسجيل الدخول: " : "Login failed: ") + (error.message || "Unknown error"));
                                     }
                                   }
                                 }}

@@ -186,23 +186,25 @@ export const getJuzAndPageForSurah = (surahNumber: number): { juz: number; page:
   };
 };
 
-export const getQuranPageImageUrl = (pageNumber: number | string | undefined | null): string => {
-  if (!pageNumber) return "";
-  const paddedPage = String(pageNumber).padStart(3, '0');
-  // Primary Remote Source (Jahedev GitHub Pages)
-  return `https://jahedev.github.io/tajweed-quran-pages/hafs/tajweed-${paddedPage}.jpg`;
+export const getQuranPageImageUrl = (pageNumber: number | string | undefined | null, isTajweed: boolean = true): string => {
+  return getQuranPageFallbackImageUrl(pageNumber, 0, isTajweed);
 };
 
-export const getQuranPageFallbackImageUrl = (pageNumber: number | string | undefined | null, level: number = 0): string => {
+export const getQuranPageFallbackImageUrl = (pageNumber: number | string | undefined | null, level: number = 0, isTajweed: boolean = true): string => {
   if (!pageNumber) return "";
   const paddedPage = String(pageNumber).padStart(3, '0');
   
-  const sources = [
-    `https://jahedev.github.io/tajweed-quran-pages/hafs/tajweed-${paddedPage}.jpg`,
-    `https://raw.githubusercontent.com/Jahedev/tajweed-quran-pages/main/hafs/tajweed-${paddedPage}.jpg`,
-    `https://android.quran.com/data/tajweed/v2/png/page${paddedPage}.png`,
-    `https://quran.com/images/quran/tajweed/${pageNumber}.png`
-  ];
-  
-  return sources[level % sources.length];
+  if (isTajweed) {
+    const tajweedSources = [
+      `https://jahedev.github.io/tajweed-quran-pages/hafs/tajweed-${paddedPage}.jpg`,
+      `https://raw.githubusercontent.com/Jahedev/tajweed-quran-pages/main/hafs/tajweed-${paddedPage}.jpg`
+    ];
+    return tajweedSources[level % tajweedSources.length];
+  } else {
+    const standardSources = [
+      `https://android.quran.com/data/width_1260/page${paddedPage}.png`,
+      `https://android.quran.com/data/width_1024/page${paddedPage}.png`
+    ];
+    return standardSources[level % standardSources.length];
+  }
 };

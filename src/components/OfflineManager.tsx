@@ -71,8 +71,8 @@ const OfflineManager: React.FC = () => {
       const cache = await caches.open(CACHE_NAME);
       
       const downloadPage = async (page: number, retries = 3) => {
-        const localUrl = getQuranPageImageUrl(page);
-        const fallbackUrl = getQuranPageFallbackImageUrl(page);
+        const localUrl = getQuranPageImageUrl(page, true);
+        const fallbackUrl = getQuranPageFallbackImageUrl(page, 0, true);
         
         for (let attempt = 1; attempt <= retries; attempt++) {
           try {

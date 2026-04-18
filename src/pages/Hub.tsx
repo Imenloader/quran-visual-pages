@@ -116,7 +116,7 @@ const Hub = () => {
         await Promise.all(
           batch.map(async (page) => {
             try {
-              const res = await fetchWithRetry(getQuranPageImageUrl(page));
+              const res = await fetchWithRetry(getQuranPageImageUrl(page, true));
               await res.blob();
               loaded++;
               dlLoadedRef.current = loaded;

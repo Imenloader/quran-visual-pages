@@ -81,7 +81,8 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
         const urls = new Set(keys.map(k => k.url));
         let cached = 0;
         for (let p = juz.startPage; p <= juz.endPage; p++) {
-          const pageUrl = new URL(getQuranPageImageUrl(p), window.location.origin).href;
+          // Defaults to Tajweed mode images for caching offline
+          const pageUrl = new URL(getQuranPageImageUrl(p, true), window.location.origin).href;
           if (urls.has(pageUrl)) cached++;
         }
         if (!cancelled) {
@@ -117,7 +118,7 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
       await Promise.all(
         batch.map(async (page) => {
           try {
-            const url = getQuranPageImageUrl(page);
+            const url = getQuranPageImageUrl(page, true);
             await cache.add(url);
           } catch (err) { 
             console.error(`Failed to cache page ${page}:`, err);

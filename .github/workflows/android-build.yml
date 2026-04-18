@@ -47,7 +47,7 @@ jobs:
         run: |
           # Use printf to avoid trailing newline/interpretation issues
           printf "%s" "$BASE64_KEY" | tr -d '\n\r ' | base64 --decode > android/app/release-key.keystore
-
+          
           # Troubleshooting info (visible in logs)
           echo "Checking file size..."
           ls -l android/app/release-key.keystore
@@ -70,10 +70,10 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-
+          
           echo "Building Debug APK..."
           ./gradlew assembleDebug
-
+          
           if [ -f "app/release-key.keystore" ]; then
             echo "Building Signed Release App Bundle (.aab)..."
             ./gradlew bundleRelease \
@@ -92,7 +92,7 @@ jobs:
         run: |
           echo "--- DEBUG FINGERPRINTS ---"
           cd android && ./gradlew signingReport
-
+          
           if [ -f "app/release-key.keystore" ]; then
             echo "--- RELEASE FINGERPRINTS (PRO) ---"
             keytool -list -v -keystore app/release-key.keystore -alias "$KEY_ALIAS" -storepass "$STORE_PASSWORD" | grep -E "SHA1|SHA256"
