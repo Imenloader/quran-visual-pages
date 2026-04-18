@@ -14,13 +14,15 @@
     "cap": "cap"
   },
   "dependencies": {
-    "@codetrix-studio/capacitor-google-auth": "^3.3.6",
     "@capacitor/android": "^8.3.0",
     "@capacitor/cli": "^8.3.0",
     "@capacitor/core": "^8.3.0",
     "@capacitor/geolocation": "^8.2.0",
     "@capacitor/local-notifications": "^8.0.2",
     "@capacitor/preferences": "^8.0.1",
+    "@capacitor/splash-screen": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.2",
+    "@codetrix-studio/capacitor-google-auth": "^3.3.6",
     "@google/genai": "^1.47.0",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "^1.2.11",
@@ -90,6 +92,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@eslint/js": "^9.32.0",
     "@tailwindcss/typography": "^0.5.16",
     "@testing-library/jest-dom": "^6.6.0",

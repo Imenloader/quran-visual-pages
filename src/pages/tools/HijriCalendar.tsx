@@ -6,6 +6,9 @@ import { useTranslation } from "react-i18next";
 import { format, addMonths, subMonths, isSameDay } from "date-fns";
 import { ar } from "date-fns/locale";
 import BackButton from "@/components/BackButton";
+import { LocalNotifications } from "@capacitor/local-notifications";
+import { Capacitor } from "@capacitor/core";
+import { toast } from "sonner";
 
 const HIJRI_MONTHS_AR = [
   "محرم", "صفر", "ربيع الأول", "ربيع الآخر", "جمادى الأولى", "جمادى الآخرة",
@@ -166,8 +169,30 @@ const HijriCalendar = () => {
   const handleAddGoal = async () => {
     if (!newGoalText.trim() || !selectedDay) return;
     
-    if (newGoalTime && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-      await Notification.requestPermission();
+    if (newGoalTime) {
+      if (Capacitor.isNativePlatform()) {
+        const check = await LocalNotifications.checkPermissions();
+        if (check.display !== 'granted') {
+          const request = await LocalNotifications.requestPermissions();
+          if (request.display !== 'granted') {
+            toast.error(i18n.language === 'ar' ? "يرجى تفعيل إذن التنبيهات من إعدادات الجهاز" : "Please enable notification permissions in device settings");
+            return;
+          }
+        }
+      } else {
+        const winNotif = (window as unknown as { Notification: typeof Notification }).Notification;
+        if (!winNotif) {
+          toast.error(i18n.language === 'ar' ? "متصفحك لا يدعم التنبيهات" : "Your browser doesn't support notifications");
+          return;
+        }
+        if (winNotif.permission !== 'granted') {
+          const res = await winNotif.requestPermission();
+          if (res !== 'granted') {
+            toast.error(i18n.language === 'ar' ? "يرجى تفعيل إذن التنبيهات" : "Please enable notification permissions");
+            return;
+          }
+        }
+      }
     }
 
     const dateStr = selectedDay.date.gregorian.date;

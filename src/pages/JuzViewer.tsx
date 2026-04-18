@@ -189,7 +189,7 @@ const JuzViewer = () => {
         setCurrentPage(pages[0]);
       }
     }
-  }, [pages, num, scrollDirection]);
+  }, [pages, num, scrollDirection, currentPage]);
 
   const prevScrollDirectionRef = useRef(scrollDirection);
   const prevReadingModeRef = useRef(readingMode);
@@ -204,7 +204,7 @@ const JuzViewer = () => {
     
     prevScrollDirectionRef.current = scrollDirection;
     prevReadingModeRef.current = readingMode;
-  }, [scrollDirection, readingMode]);
+  }, [scrollDirection, readingMode, currentPage]);
 
   useEffect(() => {
     if (currentPage !== 0 && juz) {
@@ -262,7 +262,7 @@ const JuzViewer = () => {
     };
     
     cacheImages();
-  }, [juz, pages, currentPage, tajweedMode]);
+  }, [juz, pages, currentPage, tajweedMode, getImageUrl]);
 
   const { isFullscreen, setIsFullscreen } = useTheme();
   const { playAyah, togglePlay, currentSurah } = useAudioPlayer();
@@ -371,30 +371,12 @@ const JuzViewer = () => {
     };
   }, [juz, num, pages, readingMode, scrollDirection]);
 
-  if (!juz) return <Navigate to="/" replace />;
-
-  const progress = currentPage
-    ? ((currentPage - juz.startPage) / (juz.endPage - juz.startPage)) * 100
-    : 0;
-
-  const handleImageLoad = (page: number) => {
-    setLoadingStates((prev) => ({ ...prev, [page]: false }));
-  };
-
-  const handleImageError = (page: number) => {
-    const currentLevel = fallbackLevel[page] || 0;
-    if (currentLevel < 2) {
-      setFallbackLevel((prev) => ({ ...prev, [page]: currentLevel + 1 }));
-    } else {
-      setLoadingStates((prev) => ({ ...prev, [page]: false }));
-      setErrorStates((prev) => ({ ...prev, [page]: true }));
-    }
-  };
-
-  const getImageUrl = (page: number) => {
+  const getImageUrl = useCallback((page: number) => {
     const level = fallbackLevel[page] || 0;
     return getQuranPageFallbackImageUrl(page, level, tajweedMode);
-  };
+  }, [fallbackLevel, tajweedMode]);
+
+  if (!juz) return <Navigate to="/" replace />;
 
   const scrollToPage = (page: number) => {
     const el = pageRefs.current[page];

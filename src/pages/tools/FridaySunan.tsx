@@ -14,6 +14,8 @@ import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import QuranHeader from "@/components/QuranHeader";
 import { Link } from "react-router-dom";
+import { LocalNotifications } from "@capacitor/local-notifications";
+import { Capacitor } from "@capacitor/core";
 
 interface SunnahItem {
   id: string;
@@ -111,13 +113,24 @@ const FridaySunan = () => {
 
   const toggleReminder = async () => {
     if (!reminderEnabled) {
-      if (!("Notification" in window)) {
+      if (Capacitor.isNativePlatform()) {
+        const check = await LocalNotifications.checkPermissions();
+        if (check.display !== 'granted') {
+          const request = await LocalNotifications.requestPermissions();
+          if (request.display !== 'granted') {
+            toast.error("يرجى تفعيل إذن التنبيهات من إعدادات الجهاز");
+            return;
+          }
+        }
+      } else if ("Notification" in window) {
+        const title = "التنبيهات";
+        const permission = await Notification.requestPermission();
+        if (permission !== "granted") {
+          toast.error("يرجى تفعيل إذن التنبيهات");
+          return;
+        }
+      } else {
         toast.error("متصفحك لا يدعم التنبيهات");
-        return;
-      }
-      const permission = await Notification.requestPermission();
-      if (permission !== "granted") {
-        toast.error("يرجى تفعيل إذن التنبيهات");
         return;
       }
     }

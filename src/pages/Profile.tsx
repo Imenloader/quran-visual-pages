@@ -744,43 +744,62 @@ const Profile = () => {
                     )}
 
                     {activeCategory === "notifications" && (
-                      <section className="space-y-2">
+                      <section className="space-y-4">
                         <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
                           <h3 className="text-sm font-serif font-bold text-primary">{t("profile.notifReminders")}</h3>
                           <p className="text-[8px] text-primary/70">{t("profile.manageReminders")}</p>
                         </div>
                         
                         {!isSupported ? (
-                          <div className="p-2 rounded-xl bg-red-500/5 border border-red-500/20 text-red-500 text-center">
-                            <p className="font-serif font-bold text-[9px]">{t("profile.notifNotSupported")}</p>
+                          <div className="p-3 rounded-2xl bg-red-500/5 border border-red-500/20 text-red-500 text-center">
+                            <p className="font-serif font-bold text-[10px]">{t("profile.notifNotSupported")}</p>
                           </div>
                         ) : (
                           <>
-                            <div className="space-y-1.5">
+                            {permissionState !== "granted" && (
+                              <div className="p-4 rounded-2xl bg-destructive/10 border border-destructive/20 flex items-center gap-3">
+                                <BellOff size={20} className="text-destructive shrink-0" />
+                                <div className="flex-1">
+                                  <p className="text-[11px] text-destructive font-serif font-bold">{t("profile.notifPermissionRequired") || "إذن التنبيهات مطلوب"}</p>
+                                  <p className="text-[10px] text-destructive/80 font-serif">{t("profile.notifPermissionDesc") || "يرجى منح الإذن لضمان وصول التنبيهات في وقتها."}</p>
+                                </div>
+                                <button 
+                                  onClick={() => requestPermission()}
+                                  className="px-3 py-1.5 bg-destructive text-white text-[10px] font-serif rounded-xl font-bold hover:scale-105 transition-all shadow-lg shadow-destructive/20"
+                                >
+                                  {t("profile.enableNotif") || "تفعيل"}
+                                </button>
+                              </div>
+                            )}
+
+                            <div className="space-y-2">
                               {[
                                 { id: "athkarMorning", label: t("profile.athkarMorning"), timeKey: "athkarMorningTime" as const },
                                 { id: "athkarEvening", label: t("profile.athkarEvening"), timeKey: "athkarEveningTime" as const },
                                 { id: "quranReading", label: t("profile.quranReading"), timeKey: "quranReadingTime" as const },
                               ].map((item) => (
-                                <div key={item.id} className="flex items-center justify-between p-2 rounded-xl bg-primary/5 border border-primary/5 group hover:bg-primary/10 transition-all">
+                                <div key={item.id} className="flex items-center justify-between p-3 rounded-2xl bg-primary/5 border border-primary/5 group hover:bg-primary/10 transition-all border-b-primary/10">
                                   <div className={`${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                                    <p className="font-serif text-[11px] font-bold text-primary">{item.label}</p>
-                                    <input
-                                      type="time"
-                                      value={notifSettings[item.timeKey]}
-                                      onChange={(e) => updateNotif({ [item.timeKey]: e.target.value })}
-                                      className="text-[8px] font-serif text-primary/70 bg-transparent outline-none mt-0.5 cursor-pointer"
-                                    />
+                                    <p className="font-serif text-[12px] font-bold text-primary">{item.label}</p>
+                                    <div className="flex items-center gap-1.5 mt-0.5">
+                                      <Clock size={10} className="text-primary/40" />
+                                      <input
+                                        type="time"
+                                        value={notifSettings[item.timeKey]}
+                                        onChange={(e) => updateNotif({ [item.timeKey]: e.target.value })}
+                                        className="text-[9px] font-bold font-serif text-primary/70 bg-transparent outline-none cursor-pointer hover:text-gold transition-colors"
+                                      />
+                                    </div>
                                   </div>
                                   <button
                                     onClick={() => updateNotif({ [item.id]: !notifSettings[item.id as keyof typeof notifSettings] })}
-                                    className={`w-9 h-5 rounded-full transition-all flex items-center p-1 ${
+                                    className={`w-11 h-6 rounded-full transition-all flex items-center p-1 shadow-inner ${
                                       notifSettings[item.id as keyof typeof notifSettings] ? "bg-emerald-deep justify-end" : "bg-primary/10 justify-start"
                                     }`}
                                   >
                                     <motion.div 
                                       layout
-                                      className="w-3 h-3 rounded-full bg-white shadow-lg" 
+                                      className="w-4 h-4 rounded-full bg-white shadow-lg" 
                                     />
                                   </button>
                                 </div>
@@ -940,12 +959,13 @@ const Profile = () => {
                                       // Web fallback
                                       await signInWithPopup(auth, new GoogleAuthProvider());
                                     }
-                                  } catch (error: any) {
+                                  } catch (error: unknown) {
                                     console.error("Login error:", error);
-                                    if (error.code === "auth/unauthorized-domain") {
+                                    const firebaseError = error as { code?: string; message?: string };
+                                    if (firebaseError.code === "auth/unauthorized-domain") {
                                       toast.error(i18n.language === 'ar' ? "هذا النطاق غير مصرح به." : "This domain is not authorized.");
                                     } else {
-                                      toast.error((i18n.language === 'ar' ? "فشل تسجيل الدخول: " : "Login failed: ") + (error.message || "Unknown error"));
+                                      toast.error((i18n.language === 'ar' ? "فشل تسجيل الدخول: " : "Login failed: ") + (firebaseError.message || "Unknown error"));
                                     }
                                   }
                                 }}

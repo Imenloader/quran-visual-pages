@@ -37,17 +37,19 @@ export const usePrayerNotifications = () => {
       const settings = await getSettings();
       if (!settings.notificationsEnabled || !settings.latitude || !settings.longitude) return;
 
-      // Request permissions for native
+      // Request permissions
       if (Capacitor.isNativePlatform()) {
         const status = await LocalNotifications.checkPermissions();
         if (status.display !== 'granted') {
-          await LocalNotifications.requestPermissions();
+          const request = await LocalNotifications.requestPermissions();
+          if (request.display !== 'granted') return;
         }
       } else {
-        const winNotif = (window as any).Notification;
+        const winNotif = (window as unknown as { Notification: typeof Notification }).Notification;
         if (!winNotif) return;
         if (winNotif.permission !== "granted") {
-          await winNotif.requestPermission();
+          const result = await winNotif.requestPermission();
+          if (result !== "granted") return;
         }
       }
 
@@ -134,7 +136,7 @@ export const usePrayerNotifications = () => {
                     } as NotificationOptions);
                   });
                 } else {
-                  const winNotif2 = (window as any).Notification;
+                  const winNotif2 = (window as unknown as { Notification: typeof Notification }).Notification;
                   if (winNotif2) {
                     new winNotif2(title, { 
                       body, 

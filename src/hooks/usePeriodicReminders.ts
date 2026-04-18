@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
 import { ATHKAR_DATA } from "@/data/athkarData";
 import { useTranslation } from "react-i18next";
+import { LocalNotifications } from "@capacitor/local-notifications";
+import { Capacitor } from "@capacitor/core";
 
 const PERIODIC_SETTINGS_KEY = "periodic-reminders-settings";
 
@@ -27,8 +29,26 @@ export const usePeriodicReminders = () => {
     }
   };
 
-  const showNotification = (title: string, body: string) => {
-    const winNotif = (window as any).Notification;
+  const showNotification = async (title: string, body: string) => {
+    if (Capacitor.isNativePlatform()) {
+      const status = await LocalNotifications.checkPermissions();
+      if (status.display === "granted") {
+        await LocalNotifications.schedule({
+          notifications: [
+            {
+              title,
+              body,
+              id: Math.floor(Math.random() * 100000),
+              schedule: { at: new Date() },
+              extra: { url: "/athkar" }
+            }
+          ]
+        });
+      }
+      return;
+    }
+
+    const winNotif = (window as unknown as { Notification: typeof Notification }).Notification;
     if (!winNotif) return;
 
     if (winNotif.permission === "granted") {
@@ -37,7 +57,7 @@ export const usePeriodicReminders = () => {
         icon: "/pwa-192x192.png",
       });
     } else if (winNotif.permission !== "denied") {
-      winNotif.requestPermission().then((permission: string) => {
+      winNotif.requestPermission().then((permission: NotificationPermission) => {
         if (permission === "granted") {
           new winNotif(title, {
             body,
@@ -81,9 +101,32 @@ export const usePeriodicReminders = () => {
   }, []);
 
   // Function to update settings and restart timer
-  const updateSettings = (newSettings: Partial<PeriodicSettings>) => {
+  const updateSettings = async (newSettings: Partial<PeriodicSettings>) => {
     const current = getSettings();
     const updated = { ...current, ...newSettings };
+    
+    // If enabling, check/request permission
+    if (newSettings.enabled === true) {
+      if (Capacitor.isNativePlatform()) {
+        const status = await LocalNotifications.checkPermissions();
+        if (status.display !== "granted") {
+          const req = await LocalNotifications.requestPermissions();
+          if (req.display !== "granted") {
+            // Revert enabled state if denied
+            updated.enabled = false;
+          }
+        }
+      } else {
+        const winNotif = (window as unknown as { Notification: typeof Notification }).Notification;
+        if (winNotif && winNotif.permission !== "granted") {
+          const res = await winNotif.requestPermission();
+          if (res !== "granted") {
+            updated.enabled = false;
+          }
+        }
+      }
+    }
+
     localStorage.setItem(PERIODIC_SETTINGS_KEY, JSON.stringify(updated));
 
     // Restart timer

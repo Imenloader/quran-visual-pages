@@ -194,17 +194,17 @@ export const getQuranPageFallbackImageUrl = (pageNumber: number | string | undef
   if (!pageNumber) return "";
   const paddedPage = String(pageNumber).padStart(3, '0');
   
+  const sources: string[] = [];
+  
   if (isTajweed) {
-    const tajweedSources = [
-      `https://jahedev.github.io/tajweed-quran-pages/hafs/tajweed-${paddedPage}.jpg`,
-      `https://raw.githubusercontent.com/Jahedev/tajweed-quran-pages/main/hafs/tajweed-${paddedPage}.jpg`
-    ];
-    return tajweedSources[level % tajweedSources.length];
-  } else {
-    const standardSources = [
-      `https://android.quran.com/data/width_1260/page${paddedPage}.png`,
-      `https://android.quran.com/data/width_1024/page${paddedPage}.png`
-    ];
-    return standardSources[level % standardSources.length];
+    sources.push(`https://jahedev.github.io/tajweed-quran-pages/hafs/tajweed-${paddedPage}.jpg`);
+    sources.push(`https://raw.githubusercontent.com/Jahedev/tajweed-quran-pages/main/hafs/tajweed-${paddedPage}.jpg`);
   }
+  
+  // Standard fallback sources (always add these as lower priority)
+  sources.push(`https://android.quran.com/data/width_1260/page${paddedPage}.png`);
+  sources.push(`https://android.quran.com/data/width_1024/page${paddedPage}.png`);
+  sources.push(`https://madinah-quran.com/pages/${paddedPage}.png`);
+
+  return sources[level % sources.length];
 };

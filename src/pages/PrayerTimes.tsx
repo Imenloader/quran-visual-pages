@@ -261,7 +261,7 @@ export default function PrayerTimes() {
         }
       }
     } else {
-      const winNotif = (window as any).Notification;
+      const winNotif = (window as unknown as { Notification: typeof Notification }).Notification;
       if (!winNotif) {
         toast.error("متصفحك لا يدعم التنبيهات");
         return;
@@ -603,20 +603,29 @@ export default function PrayerTimes() {
             </section>
 
             <section className="bg-card border border-border rounded-2xl p-5 shadow-soft space-y-4">
-              {settings.notificationsEnabled && (window as any).Notification && (window as any).Notification.permission !== "granted" && (
-                <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-3">
-                  <BellOff size={18} className="text-destructive shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-[11px] text-destructive font-naskh font-bold">إذن التنبيهات مطلوب</p>
-                    <p className="text-[10px] text-destructive font-naskh">التنبيهات مفعلة ولكن المتصفح يمنعها. يرجى تفعيل الإذن.</p>
-                  </div>
-                  <button 
-                    onClick={handleEnableNotifications}
-                    className="px-3 py-1 bg-destructive text-white text-[10px] font-naskh rounded-lg font-bold"
-                  >
-                    تفعيل الإذن
-                  </button>
-                </div>
+              {settings.notificationsEnabled && (
+                Capacitor.isNativePlatform() ? (
+                  // Native Permission Check could be added here if needed, 
+                  // but usually we check it in handleEnableNotifications
+                  null
+                ) : (
+                  (window as unknown as { Notification: typeof Notification }).Notification && 
+                  (window as unknown as { Notification: typeof Notification }).Notification.permission !== "granted" && (
+                    <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-3">
+                      <BellOff size={18} className="text-destructive shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-[11px] text-destructive font-naskh font-bold">إذن التنبيهات مطلوب</p>
+                        <p className="text-[10px] text-destructive font-naskh">التنبيهات مفعلة ولكن المتصفح يمنعها. يرجى تفعيل الإذن.</p>
+                      </div>
+                      <button 
+                        onClick={handleEnableNotifications}
+                        className="px-3 py-1 bg-destructive text-white text-[10px] font-naskh rounded-lg font-bold"
+                      >
+                        تفعيل الإذن
+                      </button>
+                    </div>
+                  )
+                )
               )}
               
               <div className="flex items-center gap-3">

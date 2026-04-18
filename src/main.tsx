@@ -1,9 +1,16 @@
+import { SplashScreen } from '@capacitor/splash-screen';
+import { Capacitor } from '@capacitor/core';
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import "./i18n";
 import ErrorBoundary from "./components/ErrorBoundary.tsx";
 import { registerPeriodicSync } from "./lib/pwa-utils";
+
+// Hide splash screen as soon as app is ready
+if (Capacitor.isNativePlatform()) {
+  SplashScreen.hide();
+}
 
 createRoot(document.getElementById("root")!).render(
   <ErrorBoundary>
