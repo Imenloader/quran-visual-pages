@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import BackButton from "@/components/BackButton";
+import { LocalNotifications } from '@capacitor/local-notifications';
+import { Capacitor } from '@capacitor/core';
 
 const KhatmaPlanner = () => {
   const { t, i18n } = useTranslation();
@@ -38,17 +40,40 @@ const KhatmaPlanner = () => {
   };
 
   const requestNotificationPermission = async () => {
-    if (!("Notification" in window)) {
+    const isNative = Capacitor.isNativePlatform();
+    
+    if (isNative) {
+      try {
+        const status = await LocalNotifications.checkPermissions();
+        if (status.display === 'granted') {
+          setNotificationsEnabled(!notificationsEnabled);
+        } else {
+          const request = await LocalNotifications.requestPermissions();
+          if (request.display === 'granted') {
+            setNotificationsEnabled(true);
+            toast.success(i18n.language === 'ar' ? "تم تفعيل التنبيهات بنجاح" : "Notifications enabled successfully");
+          } else {
+            toast.error(i18n.language === 'ar' ? "تم رفض إذن التنبيهات" : "Notification permission denied");
+          }
+        }
+      } catch (err) {
+        console.error("Local Notification Permission Error:", err);
+      }
+      return;
+    }
+
+    const winNotif = (window as unknown as { Notification: typeof Notification }).Notification;
+    if (!winNotif) {
       toast.error(i18n.language === 'ar' ? "متصفحك لا يدعم التنبيهات" : "Your browser doesn't support notifications");
       return;
     }
 
-    if (Notification.permission === "granted") {
+    if (winNotif.permission === "granted") {
       setNotificationsEnabled(!notificationsEnabled);
       return;
     }
 
-    const permission = await Notification.requestPermission();
+    const permission = await winNotif.requestPermission();
     if (permission === "granted") {
       setNotificationsEnabled(true);
       toast.success(i18n.language === 'ar' ? "تم تفعيل التنبيهات بنجاح" : "Notifications enabled successfully");
@@ -106,6 +131,29 @@ const KhatmaPlanner = () => {
           </div>
 
           <div className="pt-6 border-t border-border/50 space-y-6">
+            {notificationsEnabled && (
+              Capacitor.isNativePlatform() ? (
+                null
+              ) : (
+                (window as unknown as { Notification: typeof Notification }).Notification && 
+                (window as unknown as { Notification: typeof Notification }).Notification.permission !== "granted" && (
+                  <div className="p-4 rounded-2xl bg-destructive/10 border border-destructive/20 flex items-center gap-3">
+                    <BellOff size={20} className="text-destructive shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-[11px] text-destructive font-bold font-naskh">إذن التنبيهات مطلوب</p>
+                      <p className="text-[10px] text-destructive font-naskh">التنبيهات مفعلة ولكن المتصفح يمنعها. يرجى تفعيل الإذن.</p>
+                    </div>
+                    <button 
+                      onClick={requestNotificationPermission}
+                      className="px-3 py-1.5 bg-destructive text-white text-[10px] font-naskh rounded-xl font-bold hover:scale-105 transition-all"
+                    >
+                      تفعيل
+                    </button>
+                  </div>
+                )
+              )
+            )}
+
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${notificationsEnabled ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>

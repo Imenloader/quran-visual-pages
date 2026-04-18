@@ -4,6 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect, Suspense, lazy } from "react";
+import { getRedirectResult } from "firebase/auth";
+import { auth } from "./firebase";
+import { toast } from "sonner";
 import NetworkStatus from "./components/NetworkStatus";
 import BottomNav from "./components/BottomNav";
 import GlobalAudioPlayer from "./components/GlobalAudioPlayer";
@@ -12,9 +15,22 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { UserProvider } from "./contexts/UserContext";
 import { AdhanProvider } from "./contexts/AdhanContext";
 
-// Lazy load page components
+import { useTranslation } from "react-i18next";
+import { useRegisterSW } from 'virtual:pwa-register/react';
+import { useKhatmaNotifications } from "./hooks/useKhatmaNotifications";
+import { usePeriodicReminders } from "./hooks/usePeriodicReminders";
+import { usePrayerNotifications } from "./hooks/usePrayerNotifications";
+import { useGoalNotifications } from "./hooks/useGoalNotifications";
+import { AudioUnlockBanner } from "./components/AudioUnlockBanner";
+import SplashScreen from "./components/SplashScreen";
+import ScrollRestoration from "./components/ScrollRestoration";
+
+// --- التعديل هنا: تحميل الصفحات الأساسية بشكل Lazy مرة أخرى لمحاولة حل مشكلة الـ ReferenceError ---
 const Index = lazy(() => import("./pages/Index"));
 const JuzViewer = lazy(() => import("./pages/JuzViewer"));
+// ------------------------------------------------------------------------------------------
+
+// باقي الصفحات زي ما هي Lazy load مفيش مشكلة
 const Install = lazy(() => import("./pages/Install"));
 const Recitations = lazy(() => import("./pages/Recitations"));
 const EmbedView = lazy(() => import("./pages/EmbedView"));
@@ -52,6 +68,7 @@ const FastingTracker = lazy(() => import("./pages/tools/FastingTracker"));
 const RoutineBuilder = lazy(() => import("./pages/tools/RoutineBuilder"));
 const SadaqahLogger = lazy(() => import("./pages/tools/SadaqahLogger"));
 const DuaLibrary = lazy(() => import("./pages/tools/DuaLibrary"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const MoonTracker = lazy(() => import("./pages/tools/MoonTracker"));
 const Virtues = lazy(() => import("./pages/ramadan/Virtues"));
 const FastingRules = lazy(() => import("./pages/ramadan/FastingRules"));
@@ -62,13 +79,6 @@ const ZakatAlFitr = lazy(() => import("./pages/ramadan/ZakatAlFitr"));
 const HowToUse = lazy(() => import("./pages/HowToUse"));
 const Tajweed = lazy(() => import("./pages/Tajweed"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-
-import { useTranslation } from "react-i18next";
-import { useRegisterSW } from 'virtual:pwa-register/react';
-import { useKhatmaNotifications } from "./hooks/useKhatmaNotifications";
-
-import SplashScreen from "./components/SplashScreen";
-import ScrollRestoration from "./components/ScrollRestoration";
 
 const queryClient = new QueryClient();
 
@@ -98,7 +108,6 @@ const LanguageHandler = () => {
     document.documentElement.dir = dir;
     document.documentElement.lang = i18n.language;
     
-    // Add language-specific class to body for font styling
     document.body.classList.remove("lang-ar", "lang-en");
     document.body.classList.add(`lang-${i18n.language}`);
   }, [i18n.language]);
@@ -106,24 +115,31 @@ const LanguageHandler = () => {
   return null;
 };
 
-import { usePeriodicReminders } from "./hooks/usePeriodicReminders";
-import { usePrayerNotifications } from "./hooks/usePrayerNotifications";
-import { useGoalNotifications } from "./hooks/useGoalNotifications";
-import { AudioUnlockBanner } from "./components/AudioUnlockBanner";
-
 const NotificationInitializer = () => {
-  // Initialize Khatma Notifications
   useKhatmaNotifications();
-  // Initialize Periodic Reminders
   usePeriodicReminders();
-  // Initialize Prayer Notifications
   usePrayerNotifications();
-  // Initialize Goal Notifications
   useGoalNotifications();
   return null;
 };
 
 const App = () => {
+  useEffect(() => {
+    // Handle redirect result on mount
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          toast.success(`مرحباً بك، ${result.user.displayName}`);
+        }
+      })
+      .catch((error) => {
+        console.error("Redirect login error:", error);
+        if (error.code === "auth/unauthorized-domain") {
+          toast.error("هذا النطاق غير مصرح به. يرجى إضافة localhost و النطاق الحالي إلى Firebase.");
+        }
+      });
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
@@ -182,6 +198,7 @@ const App = () => {
                       <Route path="/routine-builder" element={<RoutineBuilder />} />
                       <Route path="/sadaqah-logger" element={<SadaqahLogger />} />
                       <Route path="/dua-library" element={<DuaLibrary />} />
+                      <Route path="/privacy" element={<PrivacyPolicy />} />
                       <Route path="/moon-tracker" element={<MoonTracker />} />
                       <Route path="/ramadan/virtues" element={<Virtues />} />
                       <Route path="/ramadan/fasting-rules" element={<FastingRules />} />

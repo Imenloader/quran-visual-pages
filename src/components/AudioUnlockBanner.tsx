@@ -3,7 +3,7 @@ import { Volume2, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAudioUnlock } from "@/hooks/useAudioUnlock";
 import { useTranslation } from "react-i18next";
-import { PRAYER_SETTINGS_KEY, DEFAULT_SETTINGS } from "@/hooks/usePrayerTimes";
+import { PRAYER_SETTINGS_KEY, DEFAULT_SETTINGS, type PrayerSettings } from "@/data/prayerConstants";
 
 export const AudioUnlockBanner = () => {
   const { isAudioUnlocked, unlockAudio } = useAudioUnlock();

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { storage } from "@/lib/storage";
 
 type Theme = "light" | "dark" | "sepia";
 type ReadingMode = "image" | "text";
@@ -25,66 +26,66 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isFullscreen, setIsFullscreenState] = useState(false);
-  const [theme, setThemeState] = useState<Theme>(() => {
-    const saved = localStorage.getItem("quran-theme");
-    if (saved === "dark" || saved === "night") return "dark";
-    if (saved === "sepia") return "sepia";
-    return "light";
-  });
+  const [theme, setThemeState] = useState<Theme>("light");
+  const [readingMode, setReadingModeState] = useState<ReadingMode>("image");
+  const [scrollDirection, setScrollDirectionState] = useState<ScrollDirection>("vertical");
+  const [dimming, setDimmingState] = useState<number>(0);
+  const [tajweedMode, setTajweedModeState] = useState<boolean>(false);
+  const [hifzMode, setHifzModeState] = useState<boolean>(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const [readingMode, setReadingModeState] = useState<ReadingMode>(() => {
-    const saved = localStorage.getItem("quran-reading-mode");
-    return (saved as ReadingMode) || "image";
-  });
+  useEffect(() => {
+    const loadSettings = async () => {
+      const savedTheme = await storage.get("quran-theme");
+      const savedReadingMode = await storage.get("quran-reading-mode");
+      const savedScrollDirection = await storage.get("quran-scroll-direction");
+      const savedDimming = await storage.get("quran-page-dimming");
+      const savedTajweed = await storage.get("quran-tajweed-mode");
+      const savedHifz = await storage.get("quran-hifz-mode");
 
-  const [scrollDirection, setScrollDirectionState] = useState<ScrollDirection>(() => {
-    const saved = localStorage.getItem("quran-scroll-direction");
-    return (saved as ScrollDirection) || "vertical";
-  });
+      if (savedTheme === "dark" || savedTheme === "night") setThemeState("dark");
+      else if (savedTheme === "sepia") setThemeState("sepia");
+      else setThemeState("light");
 
-  const [dimming, setDimmingState] = useState<number>(() => {
-    const saved = localStorage.getItem("quran-page-dimming");
-    return saved ? parseInt(saved) : 0;
-  });
+      if (savedReadingMode) setReadingModeState(savedReadingMode as ReadingMode);
+      if (savedScrollDirection) setScrollDirectionState(savedScrollDirection as ScrollDirection);
+      if (savedDimming) setDimmingState(parseInt(savedDimming));
+      if (savedTajweed) setTajweedModeState(savedTajweed === "true");
+      if (savedHifz) setHifzModeState(savedHifz === "true");
+      
+      setIsLoaded(true);
+    };
+    loadSettings();
+  }, []);
 
-  const [tajweedMode, setTajweedModeState] = useState<boolean>(() => {
-    const saved = localStorage.getItem("quran-tajweed-mode");
-    return saved === "true";
-  });
-
-  const [hifzMode, setHifzModeState] = useState<boolean>(() => {
-    const saved = localStorage.getItem("quran-hifz-mode");
-    return saved === "true";
-  });
-
-  const setTheme = (newTheme: Theme) => {
+  const setTheme = async (newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem("quran-theme", newTheme);
+    await storage.set("quran-theme", newTheme);
   };
 
-  const setReadingMode = (newMode: ReadingMode) => {
+  const setReadingMode = async (newMode: ReadingMode) => {
     setReadingModeState(newMode);
-    localStorage.setItem("quran-reading-mode", newMode);
+    await storage.set("quran-reading-mode", newMode);
   };
 
-  const setScrollDirection = (newDirection: ScrollDirection) => {
+  const setScrollDirection = async (newDirection: ScrollDirection) => {
     setScrollDirectionState(newDirection);
-    localStorage.setItem("quran-scroll-direction", newDirection);
+    await storage.set("quran-scroll-direction", newDirection);
   };
 
-  const setDimming = (newDimming: number) => {
+  const setDimming = async (newDimming: number) => {
     setDimmingState(newDimming);
-    localStorage.setItem("quran-page-dimming", newDimming.toString());
+    await storage.set("quran-page-dimming", newDimming.toString());
   };
 
-  const setTajweedMode = (newMode: boolean) => {
+  const setTajweedMode = async (newMode: boolean) => {
     setTajweedModeState(newMode);
-    localStorage.setItem("quran-tajweed-mode", newMode.toString());
+    await storage.set("quran-tajweed-mode", newMode.toString());
   };
 
-  const setHifzMode = (newMode: boolean) => {
+  const setHifzMode = async (newMode: boolean) => {
     setHifzModeState(newMode);
-    localStorage.setItem("quran-hifz-mode", newMode.toString());
+    await storage.set("quran-hifz-mode", newMode.toString());
   };
 
   const setIsFullscreen = (v: boolean) => {

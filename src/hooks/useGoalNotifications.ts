@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import { LocalNotifications } from '@capacitor/local-notifications';
+import { Capacitor } from '@capacitor/core';
 
 export const useGoalNotifications = () => {
   useEffect(() => {
-    const checkNotifications = () => {
+    const checkNotifications = async () => {
       const saved = localStorage.getItem("hijri_goals");
       if (!saved) return;
       
@@ -19,17 +21,37 @@ export const useGoalNotifications = () => {
         const currentTime = format(now, 'HH:mm');
 
         let updated = false;
-        const newTodayGoals = todayGoals.map((goal: { completed: boolean; notifyTime: string; notified: boolean; text: string }) => {
+        const newTodayGoals = await Promise.all(todayGoals.map(async (goal: { completed: boolean; notifyTime: string; notified: boolean; text: string }) => {
           if (!goal.completed && goal.notifyTime === currentTime && !goal.notified) {
-            if (Notification.permission === 'granted') {
-              new Notification('تذكير بالهدف', { body: goal.text, icon: '/icon-192x192.png' });
+            
+            if (Capacitor.isNativePlatform()) {
+              const status = await LocalNotifications.checkPermissions();
+              if (status.display === 'granted') {
+                await LocalNotifications.schedule({
+                  notifications: [
+                    {
+                      title: 'تذكير بالهدف',
+                      body: goal.text,
+                      id: Math.floor(Math.random() * 100000),
+                      schedule: { at: new Date() },
+                      extra: { url: "/hijri" }
+                    }
+                  ]
+                });
+              }
+            } else {
+              const winNotif = (window as unknown as { Notification: typeof Notification }).Notification;
+              if (winNotif && winNotif.permission === 'granted') {
+                new winNotif('تذكير بالهدف', { body: goal.text, icon: '/icon-192x192.png' });
+              }
             }
+            
             toast.info(`تذكير بهدف اليوم: ${goal.text}`);
             updated = true;
             return { ...goal, notified: true };
           }
           return goal;
-        });
+        }));
 
         if (updated) {
           goals[todayStr] = newTodayGoals;

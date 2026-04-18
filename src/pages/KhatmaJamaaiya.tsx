@@ -127,19 +127,42 @@ const KhatmaJamaaiya = () => {
   }, []);
 
   const loginWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
     try {
-      const result = await signInWithPopup(auth, provider);
-      setUser(result.user);
-      toast.success(isAr ? "تم تسجيل الدخول بنجاح" : "Logged in successfully");
-    } catch (e: unknown) {
-      console.error("Login Error:", e);
-      const error = e as { message?: string; code?: string };
-      const errorMessage = error.message || (isAr ? "فشل تسجيل الدخول" : "Login failed");
-      toast.error(isAr ? `فشل تسجيل الدخول: ${errorMessage}` : `Login failed: ${errorMessage}`);
+      const { Capacitor } = await import("@capacitor/core");
+      const { GoogleAuthProvider, signInWithPopup, signInWithCredential } = await import("firebase/auth");
       
-      if (error.code === 'auth/unauthorized-domain') {
-        toast.info(isAr ? "يرجى إضافة نطاق التطبيق إلى النطاقات المصرح بها في Firebase Console" : "Please add the app domain to authorized domains in Firebase Console");
+      if (Capacitor.isNativePlatform()) {
+        // Native Android/iOS Google Sign In
+        const { GoogleAuth } = await import("@codetrix-studio/capacitor-google-auth");
+        
+        // Ensure initialized (using same clientId as Profile.tsx)
+        GoogleAuth.initialize({
+          clientId: "130128331336-jsf2phje1obt9ln0lj5f5nlfsgl6rssn.apps.googleusercontent.com",
+          scopes: ['profile', 'email'],
+          grantOfflineAccess: true,
+        });
+        
+        const googleUser = await GoogleAuth.signIn();
+        
+        if (googleUser.authentication.idToken) {
+          const credential = GoogleAuthProvider.credential(googleUser.authentication.idToken);
+          await signInWithCredential(auth, credential);
+        } else {
+          throw new Error("Missing ID Token from Google Sign In");
+        }
+      } else {
+        // Web fallback
+        await signInWithPopup(auth, new GoogleAuthProvider());
+      }
+    } catch (error: unknown) {
+      console.error("Login Error:", error);
+      const firebaseError = error as { code?: string; message?: string };
+      const isAuthDomainError = firebaseError.code === "auth/unauthorized-domain";
+      
+      if (isAuthDomainError) {
+        toast.error(isAr ? "هذا النطاق غير مصرح به." : "This domain is not authorized.");
+      } else {
+        toast.error((isAr ? "فشل تسجيل الدخول: " : "Login failed: ") + (firebaseError.message || "Unknown error"));
       }
     }
   };
@@ -229,14 +252,13 @@ const KhatmaJamaaiya = () => {
         isSubscribed = false;
       };
     }
-  }, [user, isAuthReady, searchParams, isAr, navigate]);
+  }, [user, isAuthReady, searchParams, isAr, navigate, handleTimeouts]);
 
   // 3. Timeout Logic (Lazy)
-  const handleTimeouts = async (id: string, portions: Record<string, Portion>) => {
+  const handleTimeouts = useCallback(async (id: string, portions: Record<string, Portion>) => {
     const now = Date.now();
     const timeoutMs = 3 * 60 * 60 * 1000; // 3 hours
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updates: Record<string, any> = {};
+    const updates: Record<string, unknown> = {};
     let hasUpdates = false;
 
     Object.entries(portions).forEach(([key, portion]) => {
@@ -262,7 +284,7 @@ const KhatmaJamaaiya = () => {
         handleFirestoreError(e, OperationType.UPDATE, `khatmas/${id}`);
       }
     }
-  };
+  }, []);
 
   // 4. Actions
   const createKhatma = async (type: 'public' | 'private') => {

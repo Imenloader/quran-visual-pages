@@ -3,9 +3,11 @@ import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { toZonedTime } from "date-fns-tz";
 
-export const getCairoDate = (): Date => {
+// Inline getCairoDate to avoid circular dependency
+const getCairoDate = (): Date => {
   return toZonedTime(new Date(), "Africa/Cairo");
 };
+
 
 const CairoClock = () => {
   const [time, setTime] = useState("");

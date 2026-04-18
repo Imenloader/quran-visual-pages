@@ -19,6 +19,7 @@ import QuranHeader from "@/components/QuranHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
+import { storage } from "@/lib/storage";
 
 interface Habit {
   id: string;
@@ -44,55 +45,59 @@ const RoutineBuilder = () => {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [newHabitName, setNewHabitName] = useState("");
   const [streak, setStreak] = useState(0);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    const savedHabits = localStorage.getItem(`habits-${todayKey}`);
-    const userHabits = localStorage.getItem('user-habits-list');
-    
-    if (savedHabits) {
-      setHabits(JSON.parse(savedHabits));
-    } else if (userHabits) {
-      const list = JSON.parse(userHabits) as Habit[];
-      setHabits(list.map((h: Habit) => ({ ...h, isCompleted: false })));
-    } else {
-      setHabits(defaultHabits);
-      localStorage.setItem('user-habits-list', JSON.stringify(defaultHabits));
-    }
+    const loadData = async () => {
+      const savedHabits = await storage.get(`habits-${todayKey}`);
+      const userHabits = await storage.get('user-habits-list');
+      
+      if (savedHabits) {
+        setHabits(JSON.parse(savedHabits));
+      } else if (userHabits) {
+        const list = JSON.parse(userHabits) as Habit[];
+        setHabits(list.map((h: Habit) => ({ ...h, isCompleted: false })));
+      } else {
+        setHabits(defaultHabits);
+        await storage.set('user-habits-list', JSON.stringify(defaultHabits));
+      }
 
-    // Simple streak calculation (mocked for demo)
-    const savedStreak = localStorage.getItem('routine-streak');
-    setStreak(savedStreak ? parseInt(savedStreak) : 5);
+      const savedStreak = await storage.get('routine-streak');
+      setStreak(savedStreak ? parseInt(savedStreak) : 5);
+      setIsLoaded(true);
+    };
+    loadData();
   }, [todayKey]);
 
-  const toggleHabit = (id: string) => {
+  const toggleHabit = async (id: string) => {
     const updated = habits.map(h => 
       h.id === id ? { ...h, isCompleted: !h.isCompleted } : h
     );
     setHabits(updated);
-    localStorage.setItem(`habits-${todayKey}`, JSON.stringify(updated));
+    await storage.set(`habits-${todayKey}`, JSON.stringify(updated));
   };
 
-  const addHabit = () => {
+  const addHabit = async () => {
     if (!newHabitName.trim()) return;
     const newHabit: Habit = {
       id: Date.now().toString(),
       nameEn: newHabitName,
-      nameAr: newHabitName, // For custom habits, we use the same name
+      nameAr: newHabitName,
       icon: "zap",
       isCompleted: false
     };
     const updated = [...habits, newHabit];
     setHabits(updated);
-    localStorage.setItem('user-habits-list', JSON.stringify(updated.map(h => ({ ...h, isCompleted: false }))));
-    localStorage.setItem(`habits-${todayKey}`, JSON.stringify(updated));
+    await storage.set('user-habits-list', JSON.stringify(updated.map(h => ({ ...h, isCompleted: false }))));
+    await storage.set(`habits-${todayKey}`, JSON.stringify(updated));
     setNewHabitName("");
   };
 
-  const removeHabit = (id: string) => {
+  const removeHabit = async (id: string) => {
     const updated = habits.filter(h => h.id !== id);
     setHabits(updated);
-    localStorage.setItem('user-habits-list', JSON.stringify(updated.map(h => ({ ...h, isCompleted: false }))));
-    localStorage.setItem(`habits-${todayKey}`, JSON.stringify(updated));
+    await storage.set('user-habits-list', JSON.stringify(updated.map(h => ({ ...h, isCompleted: false }))));
+    await storage.set(`habits-${todayKey}`, JSON.stringify(updated));
   };
 
   const getIcon = (iconName: string) => {

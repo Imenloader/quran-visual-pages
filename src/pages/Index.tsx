@@ -46,7 +46,7 @@ const getBookmark = (): BookmarkData | null => {
   }
 };
 
-const Index = () => {
+function Index() {
   const [searchQuery, setSearchQuery] = useState("");
   const [surahResults, setSurahResults] = useState<SurahInfo[]>([]);
   const [showIndex, setShowIndex] = useState(false);
