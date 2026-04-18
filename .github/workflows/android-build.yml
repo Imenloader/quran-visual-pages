@@ -71,6 +71,11 @@ jobs:
           cd android
           chmod +x gradlew
           
+          echo "--- DEBUG: Checking for problematic assets ---"
+          find . -name "ic_launcher_background.png" -exec ls -l {} +
+          echo "--- DEBUG: Deleting potential problematic assets ---"
+          find . -name "ic_launcher_background.png" -delete
+          
           echo "Building Debug APK..."
           ./gradlew assembleDebug
           
