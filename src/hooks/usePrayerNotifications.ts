@@ -93,7 +93,7 @@ export const usePrayerNotifications = () => {
                 body: `الله أكبر، الله أكبر.. حان الآن موعد أذان صلاة ${PRAYER_NAMES[prayer]}`,
                 id: index + 100,
                 schedule: { at: target },
-                sound: 'adhan.wav', // Assuming adhan.wav is in assets
+                sound: 'adhan.mp3', // Assuming adhan.mp3 is in assets
                 attachments: [],
                 actionTypeId: '',
                 extra: null

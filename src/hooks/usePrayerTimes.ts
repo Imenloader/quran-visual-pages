@@ -320,7 +320,7 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
               body: `الله أكبر، الله أكبر.. حان الآن موعد أذان صلاة ${PRAYER_NAMES[prayer]} حسب توقيت ${settings.cityName || "القاهرة"}`,
               id: 10 + ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"].indexOf(prayer),
               schedule: { at: target, repeats: true, every: 'day' },
-              sound: 'adhan.wav', // Needs to be in android/app/src/main/res/raw/
+              sound: 'adhan.mp3', // Needs to be in android/app/src/main/res/raw/
               extra: { url: "/prayer-times", prayer }
             });
 
