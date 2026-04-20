@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 
 // --- التعديل هنا: تحميل KhatmaCelebration بشكل Lazy ---
 const KhatmaCelebration = lazy(() => import("@/components/KhatmaCelebration"));
+const SourceSelector = lazy(() => import("@/components/SourceSelector"));
 // ---------------------------------------------------
 
 const BOOKMARK_KEY = "quran-bookmark";
@@ -52,7 +53,7 @@ function JuzViewer() {
   const { juzNumber } = useParams();
   const num = parseInt(juzNumber || "0");
   const juz = juzData.find((j) => j.number === num);
-  const { theme, readingMode, scrollDirection, tajweedMode, hifzMode, setHifzMode } = useTheme();
+  const { theme, readingMode, scrollDirection, tajweedMode, hifzMode, setHifzMode, preferredImageSource, setPreferredImageSource } = useTheme();
   const { addAyahRead, addPageRead, addJuzCompleted } = useUser();
 
 
@@ -85,6 +86,7 @@ function JuzViewer() {
   const [isScrollingDown, setIsScrollingDown] = useState(false);
   const [showPageNav, setShowPageNav] = useState(false);
   const [showJuzIndex, setShowJuzIndex] = useState(false);
+  const [showSourceSelector, setShowSourceSelector] = useState(false);
   const [showKhatmaCelebration, setShowKhatmaCelebration] = useState(false);
   const [savedBookmark, setSavedBookmark] = useState<BookmarkData | null>(null);
   const [currentVerseKey, setCurrentVerseKey] = useState<string | undefined>(() => getBookmark()?.verseKey);
@@ -206,8 +208,8 @@ function JuzViewer() {
 
   const getImageUrl = useCallback((page: number) => {
     const level = fallbackLevel[page] || 0;
-    return getQuranPageFallbackImageUrl(page, level, tajweedMode);
-  }, [fallbackLevel, tajweedMode]);
+    return getQuranPageFallbackImageUrl(page, level, tajweedMode, preferredImageSource || undefined);
+  }, [fallbackLevel, tajweedMode, preferredImageSource]);
 
   const handleSaveBookmark = useCallback(() => {
     if (currentPage) {
@@ -491,6 +493,7 @@ function JuzViewer() {
           onSaveBookmark={handleSaveBookmark}
           onTogglePageNav={() => setShowPageNav((v) => !v)}
           onToggleJuzIndex={() => setShowJuzIndex((v) => !v)}
+          onToggleSourceSelector={() => setShowSourceSelector((v) => !v)}
           currentPage={currentPage}
           bookmarked={savedBookmark?.juz === num && savedBookmark?.page === currentPage}
           juzNumber={num}
@@ -522,6 +525,14 @@ function JuzViewer() {
           onClose={() => setShowPageNav(false)}
         />
       )}
+
+      <Suspense fallback={null}>
+        <AnimatePresence>
+          {showSourceSelector && (
+            <SourceSelector onClose={() => setShowSourceSelector(false)} />
+          )}
+        </AnimatePresence>
+      </Suspense>
 
       {/* --- التعديل هنا: استخدام Suspense حول KhatmaCelebration --- */}
       <Suspense fallback={null}>

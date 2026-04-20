@@ -1,4 +1,4 @@
-import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen, List, Moon, Sun, Info, MessageSquareText, Type, FileImage, ArrowDown, ArrowRightLeft, Palette, GraduationCap, Sparkles } from "lucide-react";
+import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen, List, Moon, Sun, Info, MessageSquareText, Type, FileImage, ArrowDown, ArrowRightLeft, Palette, GraduationCap, Sparkles, Server } from "lucide-react";
 import { toArabicNumber } from "@/data/quranData";
 import ShareButton from "./ShareButton";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -18,6 +18,7 @@ interface ReadingToolbarProps {
   juzNumber: number;
   hifzMode: boolean;
   onToggleHifzMode: () => void;
+  onToggleSourceSelector: () => void;
 }
 
 const ReadingToolbar = ({
@@ -33,6 +34,7 @@ const ReadingToolbar = ({
   juzNumber,
   hifzMode,
   onToggleHifzMode,
+  onToggleSourceSelector,
 }: ReadingToolbarProps) => {
   const { theme, setTheme, readingMode, setReadingMode, scrollDirection, setScrollDirection, tajweedMode, setTajweedMode } = useTheme();
 
@@ -105,6 +107,15 @@ const ReadingToolbar = ({
           >
             <Sparkles className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
           </button>
+
+          <button
+            onClick={(e) => { e.stopPropagation(); onToggleSourceSelector(); }}
+            className="toolbar-btn !p-1.5 md:!p-2.5"
+            title="تغيير مصدر الصور"
+          >
+            <Server className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
+          </button>
+
 
           <button
             onClick={(e) => { e.stopPropagation(); onToggleHifzMode(); }}

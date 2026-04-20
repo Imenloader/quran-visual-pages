@@ -186,25 +186,92 @@ export const getJuzAndPageForSurah = (surahNumber: number): { juz: number; page:
   };
 };
 
-export const getQuranPageImageUrl = (pageNumber: number | string | undefined | null, isTajweed: boolean = true): string => {
-  return getQuranPageFallbackImageUrl(pageNumber, 0, isTajweed);
+export interface QuranImageSource {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  isTajweed: boolean;
+  getUrl: (page: string) => string;
+}
+
+export const QURAN_IMAGE_SOURCES: QuranImageSource[] = [
+  {
+    id: "tajweed-jahe",
+    nameAr: "مصحف التجويد (الأساسي)",
+    nameEn: "Tajweed Quran (Primary)",
+    isTajweed: true,
+    getUrl: (p) => `https://jahedev.github.io/tajweed-quran-pages/hafs/tajweed-${p}.jpg`
+  },
+  {
+    id: "tajweed-github",
+    nameAr: "مصحف التجويد (مصدر 2)",
+    nameEn: "Tajweed Quran (Source 2)",
+    isTajweed: true,
+    getUrl: (p) => `https://raw.githubusercontent.com/Jahedev/tajweed-quran-pages/main/hafs/tajweed-${p}.jpg`
+  },
+  {
+    id: "quran-com-1260",
+    nameAr: "مصحف المدينة (دقة عالية)",
+    nameEn: "Madinah Quran (High Res)",
+    isTajweed: false,
+    getUrl: (p) => `https://android.quran.com/data/width_1260/page${p}.png`
+  },
+  {
+    id: "quran-com-1024",
+    nameAr: "مصحف المدينة (دقة متوسطة)",
+    nameEn: "Madinah Quran (Medium Res)",
+    isTajweed: false,
+    getUrl: (p) => `https://android.quran.com/data/width_1024/page${p}.png`
+  },
+  {
+    id: "madinah-direct",
+    nameAr: "مصحف المدينة (مباشر)",
+    nameEn: "Madinah Quran (Direct)",
+    isTajweed: false,
+    getUrl: (p) => `https://madinah-quran.com/pages/${p}.png`
+  }
+];
+
+export const getQuranPageImageUrl = (
+  pageNumber: number | string | undefined | null, 
+  isTajweed: boolean = true,
+  preferredSourceId?: string
+): string => {
+  return getQuranPageFallbackImageUrl(pageNumber, 0, isTajweed, preferredSourceId);
 };
 
-export const getQuranPageFallbackImageUrl = (pageNumber: number | string | undefined | null, level: number = 0, isTajweed: boolean = true): string => {
+export const getQuranPageFallbackImageUrl = (
+  pageNumber: number | string | undefined | null, 
+  level: number = 0, 
+  isTajweed: boolean = true,
+  preferredSourceId?: string
+): string => {
   if (!pageNumber) return "";
   const paddedPage = String(pageNumber).padStart(3, '0');
   
-  const sources: string[] = [];
-  
-  if (isTajweed) {
-    sources.push(`https://jahedev.github.io/tajweed-quran-pages/hafs/tajweed-${paddedPage}.jpg`);
-    sources.push(`https://raw.githubusercontent.com/Jahedev/tajweed-quran-pages/main/hafs/tajweed-${paddedPage}.jpg`);
-  }
-  
-  // Standard fallback sources (always add these as lower priority)
-  sources.push(`https://android.quran.com/data/width_1260/page${paddedPage}.png`);
-  sources.push(`https://android.quran.com/data/width_1024/page${paddedPage}.png`);
-  sources.push(`https://madinah-quran.com/pages/${paddedPage}.png`);
+  // Create an ordered list of sources
+  let sources: QuranImageSource[] = [];
 
-  return sources[level % sources.length];
+  if (preferredSourceId) {
+    const preferred = QURAN_IMAGE_SOURCES.find(s => s.id === preferredSourceId);
+    if (preferred) {
+      sources.push(preferred);
+    }
+  }
+
+  // Add other sources of the same type (tajweed or standard)
+  const sameTypeSources = QURAN_IMAGE_SOURCES.filter(s => 
+    s.isTajweed === isTajweed && s.id !== preferredSourceId
+  );
+  sources = [...sources, ...sameTypeSources];
+
+  // Add remaining sources as ultimate fallback
+  const remainingSources = QURAN_IMAGE_SOURCES.filter(s => 
+    s.isTajweed !== isTajweed && s.id !== preferredSourceId
+  );
+  sources = [...sources, ...remainingSources];
+
+  const source = sources[level % sources.length];
+  return source.getUrl(paddedPage);
 };
+

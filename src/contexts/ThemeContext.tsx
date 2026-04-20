@@ -20,6 +20,8 @@ interface ThemeContextType {
   setHifzMode: (mode: boolean) => void;
   isFullscreen: boolean;
   setIsFullscreen: (v: boolean) => void;
+  preferredImageSource: string | null;
+  setPreferredImageSource: (id: string | null) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -32,6 +34,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [dimming, setDimmingState] = useState<number>(0);
   const [tajweedMode, setTajweedModeState] = useState<boolean>(false);
   const [hifzMode, setHifzModeState] = useState<boolean>(false);
+  const [preferredImageSource, setPreferredImageSourceState] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -42,6 +45,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const savedDimming = await storage.get("quran-page-dimming");
       const savedTajweed = await storage.get("quran-tajweed-mode");
       const savedHifz = await storage.get("quran-hifz-mode");
+      const savedImageSource = await storage.get("quran-preferred-image-source");
 
       if (savedTheme === "dark" || savedTheme === "night") setThemeState("dark");
       else if (savedTheme === "sepia") setThemeState("sepia");
@@ -52,6 +56,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (savedDimming) setDimmingState(parseInt(savedDimming));
       if (savedTajweed) setTajweedModeState(savedTajweed === "true");
       if (savedHifz) setHifzModeState(savedHifz === "true");
+      if (savedImageSource) setPreferredImageSourceState(savedImageSource);
       
       setIsLoaded(true);
     };
@@ -86,6 +91,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const setHifzMode = async (newMode: boolean) => {
     setHifzModeState(newMode);
     await storage.set("quran-hifz-mode", newMode.toString());
+  };
+
+  const setPreferredImageSource = async (id: string | null) => {
+    setPreferredImageSourceState(id);
+    if (id) await storage.set("quran-preferred-image-source", id);
+    else await storage.remove("quran-preferred-image-source");
   };
 
   const setIsFullscreen = (v: boolean) => {
@@ -124,7 +135,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       scrollDirection, setScrollDirection,
       tajweedMode, setTajweedMode,
       hifzMode, setHifzMode,
-      isFullscreen, setIsFullscreen
+      isFullscreen, setIsFullscreen,
+      preferredImageSource, setPreferredImageSource
     }}>
       {children}
     </ThemeContext.Provider>
