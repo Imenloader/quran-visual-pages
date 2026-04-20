@@ -167,6 +167,38 @@ const KhatmaJamaaiya = () => {
     }
   };
 
+  // 3. Timeout Logic (Lazy)
+  const handleTimeouts = useCallback(async (id: string, portions: Record<string, Portion>) => {
+    const now = Date.now();
+    const timeoutMs = 3 * 60 * 60 * 1000; // 3 hours
+    const updates: Record<string, unknown> = {};
+    let hasUpdates = false;
+
+    Object.entries(portions).forEach(([key, portion]) => {
+      if (portion.status === 'claimed' && portion.claimedAt) {
+        const claimedTime = portion.claimedAt.toMillis();
+        if (now - claimedTime > timeoutMs) {
+          updates[`portions.${key}`] = {
+            status: 'available',
+            claimedBy: null,
+            claimedByName: null,
+            claimedAt: null,
+            completedAt: null
+          };
+          hasUpdates = true;
+        }
+      }
+    });
+
+    if (hasUpdates) {
+      try {
+        await updateDoc(doc(db, "khatmas", id), updates);
+      } catch (e) {
+        handleFirestoreError(e, OperationType.UPDATE, `khatmas/${id}`);
+      }
+    }
+  }, []);
+
   // 2. Load Khatma from URL or Public
   useEffect(() => {
     if (!user || !isAuthReady) return;
@@ -253,38 +285,6 @@ const KhatmaJamaaiya = () => {
       };
     }
   }, [user, isAuthReady, searchParams, isAr, navigate, handleTimeouts]);
-
-  // 3. Timeout Logic (Lazy)
-  const handleTimeouts = useCallback(async (id: string, portions: Record<string, Portion>) => {
-    const now = Date.now();
-    const timeoutMs = 3 * 60 * 60 * 1000; // 3 hours
-    const updates: Record<string, unknown> = {};
-    let hasUpdates = false;
-
-    Object.entries(portions).forEach(([key, portion]) => {
-      if (portion.status === 'claimed' && portion.claimedAt) {
-        const claimedTime = portion.claimedAt.toMillis();
-        if (now - claimedTime > timeoutMs) {
-          updates[`portions.${key}`] = {
-            status: 'available',
-            claimedBy: null,
-            claimedByName: null,
-            claimedAt: null,
-            completedAt: null
-          };
-          hasUpdates = true;
-        }
-      }
-    });
-
-    if (hasUpdates) {
-      try {
-        await updateDoc(doc(db, "khatmas", id), updates);
-      } catch (e) {
-        handleFirestoreError(e, OperationType.UPDATE, `khatmas/${id}`);
-      }
-    }
-  }, []);
 
   // 4. Actions
   const createKhatma = async (type: 'public' | 'private') => {
