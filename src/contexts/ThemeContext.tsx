@@ -22,6 +22,7 @@ interface ThemeContextType {
   setIsFullscreen: (v: boolean) => void;
   preferredImageSource: string | null;
   setPreferredImageSource: (id: string | null) => void;
+  isLoaded: boolean;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -136,7 +137,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       tajweedMode, setTajweedMode,
       hifzMode, setHifzMode,
       isFullscreen, setIsFullscreen,
-      preferredImageSource, setPreferredImageSource
+      preferredImageSource, setPreferredImageSource,
+      isLoaded
     }}>
       {children}
     </ThemeContext.Provider>

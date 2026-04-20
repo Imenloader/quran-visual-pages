@@ -211,6 +211,21 @@ function JuzViewer() {
     return getQuranPageFallbackImageUrl(page, level, tajweedMode, preferredImageSource || undefined);
   }, [fallbackLevel, tajweedMode, preferredImageSource]);
 
+  const handleImageLoad = useCallback((page: number) => {
+    setLoadingStates(prev => ({ ...prev, [page]: false }));
+  }, []);
+
+  const handleImageError = useCallback((page: number) => {
+    setFallbackLevel(prev => {
+      const current = prev[page] || 0;
+      if (current < 5) {
+        return { ...prev, [page]: current + 1 };
+      }
+      return prev;
+    });
+  }, []);
+
+
   const handleSaveBookmark = useCallback(() => {
     if (currentPage) {
       saveBookmark(num, currentPage, readingMode, currentVerseKey);
@@ -331,11 +346,13 @@ function JuzViewer() {
   }, [currentPage, num, readingMode, juz, currentVerseKey, addAyahRead, addPageRead, addJuzCompleted, pages.length]);
 
   useEffect(() => {
-    if (!juz || pages.length === 0) return;
+    if (!juz || pages.length === 0 || !isLoaded) return;
     
     const cacheImages = async () => {
-      const start = Math.max(0, pages.indexOf(currentPage) - 5);
-      const end = Math.min(pages.length - 1, pages.indexOf(currentPage) + 10);
+      // Cache current page and next 10 pages
+      const currentPageIdx = pages.indexOf(currentPage);
+      const start = Math.max(0, currentPageIdx - 2);
+      const end = Math.min(pages.length - 1, currentPageIdx + 10);
       
       const pagesToCache = pages.slice(start, end);
       
@@ -346,8 +363,10 @@ function JuzViewer() {
       }
     };
     
-    cacheImages();
-  }, [juz, pages, currentPage, tajweedMode, getImageUrl]);
+    const timer = setTimeout(cacheImages, 1000);
+    return () => clearTimeout(timer);
+  }, [juz, pages, currentPage, tajweedMode, getImageUrl, isLoaded]);
+
 
 
   useEffect(() => {
@@ -401,7 +420,15 @@ function JuzViewer() {
 
 
 
+  if (!isLoaded) return (
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
+      <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+      <p className="text-muted-foreground font-serif italic animate-pulse">جاري تحميل إعداداتك الخاصة...</p>
+    </div>
+  );
+
   if (!juz) return <Navigate to="/" replace />;
+
 
 
 

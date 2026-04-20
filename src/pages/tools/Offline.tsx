@@ -4,6 +4,8 @@ import { DownloadCloud, Info, CheckCircle2, Trash2, Database } from "lucide-reac
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { getQuranPageImageUrl } from "@/data/quranData";
+import { useTheme } from "@/contexts/ThemeContext";
 import BackButton from "@/components/BackButton";
 
 const Offline = () => {
@@ -12,6 +14,8 @@ const Offline = () => {
   const [downloadedSize, setDownloadedSize] = useState("0 MB");
   const [quranCacheSize, setQuranCacheSize] = useState("0 MB");
   const [apiCacheSize, setApiCacheSize] = useState("0 MB");
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
 
   const toArabicNumber = (str: string) => {
     if (i18n.language !== 'ar') return str;
@@ -79,6 +83,60 @@ const Offline = () => {
     }
   };
 
+  const { preferredImageSource, tajweedMode } = useTheme();
+
+  const downloadAllPages = async () => {
+    if (!window.caches) {
+      toast.error("ميزة التخزين المؤقت غير مدعومة");
+      return;
+    }
+
+    setIsDownloading(true);
+    setDownloadProgress(0);
+
+    try {
+      const cache = await caches.open('quran-pages-cache');
+      const totalPages = 604;
+      let downloadedCount = 0;
+
+      // Download in batches of 5 to avoid overloading
+      const batchSize = 5;
+      for (let i = 1; i <= totalPages; i += batchSize) {
+        const batch = [];
+        for (let j = 0; j < batchSize && (i + j) <= totalPages; j++) {
+          const pageNum = i + j;
+          const url = getQuranPageImageUrl(pageNum, tajweedMode, preferredImageSource || undefined);
+          batch.push(
+            fetch(url, { mode: 'no-cors' }).then(async () => {
+              // Note: no-cors responses can't be read but can be put in cache
+              await cache.add(url);
+              downloadedCount++;
+              setDownloadProgress(Math.round((downloadedCount / totalPages) * 100));
+            }).catch(err => {
+              console.error(`Failed to download page ${pageNum}:`, err);
+              downloadedCount++;
+            })
+          );
+        }
+        await Promise.all(batch);
+      }
+
+      toast.success("تم تحميل جميع صفحات المصحف بنجاح");
+      
+      // Update sizes
+      const usage = await navigator.storage.estimate();
+      if (usage?.usage) setDownloadedSize(`${(usage.usage / (1024 * 1024)).toFixed(1)} MB`);
+      const quranSize = await getCacheSize('quran-pages-cache');
+      setQuranCacheSize(`${(quranSize / (1024 * 1024)).toFixed(1)} MB`);
+
+    } catch (err) {
+      console.error("Download error:", err);
+      toast.error("حدث خطأ أثناء التحميل");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24 pt-6 px-4">
       <div className="max-w-md mx-auto">
@@ -130,6 +188,34 @@ const Offline = () => {
                 </div>
               </div>
               <span className="text-[10px] font-bold text-primary font-mono">{i18n.language === 'ar' ? toArabicNumber(apiCacheSize) : apiCacheSize}</span>
+            </div>
+
+            <div className="pt-4 border-t border-border/40">
+              <button
+                onClick={downloadAllPages}
+                disabled={isDownloading}
+                className={`w-full h-16 rounded-2xl bg-primary text-primary-foreground font-bold font-serif flex flex-col items-center justify-center transition-all shadow-lg hover:shadow-primary/20 ${isDownloading ? "opacity-70" : "hover:scale-[1.02]"}`}
+              >
+                {isDownloading ? (
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                      <span>جاري التحميل... {toArabicNumber(downloadProgress.toString())}%</span>
+                    </div>
+                    <div className="w-48 h-1 bg-white/20 rounded-full mt-1">
+                      <div className="h-full bg-white transition-all duration-300" style={{ width: `${downloadProgress}%` }} />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <DownloadCloud className="w-6 h-6" />
+                    <div className="text-right">
+                      <p>تحميل المصحف كاملاً</p>
+                      <p className="text-[10px] font-normal opacity-80">للقراءة في أي وقت بدون إنترنت</p>
+                    </div>
+                  </div>
+                )}
+              </button>
             </div>
           </div>
 

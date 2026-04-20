@@ -1,4 +1,4 @@
-import { X, Server, Check, Info } from "lucide-react";
+import { X, Server, Check, Info, DownloadCloud } from "lucide-react";
 import { QURAN_IMAGE_SOURCES } from "@/data/quranData";
 import { useTheme } from "@/contexts/ThemeContext";
 import { motion } from "motion/react";
@@ -87,11 +87,24 @@ const SourceSelector = ({ onClose }: SourceSelectorProps) => {
           ))}
         </div>
 
-        <div className="p-4 bg-muted/20 border-t border-border flex items-start gap-3">
-          <Info size={16} className="text-muted-foreground shrink-0 mt-0.5" />
-          <p className="text-[10px] text-muted-foreground leading-relaxed font-naskh">
-            في حال فشل تحميل الصورة من المصدر المختار، سيقوم النظام تلقائياً بالمحاولة من المصادر الأخرى لضمان استمرارية القراءة.
-          </p>
+        <div className="p-4 bg-muted/20 border-t border-border flex flex-col gap-4">
+          <div className="flex items-start gap-3">
+            <Info size={16} className="text-muted-foreground shrink-0 mt-0.5" />
+            <p className="text-[10px] text-muted-foreground leading-relaxed font-naskh">
+              في حال فشل تحميل الصورة من المصدر المختار، سيقوم النظام تلقائياً بالمحاولة من المصادر الأخرى لضمان استمرارية القراءة.
+            </p>
+          </div>
+          
+          <button 
+            onClick={() => {
+              onClose();
+              window.location.href = "/offline";
+            }}
+            className="w-full py-3 bg-primary/5 hover:bg-primary/10 text-primary border border-primary/20 rounded-xl text-[10px] font-bold font-naskh flex items-center justify-center gap-2 transition-all"
+          >
+            <DownloadCloud size={14} />
+            تحميل المصحف كاملاً للاستخدام بدون إنترنت
+          </button>
         </div>
       </motion.div>
     </div>
