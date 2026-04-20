@@ -55,19 +55,7 @@ function JuzViewer() {
   const { theme, readingMode, scrollDirection, tajweedMode, hifzMode, setHifzMode } = useTheme();
   const { addAyahRead, addPageRead, addJuzCompleted } = useUser();
 
-  const pages = useMemo(() => {
-    if (!juz) return [];
-    return Array.from(
-      { length: juz.endPage - juz.startPage + 1 },
-      (_, i) => juz.startPage + i
-    );
-  }, [juz]);
 
-  const progress = useMemo(() => {
-    if (!pages.length || !currentPage) return 0;
-    const index = pages.indexOf(currentPage);
-    return Math.round(((index + 1) / pages.length) * 100);
-  }, [pages, currentPage]);
 
   const [loadingStates, setLoadingStates] = useState<Record<number, boolean>>({});
   const [errorStates, setErrorStates] = useState<Record<number, boolean>>({});
@@ -108,6 +96,21 @@ function JuzViewer() {
   const currentPageRef = useRef(currentPage);
   const prevScrollDirectionRef = useRef(scrollDirection);
   const prevReadingModeRef = useRef(readingMode);
+
+  const pages = useMemo(() => {
+    if (!juz) return [];
+    return Array.from(
+      { length: juz.endPage - juz.startPage + 1 },
+      (_, i) => juz.startPage + i
+    );
+  }, [juz]);
+
+  const progress = useMemo(() => {
+    if (!pages.length || !currentPage) return 0;
+    const index = pages.indexOf(currentPage);
+    return Math.round(((index + 1) / pages.length) * 100);
+  }, [pages, currentPage]);
+
 
   useEffect(() => {
     localStorage.setItem("quran-hidden-pages", JSON.stringify(hiddenPages));
