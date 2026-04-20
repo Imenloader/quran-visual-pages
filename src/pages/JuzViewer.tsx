@@ -91,6 +91,33 @@ function JuzViewer() {
     }
   });
 
+  const { isFullscreen, setIsFullscreen } = useTheme();
+  const { playAyah, togglePlay, currentSurah } = useAudioPlayer();
+  const [showControls, setShowControls] = useState(true);
+  const [isScrollingDown, setIsScrollingDown] = useState(false);
+  const [showPageNav, setShowPageNav] = useState(false);
+  const [showJuzIndex, setShowJuzIndex] = useState(false);
+  const [showKhatmaCelebration, setShowKhatmaCelebration] = useState(false);
+  const [savedBookmark, setSavedBookmark] = useState<BookmarkData | null>(null);
+  const [currentVerseKey, setCurrentVerseKey] = useState<string | undefined>(() => getBookmark()?.verseKey);
+
+  const lastScrollY = useRef(0);
+  const controlsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pageRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const currentPageRef = useRef(currentPage);
+  const prevScrollDirectionRef = useRef(scrollDirection);
+  const prevReadingModeRef = useRef(readingMode);
+
+  useEffect(() => {
+    localStorage.setItem("quran-hidden-pages", JSON.stringify(hiddenPages));
+  }, [hiddenPages]);
+
+  useEffect(() => {
+    localStorage.setItem("quran-hidden-lines", JSON.stringify(hiddenLines));
+  }, [hiddenLines]);
+
+
   const isPageHidden = (page: number) => hifzMode && !!hiddenPages[page];
 
   const togglePageHidden = useCallback((page: number) => {
@@ -130,7 +157,22 @@ function JuzViewer() {
     toast.info(`تم إظهار أسطر الصفحة ${toArabicNumber(page)}`);
   }, []);
 
-  const pageRefs = useRef<Record<number, HTMLDivElement | null>>({});
+
+
+  useEffect(() => {
+    if (pages.length > 0 && currentPage === 0) {
+      const bookmark = getBookmark();
+      if (bookmark && bookmark.juz === num && pages.includes(bookmark.page)) {
+        setCurrentPage(bookmark.page);
+        if (bookmark.verseKey) setCurrentVerseKey(bookmark.verseKey);
+        if (scrollDirection === "vertical") {
+          setTimeout(() => scrollToPage(bookmark.page), 100);
+        }
+      } else {
+        setCurrentPage(pages[0]);
+      }
+    }
+  }, [pages, num, scrollDirection, currentPage]);
 
   const scrollToPage = useCallback((page: number) => {
     const el = pageRefs.current[page];
@@ -170,8 +212,6 @@ function JuzViewer() {
       setSavedBookmark({ juz: num, page: currentPage, readingMode, verseKey: currentVerseKey });
     }
   }, [num, currentPage, readingMode, currentVerseKey]);
-
-  const controlsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const resetControlsTimer = useCallback(() => {
     if (controlsTimerRef.current) clearTimeout(controlsTimerRef.current);
@@ -227,7 +267,6 @@ function JuzViewer() {
     }
   }, [readingMode, currentPage]);
 
-
   const { onTouchStart, onTouchMove, onTouchEnd } = useSwipeNavigation({ 
     onSwipeLeft: scrollDirection === "horizontal" ? handleNextPage : undefined, 
     onSwipeRight: scrollDirection === "horizontal" ? handlePrevPage : undefined 
@@ -246,41 +285,6 @@ function JuzViewer() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleNextPage, handlePrevPage]);
 
-  const [showPageNav, setShowPageNav] = useState(false);
-  const [showJuzIndex, setShowJuzIndex] = useState(false);
-  const [showKhatmaCelebration, setShowKhatmaCelebration] = useState(false);
-  const [savedBookmark, setSavedBookmark] = useState<BookmarkData | null>(null);
-  const [currentVerseKey, setCurrentVerseKey] = useState<string | undefined>(() => getBookmark()?.verseKey);
-
-  useEffect(() => {
-    if (pages.length > 0 && currentPage === 0) {
-      const bookmark = getBookmark();
-      if (bookmark && bookmark.juz === num && pages.includes(bookmark.page)) {
-        setCurrentPage(bookmark.page);
-        if (bookmark.verseKey) setCurrentVerseKey(bookmark.verseKey);
-        if (scrollDirection === "vertical") {
-          setTimeout(() => scrollToPage(bookmark.page), 100);
-        }
-      } else {
-        setCurrentPage(pages[0]);
-      }
-    }
-  }, [pages, num, scrollDirection, currentPage]);
-
-  const prevScrollDirectionRef = useRef(scrollDirection);
-  const prevReadingModeRef = useRef(readingMode);
-
-  useEffect(() => {
-    const switchingToVertical = scrollDirection === "vertical" && prevScrollDirectionRef.current === "horizontal";
-    const switchingToImage = readingMode === "image" && prevReadingModeRef.current === "text";
-
-    if ((switchingToVertical || switchingToImage) && scrollDirection === "vertical" && currentPage !== 0) {
-      setTimeout(() => scrollToPage(currentPage), 100);
-    }
-    
-    prevScrollDirectionRef.current = scrollDirection;
-    prevReadingModeRef.current = readingMode;
-  }, [scrollDirection, readingMode, currentPage]);
 
   useEffect(() => {
     if (currentPage !== 0 && juz) {
@@ -340,64 +344,7 @@ function JuzViewer() {
     cacheImages();
   }, [juz, pages, currentPage, tajweedMode, getImageUrl]);
 
-  const { isFullscreen, setIsFullscreen } = useTheme();
-  const { playAyah, togglePlay, currentSurah } = useAudioPlayer();
-  const [showControls, setShowControls] = useState(true);
-  const [isScrollingDown, setIsScrollingDown] = useState(false);
-  const lastScrollY = useRef(0);
-  const controlsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pageRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-        setIsScrollingDown(true);
-      } else {
-        setIsScrollingDown(false);
-      }
-      lastScrollY.current = currentScrollY;
-      
-      if (isFullscreen) {
-        resetControlsTimer();
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isFullscreen]);
-
-  useEffect(() => {
-    setSavedBookmark(getBookmark());
-    const handleHashChange = () => {
-      const hash = window.location.hash;
-      if (hash.startsWith("#page-")) {
-        const pageNum = parseInt(hash.replace("#page-", ""));
-        if (pageNum) {
-          setTimeout(() => {
-            const el = document.getElementById(`page-${pageNum}`);
-            if (el) {
-              el.scrollIntoView({ behavior: "smooth", block: "start" });
-              setCurrentPage(pageNum);
-            }
-          }, 500);
-        }
-      } else if (hash.startsWith("#verse-")) {
-        const key = hash.replace("#verse-", "");
-        if (key) {
-          setCurrentVerseKey(key);
-        }
-      }
-    };
-
-    handleHashChange();
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
-  }, [num]);
-
-  const observerRef = useRef<IntersectionObserver | null>(null);
-
-  const currentPageRef = useRef(currentPage);
   useEffect(() => {
     currentPageRef.current = currentPage;
   }, [currentPage]);
