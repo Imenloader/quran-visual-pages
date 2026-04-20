@@ -63,6 +63,12 @@ function JuzViewer() {
     );
   }, [juz]);
 
+  const progress = useMemo(() => {
+    if (!pages.length || !currentPage) return 0;
+    const index = pages.indexOf(currentPage);
+    return Math.round(((index + 1) / pages.length) * 100);
+  }, [pages, currentPage]);
+
   const [loadingStates, setLoadingStates] = useState<Record<number, boolean>>({});
   const [errorStates, setErrorStates] = useState<Record<number, boolean>>({});
   const [fallbackLevel, setFallbackLevel] = useState<Record<number, number>>({});
@@ -85,28 +91,20 @@ function JuzViewer() {
     }
   });
 
-  useEffect(() => {
-    localStorage.setItem("quran-hidden-pages", JSON.stringify(hiddenPages));
-  }, [hiddenPages]);
-
-  useEffect(() => {
-    localStorage.setItem("quran-hidden-lines", JSON.stringify(hiddenLines));
-  }, [hiddenLines]);
-
   const isPageHidden = (page: number) => hifzMode && !!hiddenPages[page];
 
-  const togglePageHidden = (page: number) => {
+  const togglePageHidden = useCallback((page: number) => {
     setHiddenPages(prev => ({
       ...prev,
       [page]: !prev[page]
     }));
-  };
+  }, []);
 
   const isLineHidden = (page: number, lineIndex: number) => {
     return hifzMode && (hiddenLines[page]?.includes(lineIndex) ?? false);
   };
 
-  const toggleLineHidden = (page: number, lineIndex: number) => {
+  const toggleLineHidden = useCallback((page: number, lineIndex: number) => {
     setHiddenLines(prev => {
       const lines = prev[page] || [];
       const newLines = lines.includes(lineIndex)
@@ -114,23 +112,32 @@ function JuzViewer() {
         : [...lines, lineIndex];
       return { ...prev, [page]: newLines };
     });
-  };
+  }, []);
 
-  const hideAllLines = (page: number) => {
+  const hideAllLines = useCallback((page: number) => {
     setHiddenLines(prev => ({
       ...prev,
       [page]: Array.from({ length: 15 }, (_, i) => i)
     }));
     toast.info(`تم إخفاء أسطر الصفحة ${toArabicNumber(page)}`);
-  };
+  }, []);
 
-  const showAllLines = (page: number) => {
+  const showAllLines = useCallback((page: number) => {
     setHiddenLines(prev => ({
       ...prev,
       [page]: []
     }));
     toast.info(`تم إظهار أسطر الصفحة ${toArabicNumber(page)}`);
-  };
+  }, []);
+
+  const pageRefs = useRef<Record<number, HTMLDivElement | null>>({});
+
+  const scrollToPage = useCallback((page: number) => {
+    const el = pageRefs.current[page];
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, []);
 
   const handleNextPage = useCallback(() => {
     if (currentPage < juz!.endPage) {
@@ -140,7 +147,7 @@ function JuzViewer() {
         scrollToPage(next);
       }
     }
-  }, [currentPage, juz, scrollDirection]);
+  }, [currentPage, juz, scrollDirection, scrollToPage]);
 
   const handlePrevPage = useCallback(() => {
     if (currentPage > juz!.startPage) {
@@ -150,7 +157,76 @@ function JuzViewer() {
         scrollToPage(prev);
       }
     }
-  }, [currentPage, juz, scrollDirection]);
+  }, [currentPage, juz, scrollDirection, scrollToPage]);
+
+  const getImageUrl = useCallback((page: number) => {
+    const level = fallbackLevel[page] || 0;
+    return getQuranPageFallbackImageUrl(page, level, tajweedMode);
+  }, [fallbackLevel, tajweedMode]);
+
+  const handleSaveBookmark = useCallback(() => {
+    if (currentPage) {
+      saveBookmark(num, currentPage, readingMode, currentVerseKey);
+      setSavedBookmark({ juz: num, page: currentPage, readingMode, verseKey: currentVerseKey });
+    }
+  }, [num, currentPage, readingMode, currentVerseKey]);
+
+  const controlsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const resetControlsTimer = useCallback(() => {
+    if (controlsTimerRef.current) clearTimeout(controlsTimerRef.current);
+    setShowControls(true);
+    controlsTimerRef.current = setTimeout(() => setShowControls(false), 3000);
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    const next = !isFullscreen;
+    setIsFullscreen(next);
+    if (next) {
+      toast("وضع ملء الشاشة", {
+        description: "انقر على الشاشة لإظهار/إخفاء الأزرار",
+        duration: 3000,
+        position: "top-center",
+      });
+      resetControlsTimer();
+    }
+  }, [isFullscreen, setIsFullscreen, resetControlsTimer]);
+
+  const handleScreenTap = useCallback(() => {
+    if (!isFullscreen) return;
+    setShowControls(prev => !prev);
+    if (!showControls) resetControlsTimer();
+  }, [isFullscreen, showControls, resetControlsTimer]);
+
+  const handleMainPlayToggle = useCallback(() => {
+    if (!juz) return;
+    const isCurrentJuzPlaying = currentSurah && juz.surahs.includes(currentSurah.name);
+    
+    if (!isCurrentJuzPlaying) {
+      const startSurahParts = juz.startSurah.split(" ");
+      const startSurahName = startSurahParts[0];
+      const startAyahNumber = startSurahParts.length > 1 ? parseInt(startSurahParts[1]) : 1;
+      
+      const surahInfo = surahIndex.find(s => s.name === startSurahName);
+      if (surahInfo) {
+        playAyah(surahInfo.number, startAyahNumber);
+      }
+    } else {
+      togglePlay();
+    }
+  }, [juz, currentSurah, playAyah, togglePlay]);
+
+  const handleVerseInView = useCallback((key: string) => {
+    setCurrentVerseKey(key);
+    if (readingMode === "text") {
+      const [sNum] = key.split(":");
+      const surah = surahIndex.find(s => s.number.toString() === sNum);
+      if (surah && surah.startPage !== currentPage) {
+        setCurrentPage(surah.startPage);
+      }
+    }
+  }, [readingMode, currentPage]);
+
 
   const { onTouchStart, onTouchMove, onTouchEnd } = useSwipeNavigation({ 
     onSwipeLeft: scrollDirection === "horizontal" ? handleNextPage : undefined, 
@@ -371,82 +447,25 @@ function JuzViewer() {
     };
   }, [juz, num, pages, readingMode, scrollDirection]);
 
-  const getImageUrl = useCallback((page: number) => {
-    const level = fallbackLevel[page] || 0;
-    return getQuranPageFallbackImageUrl(page, level, tajweedMode);
-  }, [fallbackLevel, tajweedMode]);
+
 
   if (!juz) return <Navigate to="/" replace />;
 
-  const scrollToPage = (page: number) => {
-    const el = pageRefs.current[page];
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
 
-  const handleSaveBookmark = () => {
-    if (currentPage) {
-      saveBookmark(num, currentPage, readingMode, currentVerseKey);
-      setSavedBookmark({ juz: num, page: currentPage, readingMode, verseKey: currentVerseKey });
-    }
-  };
+
+
 
   const maxWidth = Math.round(672 * (zoom / 100));
 
-  const toggleFullscreen = () => {
-    const next = !isFullscreen;
-    setIsFullscreen(next);
-    if (next) {
-      toast("وضع ملء الشاشة", {
-        description: "انقر على الشاشة لإظهار/إخفاء الأزرار",
-        duration: 3000,
-        position: "top-center",
-      });
-      resetControlsTimer();
-    }
-  };
 
-  const resetControlsTimer = () => {
-    if (controlsTimerRef.current) clearTimeout(controlsTimerRef.current);
-    setShowControls(true);
-    controlsTimerRef.current = setTimeout(() => setShowControls(false), 3000);
-  };
 
-  const handleScreenTap = () => {
-    if (!isFullscreen) return;
-    setShowControls(prev => !prev);
-    if (!showControls) resetControlsTimer();
-  };
 
-  const handleMainPlayToggle = () => {
-    if (!juz) return;
-    const isCurrentJuzPlaying = currentSurah && juz.surahs.includes(currentSurah.name);
-    
-    if (!isCurrentJuzPlaying) {
-      const startSurahParts = juz.startSurah.split(" ");
-      const startSurahName = startSurahParts[0];
-      const startAyahNumber = startSurahParts.length > 1 ? parseInt(startSurahParts[1]) : 1;
-      
-      const surahInfo = surahIndex.find(s => s.name === startSurahName);
-      if (surahInfo) {
-        playAyah(surahInfo.number, startAyahNumber);
-      }
-    } else {
-      togglePlay();
-    }
-  };
 
-  const handleVerseInView = (key: string) => {
-    setCurrentVerseKey(key);
-    if (readingMode === "text") {
-      const [sNum] = key.split(":");
-      const surah = surahIndex.find(s => s.number.toString() === sNum);
-      if (surah && surah.startPage !== currentPage) {
-        setCurrentPage(surah.startPage);
-      }
-    }
-  };
+
+
+
+
+
 
   return (
     <div
