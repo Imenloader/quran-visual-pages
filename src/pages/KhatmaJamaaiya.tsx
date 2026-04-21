@@ -135,17 +135,14 @@ const KhatmaJamaaiya = () => {
         // Native Android/iOS Google Sign In
         const { GoogleAuth } = await import("@codetrix-studio/capacitor-google-auth");
         
-        // Ensure initialized (using same clientId as Profile.tsx)
-        GoogleAuth.initialize({
-          clientId: "130128331336-jsf2phje1obt9ln0lj5f5nlfsgl6rssn.apps.googleusercontent.com",
-          scopes: ['profile', 'email'],
-          grantOfflineAccess: true,
-        });
-        
         const googleUser = await GoogleAuth.signIn();
         
-        if (googleUser.authentication.idToken) {
+        if (googleUser && googleUser.authentication && googleUser.authentication.idToken) {
           const credential = GoogleAuthProvider.credential(googleUser.authentication.idToken);
+          await signInWithCredential(auth, credential);
+        } else if (googleUser && (googleUser as any).idToken) {
+          // Fallback for some plugin versions
+          const credential = GoogleAuthProvider.credential((googleUser as any).idToken);
           await signInWithCredential(auth, credential);
         } else {
           throw new Error("Missing ID Token from Google Sign In");

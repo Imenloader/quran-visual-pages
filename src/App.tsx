@@ -125,6 +125,24 @@ const NotificationInitializer = () => {
 
 const App = () => {
   useEffect(() => {
+    // Initialize Google Auth once on mount (for Native)
+    const initGoogleAuth = async () => {
+      try {
+        const { Capacitor } = await import("@capacitor/core");
+        if (Capacitor.isNativePlatform()) {
+          const { GoogleAuth } = await import("@codetrix-studio/capacitor-google-auth");
+          GoogleAuth.initialize({
+            clientId: "130128331336-jsf2phje1obt9ln0lj5f5nlfsgl6rssn.apps.googleusercontent.com",
+            scopes: ['profile', 'email'],
+            grantOfflineAccess: true,
+          });
+        }
+      } catch (e) {
+        console.warn("Google Auth initialization skipped or failed:", e);
+      }
+    };
+    initGoogleAuth();
+
     // Handle redirect result on mount
     getRedirectResult(auth)
       .then((result) => {
