@@ -125,10 +125,13 @@ const DuaLibrary = () => {
                   <p className="text-2xl font-naskh leading-loose text-center text-foreground font-medium">
                     {dua.arabic}
                   </p>
-                  <p className="text-xs text-muted-foreground italic text-center font-serif">
-                    {dua.transliteration}
-                  </p>
+                  {!isAr && (
+                    <p className="text-xs text-muted-foreground italic text-center font-serif">
+                      {dua.transliteration}
+                    </p>
+                  )}
                 </div>
+
 
                 <div className="space-y-4 flex-grow">
                   <p className="text-sm leading-relaxed font-naskh text-muted-foreground">
