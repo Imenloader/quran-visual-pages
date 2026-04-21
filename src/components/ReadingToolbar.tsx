@@ -2,7 +2,7 @@ import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen, List, Moon, Sun, Info, 
 import { toArabicNumber } from "@/data/quranData";
 import ShareButton from "./ShareButton";
 import { useTheme } from "@/contexts/ThemeContext";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { toast } from "sonner";
 
 interface ReadingToolbarProps {

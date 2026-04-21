@@ -88,9 +88,8 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          recharts: ['recharts'],
-          i18n: ['i18next', 'react-i18next'],
+          vendor: ['react', 'react-dom', 'react-router-dom', 'motion'],
+          ui: ['lucide-react', 'sonner'],
         },
       },
     },
