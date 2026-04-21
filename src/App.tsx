@@ -69,7 +69,6 @@ const FastingTracker = lazy(() => import("./pages/tools/FastingTracker"));
 const RoutineBuilder = lazy(() => import("./pages/tools/RoutineBuilder"));
 const SadaqahLogger = lazy(() => import("./pages/tools/SadaqahLogger"));
 const DuaLibrary = lazy(() => import("./pages/tools/DuaLibrary"));
-const AiAdvisor = lazy(() => import("./pages/tools/AiAdvisor"));
 const GlobalDhikr = lazy(() => import("./pages/tools/GlobalDhikr"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const MoonTracker = lazy(() => import("./pages/tools/MoonTracker"));
@@ -163,22 +162,22 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <UserProvider>
-          <AdhanProvider>
-            <TooltipProvider>
-              <AudioPlayerProvider>
-                <NotificationInitializer />
-                <SplashScreen />
-                <ServiceWorkerRegistration />
-                <LanguageHandler />
-                <NetworkStatus />
-                <AudioUnlockBanner />
-                <CommandPalette />
-                <div className="page-dimming-overlay" />
-                <Toaster />
-                <Sonner />
-                <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <ThemeProvider>
+          <UserProvider>
+            <AdhanProvider>
+              <TooltipProvider>
+                <AudioPlayerProvider>
+                  <NotificationInitializer />
+                  <SplashScreen />
+                  <ServiceWorkerRegistration />
+                  <LanguageHandler />
+                  <NetworkStatus />
+                  <AudioUnlockBanner />
+                  <CommandPalette />
+                  <div className="page-dimming-overlay" />
+                  <Toaster />
+                  <Sonner />
                   <ScrollRestoration />
                   <Suspense fallback={<PageLoader />}>
                     <Routes>
@@ -220,7 +219,6 @@ const App = () => {
                       <Route path="/routine-builder" element={<RoutineBuilder />} />
                       <Route path="/sadaqah-logger" element={<SadaqahLogger />} />
                       <Route path="/dua-library" element={<DuaLibrary />} />
-                      <Route path="/ai-advisor" element={<AiAdvisor />} />
                       <Route path="/global-dhikr" element={<GlobalDhikr />} />
                       <Route path="/privacy" element={<PrivacyPolicy />} />
                       <Route path="/moon-tracker" element={<MoonTracker />} />
@@ -237,12 +235,12 @@ const App = () => {
                     </Routes>
                   </Suspense>
                   <BottomNav />
-                </BrowserRouter>
-              </AudioPlayerProvider>
-            </TooltipProvider>
-          </AdhanProvider>
-        </UserProvider>
-      </ThemeProvider>
+                </AudioPlayerProvider>
+              </TooltipProvider>
+            </AdhanProvider>
+          </UserProvider>
+        </ThemeProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 };

@@ -36,6 +36,9 @@ const GlobalDhikr = () => {
         setGlobalCount(doc.data().count || 0);
       }
       setIsLoading(false);
+    }, (error) => {
+      console.warn("Global Dhikr Snapshot Error:", error);
+      setIsLoading(false);
     });
 
     return () => unsubscribe();
@@ -60,6 +63,13 @@ const GlobalDhikr = () => {
       await updateDoc(dhikrDoc, {
         count: increment(1),
         lastUpdate: new Date()
+      }).catch(err => {
+        // Handle specific permission errors silently or show a message
+        if (err.code === 'permission-denied') {
+          console.warn("Global Dhikr: Permission denied. Update skipped.");
+        } else {
+          throw err;
+        }
       });
     } catch (error) {
       console.error("Error updating global dhikr:", error);

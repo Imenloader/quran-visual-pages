@@ -100,6 +100,9 @@ const Library = () => {
         baseQuery = `(${baseQuery}) AND (title:(${sanitizedQuery}) OR creator:(${sanitizedQuery}))`;
       }
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
       const url = `https://archive.org/advancedsearch.php?q=${encodeURIComponent(baseQuery)}&fl[]=identifier,title,creator,date,description,subject,language&rows=20&page=${page}&output=json&sort[]=downloads+desc`;
       
       const res = await fetch(url, {
@@ -107,7 +110,10 @@ const Library = () => {
         headers: {
           'Accept': 'application/json',
         },
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -189,7 +195,11 @@ const Library = () => {
       }
     } catch (error) {
       console.error("Failed to fetch books:", error);
-      setError(error instanceof Error ? error.message : "Failed to fetch books");
+      if (error instanceof Error && error.name === 'AbortError') {
+        setError(isAr ? "انتهت مهلة الطلب. يرجى التحقق من اتصالك بالإنترنت." : "Request timed out. Please check your connection.");
+      } else {
+        setError(error instanceof Error ? error.message : "Failed to fetch books");
+      }
     } finally {
       setLoading(false);
     }

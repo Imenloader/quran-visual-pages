@@ -28,6 +28,7 @@ const DIMMING_KEY = "quran-page-dimming";
 
 const Profile = () => {
   const { t, i18n } = useTranslation();
+  const isAr = i18n.language === "ar";
   const navigate = useNavigate();
   const { theme, setTheme, dimming, setDimming, tajweedMode, setTajweedMode } = useTheme();
   const { profile, updateProfile, level, levelName, levelProgress, nextLevelPoints, prevLevelPoints } = useUser();

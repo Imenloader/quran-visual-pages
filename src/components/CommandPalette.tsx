@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Search, Command, Book, Sparkles, User, Settings, Calculator, Compass, Fingerprint, Moon, Sun, Bell, Globe, Brain } from "lucide-react";
+import { Search, Command, Book, Sparkles, User, Settings, Calculator, Compass, Fingerprint, Moon, Sun, Bell, Globe, Brain, Heart, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -17,10 +17,16 @@ const CommandPalette = () => {
     { id: "prayer", titleAr: "أوقات الصلاة", titleEn: "Prayer Times", icon: <Bell className="w-4 h-4" />, path: "/prayer-times" },
     { id: "tasbih", titleAr: "المسبحة", titleEn: "Tasbih", icon: <Fingerprint className="w-4 h-4" />, path: "/tasbih" },
     { id: "global-dhikr", titleAr: "التسبيح العالمي", titleEn: "Global Dhikr", icon: <Globe className="w-4 h-4" />, path: "/global-dhikr" },
-    { id: "ai-advisor", titleAr: "المستشار الروحاني", titleEn: "AI Advisor", icon: <Brain className="w-4 h-4" />, path: "/ai-advisor" },
     { id: "qibla", titleAr: "القبلة", titleEn: "Qibla Finder", icon: <Compass className="w-4 h-4" />, path: "/qibla" },
     { id: "zakat", titleAr: "حساب الزكاة", titleEn: "Zakat Calculator", icon: <Calculator className="w-4 h-4" />, path: "/zakat" },
     { id: "dua", titleAr: "مكتبة الأدعية", titleEn: "Dua Library", icon: <Sparkles className="w-4 h-4" />, path: "/dua-library" },
+    { id: "tajweed", titleAr: "التجويد الملون", titleEn: "Tajweed Rules", icon: <Sparkles className="w-4 h-4" />, path: "/tajweed" },
+    { id: "seerah", titleAr: "السيرة النبوية", titleEn: "Seerah Timeline", icon: <Calendar className="w-4 h-4" />, path: "/seerah-timeline" },
+    { id: "names-allah", titleAr: "أسماء الله الحسنى", titleEn: "Names of Allah", icon: <Heart className="w-4 h-4" />, path: "/names-of-allah" },
+    { id: "hijri", titleAr: "التقويم الهجري", titleEn: "Hijri Calendar", icon: <Calendar className="w-4 h-4" />, path: "/hijri" },
+    { id: "mosque", titleAr: "البحث عن مساجد", titleEn: "Mosque Finder", icon: <Compass className="w-4 h-4" />, path: "/mosque-finder" },
+    { id: "halal", titleAr: "أماكن حلال", titleEn: "Halal Places", icon: <Compass className="w-4 h-4" />, path: "/halal-places" },
+    { id: "quiz", titleAr: "المسابقة الإسلامية", titleEn: "Islamic Quiz", icon: <Brain className="w-4 h-4" />, path: "/islamic-quiz" },
     { id: "profile", titleAr: "الملف الشخصي", titleEn: "Profile", icon: <User className="w-4 h-4" />, path: "/profile" },
     { id: "settings", titleAr: "الإعدادات", titleEn: "Settings", icon: <Settings className="w-4 h-4" />, path: "/profile" },
   ];
@@ -52,7 +58,6 @@ const CommandPalette = () => {
 
   return (
     <>
-      {/* Floating Trigger Icon (Optional, mainly for mobile) */}
       <button 
         onClick={() => setIsOpen(true)}
         className="fixed bottom-24 right-6 w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-2xl flex items-center justify-center z-[100] md:hidden"
@@ -111,7 +116,7 @@ const CommandPalette = () => {
                         className="flex items-center gap-4 p-4 rounded-2xl hover:bg-primary/5 transition-all group text-right"
                       >
                         <div className="w-10 h-10 rounded-xl bg-muted group-hover:bg-primary/10 flex items-center justify-center text-muted-foreground group-hover:text-primary transition-colors">
-                          {action.icon}
+                           {action.icon}
                         </div>
                         <div className="flex-1">
                           <p className="font-serif font-bold text-primary">{isAr ? action.titleAr : action.titleEn}</p>
