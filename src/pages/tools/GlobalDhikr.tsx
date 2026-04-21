@@ -4,6 +4,9 @@ import { useTranslation } from "react-i18next";
 import { Users, Fingerprint, Globe, Sparkles, TrendingUp, Info } from "lucide-react";
 import QuranHeader from "@/components/QuranHeader";
 import BackButton from "@/components/BackButton";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { Capacitor } from "@capacitor/core";
+import { useUser } from "@/contexts/UserContext";
 import { db } from "@/firebase";
 import { doc, onSnapshot, updateDoc, increment, setDoc, getDoc } from "firebase/firestore";
 import { toast } from "sonner";
@@ -15,6 +18,7 @@ const GlobalDhikr = () => {
   const [personalCount, setPersonalCount] = useState<number>(0);
   const [sessionCount, setSessionCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
+  const { addAthkarRecited } = useUser();
 
   // Sync with Firestore
   useEffect(() => {
@@ -41,8 +45,15 @@ const GlobalDhikr = () => {
     setSessionCount(prev => prev + 1);
     setPersonalCount(prev => prev + 1);
     
-    // Optimistic update for UI feel (though onSnapshot will handle it)
-    // setGlobalCount(prev => prev + 1);
+    // Increment personal stats and points
+    addAthkarRecited(1);
+
+    // Haptic feedback for native and supported browsers
+    if (Capacitor.isNativePlatform()) {
+      Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
+    } else if ('vibrate' in navigator) {
+      navigator.vibrate(50);
+    }
 
     try {
       const dhikrDoc = doc(db, "stats", "dhikr");
