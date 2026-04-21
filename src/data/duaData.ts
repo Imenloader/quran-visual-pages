@@ -41,8 +41,11 @@ export const duaCategories = [
   { id: "health", en: "Health & Healing", ar: "الشفاء", icon: "Stethoscope" },
   { id: "protection", en: "Protection", ar: "التحصين", icon: "Shield" },
   { id: "family", en: "Family", ar: "الأهل والذرية", icon: "Heart" },
+  { id: "marriage", en: "Marriage", ar: "الزواج والخطوبة", icon: "Heart" },
+  { id: "work", en: "Work & Success", ar: "العمل والنجاح", icon: "GraduationCap" },
   { id: "daily", en: "Daily Life", ar: "الحياة اليومية", icon: "Home" },
 ];
+
 
 
 export const allDuas: Dua[] = [
@@ -626,7 +629,243 @@ export const allDuas: Dua[] = [
     translationEn: "O Ever-Living One, O Eternal One, by Your mercy I call on You to set right all my affairs. Do not leave me to myself even for the blinking of an eye.",
     translationAr: "يا حي يا قيوم برحمتك أستغيث أصلح لي شأني كله ولا تكلني إلى نفسي طرفة عين.",
     reference: "Al-Hakim"
+  },
+  
+  // --- Marriage & Engagement ---
+  {
+    id: 48,
+    category: "marriage",
+    categoryAr: "الزواج والخطوبة",
+    titleEn: "Dua of Musa for Good",
+    titleAr: "دعاء موسى عليه السلام",
+    arabic: "رَبِّ إِنِّي لِمَا أَنْزَلْتَ إِلَيَّ مِنْ خَيْرٍ فَقِيرٌ",
+    transliteration: "Rabbi innī limā anzalta ilayya min khayrin faqīr",
+    translationEn: "My Lord, I am in absolute need of the good You send down to me.",
+    translationAr: "رب إني لما أنزلت إلي من خير فقير.",
+    reference: "Quran 28:24"
+  },
+  {
+    id: 49,
+    category: "marriage",
+    categoryAr: "الزواج والخطوبة",
+    titleEn: "Congratulating for Marriage",
+    titleAr: "دعاء التهنئة بالزواج",
+    arabic: "بَارَكَ اللَّهُ لَكَ، وَبَارَكَ عَلَيْكَ، وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ",
+    transliteration: "Bārakallāhu laka, wa-bāraka ʿalayka, wa-jamaʿa baynakumā fī khayr",
+    translationEn: "May Allah bless you, shower His blessings upon you, and join you together in goodness.",
+    translationAr: "بارك الله لك، وبارك عليك، وجمع بينكما في خير.",
+    reference: "Abu Dawud & Tirmidhi"
+  },
+  {
+    id: 50,
+    category: "marriage",
+    categoryAr: "الزواج والخطوبة",
+    titleEn: "Seeking a Righteous Spouse",
+    titleAr: "طلب الزوج الصالح",
+    arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ زَوْجًا صَالِحًا تَقَرُّ بِهِ عَيْنِي",
+    transliteration: "Allāhumma innī as'aluka zawjan ṣāliḥan tuqarru bihī ʿaynī",
+    translationEn: "O Allah, I ask You for a righteous spouse, through whom my eyes find comfort.",
+    translationAr: "اللهم إني أسألك زوجاً صالحاً تقر به عيني.",
+    reference: "Common Dua"
+  },
+
+  // --- Work & Success ---
+  {
+    id: 51,
+    category: "work",
+    categoryAr: "العمل والنجاح",
+    titleEn: "Dua for Knowledge, Provision & Deeds",
+    titleAr: "دعاء العلم والرزق والعمل",
+    arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْماً نَافِعاً، وَرِزْقاً طَيِّباً، وَعَمَلاً مُتَقَبَّلاً",
+    transliteration: "Allāhumma innī as'aluka ʿilman nāfiʿan, wa-rizqan ṭayyiban, wa-ʿamalan mutaqabbalan",
+    translationEn: "O Allah, I ask You for beneficial knowledge, good (halal) provision, and accepted deeds.",
+    translationAr: "اللهم إني أسألك علماً نافعاً، ورزقاً طيباً، وعملاً متقبلاً.",
+    reference: "Ibn Majah"
+  },
+  {
+    id: 52,
+    category: "work",
+    categoryAr: "العمل والنجاح",
+    titleEn: "Sufficiency with Halal",
+    titleAr: "دعاء كفاية الحلال",
+    arabic: "اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ، وَأَغْنِنِي بِفَضْلِكَ عَمَّنْ سِوَاكَ",
+    transliteration: "Allāhumma ikfinī bi-ḥalālika ʿan ḥarāmika, wa-aghninī bi-faḍlika ʿamman siwāk",
+    translationEn: "O Allah, suffice me with what You have made lawful instead of what You have forbidden, and enrich me by Your bounty so that I need none besides You.",
+    translationAr: "اللهم اكفني بحلالك عن حرامك، وأغنني بفضلك عمن سواك.",
+    reference: "Tirmidhi"
+  },
+  {
+    id: 53,
+    category: "work",
+    categoryAr: "العمل والنجاح",
+    titleEn: "Success in All Matters",
+    titleAr: "دعاء النجاح العام",
+    arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ النَّجَاحَ فِي جَمِيعِ الْأُمُورِ، وَأَعُوذُ بِكَ مِنَ الْخِذْلَانِ",
+    transliteration: "Allāhumma innī as'aluka an-najāḥa fī jamīʿi al-umūr, wa-aʿūdhu bika min al-khidhlān",
+    translationEn: "O Allah, I ask You for success in all matters, and I seek refuge in You from failure.",
+    translationAr: "اللهم إني أسألك النجاح في جميع الأمور، وأعوذ بك من الخذلان.",
+    reference: "Common Dua"
+  },
+
+  // --- Protection from Magic & Evil Eye ---
+  {
+    id: 54,
+    category: "protection",
+    categoryAr: "التحصين",
+    titleEn: "Protection from Shaitan & Evil Eye",
+    titleAr: "التحصين من الشيطان والعين",
+    arabic: "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّةِ مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ، وَمِنْ كُلِّ عَيْنٍ لَّامَّةٍ",
+    transliteration: "Aʿūdhu bi-kalimātillāhi t-tāmmati min kulli shayṭānin wa-hāmmah, wa-min kulli ʿaynin lāmma",
+    translationEn: "I seek refuge in the perfect words of Allah from every devil and every poisonous pest, and from every harmful eye.",
+    translationAr: "أعوذ بكلمات الله التامة من كل شيطان وهامة، ومن كل عين لامة.",
+    reference: "Sahih al-Bukhari"
+  },
+  {
+    id: 55,
+    category: "protection",
+    categoryAr: "التحصين",
+    titleEn: "Surah Al-Falaq",
+    titleAr: "سورة الفلق",
+    arabic: "قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ (1) مِن شَرِّ مَا خَلَقَ (2) وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ (3) وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ (4) وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ (5)",
+    transliteration: "Qul aʿūdhu bi-rabbi l-falaq. Min sharri mā khalaq. Wa-min sharri ghāsiqin idhā waqab. Wa-min sharri n-naffāthāti fī l-ʿuqad. Wa-min sharri ḥāsidin idhā ḥasad.",
+    translationEn: "Say, 'I seek refuge in the Lord of daybreak, From the evil of that which He created, And from the evil of darkness when it settles, And from the evil of the blowers in knots, And from the evil of an envier when he envies.'",
+    translationAr: "قل أعوذ برب الفلق، من شر ما خلق، ومن شر غاسق إذا وقب، ومن شر النفاثات في العقد، ومن شر حاسد إذا حسد.",
+    reference: "Quran 113"
+  },
+  {
+    id: 56,
+    category: "protection",
+    categoryAr: "التحصين",
+    titleEn: "Surah Al-Nas",
+    titleAr: "سورة الناس",
+    arabic: "قُلْ أَعُوذُ بِرَبِّ النَّاسِ (1) مَلِكِ النَّاسِ (2) إِلَهِ النَّاسِ (3) مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ (4) الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ (5) مِنَ الْجِنَّةِ وَالنَّاسِ (6)",
+    transliteration: "Qul aʿūdhu bi-rabbi n-nās. Maliki n-nās. Ilāhi n-nās. Min sharri l-waswāsi l-khannās. Alladhī yuwaswisu fī ṣudūri n-nās. Mina l-jinnati wa-n-nās.",
+    translationEn: "Say, 'I seek refuge in the Lord of mankind, The Sovereign of mankind, The God of mankind, From the evil of the retreating whisperer - Who whispers [evil] into the breasts of mankind - From among the jinn and mankind.'",
+    translationAr: "قل أعوذ برب الناس، ملك الناس، إله الناس، من شر الوسواس الخناس، الذي يوسوس في صدور الناس، من الجنة والناس.",
+    reference: "Quran 114"
+  },
+  {
+    id: 57,
+    category: "protection",
+    categoryAr: "التحصين",
+    titleEn: "Ayat al-Kursi",
+    titleAr: "آية الكرسي",
+    arabic: "اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ وَلَا يَئُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ",
+    transliteration: "Allāhu lā ilāha illā Huwa al-Ḥayyu al-Qayyūmu lā ta'khudhuhu sinatun wa-lā nawm luhu mā fī s-samāwāti wa-mā fī l-arḍ man dhā alladhī yashfaʿu ʿindahu illā bi-idhnihi yaʿlamu mā bayna aydīhim wa-mā khalfahum wa-lā yuḥīṭūna bi-shay'in min ʿilmihi illā bi-mā shā'a wasiʿa kursiyyuhu s-samāwāti wal-arḍ wa-lā ya'ūduhu ḥifẓuhumā wa-Huwa al-ʿAliyyu al-ʿAẓīm",
+    translationEn: "Allah - there is no deity except Him, the Ever-Living, the Sustainer of [all] existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth. Who is it that can intercede with Him except by His permission? He knows what is [presently] before them and what will be after them, and they encompass not a thing of His knowledge except for what He wills. His Kursi extends over the heavens and the earth, and their preservation tires Him not. And He is the Most High, the Most Great.",
+    translationAr: "الله لا إله إلا هو الحي القيوم لا تأخذه سنة ولا نوم له ما في السماوات وما في الأرض من ذا الذي يشفع عنده إلا بإذنه يعلم ما بين أيديهم وما خلفهم ولا يحيطون بشيء من علمه إلا بما شاء وسع كرسيه السماوات والأرض ولا يئوده حفظهما وهو العلي العظيم.",
+    reference: "Quran 2:255"
+  },
+  {
+    id: 58,
+    category: "morning-evening",
+    categoryAr: "أذكار الصباح والمساء",
+    titleEn: "Goodness of the Day",
+    titleAr: "دعاء خير اليوم",
+    arabic: "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ رَبِّ الْعَالَمِينَ، اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَ هَذَا الْيَوْمِ: فَتْحَهُ، وَنَصْرَهُ، وَنُورَهُ، وَبَرَكَتَهُ، وَهُدَاهُ",
+    transliteration: "Aṣbaḥnā wa-aṣbaḥal-mulku lillāhi Rabbi l-ʿālamīn, Allāhumma innī as'aluka khayra hādhal-yawm: fatḥahu wa-naṣrahu wa-nūrahu wa-barakatahu wa-hudāhu",
+    translationEn: "We have entered a new day and with it all the dominion which belongs to Allah, Lord of all that exists. O Allah, I ask You for the goodness of this day, its victory, its help, its light, its blessings, and its guidance.",
+    translationAr: "أصبحنا وأصبح الملك لله رب العالمين، اللهم إني أسألك خير هذا اليوم: فتحه، ونصره، ونوره، وبركته، وهداه.",
+    reference: "Abu Dawud"
+  },
+  {
+    id: 59,
+    category: "daily",
+    categoryAr: "الحياة اليومية",
+    titleEn: "Before Sleeping (Submission)",
+    titleAr: "دعاء قبل النوم",
+    arabic: "اللَّهُمَّ أَسْلَمْتُ نَفْسِي إِلَيْكَ، وَفَوَّضْتُ أَمْرِي إِلَيْكَ، وَوَجَّهْتُ وَجْهِي إِلَيْكَ، وَأَلْجَأْتُ ظَهْرِي إِلَيْكَ، رَغْبَةً وَرَهْبَةً إِلَيْكَ",
+    transliteration: "Allāhumma aslamtu nafsī ilayk, wa-fawwaḍtu amrī ilayk, wa-wajjahtu wajhī ilayk, wa-alja'tu ẓahrī ilayk, raghbatan wa-rahbatan ilayk",
+    translationEn: "O Allah, I submit my soul to You, and I entrust my affair to You, and I turn my face to You, and I rely on You, out of desire for You and fear of You.",
+    translationAr: "اللهم أسلمت نفسي إليك، وفوضت أمري إليك، ووجهت وجهي إليك، وألجأت ظهري إليك، رغبة ورهبة إليك.",
+    reference: "Sahih al-Bukhari & Muslim"
+  },
+  {
+    id: 60,
+    category: "hardship",
+    categoryAr: "الهم والحزن",
+    titleEn: "Seeking Relief",
+    titleAr: "دعاء الفرج",
+    arabic: "اللَّهُمَّ رَحْمَتَكَ أَرْجُو فَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ، وَأَصْلِحْ لِي شَأْنِي كُلَّهُ لَا إِلَهَ إِلَّا أَنْتَ",
+    transliteration: "Allāhumma raḥmataka arjū falā takilnī ilā nafsī ṭarfata ʿayn, wa-aṣliḥ lī sha'nī kullahū lā ilāha illā Anta",
+    translationEn: "O Allah, it is Your mercy that I hope for, so do not leave me to myself even for the blinking of an eye, and rectify all my affairs. There is no god but You.",
+    translationAr: "اللهم رحمتك أرجو فلا تكلني إلى نفسي طرفة عين، وأصلح لي شأني كله لا إله إلا أنت.",
+    reference: "Abu Dawud"
+  },
+  {
+    id: 61,
+    category: "forgiveness",
+    categoryAr: "الاستغفار",
+    titleEn: "Detailed Forgiveness",
+    titleAr: "دعاء المغفرة التفصيلي",
+    arabic: "اللَّهُمَّ اغْفِرْ لِي ذَنْبِي كُلَّهُ، دِقَّهُ وَجِلَّهُ، وَأَوَّلَهُ وَآخِرَهُ وَعَلَانِيَتَهُ وَسِرَّهُ",
+    transliteration: "Allāhummagh-fir lī dhanbī kullahū, diqqahu wa-jillahu, wa-awwalahu wa-ākhirahu wa-ʿalāniyatahu wa-sirrahu",
+    translationEn: "O Allah, forgive me all my sins, the small and the great, the first and the last, the open and the secret.",
+    translationAr: "اللهم اغفر لي ذنبي كله، دقه وجله، وأوله وآخره وعلانيته وسره.",
+    reference: "Sahih Muslim"
+  },
+  {
+    id: 62,
+    category: "daily",
+    categoryAr: "الحياة اليومية",
+    titleEn: "Entering the Market",
+    titleAr: "دعاء دخول السوق",
+    arabic: "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ يُحْيِي وَيُمِيتُ وَهُوَ حَيٌّ لَا يَمُوتُ بِيَدِهِ الْخَيْرُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
+    transliteration: "Lā ilāha illallāhu waḥdahu lā sharīka lahu, lahu l-mulku wa-lahu l-ḥamdu yuḥyī wa-yumītu wa-huwa ḥayyun lā yamūtu biyadihi l-khayru wa-huwa ʿalā kulli shay'in qadīr",
+    translationEn: "There is no god but Allah alone, Who has no partner, His is the dominion and His is the praise, He gives life and He gives death, and He is Living and does not die, in His Hand is all good, and He is Able to do all things.",
+    translationAr: "لا إله إلا الله وحده لا شريك له، له الملك وله الحمد يحيي ويميت وهو حي لا يموت بيده الخير وهو على كل شيء قدير.",
+    reference: "Tirmidhi & Ibn Majah"
+  },
+  {
+    id: 63,
+    category: "daily",
+    categoryAr: "الحياة اليومية",
+    titleEn: "Entering the Home (Protection)",
+    titleAr: "دعاء دخول المنزل",
+    arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَ الْمَوْلَجِ وَخَيْرَ الْمَخْرَجِ، بِسْمِ اللَّهِ وَلَجْنَا، وَبِسْمِ اللَّهِ خَرَجْنَا، وَعَلَى اللَّهِ رَبِّنَا تَوَكَّلْنَا",
+    transliteration: "Allāhumma innī as'aluka khayra l-mawlaji wa-khayra l-makhraji, bismillāhi walajnā, wa-bismillāhi kharajnā, wa-ʿalā Allāhi Rabbinā tawakkalnā",
+    translationEn: "O Allah, I ask You for the best entering and the best exiting. In the name of Allah we enter, and in the name of Allah we go out, and upon Allah our Lord we rely.",
+    translationAr: "اللهم إني أسألك خير المولج وخير المخرج، باسم الله ولجنا، وباسم الله خرجنا، وعلى الله ربنا توكلنا.",
+    reference: "Abu Dawud"
+  },
+  {
+    id: 64,
+    category: "comprehensive",
+    categoryAr: "أدعية جامعة",
+    titleEn: "Seeking Guidance",
+    titleAr: "دعاء الهداية",
+    arabic: "اللَّهُمَّ اهْدِنِي وَسَدِّدْنِي",
+    transliteration: "Allāhumma-hdinī wa-saddidnī",
+    translationEn: "O Allah, guide me and keep me on the right path.",
+    translationAr: "اللهم اهدني وسددني.",
+    reference: "Sahih Muslim"
+  },
+  {
+    id: 65,
+    category: "health",
+    categoryAr: "الشفاء",
+    titleEn: "Visiting the Sick",
+    titleAr: "دعاء زيارة المريض",
+    arabic: "لَا بَأْسَ طَهُورٌ إِنْ شَاءَ اللَّهُ",
+    transliteration: "Lā ba'sa ṭahūrun in shā' Allāh",
+    translationEn: "No harm, it will be a purification [from sins], if Allah wills.",
+    translationAr: "لا بأس طهور إن شاء الله.",
+    reference: "Sahih al-Bukhari"
+  },
+  {
+    id: 66,
+    category: "family",
+    categoryAr: "الأهل والذرية",
+    titleEn: "Blessing for Newborn",
+    titleAr: "دعاء للمولود",
+    arabic: "بَارَكَ اللَّهُ لَكَ فِي الْمَوْهُوبِ لَكَ، وَشَكَرْتَ الْوَاهِبَ، وَبَلَغَ أَشُدَّهُ، وَرُزِقْتَ بِرَّهُ",
+    transliteration: "Bārakallāhu laka fī l-mawhūbi laka, wa-shakarta l-wāhiba, wa-balagha ashuddahu, wa-ruziqta birrahu",
+    translationEn: "May Allah bless you in what He has given you, and may you be grateful to the Giver, and may he (the child) reach the age of strength, and may you be granted his righteousness.",
+    translationAr: "بارك الله لك في الموهوب لك، وشكرت الواهب، وبلغ أشده، ورزقت بره.",
+    reference: "Common Blessing"
   }
 ];
+
+
 
 
