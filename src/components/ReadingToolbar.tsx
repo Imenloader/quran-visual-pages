@@ -1,4 +1,4 @@
-import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen, List, Moon, Sun, Info, MessageSquareText, Type, FileImage, ArrowDown, ArrowRightLeft, Palette, GraduationCap, Sparkles, Server } from "lucide-react";
+import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen, List, Moon, Sun, Info, MessageSquareText, Type, FileImage, ArrowDown, ArrowRightLeft, Palette, GraduationCap, Sparkles, Server, Wand2 } from "lucide-react";
 import { toArabicNumber } from "@/data/quranData";
 import ShareButton from "./ShareButton";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -36,7 +36,7 @@ const ReadingToolbar = ({
   onToggleHifzMode,
   onToggleSourceSelector,
 }: ReadingToolbarProps) => {
-  const { theme, setTheme, readingMode, setReadingMode, scrollDirection, setScrollDirection, tajweedMode, setTajweedMode } = useTheme();
+  const { theme, setTheme, readingMode, setReadingMode, scrollDirection, setScrollDirection, tajweedMode, setTajweedMode, atmosphericBackground, setAtmosphericBackground } = useTheme();
 
   const toggleTheme = () => {
     if (theme === "light") {
@@ -123,6 +123,14 @@ const ReadingToolbar = ({
             title="وضع التحفيظ والمراجعة"
           >
             <GraduationCap className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
+          </button>
+
+          <button
+            onClick={(e) => { e.stopPropagation(); setAtmosphericBackground(!atmosphericBackground); }}
+            className={`toolbar-btn !p-1.5 md:!p-2.5 ${atmosphericBackground ? "text-amber-500 bg-amber-500/10" : ""}`}
+            title="تأثيرات جوية"
+          >
+            <Wand2 className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
           </button>
 
           <button

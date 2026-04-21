@@ -24,6 +24,7 @@ import { useGoalNotifications } from "./hooks/useGoalNotifications";
 import { AudioUnlockBanner } from "./components/AudioUnlockBanner";
 import SplashScreen from "./components/SplashScreen";
 import ScrollRestoration from "./components/ScrollRestoration";
+import CommandPalette from "./components/CommandPalette";
 
 // --- التعديل هنا: تحميل الصفحات الأساسية بشكل Lazy مرة أخرى لمحاولة حل مشكلة الـ ReferenceError ---
 const Index = lazy(() => import("./pages/Index"));
@@ -68,6 +69,8 @@ const FastingTracker = lazy(() => import("./pages/tools/FastingTracker"));
 const RoutineBuilder = lazy(() => import("./pages/tools/RoutineBuilder"));
 const SadaqahLogger = lazy(() => import("./pages/tools/SadaqahLogger"));
 const DuaLibrary = lazy(() => import("./pages/tools/DuaLibrary"));
+const AiAdvisor = lazy(() => import("./pages/tools/AiAdvisor"));
+const GlobalDhikr = lazy(() => import("./pages/tools/GlobalDhikr"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const MoonTracker = lazy(() => import("./pages/tools/MoonTracker"));
 const Virtues = lazy(() => import("./pages/ramadan/Virtues"));
@@ -171,6 +174,7 @@ const App = () => {
                 <LanguageHandler />
                 <NetworkStatus />
                 <AudioUnlockBanner />
+                <CommandPalette />
                 <div className="page-dimming-overlay" />
                 <Toaster />
                 <Sonner />
@@ -216,6 +220,8 @@ const App = () => {
                       <Route path="/routine-builder" element={<RoutineBuilder />} />
                       <Route path="/sadaqah-logger" element={<SadaqahLogger />} />
                       <Route path="/dua-library" element={<DuaLibrary />} />
+                      <Route path="/ai-advisor" element={<AiAdvisor />} />
+                      <Route path="/global-dhikr" element={<GlobalDhikr />} />
                       <Route path="/privacy" element={<PrivacyPolicy />} />
                       <Route path="/moon-tracker" element={<MoonTracker />} />
                       <Route path="/ramadan/virtues" element={<Virtues />} />

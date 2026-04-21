@@ -362,95 +362,94 @@ const Profile = () => {
           </section>
         </ScrollReveal>
 
-        {/* Juz Completion Grid */}
-        <ScrollReveal index={4}>
+        {/* Badges & Achievements */}
+        <ScrollReveal index={5}>
           <section className="bg-card/80 backdrop-blur-2xl rounded-3xl p-6 shadow-islamic border border-border/20 space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-serif text-lg font-bold text-primary">ختمات الأجزاء</h3>
-                <p className="text-[10px] text-primary/70 font-serif italic mt-0.5">تتبع تقدمك في كل جزء</p>
+                <h3 className="font-serif text-lg font-bold text-primary">{i18n.language === 'ar' ? 'الأوسمة والإنجازات' : 'Badges & Achievements'}</h3>
+                <p className="text-[10px] text-primary/70 font-serif italic mt-0.5">{i18n.language === 'ar' ? 'أوسمة تقدير لرحلتك الروحانية' : 'Recognition for your spiritual journey'}</p>
               </div>
-              <div className="flex items-center gap-2">
-                <button 
-                  onClick={resetJuzProgress}
-                  className="p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-all"
-                  title="إعادة تعيين التقدم"
-                >
-                  <RotateCcw size={14} />
-                </button>
-                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                  <Trophy size={14} />
-                  <span className="text-xs font-bold font-serif">{toArabicNumber(completedJuzList.length)} / {toArabicNumber(30)}</span>
+              <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center text-gold">
+                <Trophy size={20} />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-4 sm:grid-cols-6 gap-4">
+              {[
+                { id: "early-bird", icon: <Sun className="w-6 h-6" />, labelAr: "طائر مبكر", labelEn: "Early Bird", earned: true, color: "text-amber-500", bg: "bg-amber-500/10" },
+                { id: "quran-lover", icon: <BookOpen className="w-6 h-6" />, labelAr: "محب القرآن", labelEn: "Quran Lover", earned: profile.totalAyahsRead > 1000, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+                { id: "tasbih-master", icon: <Sparkles className="w-6 h-6" />, labelAr: "خاشع", labelEn: "Tasbih Master", earned: profile.totalAthkarRecited > 5000, color: "text-blue-500", bg: "bg-blue-500/10" },
+                { id: "streak-7", icon: <Calendar className="w-6 h-6" />, labelAr: "أسبوع كامل", labelEn: "7-Day Streak", earned: profile.daysActive >= 7, color: "text-rose-500", bg: "bg-rose-500/10" },
+                { id: "khatma-1", icon: <Trophy className="w-6 h-6" />, labelAr: "خاتم", labelEn: "First Khatma", earned: completedJuzList.length === 30, color: "text-gold", bg: "bg-gold/10" },
+                { id: "night-owl", icon: <Moon className="w-6 h-6" />, labelAr: "قائم الليل", labelEn: "Night Owl", earned: false, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+              ].map((badge) => (
+                <div key={badge.id} className="flex flex-col items-center gap-2 group">
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border-2 transition-all relative ${
+                    badge.earned 
+                      ? `${badge.bg} ${badge.color.replace('text-', 'border-').replace('500', '500/30')} shadow-lg` 
+                      : "bg-muted/50 border-border/20 grayscale opacity-40"
+                  }`}>
+                    {badge.icon}
+                    {badge.earned && (
+                      <motion.div 
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-gold text-emerald-deep rounded-full flex items-center justify-center border-2 border-white dark:border-black"
+                      >
+                        <Check size={10} strokeWidth={4} />
+                      </motion.div>
+                    )}
+                  </div>
+                  <span className={`text-[8px] font-bold uppercase tracking-widest text-center ${badge.earned ? "text-primary" : "text-muted-foreground"}`}>
+                    {isAr ? badge.labelAr : badge.labelEn}
+                  </span>
                 </div>
+              ))}
+            </div>
+          </section>
+        </ScrollReveal>
+
+        {/* Daily Quests */}
+        <ScrollReveal index={6}>
+          <section className="bg-card/80 backdrop-blur-2xl rounded-3xl p-6 shadow-islamic border border-border/20 space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-serif text-lg font-bold text-primary">{i18n.language === 'ar' ? 'مهام اليوم' : 'Daily Quests'}</h3>
+                <p className="text-[10px] text-primary/70 font-serif italic mt-0.5">{i18n.language === 'ar' ? 'أكمل المهام لزيادة رصيدك الإيماني' : 'Complete tasks to increase your faith points'}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                <Sparkles size={20} />
               </div>
             </div>
 
-            <div className="grid grid-cols-6 sm:grid-cols-10 gap-2">
-              {Array.from({ length: 30 }).map((_, i) => {
-                const juzNum = i + 1;
-                const data = juzProgressData[juzNum] || { completed: false, progress: 0 };
-                const isCompleted = data.completed;
-                const progress = data.progress;
-                
-                return (
-                  <Link
-                    key={juzNum}
-                    to={`/juz/${juzNum}`}
-                    className={`block transition-all ${progress === 0 && !isCompleted ? 'pointer-events-none opacity-40 grayscale' : ''}`}
-                  >
-                    <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      className={`aspect-square rounded-xl flex flex-col items-center justify-center text-[10px] font-bold font-serif transition-all relative overflow-hidden ${
-                        isCompleted 
-                          ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" 
-                          : progress > 0
-                            ? "bg-accent/10 text-accent border border-accent/20"
-                            : "bg-primary/5 text-primary/30 border border-primary/5"
-                      }`}
-                    >
-                      {isCompleted ? (
-                        <Check size={14} strokeWidth={3} />
-                      ) : (
-                        <>
-                          <span>{toArabicNumber(juzNum)}</span>
-                          {progress > 0 && (
-                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-accent/20">
-                              <div 
-                                className="h-full bg-accent" 
-                                style={{ width: `${progress}%` }}
-                              />
-                            </div>
-                          )}
-                        </>
-                      )}
-                      {isCompleted && (
-                        <motion.div
-                          animate={{ opacity: [0.4, 1, 0.4] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                          className="absolute -inset-1 rounded-xl border-2 border-emerald-500 pointer-events-none z-10"
-                        />
-                      )}
-                      {progress > 0 && !isCompleted && (
-                        <motion.div
-                          animate={{ opacity: [0.4, 1, 0.4] }}
-                          transition={{ duration: 3, repeat: Infinity }}
-                          className="absolute -inset-1 rounded-xl border-2 border-gold pointer-events-none z-10"
-                        />
-                      )}
-                    </motion.div>
-                  </Link>
-                );
-              })}
+            <div className="space-y-3">
+              {[
+                { id: "read-page", labelAr: "قراءة صفحة من المصحف", labelEn: "Read 1 page of Quran", points: 150, completed: profile.totalPagesRead > 0 },
+                { id: "tasbih-100", labelAr: "ذكر الله 100 مرة", labelEn: "Dhikr 100 times", points: 200, completed: profile.totalAthkarRecited > 100 },
+                { id: "check-prayer", labelAr: "تأكيد صلوات اليوم", labelEn: "Confirm today's prayers", points: 500, completed: false },
+              ].map((quest) => (
+                <div key={quest.id} className={`p-4 rounded-2xl border transition-all flex items-center justify-between ${
+                  quest.completed 
+                    ? "bg-emerald-500/5 border-emerald-500/20" 
+                    : "bg-primary/5 border-primary/5 hover:border-primary/20"
+                }`}>
+                  <div className="flex items-center gap-4">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      quest.completed ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"
+                    }`}>
+                      {quest.completed ? <Check size={16} /> : <div className="w-2 h-2 rounded-full bg-current" />}
+                    </div>
+                    <div className={`${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                      <p className={`text-sm font-serif font-bold ${quest.completed ? "text-primary/60 line-through" : "text-primary"}`}>
+                        {isAr ? quest.labelAr : quest.labelEn}
+                      </p>
+                      <p className="text-[9px] font-bold text-gold uppercase tracking-widest">+{toArabicNumber(quest.points)} XP</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-
-            {completedJuzList.length === 30 && (
-              <div className="p-4 rounded-2xl bg-gold/10 border border-gold/20 text-center space-y-2">
-                <Sparkles className="mx-auto text-gold" size={24} />
-                <p className="text-sm font-serif font-bold text-primary">مبارك! لقد ختمت القرآن الكريم كاملاً</p>
-                <p className="text-[10px] text-primary/60 font-serif italic">تقبل الله منك صالح الأعمال</p>
-              </div>
-            )}
           </section>
         </ScrollReveal>
 

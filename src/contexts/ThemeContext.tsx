@@ -22,6 +22,8 @@ interface ThemeContextType {
   setIsFullscreen: (v: boolean) => void;
   preferredImageSource: string | null;
   setPreferredImageSource: (id: string | null) => void;
+  atmosphericBackground: boolean;
+  setAtmosphericBackground: (v: boolean) => void;
   isLoaded: boolean;
 }
 
@@ -36,6 +38,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [tajweedMode, setTajweedModeState] = useState<boolean>(false);
   const [hifzMode, setHifzModeState] = useState<boolean>(false);
   const [preferredImageSource, setPreferredImageSourceState] = useState<string | null>(null);
+  const [atmosphericBackground, setAtmosphericBackgroundState] = useState<boolean>(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -47,6 +50,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const savedTajweed = await storage.get("quran-tajweed-mode");
       const savedHifz = await storage.get("quran-hifz-mode");
       const savedImageSource = await storage.get("quran-preferred-image-source");
+      const savedAtmospheric = await storage.get("quran-atmospheric-bg");
 
       if (savedTheme === "dark" || savedTheme === "night") setThemeState("dark");
       else if (savedTheme === "sepia") setThemeState("sepia");
@@ -58,6 +62,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (savedTajweed) setTajweedModeState(savedTajweed === "true");
       if (savedHifz) setHifzModeState(savedHifz === "true");
       if (savedImageSource) setPreferredImageSourceState(savedImageSource);
+      if (savedAtmospheric) setAtmosphericBackgroundState(savedAtmospheric === "true");
       
       setIsLoaded(true);
     };
@@ -99,6 +104,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (id) await storage.set("quran-preferred-image-source", id);
     else await storage.remove("quran-preferred-image-source");
   };
+  
+  const setAtmosphericBackground = async (v: boolean) => {
+    setAtmosphericBackgroundState(v);
+    await storage.set("quran-atmospheric-bg", v.toString());
+  };
 
   const setIsFullscreen = (v: boolean) => {
     setIsFullscreenState(v);
@@ -138,6 +148,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       hifzMode, setHifzMode,
       isFullscreen, setIsFullscreen,
       preferredImageSource, setPreferredImageSource,
+      atmosphericBackground, setAtmosphericBackground,
       isLoaded
     }}>
       {children}

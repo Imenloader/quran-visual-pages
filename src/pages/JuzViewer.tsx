@@ -19,6 +19,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useUser } from "@/contexts/UserContext";
 import BackButton from "@/components/BackButton";
+import AtmosphericBackground from "@/components/AtmosphericBackground";
 import { cn } from "@/lib/utils";
 
 // --- التعديل هنا: تحميل KhatmaCelebration بشكل Lazy ---
@@ -453,6 +454,7 @@ function JuzViewer() {
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
+      <AtmosphericBackground />
       <div className="fixed inset-0 pattern-islamic opacity-[0.01] pointer-events-none" />
       
       <div className={`fixed right-4 md:right-8 z-[120] flex flex-col gap-3 md:gap-4 transition-all duration-500 ${isFullscreen ? (showControls ? "bottom-6 md:bottom-8 opacity-100" : "bottom-6 md:bottom-8 opacity-0 pointer-events-none") : "bottom-24 md:bottom-32 opacity-100"}`}>

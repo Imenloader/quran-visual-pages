@@ -173,9 +173,11 @@ const Hub = () => {
         { name: t("hub.prayerTimes"), icon: <Zap className="w-5 h-5" />, path: "/prayer-times" },
         { name: t("hub.qibla"), icon: <Compass className="w-5 h-5" />, path: "/qibla" },
         { name: t("hub.tasbih"), icon: <Fingerprint className="w-5 h-5" />, path: "/tasbih" },
+        { name: i18n.language === 'ar' ? "التسبيح العالمي" : "Global Dhikr", icon: <Globe className="w-5 h-5" />, path: "/global-dhikr" },
         { name: t("hub.zakat"), icon: <Calculator className="w-5 h-5" />, path: "/zakat" },
         { name: i18n.language === 'ar' ? "سجل الصدقات" : "Sadaqah Logger", icon: <Heart className="w-5 h-5" />, path: "/sadaqah-logger" },
         { name: i18n.language === 'ar' ? "مكتبة الأدعية" : "Dua Library", icon: <Sparkles className="w-5 h-5" />, path: "/dua-library" },
+        { name: i18n.language === 'ar' ? "المستشار الروحاني" : "AI Spiritual Advisor", icon: <Brain className="w-5 h-5" />, path: "/ai-advisor" },
         { name: t("hub.namesOfAllah"), icon: <Heart className="w-5 h-5" />, path: "/names-of-allah" },
       ]
     },
