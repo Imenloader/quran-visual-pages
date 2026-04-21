@@ -22,119 +22,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
-interface Dua {
-  id: number;
-  category: string;
-  categoryAr: string;
-  titleEn: string;
-  titleAr: string;
-  arabic: string;
-  transliteration: string;
-  translationEn: string;
-  translationAr: string;
-  reference: string;
-}
-
-const duas: Dua[] = [
-  {
-    id: 1,
-    category: "Exams & Knowledge",
-    categoryAr: "الامتحانات والعلم",
-    titleEn: "Dua for Knowledge",
-    titleAr: "دعاء طلب العلم",
-    arabic: "رَبِّ زِدْنِي عِلْمًا",
-    transliteration: "Rabbi zidni 'ilma",
-    translationEn: "My Lord, increase me in knowledge.",
-    translationAr: "ربِ زدني علماً.",
-    reference: "Surah Taha, 20:114"
-  },
-  {
-    id: 2,
-    category: "Exams & Knowledge",
-    categoryAr: "الامتحانات والعلم",
-    titleEn: "Dua for Ease in Tasks",
-    titleAr: "دعاء تيسير الأمور",
-    arabic: "رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي",
-    transliteration: "Rabbi-shrah li sadri, wa yassir li amri",
-    translationEn: "My Lord, expand for me my breast [with assurance] and ease for me my task.",
-    translationAr: "ربِ اشرح لي صدري ويسر لي أمري.",
-    reference: "Surah Taha, 20:25-26"
-  },
-  {
-    id: 3,
-    category: "Health & Healing",
-    categoryAr: "الصحة والشفاء",
-    titleEn: "Dua for the Sick",
-    titleAr: "دعاء للمريض",
-    arabic: "أَذْهِبِ الْبَاسَ رَبَّ النَّاسِ، اشْفِ وَأَنْتَ الشَّافِي، لاَ شِفَاءَ إِلاَّ شِفَاؤُكَ، شِفَاءً لاَ يُغَادِرُ سَقَمًا",
-    transliteration: "Adhibil-ba'sa Rabba-nnas, ishfi wa Antash-Shafi, la shifa'a illa shifa'uka, shifa'an la yughadiru saqama",
-    translationEn: "Remove the hardship, O Lord of mankind, grant cure for You are the Healer. There is no cure but from You, a cure which leaves no illness behind.",
-    translationAr: "أذهب البأس رب الناس، اشف وأنت الشافي، لا شفاء إلا شفاؤك، شفاءً لا يغادر سقماً.",
-    reference: "Sahih al-Bukhari"
-  },
-  {
-    id: 4,
-    category: "Protection & Safety",
-    categoryAr: "الحماية والأمان",
-    titleEn: "Protection from Evil",
-    titleAr: "الاستعاذة من الشرور",
-    arabic: "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ",
-    transliteration: "Bismillahil-ladhi la yadurru ma'as-mihi shay'un fil-ardi wa la fis-sama'i wa Huwas-Sami'ul-'Alim",
-    translationEn: "In the Name of Allah with Whose Name nothing can cause harm in the earth nor in the heavens, and He is the All-Hearing, the All-Knowing.",
-    translationAr: "باسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم.",
-    reference: "Sunan Abi Dawud"
-  },
-  {
-    id: 5,
-    category: "Guidance & Decisions",
-    categoryAr: "الهداية والقرار",
-    titleEn: "Dua for Istikhara (Seeking Guidance)",
-    titleAr: "دعاء الاستخارة",
-    arabic: "اللَّهُمَّ إِنِّي أَسْتَخِيرُكَ بِعِلْمِكَ وَأَسْتَقْدِرُكَ بِقُدْرَتِكَ وَأَسْأَلُكَ مِنْ فَضْلِكَ الْعَظِيمِ",
-    transliteration: "Allahumma inni astakhiruka bi'ilmika wa astaqdiruka biqudratika wa as'aluka min fadlikal-'azim",
-    translationEn: "O Allah, I seek Your counsel through Your knowledge and I seek Your strength through Your power, and I ask You of Your immense bounty.",
-    translationAr: "اللهم إني أستخيرك بعلمك وأستقدرك بقدرتك وأسألك من فضلك العظيم.",
-    reference: "Sahih al-Bukhari (Excerpt)"
-  },
-  {
-    id: 6,
-    category: "Gratitude & Success",
-    categoryAr: "الشكر والنجاح",
-    titleEn: "Dua for Gratitude",
-    titleAr: "دعاء الشكر",
-    arabic: "رَبِّ أَوْزِعْنِي أَنْ أَشْكُرَ نِعْمَتَكَ الَّتِي أَنْعَمْتَ عَلَيَّ",
-    transliteration: "Rabbi awzi'ni an ashkura ni'matakal-lati an'amta 'alayya",
-    translationEn: "My Lord, enable me to be grateful for Your favor which You have bestowed upon me.",
-    translationAr: "ربِ أوزعني أن أشكر نعمتك التي أنعمت علي.",
-    reference: "Surah An-Naml, 27:19"
-  }
-];
-
-const categories = [
-  { en: "All", ar: "الكل", icon: <LayoutGrid className="w-4 h-4" /> },
-  { en: "Exams & Knowledge", ar: "الامتحانات والعلم", icon: <GraduationCap className="w-4 h-4" /> },
-  { en: "Health & Healing", ar: "الصحة والشفاء", icon: <Stethoscope className="w-4 h-4" /> },
-  { en: "Protection & Safety", ar: "الحماية والأمان", icon: <Shield className="w-4 h-4" /> },
-  { en: "Guidance & Decisions", ar: "الهداية والقرار", icon: <Brain className="w-4 h-4" /> },
-  { en: "Gratitude & Success", ar: "الشكر والنجاح", icon: <Sparkles className="w-4 h-4" /> },
-];
-
-import { LayoutGrid } from "lucide-react";
+import { LayoutGrid, type LucideIcon } from "lucide-react";
+import * as Icons from "lucide-react";
+import { allDuas, duaCategories, type Dua } from "@/data/duaData";
 
 const DuaLibrary = () => {
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
-  const filteredDuas = duas.filter(dua => {
+  const filteredDuas = allDuas.filter(dua => {
     const matchesSearch = 
       dua.titleEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
       dua.titleAr.includes(searchQuery) ||
-      dua.arabic.includes(searchQuery);
+      dua.arabic.includes(searchQuery) ||
+      dua.translationEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      dua.translationAr.includes(searchQuery);
     
-    const matchesCategory = selectedCategory === "All" || dua.category === selectedCategory;
+    const matchesCategory = selectedCategory === "all" || dua.category === selectedCategory;
     
     return matchesSearch && matchesCategory;
   });
@@ -142,6 +49,11 @@ const DuaLibrary = () => {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success(isAr ? "تم النسخ إلى الحافظة" : "Copied to clipboard");
+  };
+
+  const getIcon = (iconName: string): React.ReactNode => {
+    const Icon = (Icons as any)[iconName] as LucideIcon;
+    return Icon ? <Icon className="w-4 h-4" /> : <LayoutGrid className="w-4 h-4" />;
   };
 
   return (
@@ -166,14 +78,14 @@ const DuaLibrary = () => {
           </div>
 
           <div className="flex flex-wrap justify-center gap-2">
-            {categories.map((cat) => (
+            {duaCategories.map((cat) => (
               <Button 
-                key={cat.en}
-                variant={selectedCategory === cat.en ? "default" : "outline"}
+                key={cat.id}
+                variant={selectedCategory === cat.id ? "default" : "outline"}
                 className="rounded-full h-10 px-6 gap-2 font-naskh"
-                onClick={() => setSelectedCategory(cat.en)}
+                onClick={() => setSelectedCategory(cat.id)}
               >
-                {cat.icon}
+                {getIcon(cat.icon)}
                 {isAr ? cat.ar : cat.en}
               </Button>
             ))}
