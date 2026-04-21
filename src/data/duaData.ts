@@ -13,7 +13,8 @@ import {
   Home,
   Utensils,
   Moon as MoonIcon,
-  Wind
+  Wind,
+  Star
 } from "lucide-react";
 
 export interface Dua {
@@ -33,6 +34,7 @@ export const duaCategories = [
   { id: "all", en: "All", ar: "الكل", icon: "LayoutGrid" },
   { id: "quranic", en: "Quranic", ar: "أدعية قرآنية", icon: "BookOpen" },
   { id: "morning-evening", en: "Morning & Evening", ar: "أذكار الصباح والمساء", icon: "Sun" },
+  { id: "comprehensive", en: "Comprehensive", ar: "أدعية جامعة", icon: "Star" },
   { id: "forgiveness", en: "Forgiveness", ar: "الاستغفار", icon: "Sparkles" },
   { id: "hardship", en: "Hardship & Worry", ar: "الهم والحزن", icon: "CloudRain" },
   { id: "knowledge", en: "Knowledge", ar: "العلم والتعلم", icon: "GraduationCap" },
@@ -41,6 +43,7 @@ export const duaCategories = [
   { id: "family", en: "Family", ar: "الأهل والذرية", icon: "Heart" },
   { id: "daily", en: "Daily Life", ar: "الحياة اليومية", icon: "Home" },
 ];
+
 
 export const allDuas: Dua[] = [
   // --- Quranic (Rabbana) ---
@@ -140,6 +143,114 @@ export const allDuas: Dua[] = [
     translationAr: "رب ارحمهما كما ربياني صغيراً.",
     reference: "Quran 17:24"
   },
+  {
+    id: 29,
+    category: "quranic",
+    categoryAr: "أدعية قرآنية",
+    titleEn: "Dua of Adam & Hawa",
+    titleAr: "دعاء آدم وحواء عليهما السلام",
+    arabic: "رَبَّنَا ظَلَمْنَا أَنفُسَنَا وَإِن لَّمْ تَغْفِرْ لَنَا وَتَرْحَمْنَا لَنَكُونَنَّ مِنَ الْخَاسِرِينَ",
+    transliteration: "Rabbanā zalamnā anfusanā wa-in lam taghfir lanā wa-tarḥamnā lanakūnanna minal-khāsirīn",
+    translationEn: "Our Lord, we have wronged ourselves, and if You do not forgive us and have mercy upon us, we will surely be among the losers.",
+    translationAr: "ربنا ظلمنا أنفسنا وإن لم تغفر لنا وترحمنا لنكونن من الخاسرين.",
+    reference: "Quran 7:23"
+  },
+  {
+    id: 30,
+    category: "quranic",
+    categoryAr: "أدعية قرآنية",
+    titleEn: "Dua for Believers' Mercy",
+    titleAr: "دعاء طلب الرحمة للمؤمنين",
+    arabic: "رَبَّنَا آمَنَّا فَاغْفِرْ لَنَا وَارْحَمْنَا وَأَنتَ خَيْرُ الرَّاحِمِينَ",
+    transliteration: "Rabbanā āmannā faghfir lanā warḥamnā wa-anta khayrur-rāḥimīn",
+    translationEn: "Our Lord, we have believed, so forgive us and have mercy upon us, and You are the best of the merciful.",
+    translationAr: "ربنا آمنا فاغفر لنا وارحمنا وأنت خير الراحمين.",
+    reference: "Quran 23:109"
+  },
+  {
+    id: 31,
+    category: "quranic",
+    categoryAr: "أدعية قرآنية",
+    titleEn: "Dua for Guidance and Success",
+    titleAr: "دعاء طلب الرشد والرحمة",
+    arabic: "رَبَّنَا آتِنَا مِن لَّدُنكَ رَحْمَةً وَهَيِّئْ لَنَا مِنْ أَمْرِنَا رَشَدًا",
+    transliteration: "Rabbanā ātinā min ladunka raḥmatan wa-hayyi' lanā min amrinā rashadā",
+    translationEn: "Our Lord, grant us from Yourself mercy and prepare for us from our affair right guidance.",
+    translationAr: "ربنا آتنا من لدنك رحمة وهيئ لنا من أمرنا رشدا.",
+    reference: "Quran 18:10"
+  },
+  {
+    id: 32,
+    category: "quranic",
+    categoryAr: "أدعية قرآنية",
+    titleEn: "Dua for Protection from Hell",
+    titleAr: "دعاء الوقاية من عذاب جهنم",
+    arabic: "رَبَّنَا اصْرِفْ عَنَّا عَذَابَ جَهَنَّمَ إِنَّ عَذَابَهَا كَانَ غَرَامًا",
+    transliteration: "Rabbanāṣ-rif ʿannā ʿadhāba jahannama inna ʿadhābahā kāna gharāmā",
+    translationEn: "Our Lord, avert from us the punishment of Hell. Indeed, its punishment is ever adhering.",
+    translationAr: "ربنا اصرف عنا عذاب جهنم إن عذابها كان غراماً.",
+    reference: "Quran 25:65"
+  },
+  {
+    id: 38,
+    category: "quranic",
+    categoryAr: "أدعية قرآنية",
+    titleEn: "Dua for Creation & Fire",
+    titleAr: "دعاء التفكر والوقاية",
+    arabic: "رَبَّنَا مَا خَلَقْتَ هَذَا بَاطِلًا سُبْحَانَكَ فَقِنَا عَذَابَ النَّارِ",
+    transliteration: "Rabbanā mā khalaqta hādhā bāṭilan subḥānaka faqinnā ʿadhāban-nār",
+    translationEn: "Our Lord, You did not create this aimlessly; exalted are You [above such a thing]; then protect us from the punishment of the Fire.",
+    translationAr: "ربنا ما خلقت هذا باطلاً سبحانك فقنا عذاب النار.",
+    reference: "Quran 3:191"
+  },
+  {
+    id: 39,
+    category: "quranic",
+    categoryAr: "أدعية قرآنية",
+    titleEn: "Dua for Forgiveness & The Righteous",
+    titleAr: "دعاء المغفرة مع الأبرار",
+    arabic: "رَبَّنَا فَاغْفِرْ لَنَا ذُنُوبَنَا وَكَفِّرْ عَنَّا سَيِّئَاتِنَا وَتَوَفَّنَا مَعَ الْأَبْرَارِ",
+    transliteration: "Rabbanā faghfir lanā dhunūbanā wa-kaffir ʿannā sayyi'ātinā wa-tawaffanā maʿal-abrār",
+    translationEn: "Our Lord, so forgive us our sins and remove from us our misdeeds and cause us to die with the righteous.",
+    translationAr: "ربنا فاغفر لنا ذنوبنا وكفر عنا سيئاتنا وتوفنا مع الأبرار.",
+    reference: "Quran 3:193"
+  },
+  {
+    id: 40,
+    category: "quranic",
+    categoryAr: "أدعية قرآنية",
+    titleEn: "Dua for Establishing Prayer",
+    titleAr: "دعاء إقامة الصلاة",
+    arabic: "رَبِّ اجْعَلْنِي مُقِيمَ الصَّلَاةِ وَمِن ذُرِّيَّتِي رَبَّنَا وَتَقَبَّلْ دُعَاءِ",
+    transliteration: "Rabbij-ʿalnī muqīmaṣ-ṣalāti wa-min dhurriyyatī Rabbanā wa-taqabbal duʿā'",
+    translationEn: "My Lord, make me an establisher of prayer, and [many] from my descendants. Our Lord, and accept my supplication.",
+    translationAr: "رب اجعلني مقيم الصلاة ومن ذريتي ربنا وتقبل دعاء.",
+    reference: "Quran 14:40"
+  },
+  {
+    id: 41,
+    category: "quranic",
+    categoryAr: "أدعية قرآنية",
+    titleEn: "Dua for Parents & Believers",
+    titleAr: "دعاء للوالدين والمؤمنين",
+    arabic: "رَبَّنَا اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ",
+    transliteration: "Rabbanāgh-fir lī wa-liwālidayya wa-lil-mu'minīna yawma yaqūmul-ḥisāb",
+    translationEn: "Our Lord, forgive me and my parents and the believers the Day the account is established.",
+    translationAr: "ربنا اغفر لي ولوالدي وللمؤمنين يوم يقوم الحساب.",
+    reference: "Quran 14:41"
+  },
+  {
+    id: 42,
+    category: "quranic",
+    categoryAr: "أدعية قرآنية",
+    titleEn: "Dua for Gratitude & Righteous Deeds",
+    titleAr: "دعاء الشكر والعمل الصالح",
+    arabic: "رَبِّ أَوْزِعْنِي أَنْ أَشْكُرَ نِعْمَتَكَ الَّتِي أَنْعَمْتَ عَلَيَّ وَعَلَى وَالِدَيَّ وَأَنْ أَعْمَلَ صَالِحًا تَرْضَاهُ وَأَدْخِلْنِي بِرَحْمَتِكَ فِي عِبَادِكَ الصَّالِحِينَ",
+    transliteration: "Rabbi awziʿnī an ashkura niʿmatakal-latī anʿamta ʿalayya wa-ʿalā wālidayya wa-an aʿmala ṣāliḥan tarḍāhu wa-adkhilnī bi-raḥmatika fī ʿibādikaṣ-ṣāliḥīn",
+    translationEn: "My Lord, enable me to be grateful for Your favor which You have bestowed upon me and upon my parents and to do righteousness of which You approve. And admit me by Your mercy into [the ranks of] Your righteous servants.",
+    translationAr: "رب أوزعني أن أشكر نعمتك التي أنعمت علي وعلى والدي وأن أعمل صالحاً ترضاه وأدخلني برحمتك في عبادك الصالحين.",
+    reference: "Quran 27:19"
+  },
 
   // --- Forgiveness & Repentance ---
   {
@@ -165,6 +276,18 @@ export const allDuas: Dua[] = [
     translationEn: "I seek Allah's forgiveness and turn to Him in repentance.",
     translationAr: "أستغفر الله وأتوب إليه.",
     reference: "Bukhari & Muslim"
+  },
+  {
+    id: 33,
+    category: "forgiveness",
+    categoryAr: "الاستغفار",
+    titleEn: "Comprehensive Forgiveness",
+    titleAr: "دعاء المغفرة الشامل",
+    arabic: "اللَّهُمَّ اغْفِرْ لِي خَطِيئَتِي وَجَهْلِي، وَإِسْرَافِي فِي أَمْرِي، وَمَا أَنْتَ أَعْلَمُ بِهِ مِنِّي",
+    transliteration: "Allāhummagh-fir lī khaṭī'atī wa-jahlī, wa-isrāfī fī amrī, wa-mā anta aʿlamu bihī minnī",
+    translationEn: "O Allah, forgive me my sins, my ignorance, my excesses in my affairs and that which You know better than I do.",
+    translationAr: "اللهم اغفر لي خطيئتي وجهلي وإسرافي في أمري وما أنت أعلم به مني.",
+    reference: "Sahih al-Bukhari & Muslim"
   },
 
   // --- Morning & Evening (Azkar) ---
@@ -393,5 +516,117 @@ export const allDuas: Dua[] = [
     translationEn: "O Allah, I ask You from Your favor.",
     translationAr: "اللهم إني أسألك من فضلك.",
     reference: "Sahih Muslim"
+  },
+  
+  // --- Comprehensive (Dua Shamil) ---
+  {
+    id: 34,
+    category: "comprehensive",
+    categoryAr: "أدعية جامعة",
+    titleEn: "Comprehensive Good",
+    titleAr: "دعاء جامع للخير",
+    arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنَ الْخَيْرِ كُلِّهِ عَاجِلِهِ وَآجِلِهِ، مَا عَلِمْتُ مِنْهُ وَمَا لَمْ أَعْلَمْ، وَأَعُوذُ بِكَ مِنَ الشَّرِّ كُلِّهِ عَاجِلِهِ وَآجِلِهِ، مَا عَلِمْتُ مِنْهُ وَمَا لَمْ أَعْلَمْ",
+    transliteration: "Allāhumma innī as'aluka minal-khayri kullihī, ʿājilihī wa-ājilihī, mā ʿalimtu minhu wa-mā lam aʿlam, wa-aʿūdhu bika minash-sharri kullihī, ʿājilihī wa-ājilihī, mā ʿalimtu minhu wa-mā lam aʿlam",
+    translationEn: "O Allah, I ask You for all that is good, in this world and in the Hereafter, what I know and what I do not know. And I seek refuge with You from all evil, in this world and in the Hereafter, what I know and what I do not know.",
+    translationAr: "اللهم إني أسألك من الخير كله عاجله وآجله، ما علمت منه وما لم أعلم، وأعوذ بك من الشر كله عاجله وآجله، ما علمت منه وما لم أعلم.",
+    reference: "Ibn Majah & Ahmad"
+  },
+  {
+    id: 35,
+    category: "comprehensive",
+    categoryAr: "أدعية جامعة",
+    titleEn: "Rectifying All Affairs",
+    titleAr: "دعاء صلاح الشأن",
+    arabic: "اللَّهُمَّ أَصْلِحْ لِي دِينِي الَّذِي هُوَ عِصْمَةُ أَمْرِي، وَأَصْلِحْ لِي دُنْيَايَ الَّتِي فِيهَا مَعَاشِي، وَأَصْلِحْ لِي آخِرَتِي الَّتِي فِيهَا مَعَادِي",
+    transliteration: "Allāhumma aṣliḥ lī dīnī alladhī huwa ʿiṣmatu amrī, wa-aṣliḥ lī dunyāya allatī fīhā maʿāshī, wa-aṣliḥ lī ākhiratī allatī fīhā maʿādī",
+    translationEn: "O Allah, set right for me my religion which is the safeguard of my affairs, and set right for me the affairs of my world wherein is my living, and set right for me my Hereafter to which is my return.",
+    translationAr: "اللهم أصلح لي ديني الذي هو عصمة أمري، وأصلح لي دنياي التي فيها معاشي، وأصلح لي آخرتي التي فيها معادي.",
+    reference: "Sahih Muslim"
+  },
+  {
+    id: 36,
+    category: "comprehensive",
+    categoryAr: "أدعية جامعة",
+    titleEn: "Seeking Guidance and Piety",
+    titleAr: "دعاء الهدى والتقى",
+    arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْهُدَى وَالتُّقَى وَالْعَفَافَ وَالْغِنَى",
+    transliteration: "Allāhumma innī as'alukal-hudā wat-tuqā wal-ʿafāfa wal-ghinā",
+    translationEn: "O Allah, I ask You for guidance, piety, chastity and self-sufficiency.",
+    translationAr: "اللهم إني أسألك الهدى والتقى والعفاف والغنى.",
+    reference: "Sahih Muslim"
+  },
+  {
+    id: 37,
+    category: "comprehensive",
+    categoryAr: "أدعية جامعة",
+    titleEn: "Steadfastness of Heart",
+    titleAr: "دعاء الثبات",
+    arabic: "يَا مُقَلِّبَ الْقُلُوبِ ثَبِّتْ قَلْبِي عَلَى دِينِكَ",
+    transliteration: "Yā muqallibal-qulūbi thabbit qalbī ʿalā dīnik",
+    translationEn: "O Turner of the hearts, make my heart steadfast upon Your religion.",
+    translationAr: "يا مقلب القلوب ثبت قلبي على دينك.",
+    reference: "Jami` at-Tirmidhi"
+  },
+  {
+    id: 43,
+    category: "daily",
+    categoryAr: "الحياة اليومية",
+    titleEn: "Dua for Travel",
+    titleAr: "دعاء السفر",
+    arabic: "سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ * وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ",
+    transliteration: "Subḥānalladhī sakh-khara lanā hādhā wa-mā kunnā lahū muqrinīn. Wa-innā ilā Rabbinā lamunqalibūn.",
+    translationEn: "Glory is to Him Who has provided this for us though we could never have had it by our efforts. Surely, unto our Lord we are returning.",
+    translationAr: "سبحان الذي سخر لنا هذا وما كنا له مقرنين، وإنا إلى ربنا لمنقلبون.",
+    reference: "Sahih Muslim"
+  },
+  {
+    id: 44,
+    category: "hardship",
+    categoryAr: "الهم والحزن",
+    titleEn: "Dua for Worry & Debt",
+    titleAr: "دعاء الهم والدين",
+    arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْبُخْلِ وَالْجُبْنِ ، وَضَلَعِ الدَّيْنِ، وَغَلَبَةِ الرِّجَالِ",
+    transliteration: "Allāhumma innī aʿūdhu bika minal-hammi wal-ḥazan, wal-ʿajzi wal-kasal, wal-bukhli wal-jubn, wa-ḍalaʿid-dayni wa-ghalabatir-rijāl",
+    translationEn: "O Allah, I seek refuge in You from anxiety and sorrow, weakness and laziness, miserliness and cowardice, the burden of debts and from being overpowered by men.",
+    translationAr: "اللهم إني أعوذ بك من الهم والحزن، والعجز والكسل، والبخل والجبن، وضلع الدين، وغلبة الرجال.",
+    reference: "Sahih al-Bukhari"
+  },
+  {
+    id: 45,
+    category: "protection",
+    categoryAr: "التحصين",
+    titleEn: "Dua for Protection from Trials",
+    titleAr: "دعاء الاستعاذة من الفتن",
+    arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ فِتْنَةِ النَّارِ وَعَذَابِ النَّارِ، وَفِتْنَةِ الْقَبْرِ، وَعَذَابِ الْقَبْرِ، وَشَرِّ فِتْنَةِ الْغِنَى، وَشَرِّ فِتْنَةِ الْفَقْرِ",
+    transliteration: "Allāhumma innī aʿūdhu bika min fitnatin-nāri wa-ʿadhābin-nār, wa-fitnatil-qabri wa-ʿadhābil-qabri, wa-sharri fitnatil-ghinā, wa-sharri fitnatil-faqr",
+    translationEn: "O Allah, I seek refuge in You from the trial of the Fire and the punishment of the Fire, and from the trial of the grave and the punishment of the grave, and from the evil of the trial of wealth and the evil of the trial of poverty.",
+    translationAr: "اللهم إني أعوذ بك من فتنة النار وعذاب النار، وفتنة القبر وعذاب القبر، وشر فتنة الغنى وشر فتنة الفقر.",
+    reference: "Abu Dawud & Tirmidhi"
+  },
+  {
+    id: 46,
+    category: "comprehensive",
+    categoryAr: "أدعية جامعة",
+    titleEn: "Dua for Wellness",
+    titleAr: "دعاء العافية",
+    arabic: "اللَّهُمَّ عافِني في بَدَني، اللَّهُمَّ عافِني في سَمْعي، اللَّهُمَّ عافِني في بَصَري، لا إلهَ إلَّا أنتَ",
+    transliteration: "Allāhumma ʿāfinī fī badanī, Allāhumma ʿāfinī fī samʿī, Allāhumma ʿāfinī fī baṣarī, lā ilāha illā Anta",
+    translationEn: "O Allah, grant me health in my body, O Allah, grant me health in my hearing, O Allah, grant me health in my sight. There is no god but You.",
+    translationAr: "اللهم عافني في بدني، اللهم عافني في سمعي، اللهم عافني في بصري، لا إله إلا أنت.",
+    reference: "Abu Dawud & Ahmad"
+  },
+  {
+    id: 47,
+    category: "comprehensive",
+    categoryAr: "أدعية جامعة",
+    titleEn: "Dua for Relying on Allah",
+    titleAr: "يا حي يا قيوم",
+    arabic: "يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ أَصْلِحْ لِي شَأْنِي كُلَّهُ وَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ",
+    transliteration: "Yā Ḥayyu yā Qayyūmu bi-raḥmatika astaghīth, aṣliḥ lī sha'nī kullahū wa-lā takilnī ilā nafsī ṭarfata ʿayn",
+    translationEn: "O Ever-Living One, O Eternal One, by Your mercy I call on You to set right all my affairs. Do not leave me to myself even for the blinking of an eye.",
+    translationAr: "يا حي يا قيوم برحمتك أستغيث أصلح لي شأني كله ولا تكلني إلى نفسي طرفة عين.",
+    reference: "Al-Hakim"
   }
 ];
+
+
