@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Heart, BookOpen, Shield, Trash2, Copy, Check, Headphones, Music, Star, User, Search, X, GripVertical, Edit2, Save, Bookmark } from "lucide-react";
+import { Heart, BookOpen, Shield, Trash2, Copy, Check, Headphones, Music, Star, User, Search, X, GripVertical, Edit2, Save, Bookmark, Plus } from "lucide-react";
 import { useFavorites, type FavoriteItem } from "@/hooks/useFavorites";
 import { useTheme } from "@/contexts/ThemeContext";
 import { applyTajweedColors, rules } from "@/lib/tajweedParser";
