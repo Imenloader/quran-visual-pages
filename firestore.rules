@@ -84,8 +84,13 @@ service cloud.firestore {
                       isAdmin()
                     );
 
-      // Allow users to manage their own sub-collections (duas, sadaqah, etc.)
-      match /{allSubcollections=**} {
+      // Allow users to manage their own sub-collections (data, duas, sadaqah, etc.)
+      match /{subCollection}/{documentId} {
+        allow read, write: if isOwner(userId);
+      }
+      
+      // Handle deeper nesting if needed
+      match /{subCollection}/{documentId}/{allPaths=**} {
         allow read, write: if isOwner(userId);
       }
     }

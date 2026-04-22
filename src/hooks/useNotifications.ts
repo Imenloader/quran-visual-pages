@@ -17,6 +17,8 @@ export interface NotificationSettings {
   athkarMorningTime: string; // HH:MM
   athkarEveningTime: string;
   quranReadingTime: string;
+  dailyVerse: boolean;
+  dailyVerseTime: string;
 }
 
 const DEFAULT_SETTINGS: NotificationSettings = {
@@ -26,6 +28,8 @@ const DEFAULT_SETTINGS: NotificationSettings = {
   athkarMorningTime: "06:00",
   athkarEveningTime: "17:00",
   quranReadingTime: "21:00",
+  dailyVerse: true,
+  dailyVerseTime: "08:00",
 };
 
 // ... constants ...
@@ -204,6 +208,17 @@ export function useNotifications() {
     []
   );
 
+  const getNextOccurence = (timeStr: string): Date => {
+    const [hours, minutes] = timeStr.split(":").map(Number);
+    const now = new Date();
+    let target = new Date(now);
+    target.setHours(hours, minutes, 0, 0);
+    if (isBefore(target, now)) {
+      target = addDays(target, 1);
+    }
+    return target;
+  };
+
   const scheduleNotification = useCallback(
     (timeStr: string, tag: string, getNotifData: () => { title: string; body: string; url: string }) => {
       if (Capacitor.isNativePlatform()) return; // Native uses system scheduler
@@ -238,8 +253,11 @@ export function useNotifications() {
         await scheduleLocalNotification(settings.athkarEveningTime, 1002, data.title, data.body, data.url);
       }
       if (settings.quranReading) {
-        const data = getRandomDailyVerse();
-        await scheduleLocalNotification(settings.quranReadingTime, 1003, data.title, data.body, data.url);
+        await scheduleLocalNotification(settings.quranReadingTime, 1003, "📖 ورد القرآن الكريم", getRandomMessage(QURAN_READING_MESSAGES), "/juz/1");
+      }
+      if (settings.dailyVerse) {
+        const verse = getRandomDailyVerse();
+        await scheduleLocalNotification(settings.dailyVerseTime, 1004, verse.title, verse.body, verse.url);
       }
     } else {
       if (settings.athkarMorning) {
@@ -257,11 +275,14 @@ export function useNotifications() {
         );
       }
       if (settings.quranReading) {
-        scheduleNotification(
-          settings.quranReadingTime,
-          "quran-reading",
-          getRandomDailyVerse
-        );
+        scheduleNotification(settings.quranReadingTime, "quran", () => ({
+          title: "📖 ورد القرآن الكريم",
+          body: getRandomMessage(QURAN_READING_MESSAGES),
+          url: "/juz/1"
+        }));
+      }
+      if (settings.dailyVerse) {
+        scheduleNotification(settings.dailyVerseTime, "daily-verse", getRandomDailyVerse);
       }
     }
   }, [settings, permissionState, clearAllTimers, scheduleNotification, scheduleLocalNotification]);

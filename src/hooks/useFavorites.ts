@@ -15,6 +15,7 @@ export type FavoriteItem = (
   | { type: "recitation"; id: number; surahName: string; reciterId: number; reciterName: string; moshafId: number; moshafServer: string; nickname?: string }
   | { type: "reciter"; id: number; name: string; nickname?: string }
   | { type: "hadith"; id: number; bookId: string; bookName: string; text: string; nickname?: string }
+  | { type: "verse"; id: string; surahNumber: number; verseNumber: number; surahName: string; text: string; nickname?: string }
 ) & { collectionId?: string };
 
 const STORAGE_KEY = "quran-favorites";
@@ -29,7 +30,17 @@ export const useFavorites = () => {
     const savedFavs = await syncService.loadData<FavoriteItem[]>(STORAGE_KEY, []);
     setFavorites(savedFavs);
     const savedColls = await syncService.loadData<FavoriteCollection[]>(COLLECTIONS_KEY, []);
-    setCollections(savedColls);
+    if (savedColls.length === 0) {
+      const defaultColls: FavoriteCollection[] = [
+        { id: "morning", name: "الصباح / Morning", color: "#fbbf24" },
+        { id: "comfort", name: "الطمأنينة / Comfort", color: "#3b82f6" },
+        { id: "healing", name: "الشفاء / Healing", color: "#10b981" }
+      ];
+      setCollections(defaultColls);
+      await syncService.saveData(COLLECTIONS_KEY, defaultColls);
+    } else {
+      setCollections(savedColls);
+    }
     setIsLoaded(true);
   }, []);
 

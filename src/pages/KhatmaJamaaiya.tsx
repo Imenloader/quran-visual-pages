@@ -57,6 +57,7 @@ interface Portion {
   status: 'available' | 'claimed' | 'completed';
   claimedBy: string | null;
   claimedByName?: string | null;
+  claimedByAvatar?: string | null;
   claimedAt: Timestamp | null;
   completedAt: Timestamp | null;
 }
@@ -419,6 +420,7 @@ const KhatmaJamaaiya = () => {
           status: 'claimed',
           claimedBy: user.uid,
           claimedByName: profile?.name || user.displayName || (isAr ? "مستخدم" : "User"),
+          claimedByAvatar: profile?.avatar || null,
           claimedAt: serverTimestamp(),
           completedAt: null
         }
@@ -957,8 +959,6 @@ const KhatmaJamaaiya = () => {
                       ? "اختر جزءاً متاحاً من القائمة أدناه لتبدأ القراءة وتساهم في الختمة."
                       : "Choose an available portion from the list below to start reading."}
                   </p>
-                </div>
-              )}
             </div>
 
             <div className="space-y-4">
@@ -995,13 +995,27 @@ const KhatmaJamaaiya = () => {
                         </div>
                         <div>
                           <p className="text-xs font-bold font-naskh text-foreground">{juzNames[parseInt(index) - 1]}</p>
-                          <p className="text-[9px] text-muted-foreground font-naskh">
-                            {portion.status === 'completed' 
-                              ? (isAr ? "تمت القراءة" : "Completed")
-                              : portion.status === 'claimed'
-                              ? (isAr ? `${portion.claimedByName || "مستخدم"} يقرأ هذا الجزء` : `${portion.claimedByName || "User"} is reading this juz`)
-                              : (isAr ? "غير متاح حالياً" : "Not available")}
-                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            {portion.claimedBy && (
+                              <div className="flex items-center gap-1.5 px-1.5 py-0.5 rounded-full bg-primary/5 border border-primary/10">
+                                {portion.claimedByAvatar ? (
+                                  <img src={portion.claimedByAvatar} className="w-4 h-4 rounded-full" alt="" />
+                                ) : (
+                                  <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
+                                    <User size={8} className="text-primary" />
+                                  </div>
+                                )}
+                                <span className="text-[8px] font-bold text-primary/70">{portion.claimedByName}</span>
+                              </div>
+                            )}
+                            <p className="text-[9px] text-muted-foreground font-naskh">
+                              {portion.status === 'completed' 
+                                ? (isAr ? "تمت القراءة" : "Completed")
+                                : portion.status === 'claimed'
+                                ? (isAr ? "قيد القراءة" : "Claimed")
+                                : (isAr ? "متاح" : "Available")}
+                            </p>
+                          </div>
                         </div>
                       </div>
                       
@@ -1025,6 +1039,57 @@ const KhatmaJamaaiya = () => {
                       )}
                     </div>
                   ))}
+              </div>
+              
+              {/* Leaderboard Section */}
+              <div className="mt-12 space-y-4">
+                <h3 className="text-sm font-bold font-naskh text-foreground px-2 flex items-center gap-2">
+                  <Trophy size={16} className="text-gold" />
+                  {isAr ? "لوحة المتصدرين (لهذه الختمة)" : "Khatma Leaderboard"}
+                </h3>
+                <div className="bg-card border border-border rounded-[2.5rem] p-6 shadow-islamic overflow-hidden">
+                  <div className="space-y-4">
+                    {Object.values(currentKhatma.portions)
+                      .filter(p => p.status === 'completed')
+                      .reduce((acc, curr) => {
+                        const name = curr.claimedByName || (isAr ? "مستخدم" : "User");
+                        const existing = acc.find(a => a.name === name);
+                        if (existing) {
+                          existing.count++;
+                        } else {
+                          acc.push({ name, avatar: curr.claimedByAvatar, count: 1 });
+                        }
+                        return acc;
+                      }, [] as { name: string, avatar?: string | null, count: number }[])
+                      .sort((a, b) => b.count - a.count)
+                      .map((participant, i) => (
+                        <div key={participant.name} className="flex items-center justify-between p-3 rounded-2xl bg-primary/5 border border-primary/10">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold ${i === 0 ? "bg-gold text-white" : "bg-muted text-muted-foreground"}`}>
+                              {toArabicNumber(i + 1)}
+                            </div>
+                            {participant.avatar ? (
+                              <img src={participant.avatar} className="w-8 h-8 rounded-full" alt="" />
+                            ) : (
+                              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                                <User size={16} className="text-primary" />
+                              </div>
+                            )}
+                            <span className="text-xs font-bold font-naskh">{participant.name}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-primary">{toArabicNumber(participant.count)}</span>
+                            <span className="text-[10px] text-muted-foreground font-naskh">{isAr ? "أجزاء" : "Juz"}</span>
+                          </div>
+                        </div>
+                      ))}
+                    {Object.values(currentKhatma.portions).filter(p => p.status === 'completed').length === 0 && (
+                      <div className="text-center py-6 text-muted-foreground font-naskh text-xs">
+                        {isAr ? "لا يوجد منجزات بعد. كن أول من يختم جزءاً!" : "No progress yet. Be the first to complete a portion!"}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
               
               {userPortion && (

@@ -72,6 +72,9 @@ const DuaLibrary = lazy(() => import("./pages/tools/DuaLibrary"));
 const GlobalDhikr = lazy(() => import("./pages/tools/GlobalDhikr"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const MoonTracker = lazy(() => import("./pages/tools/MoonTracker"));
+const Memorization = lazy(() => import("./pages/tools/Memorization"));
+const Leaderboard = lazy(() => import("./pages/tools/Leaderboard"));
+const AthkarCircles = lazy(() => import("./pages/tools/AthkarCircles"));
 const Virtues = lazy(() => import("./pages/ramadan/Virtues"));
 const FastingRules = lazy(() => import("./pages/ramadan/FastingRules"));
 const Duas = lazy(() => import("./pages/ramadan/Duas"));
@@ -222,6 +225,9 @@ const App = () => {
                       <Route path="/global-dhikr" element={<GlobalDhikr />} />
                       <Route path="/privacy" element={<PrivacyPolicy />} />
                       <Route path="/moon-tracker" element={<MoonTracker />} />
+                      <Route path="/memorization" element={<Memorization />} />
+                      <Route path="/leaderboard" element={<Leaderboard />} />
+                      <Route path="/athkar-circles" element={<AthkarCircles />} />
                       <Route path="/ramadan/virtues" element={<Virtues />} />
                       <Route path="/ramadan/fasting-rules" element={<FastingRules />} />
                       <Route path="/ramadan/duas" element={<Duas />} />

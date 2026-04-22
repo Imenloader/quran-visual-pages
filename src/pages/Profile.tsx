@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff, Clock, Send, ChevronLeft, X, BookOpen, Wand2, LayoutGrid, DownloadCloud, Sparkles, User, Trophy, Calendar, RefreshCw, Check, Shield, type LucideIcon } from "lucide-react";
+import { Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff, Clock, Send, ChevronLeft, X, BookOpen, Wand2, LayoutGrid, DownloadCloud, Sparkles, User, Trophy, Calendar, RefreshCw, Check, Shield, Flame, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useNotifications } from "@/hooks/useNotifications";
 import { usePeriodicReminders } from "@/hooks/usePeriodicReminders";
@@ -780,6 +780,7 @@ const Profile = () => {
                                 { id: "athkarMorning", label: t("profile.athkarMorning"), timeKey: "athkarMorningTime" as const },
                                 { id: "athkarEvening", label: t("profile.athkarEvening"), timeKey: "athkarEveningTime" as const },
                                 { id: "quranReading", label: t("profile.quranReading"), timeKey: "quranReadingTime" as const },
+                                { id: "dailyVerse", label: isAr ? "آية اليوم" : "Daily Verse", timeKey: "dailyVerseTime" as const },
                               ].map((item) => (
                                 <div key={item.id} className="flex items-center justify-between p-3 rounded-2xl bg-primary/5 border border-primary/5 group hover:bg-primary/10 transition-all border-b-primary/10">
                                   <div className={`${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>

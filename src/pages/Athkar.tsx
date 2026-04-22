@@ -257,29 +257,31 @@ const Athkar = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-        {/* Search & Stats Bar */}
-        <div className="flex flex-col md:flex-row gap-4 items-center mb-12">
-          <div className="relative flex-1 w-full">
-            <SearchIcon className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/40" size={18} />
-            <input
-              type="text"
-              placeholder={t("athkar.searchPlaceholder")}
-              className="w-full h-14 pr-12 pl-6 rounded-2xl bg-card border border-border/40 focus:outline-none focus:ring-2 focus:ring-primary/20 font-naskh text-lg shadow-sm"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            {searchQuery && (
-              <button 
-                onClick={() => setSearchQuery("")}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 hover:text-primary"
-              >
-                <X size={18} />
-              </button>
-            )}
+        >
+          {/* Search & Stats Bar */}
+          <div className="flex flex-col md:flex-row gap-4 items-center mb-12">
+            <div className="relative flex-1 w-full">
+              <SearchIcon className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/40" size={18} />
+              <input
+                type="text"
+                placeholder={t("athkar.searchPlaceholder")}
+                className="w-full h-14 pr-12 pl-6 rounded-2xl bg-card border border-border/40 focus:outline-none focus:ring-2 focus:ring-primary/20 font-naskh text-lg shadow-sm"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button 
+                  onClick={() => setSearchQuery("")}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 hover:text-primary"
+                >
+                  <X size={18} />
+                </button>
+              )}
+            </div>
+            
+            <FontSizeAdjuster context="athkar" />
           </div>
-          
-          <FontSizeAdjuster context="athkar" />
-        </div>
+        </motion.div>
 
         {tajweedMode && (
           <motion.div
