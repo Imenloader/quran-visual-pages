@@ -23,20 +23,27 @@ const HIJRI_MONTHS_EN = [
 const HOLIDAY_TRANSLATIONS: Record<string, string> = {
   "Ashura": "عاشوراء",
   "Tasua": "تاسوعاء",
-  "Eid-ul-Fitr": "عيد الفطر",
-  "Eid-ul-Adha": "عيد الأضحى",
+  "Eid-ul-Fitr": "عيد الفطر المبارك",
+  "Eid al-Fitr": "عيد الفطر المبارك",
+  "Eid-ul-Adha": "عيد الأضحى المبارك",
+  "Eid al-Adha": "عيد الأضحى المبارك",
   "Islamic New Year": "رأس السنة الهجرية",
-  "Isra and Mi'raj": "الإسراء والمعراج",
-  "Arafa": "يوم عرفة",
+  "Isra and Mi'raj": "ذكرى الإسراء والمعراج",
+  "Arafa": "وقفة عرفة",
+  "Arafat": "وقفة عرفة",
   "Laylat al-Qadr": "ليلة القدر",
-  "1st Day of Ramadan": "أول أيام رمضان",
+  "1st Day of Ramadan": "غرة شهر رمضان المبارك",
+  "Ramadan Start": "غرة شهر رمضان المبارك",
   "Ayyam al-Bidh": "الأيام البيض",
-  "Mawlid al-Nabi": "المولد النبوي",
+  "Mawlid al-Nabi": "المولد النبوي الشريف",
   "Mid-Sha'ban": "ليلة النصف من شعبان",
   "Nisf Shaban": "ليلة النصف من شعبان",
   "Shab-e-Barat": "ليلة النصف من شعبان",
-  "Eid al-Fitr": "عيد الفطر",
-  "Eid al-Adha": "عيد الأضحى",
+  "Lailat al Miraj": "ذكرى الإسراء والمعراج",
+  "Lailat al Bara'at": "ليلة النصف من شعبان",
+  "Laylat al-Miraj": "ذكرى الإسراء والمعراج",
+  "Laylat al-Bara'at": "ليلة النصف من شعبان",
+  "Hajj Start": "بداية موسم الحج",
 };
 
 const translateHoliday = (holiday: string): string => {
@@ -54,8 +61,8 @@ const getEnhancedHolidays = (day: HijriDay, lang: string) => {
   const hijriDay = parseInt(day.date.hijri.day);
   const hijriMonth = day.date.hijri.month.number;
   
-  // Keep all holidays from API, but also allow our manual checks
-  const holidays = [...(day.date.hijri.holidays || [])];
+  // Filter for only whitelisted Sunnah/Correct Islamic events
+  const holidays = (day.date.hijri.holidays || []).filter(h => HOLIDAY_TRANSLATIONS[h]);
   
   let isAyyamBidh = false;
   if (hijriMonth === 12) {
@@ -68,11 +75,14 @@ const getEnhancedHolidays = (day: HijriDay, lang: string) => {
     holidays.push("Ayyam al-Bidh");
   }
   
-  if (lang === 'ar') {
-    return holidays.map(h => translateHoliday(h));
-  } else {
-    return holidays.map(h => h === "Ayyam al-Bidh" ? "White Days (Ayyam al-Bidh)" : h);
-  }
+  // Always prioritize Arabic for religious event names if translation exists
+  return holidays.map(h => {
+    const translated = HOLIDAY_TRANSLATIONS[h];
+    if (lang === 'ar') return translated || h;
+    // For English, show English name but handle Ayyam al-Bidh specifically
+    if (h === "Ayyam al-Bidh") return "White Days (Ayyam al-Bidh)";
+    return h;
+  });
 };
 
 interface Goal {
@@ -165,13 +175,17 @@ const HijriCalendar = () => {
       if (gDate >= today) {
         const hols = getEnhancedHolidays(day, i18n.language);
         hols.forEach(hol => {
-          if (hol !== "Ayyam al-Bidh" && hol !== "الأيام البيض") { // exclude recurring monthly events
-            events.push({
-              date: gDate,
-              name: hol,
-              daysLeft: differenceInDays(gDate, today),
-              hijriStr: `${day.date.hijri.day} ${i18n.language === 'ar' ? day.date.hijri.month.ar : day.date.hijri.month.en}`
-            });
+          if (hol !== "Ayyam al-Bidh" && hol !== "الأيام البيض") { 
+            // Deduplicate: check if this event (name and date) is already added
+            const isDup = events.some(e => e.name === hol && isSameDay(e.date, gDate));
+            if (!isDup) {
+              events.push({
+                date: gDate,
+                name: hol,
+                daysLeft: differenceInDays(gDate, today),
+                hijriStr: `${day.date.hijri.day} ${i18n.language === 'ar' ? day.date.hijri.month.ar : day.date.hijri.month.en}`
+              });
+            }
           }
         });
       }
