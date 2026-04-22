@@ -419,7 +419,23 @@ const Profile = () => {
                 <Trophy size={20} />
               </div>
             </div>
-
+            <div className="grid grid-cols-4 sm:grid-cols-6 gap-4">
+              {[
+                { id: "early-bird", icon: <Sun className="w-6 h-6" />, label: t("profile.badges.earlyBird"), earned: true, color: "text-amber-500", bg: "bg-amber-500/10" },
+                { id: "quran-lover", icon: <BookOpen className="w-6 h-6" />, label: t("profile.badges.quranLover"), earned: profile.totalAyahsRead >= 500, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+                { id: "tasbih-master", icon: <Sparkles className="w-6 h-6" />, label: t("profile.badges.tasbihMaster"), earned: profile.totalAthkarRecited >= 1000, color: "text-blue-500", bg: "bg-blue-500/10" },
+                { id: "streak-7", icon: <Calendar className="w-6 h-6" />, label: t("profile.badges.sevenDayStreak"), earned: profile.daysActive >= 7, color: "text-rose-500", bg: "bg-rose-500/10" },
+                { id: "khatma-1", icon: <Trophy className="w-6 h-6" />, label: t("profile.badges.firstKhatma"), earned: profile.totalJuzCompleted >= 1, color: "text-gold", bg: "bg-gold/10" },
+                { id: "consistent", icon: <Shield className="w-6 h-6" />, label: t("profile.badges.consistent"), earned: profile.daysActive >= 30, color: "text-emerald-600", bg: "bg-emerald-600/10" },
+                { id: "scholar", icon: <GraduationCap className="w-6 h-6" />, label: t("profile.badges.scholar"), earned: profile.totalAyahsRead >= 5000, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+                { id: "juz-master", icon: <LayoutGrid className="w-6 h-6" />, label: t("profile.badges.juzMaster"), earned: profile.totalJuzCompleted >= 15, color: "text-primary", bg: "bg-primary/10" },
+                { id: "juz-expert", icon: <Sparkles className="w-6 h-6" />, label: isAr ? "خاتم الأجزاء" : "Juz Expert", earned: profile.totalJuzCompleted >= 30, color: "text-purple-500", bg: "bg-purple-500/10" },
+                { id: "tasbih-pro", icon: <RotateCcw className="w-6 h-6" />, label: t("profile.badges.tasbihPro"), earned: profile.totalAthkarRecited >= 10000, color: "text-cyan-500", bg: "bg-cyan-500/10" },
+                { id: "legend", icon: <Sparkles className="w-6 h-6" />, label: t("profile.badges.spiritualLegend"), earned: level >= 15, color: "text-gold", bg: "bg-gold/15" },
+                { id: "pure-heart", icon: <Heart className="w-6 h-6" />, label: t("profile.badges.pureHeart"), earned: profile.totalAthkarRecited >= 20000, color: "text-rose-600", bg: "bg-rose-600/10" },
+                { id: "night-owl", icon: <Moon className="w-6 h-6" />, label: t("profile.badges.nightOwl"), earned: profile.totalAthkarRecited >= 500 && profile.totalAyahsRead >= 500, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+                { id: "devout", icon: <Flame className="w-6 h-6" />, label: isAr ? "عابد مخلص" : "Devout", earned: level >= 20, color: "text-orange-500", bg: "bg-orange-500/10" },
+              ].map((badge) => (
                 <button 
                   key={badge.id} 
                   onClick={() => setSelectedBadge({
