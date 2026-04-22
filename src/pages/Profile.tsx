@@ -38,6 +38,7 @@ const Profile = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isExpGuideOpen, setIsExpGuideOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [selectedBadge, setSelectedBadge] = useState<any>(null);
   const [newName, setNewName] = useState(profile.name);
 
   useEffect(() => {
@@ -164,6 +165,46 @@ const Profile = () => {
         }
       }
     });
+  };
+
+  const getBadgeDescAr = (id: string) => {
+    const descs: Record<string, string> = {
+      "early-bird": "تحية لكل من يبدأ يومه بذكر الله والقرآن الكريم.",
+      "quran-lover": "قراءة أكثر من ٥٠٠ آية كريمة من كتاب الله.",
+      "tasbih-master": "التسبيح والذكر لأكثر من ١,٠٠٠ مرة.",
+      "streak-7": "المحافظة على الورد اليومي لمدة ٧ أيام متتالية.",
+      "khatma-1": "إكمال قراءة جزء كامل من القرآن الكريم.",
+      "consistent": "الاستمرار في الطاعات والذكر لمدة شهر كامل.",
+      "scholar": "قراءة أكثر من ٥,٠٠٠ آية (رحلة في أعماق كتاب الله).",
+      "juz-master": "إنجاز عظيم بإكمال ١٥ جزءاً من القرآن الكريم.",
+      "juz-expert": "ختم القرآن الكريم كاملاً (٣٠ جزءاً) - مبارك لك هذا الفوز.",
+      "tasbih-pro": "ذكر الله لأكثر من ١٠,٠٠٠ مرة (بذكر الله تطمئن القلوب).",
+      "spiritualLegend": "الوصول إلى مستوى روحي رفيع (المستوى ١٥).",
+      "pure-heart": "ذكر الله لأكثر من ٢٠,٠٠٠ مرة - جعل الله قلبك عامراً بذكره.",
+      "night-owl": "المحافظة على ورد الليل والذكر والقرآن في وقت السحر.",
+      "devout": "الوصول للمستوى ٢٠ - من المخلصين في عبادة الله."
+    };
+    return descs[id] || "وسام تقديري لمجهوداتك الروحية.";
+  };
+
+  const getBadgeDescEn = (id: string) => {
+    const descs: Record<string, string> = {
+      "early-bird": "A tribute to those who start their day with Quran and Dhikr.",
+      "quran-lover": "Read over 500 verses from the Holy Quran.",
+      "tasbih-master": "Recited Dhikr and Tasbih over 1,000 times.",
+      "streak-7": "Maintained a daily spiritual routine for 7 consecutive days.",
+      "khatma-1": "Completed the reading of one full Juz.",
+      "consistent": "Stayed dedicated to spiritual goals for a full month.",
+      "scholar": "Read over 5,000 verses (A deep journey through the Quran).",
+      "juz-master": "A great achievement: 15 Juz completed.",
+      "juz-expert": "Completed the entire Quran (30 Juz) - MashaAllah!",
+      "tasbih-pro": "Recited Dhikr over 10,000 times.",
+      "spiritualLegend": "Reached a high spiritual level (Level 15).",
+      "pure-heart": "Recited Dhikr over 20,000 times - May your heart be filled with light.",
+      "night-owl": "Maintained spiritual devotion during the late night hours.",
+      "devout": "Reached Level 20 - A dedicated servant of Allah."
+    };
+    return descs[id] || "An honorary badge for your spiritual efforts.";
   };
 
   return (
@@ -379,28 +420,18 @@ const Profile = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-4 sm:grid-cols-6 gap-4">
-              {[
-                { id: "early-bird", icon: <Sun className="w-6 h-6" />, label: t("profile.badges.earlyBird"), earned: true, color: "text-amber-500", bg: "bg-amber-500/10" },
-                { id: "quran-lover", icon: <BookOpen className="w-6 h-6" />, label: t("profile.badges.quranLover"), earned: profile.totalAyahsRead >= 500, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-                { id: "tasbih-master", icon: <Sparkles className="w-6 h-6" />, label: t("profile.badges.tasbihMaster"), earned: profile.totalAthkarRecited >= 1000, color: "text-blue-500", bg: "bg-blue-500/10" },
-                { id: "streak-7", icon: <Calendar className="w-6 h-6" />, label: t("profile.badges.sevenDayStreak"), earned: profile.daysActive >= 7, color: "text-rose-500", bg: "bg-rose-500/10" },
-                { id: "khatma-1", icon: <Trophy className="w-6 h-6" />, label: t("profile.badges.firstKhatma"), earned: profile.totalJuzCompleted >= 1, color: "text-gold", bg: "bg-gold/10" },
-                { id: "consistent", icon: <Shield className="w-6 h-6" />, label: t("profile.badges.consistent"), earned: profile.daysActive >= 30, color: "text-emerald-600", bg: "bg-emerald-600/10" },
-                { id: "scholar", icon: <GraduationCap className="w-6 h-6" />, label: t("profile.badges.scholar"), earned: profile.totalAyahsRead >= 5000, color: "text-indigo-500", bg: "bg-indigo-500/10" },
-                { id: "juz-master", icon: <LayoutGrid className="w-6 h-6" />, label: t("profile.badges.juzMaster"), earned: profile.totalJuzCompleted >= 15, color: "text-primary", bg: "bg-primary/10" },
-                { id: "juz-expert", icon: <Sparkles className="w-6 h-6" />, label: isAr ? "خاتم الأجزاء" : "Juz Expert", earned: profile.totalJuzCompleted >= 30, color: "text-purple-500", bg: "bg-purple-500/10" },
-                { id: "tasbih-pro", icon: <RotateCcw className="w-6 h-6" />, label: t("profile.badges.tasbihPro"), earned: profile.totalAthkarRecited >= 10000, color: "text-cyan-500", bg: "bg-cyan-500/10" },
-                { id: "legend", icon: <Sparkles className="w-6 h-6" />, label: t("profile.badges.spiritualLegend"), earned: level >= 15, color: "text-gold", bg: "bg-gold/15" },
-                { id: "pure-heart", icon: <Heart className="w-6 h-6" />, label: t("profile.badges.pureHeart"), earned: profile.totalAthkarRecited >= 20000, color: "text-rose-600", bg: "bg-rose-600/10" },
-                { id: "night-owl", icon: <Moon className="w-6 h-6" />, label: t("profile.badges.nightOwl"), earned: profile.totalAthkarRecited >= 500 && profile.totalAyahsRead >= 500, color: "text-indigo-500", bg: "bg-indigo-500/10" },
-                { id: "devout", icon: <Flame className="w-6 h-6" />, label: isAr ? "عابد مخلص" : "Devout", earned: level >= 20, color: "text-orange-500", bg: "bg-orange-500/10" },
-              ].map((badge) => (
-                <div key={badge.id} className="flex flex-col items-center gap-2 group">
+                <button 
+                  key={badge.id} 
+                  onClick={() => setSelectedBadge({
+                    ...badge,
+                    desc: isAr ? getBadgeDescAr(badge.id) : getBadgeDescEn(badge.id)
+                  })}
+                  className="flex flex-col items-center gap-2 group outline-none"
+                >
                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border-2 transition-all relative ${
                     badge.earned 
-                      ? `${badge.bg} ${badge.color.replace('text-', 'border-').replace('500', '500/30')} shadow-lg` 
-                      : "bg-muted/50 border-border/20 grayscale opacity-40"
+                      ? `${badge.bg} ${badge.color.replace('text-', 'border-').replace('500', '500/30')} shadow-lg hover:scale-110` 
+                      : "bg-muted/50 border-border/20 grayscale opacity-40 hover:opacity-60"
                   }`}>
                     {badge.icon}
                     {badge.earned && (
@@ -416,11 +447,58 @@ const Profile = () => {
                   <span className={`text-[8px] font-bold uppercase tracking-widest text-center ${badge.earned ? "text-primary" : "text-muted-foreground"}`}>
                     {badge.label}
                   </span>
-                </div>
+                </button>
               ))}
             </div>
           </section>
         </ScrollReveal>
+
+        {/* Badge Detail Modal */}
+        <AnimatePresence>
+          {selectedBadge && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedBadge(null)}
+              className="fixed inset-0 z-[700] bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+            >
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-sm bg-card rounded-[2.5rem] border border-border/20 shadow-2xl p-8 text-center space-y-6 relative overflow-hidden"
+              >
+                <div className="absolute inset-0 pattern-islamic opacity-[0.03] pointer-events-none" />
+                
+                <div className={`w-20 h-20 mx-auto rounded-3xl flex items-center justify-center border-2 shadow-xl ${
+                  selectedBadge.earned ? `${selectedBadge.bg} ${selectedBadge.color.replace('text-', 'border-').replace('500', '500/30')}` : "bg-muted/50 border-border/20 grayscale"
+                }`}>
+                  {selectedBadge.icon && React.cloneElement(selectedBadge.icon as React.ReactElement, { size: 40 })}
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-serif font-bold text-primary">{selectedBadge.label}</h3>
+                  <div className="inline-flex px-3 py-1 rounded-full bg-primary/5 text-[10px] font-bold uppercase tracking-widest text-primary/60">
+                    {selectedBadge.earned ? (isAr ? "مكتمل" : "EARNED") : (isAr ? "قيد التقدم" : "IN PROGRESS")}
+                  </div>
+                </div>
+
+                <p className="text-sm text-primary/70 font-serif italic leading-relaxed">
+                  {selectedBadge.desc}
+                </p>
+
+                <button 
+                  onClick={() => setSelectedBadge(null)}
+                  className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-serif font-bold hover:opacity-90 transition-opacity"
+                >
+                  {isAr ? "إغلاق" : "Close"}
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Daily Quests */}
         <ScrollReveal index={5}>
@@ -556,7 +634,9 @@ const Profile = () => {
                       { label: t("profile.expGuide.pageRead"), points: 150, icon: <BookOpen size={16} /> },
                       { label: t("profile.expGuide.ayahRead"), points: 10, icon: <Sparkles size={16} /> },
                       { label: t("profile.expGuide.athkarCount"), points: 2, icon: <RotateCcw size={16} /> },
+                      { label: isAr ? "إكمال المهام اليومية" : "Daily Quest Completion", points: 500, icon: <Check size={16} /> },
                     ].map((item, i) => (
+
                       <div key={i} className="flex items-center justify-between p-3 rounded-2xl bg-primary/5 border border-primary/5">
                         <div className="flex items-center gap-3">
                           <div className="text-primary/40">{item.icon}</div>
