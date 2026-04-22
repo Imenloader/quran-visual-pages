@@ -7,6 +7,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useHifzMastery } from "@/hooks/useHifzMastery";
 import { toArabicNumber } from "@/data/quranData";
+import { normalizeArabic } from "@/lib/arabicUtils";
 
 interface HifzQuizViewProps {
   pageNumber: number;
@@ -42,19 +43,21 @@ const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, onComplete, onC
   const handleCheck = (answerOverride?: string) => {
     const current = questions[currentIndex];
     const actualAnswer = answerOverride || userAnswer;
-    const cleanAnswer = current.answer.trim().toLowerCase();
-    const cleanUser = actualAnswer.trim().toLowerCase();
     
-    // Simple check (could be improved with normalization)
-    const correct = cleanUser === cleanAnswer || 
-                   (cleanAnswer.includes(cleanUser) && cleanUser.length > 2) ||
-                   (cleanUser.includes(cleanAnswer) && cleanAnswer.length > 2);
+    const normAnswer = normalizeArabic(current.answer);
+    const normUser = normalizeArabic(actualAnswer);
+    
+    // Check with normalized versions
+    const correct = normUser === normAnswer || 
+                   (normAnswer.includes(normUser) && normUser.length > 2) ||
+                   (normUser.includes(normAnswer) && normAnswer.length > 2);
     
     setIsCorrect(correct);
     if (correct) {
       setScore(s => s + 1);
     }
     if (answerOverride) setUserAnswer(answerOverride);
+    else setUserAnswer(actualAnswer); // Sync state for non-override calls too if needed
   };
 
   const handleNext = () => {
@@ -176,12 +179,12 @@ const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, onComplete, onC
                 {current.options.map((option, i) => (
                   <Button
                     key={i}
-                    variant={isCorrect !== null && option === current.answer ? "default" : "outline"}
+                    variant={isCorrect !== null && normalizeArabic(option) === normalizeArabic(current.answer) ? "default" : "outline"}
                     className={`h-14 rounded-2xl font-serif text-lg ${
                       isCorrect !== null 
-                        ? option === current.answer 
+                        ? normalizeArabic(option) === normalizeArabic(current.answer) 
                           ? "bg-emerald-500 text-white" 
-                          : option === userAnswer 
+                          : normalizeArabic(option) === normalizeArabic(userAnswer) 
                             ? "bg-rose-500 text-white" 
                             : ""
                         : "hover:border-accent hover:bg-accent/5"
