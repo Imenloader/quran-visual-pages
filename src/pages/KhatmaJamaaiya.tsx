@@ -40,7 +40,7 @@ import {
   orderBy,
   getDoc
 } from "firebase/firestore";
-import { onAuthStateChanged, User } from "firebase/auth";
+import { onAuthStateChanged, type User } from "firebase/auth";
 import { db, auth, handleFirestoreError, OperationType } from "@/firebase";
 import { useUser } from "@/contexts/UserContext";
 import BackButton from "@/components/BackButton";
@@ -1040,8 +1040,9 @@ const KhatmaJamaaiya = () => {
                     </div>
                   ))}
               </div>
-              
-              {/* Leaderboard Section */}
+            </div>
+            
+            {/* Leaderboard Section */}
               <div className="mt-12 space-y-4">
                 <h3 className="text-sm font-bold font-naskh text-foreground px-2 flex items-center gap-2">
                   <Trophy size={16} className="text-gold" />
