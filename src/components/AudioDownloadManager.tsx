@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { DownloadCloud, CheckCircle2, Loader2, Trash2, Music, Play, Pause, X } from "lucide-react";
+import { DownloadCloud, Loader2, Trash2, Music } from "lucide-react";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { SURAHS } from "@/data/audioData";
 import { fetchReciters, type Reciter, type Moshaf } from "@/services/quranService";
@@ -18,6 +17,17 @@ const AudioDownloadManager: React.FC = () => {
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [cachedSurahs, setCachedSurahs] = useState<string[]>([]);
+  const [isLoadingReciters, setIsLoadingReciters] = useState(true);
+  const [recitersError, setRecitersError] = useState<string | null>(null);
+
+  const buildAudioUrl = (server: string, surahId: number) => {
+    let base = (server || "").trim();
+    if (base.startsWith("//")) base = `https:${base}`;
+    if (base.startsWith("http://")) base = base.replace("http://", "https://");
+    if (!base.startsWith("https://")) base = `https://${base}`;
+    if (!base.endsWith("/")) base += "/";
+    return `${base}${String(surahId).padStart(3, "0")}.mp3`;
+  };
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -25,7 +35,16 @@ const AudioDownloadManager: React.FC = () => {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     
-    fetchReciters().then(setReciters);
+    fetchReciters()
+      .then((items) => {
+        setReciters(items);
+        if (items.length === 0) {
+          setRecitersError(t("hub.offline.clearError"));
+        }
+      })
+      .catch(() => setRecitersError(t("hub.offline.clearError")))
+      .finally(() => setIsLoadingReciters(false));
+
     checkCacheStatus();
     
     return () => {
@@ -52,8 +71,7 @@ const AudioDownloadManager: React.FC = () => {
       return;
     }
 
-    const padded = String(surahId).padStart(3, "0");
-    const audioUrl = `${selectedMoshaf.server}${padded}.mp3`;
+    const audioUrl = buildAudioUrl(selectedMoshaf.server, surahId);
 
     setDownloadingSurah(surahId);
     setDownloadProgress(0);
@@ -112,8 +130,7 @@ const AudioDownloadManager: React.FC = () => {
 
   const isCached = (surahId: number) => {
     if (!selectedMoshaf) return false;
-    const padded = String(surahId).padStart(3, "0");
-    const audioUrl = `${selectedMoshaf.server}${padded}.mp3`;
+    const audioUrl = buildAudioUrl(selectedMoshaf.server, surahId);
     return cachedSurahs.includes(audioUrl);
   };
 
@@ -121,8 +138,11 @@ const AudioDownloadManager: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
         <label className="text-sm font-serif font-bold text-primary/80">{t("player.reciter")}</label>
+        {isLoadingReciters && <p className="text-xs text-muted-foreground">{t("hub.offline.downloading", { progress: 0 })}</p>}
+        {!isLoadingReciters && recitersError && <p className="text-xs text-destructive">{recitersError}</p>}
         <select 
           className="w-full h-12 rounded-xl bg-card border border-border/40 px-4 font-serif text-sm focus:ring-2 focus:ring-accent outline-none"
+          disabled={isLoadingReciters || reciters.length === 0}
           onChange={(e) => {
             const r = reciters.find(rec => rec.id === parseInt(e.target.value));
             setSelectedReciter(r || null);
@@ -160,8 +180,8 @@ const AudioDownloadManager: React.FC = () => {
                   ) : cached ? (
                     <button 
                       onClick={() => {
-                        const padded = String(surah.id).padStart(3, "0");
-                        deleteFromCache(`${selectedMoshaf?.server}${padded}.mp3`);
+                        if (!selectedMoshaf) return;
+                        deleteFromCache(buildAudioUrl(selectedMoshaf.server, surah.id));
                       }}
                       className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                     >
