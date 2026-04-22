@@ -3,7 +3,7 @@ import { DownloadCloud, CheckCircle2, Loader2, Trash2, Music, Play, Pause, X } f
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { SURAHS, useAudioPlayer } from "@/contexts/AudioPlayerContext";
+import { SURAHS } from "@/data/audioData";
 import { fetchReciters, type Reciter, type Moshaf } from "@/services/quranService";
 import { toArabicNumber } from "@/data/quranData";
 
