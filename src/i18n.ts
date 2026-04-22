@@ -67,7 +67,8 @@ const resources = {
           "notReadyDesc": "Download all pages to access them without internet connection.",
           "progress": "Progress",
           "pause": "Pause",
-          "resume": "Resume"
+          "resume": "Resume",
+          "download": "Download"
         },
         "favorites": "Favourites",
         "favourites": "Favourites",
@@ -391,27 +392,6 @@ const resources = {
           "info": "The app updates automatically when connected to the internet. You can manually check here to ensure you have the latest features and fixes."
         }
       },
-      "hub": {
-        "offline": {
-          "title": "Offline Management",
-          "manageDesc": "Manage offline content and storage",
-          "audioDesc": "Manage recitations for offline listening",
-          "ready": "Content is ready for offline use",
-          "downloading": "Downloading... {{progress}}%",
-          "downloadAll": "Download All Content",
-          "downloadFailed": "Failed to download {{count}} items",
-          "deleteData": "Clear All Cached Data",
-          "fetchError": "Failed to fetch reciters list",
-          "connectToStart": "Connect to internet to start download",
-          "clearSuccess": "Data cleared successfully",
-          "clearError": "Action failed. Please try again.",
-          "clearConfirm": "This will remove all downloaded pages and audio from your device. Do you want to proceed?",
-          "onlineStatus": "You are online",
-          "offlineStatus": "You are offline",
-          "pages": "Pages",
-          "storageInfo": "Downloaded content is stored in your browser's local cache and will be available even without internet connection."
-        }
-      },
       "index": {
         "hero": {
           "badge": "Digital Gateway to Light",
@@ -557,6 +537,7 @@ const resources = {
           "ready": "المحتوى جاهز للاستخدام بدون اتصال",
           "downloading": "جاري التحميل... {{progress}}%",
           "downloadAll": "تحميل كافة المحتوى",
+          "download": "تحميل الكل",
           "downloadFailed": "فشل تحميل {{count}} ملف",
           "deleteData": "مسح كافة البيانات المخزنة",
           "fetchError": "فشل في تحميل قائمة القراء",
@@ -920,7 +901,6 @@ const resources = {
           "info": "يتم تحديث التطبيق تلقائياً عند توفر اتصال بالإنترنت. يمكنك التحقق يدوياً من هنا للتأكد من حصولك على أحدث الميزات والإصلاحات."
         }
       },
-
       "index": {
         "hero": {
           "badge": "بوابة النور الرقمية",
