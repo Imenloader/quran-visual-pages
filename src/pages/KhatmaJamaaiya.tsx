@@ -17,7 +17,8 @@ import {
   BookMarked,
   ArrowRight,
   Maximize2,
-  LogOut
+  LogOut,
+  LogIn
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -38,12 +39,7 @@ import {
   orderBy,
   getDoc
 } from "firebase/firestore";
-import { 
-  onAuthStateChanged, 
-  User,
-  GoogleAuthProvider,
-  signInWithPopup
-} from "firebase/auth";
+import { onAuthStateChanged, User } from "firebase/auth";
 import { db, auth, handleFirestoreError, OperationType } from "@/firebase";
 import { useUser } from "@/contexts/UserContext";
 import BackButton from "@/components/BackButton";
@@ -51,6 +47,7 @@ import { toArabicNumber } from "@/data/quranData";
 import QuranTextViewer from "@/components/QuranTextViewer";
 import QuranPlayerBar from "@/components/QuranPlayerBar";
 import { useTheme } from "@/contexts/ThemeContext";
+import AuthModal from "@/components/AuthModal";
 
 // --- Types ---
 // ... (rest of types)
@@ -102,6 +99,7 @@ const KhatmaJamaaiya = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [newKhatmaTitle, setNewKhatmaTitle] = useState("");
   const [isReading, setIsReading] = useState(false);
 
@@ -126,43 +124,7 @@ const KhatmaJamaaiya = () => {
     };
   }, []);
 
-  const loginWithGoogle = async () => {
-    try {
-      const { Capacitor } = await import("@capacitor/core");
-      const { GoogleAuthProvider, signInWithPopup, signInWithCredential } = await import("firebase/auth");
-      
-      if (Capacitor.isNativePlatform()) {
-        // Native Android/iOS Google Sign In
-        const { GoogleAuth } = await import("@codetrix-studio/capacitor-google-auth");
-        
-        const googleUser = await GoogleAuth.signIn();
-        
-        if (googleUser && googleUser.authentication && googleUser.authentication.idToken) {
-          const credential = GoogleAuthProvider.credential(googleUser.authentication.idToken);
-          await signInWithCredential(auth, credential);
-        } else if (googleUser && (googleUser as any).idToken) {
-          // Fallback for some plugin versions
-          const credential = GoogleAuthProvider.credential((googleUser as any).idToken);
-          await signInWithCredential(auth, credential);
-        } else {
-          throw new Error("Missing ID Token from Google Sign In");
-        }
-      } else {
-        // Web fallback
-        await signInWithPopup(auth, new GoogleAuthProvider());
-      }
-    } catch (error: unknown) {
-      console.error("Login Error:", error);
-      const firebaseError = error as { code?: string; message?: string };
-      const isAuthDomainError = firebaseError.code === "auth/unauthorized-domain";
-      
-      if (isAuthDomainError) {
-        toast.error(isAr ? "هذا النطاق غير مصرح به." : "This domain is not authorized.");
-      } else {
-        toast.error((isAr ? "فشل تسجيل الدخول: " : "Login failed: ") + (firebaseError.message || "Unknown error"));
-      }
-    }
-  };
+
 
   // 3. Timeout Logic (Lazy)
   const handleTimeouts = useCallback(async (id: string, portions: Record<string, Portion>) => {
@@ -709,13 +671,19 @@ const KhatmaJamaaiya = () => {
                 </p>
               </div>
               <button
-                onClick={loginWithGoogle}
+                onClick={() => setShowAuthModal(true)}
                 className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-bold font-naskh shadow-islamic flex items-center justify-center gap-3"
               >
-                <Globe size={20} />
-                {isAr ? "تسجيل الدخول بجوجل" : "Sign in with Google"}
+                <LogIn size={20} />
+                {isAr ? "تسجيل الدخول" : "Sign In"}
               </button>
             </div>
+            <AuthModal
+              isOpen={showAuthModal}
+              onClose={() => setShowAuthModal(false)}
+              title={isAr ? "الختمة الجماعية" : "Collaborative Khatma"}
+              subtitle={isAr ? "سجّل دخولك للانضمام إلى الختمة" : "Sign in to join the Khatma"}
+            />
           </div>
         ) : !currentKhatma ? (
           <div className="space-y-6">

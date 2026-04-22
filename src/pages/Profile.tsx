@@ -18,7 +18,8 @@ import BackButton from "@/components/BackButton";
 import { useUser } from "@/contexts/UserContext";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 import { auth } from "@/firebase";
-import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { signOut } from "firebase/auth";
+import AuthModal from "@/components/AuthModal";
 
 type ThemeMode = "light" | "dark" | "sepia";
 
@@ -36,6 +37,7 @@ const Profile = () => {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isExpGuideOpen, setIsExpGuideOpen] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [newName, setNewName] = useState(profile.name);
 
   useEffect(() => {
@@ -931,46 +933,16 @@ const Profile = () => {
                                 {t("profile.loginPrompt")}
                               </p>
                               <button
-                                onClick={async () => {
-                                  try {
-                                    const { Capacitor } = await import("@capacitor/core");
-                                    const { GoogleAuthProvider, signInWithPopup, signInWithCredential } = await import("firebase/auth");
-                                    
-                                    if (Capacitor.isNativePlatform()) {
-                                      // Native Android/iOS Google Sign In
-                                      const { GoogleAuth } = await import("@codetrix-studio/capacitor-google-auth");
-                                      
-                                      const googleUser = await GoogleAuth.signIn();
-                                      
-                                      if (googleUser && googleUser.authentication && googleUser.authentication.idToken) {
-                                        const credential = GoogleAuthProvider.credential(googleUser.authentication.idToken);
-                                        await signInWithCredential(auth, credential);
-                                      } else if (googleUser && (googleUser as any).idToken) {
-                                        // Fallback for some plugin versions
-                                        const credential = GoogleAuthProvider.credential((googleUser as any).idToken);
-                                        await signInWithCredential(auth, credential);
-                                      } else {
-                                        throw new Error("Missing ID Token from Google Sign In");
-                                      }
-                                    } else {
-                                      // Web fallback
-                                      await signInWithPopup(auth, new GoogleAuthProvider());
-                                    }
-                                  } catch (error: unknown) {
-                                    console.error("Login error:", error);
-                                    const firebaseError = error as { code?: string; message?: string };
-                                    if (firebaseError.code === "auth/unauthorized-domain") {
-                                      toast.error(i18n.language === 'ar' ? "هذا النطاق غير مصرح به." : "This domain is not authorized.");
-                                    } else {
-                                      toast.error((i18n.language === 'ar' ? "فشل تسجيل الدخول: " : "Login failed: ") + (firebaseError.message || "Unknown error"));
-                                    }
-                                  }
-                                }}
+                                onClick={() => setShowAuthModal(true)}
                                 className="w-full py-3 bg-primary text-primary-foreground rounded-xl text-xs font-bold font-serif shadow-lg flex items-center justify-center gap-2"
                               >
                                 <Sparkles size={14} />
-                                {t("profile.loginWithGoogle")}
+                                {isAr ? "تسجيل الدخول / إنشاء حساب" : "Sign In / Register"}
                               </button>
+                              <AuthModal
+                                isOpen={showAuthModal}
+                                onClose={() => setShowAuthModal(false)}
+                              />
                             </div>
                           )}
                         </div>
