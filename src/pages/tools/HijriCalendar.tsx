@@ -31,6 +31,12 @@ const HOLIDAY_TRANSLATIONS: Record<string, string> = {
   "Laylat al-Qadr": "ليلة القدر",
   "1st Day of Ramadan": "أول أيام رمضان",
   "Ayyam al-Bidh": "الأيام البيض",
+  "Mawlid al-Nabi": "المولد النبوي",
+  "Mid-Sha'ban": "ليلة النصف من شعبان",
+  "Nisf Shaban": "ليلة النصف من شعبان",
+  "Shab-e-Barat": "ليلة النصف من شعبان",
+  "Eid al-Fitr": "عيد الفطر",
+  "Eid al-Adha": "عيد الأضحى",
 };
 
 const translateHoliday = (holiday: string): string => {
@@ -48,11 +54,8 @@ const getEnhancedHolidays = (day: HijriDay, lang: string) => {
   const hijriDay = parseInt(day.date.hijri.day);
   const hijriMonth = day.date.hijri.month.number;
   
-  // Whitelist of known major Islamic events
-  const knownEvents = Object.keys(HOLIDAY_TRANSLATIONS);
-  
-  // Filter API holidays to only include known ones from our whitelist
-  const holidays = (day.date.hijri.holidays || []).filter(h => knownEvents.includes(h));
+  // Keep all holidays from API, but also allow our manual checks
+  const holidays = [...(day.date.hijri.holidays || [])];
   
   let isAyyamBidh = false;
   if (hijriMonth === 12) {

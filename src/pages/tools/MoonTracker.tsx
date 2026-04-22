@@ -44,15 +44,14 @@ const MoonTracker = () => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
         
-        const res = await fetch(`https://api.aladhan.com/v1/gregorian/${dd}-${mm}-${yyyy}`, { signal: controller.signal });
+        const res = await fetch(`https://api.aladhan.com/v1/gToH/${dd}-${mm}-${yyyy}`, { signal: controller.signal });
         clearTimeout(timeoutId);
         const data = await res.json();
         
-        if (data.data) {
+        if (data.data && data.data.hijri) {
           setHijriDate(data.data.hijri);
           const day = parseInt(data.data.hijri.day);
-          const phase = (day - 1) / 29.53;
-          setMoonPhase(phase);
+          setMoonPhase((day - 1) / 29.53);
 
           if (day === 1) setPhaseName({ en: "New Moon (Hilal)", ar: "هلال الشهر الجديد" });
           else if (day < 7) setPhaseName({ en: "Waxing Crescent", ar: "هلال متزايد" });

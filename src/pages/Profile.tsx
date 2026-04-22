@@ -323,7 +323,7 @@ const Profile = () => {
                 <Flame size={16} />
               </div>
               <p className="text-xl font-serif font-bold text-orange-500">{toArabicNumber(profile.daysActive)}</p>
-              <p className="text-[9px] font-bold text-orange-500/80 uppercase tracking-widest">{isAr ? "أيام الاستمرارية" : "Day Streak"}</p>
+              <p className="text-[9px] font-bold text-orange-500/80 uppercase tracking-widest">{t("profile.dayStreak")}</p>
             </div>
           </ScrollReveal>
 
@@ -371,8 +371,8 @@ const Profile = () => {
           <section className="bg-card/80 backdrop-blur-2xl rounded-3xl p-6 shadow-islamic border border-border/20 space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-serif text-lg font-bold text-primary">{i18n.language === 'ar' ? 'الأوسمة والإنجازات' : 'Badges & Achievements'}</h3>
-                <p className="text-[10px] text-primary/70 font-serif italic mt-0.5">{i18n.language === 'ar' ? 'أوسمة تقدير لرحلتك الروحانية' : 'Recognition for your spiritual journey'}</p>
+                <h3 className="font-serif text-lg font-bold text-primary">{t("profile.badgesTitle")}</h3>
+                <p className="text-[10px] text-primary/70 font-serif italic mt-0.5">{t("profile.badgesDesc")}</p>
               </div>
               <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center text-gold">
                 <Trophy size={20} />
@@ -381,12 +381,12 @@ const Profile = () => {
 
             <div className="grid grid-cols-4 sm:grid-cols-6 gap-4">
               {[
-                { id: "early-bird", icon: <Sun className="w-6 h-6" />, labelAr: "طائر مبكر", labelEn: "Early Bird", earned: true, color: "text-amber-500", bg: "bg-amber-500/10" },
-                { id: "quran-lover", icon: <BookOpen className="w-6 h-6" />, labelAr: "محب القرآن", labelEn: "Quran Lover", earned: profile.totalAyahsRead > 1000, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-                { id: "tasbih-master", icon: <Sparkles className="w-6 h-6" />, labelAr: "خاشع", labelEn: "Tasbih Master", earned: profile.totalAthkarRecited > 5000, color: "text-blue-500", bg: "bg-blue-500/10" },
-                { id: "streak-7", icon: <Calendar className="w-6 h-6" />, labelAr: "أسبوع كامل", labelEn: "7-Day Streak", earned: profile.daysActive >= 7, color: "text-rose-500", bg: "bg-rose-500/10" },
-                { id: "khatma-1", icon: <Trophy className="w-6 h-6" />, labelAr: "خاتم", labelEn: "First Khatma", earned: completedJuzList.length === 30, color: "text-gold", bg: "bg-gold/10" },
-                { id: "night-owl", icon: <Moon className="w-6 h-6" />, labelAr: "قائم الليل", labelEn: "Night Owl", earned: false, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+                { id: "early-bird", icon: <Sun className="w-6 h-6" />, label: t("profile.badges.earlyBird"), earned: true, color: "text-amber-500", bg: "bg-amber-500/10" },
+                { id: "quran-lover", icon: <BookOpen className="w-6 h-6" />, label: t("profile.badges.quranLover"), earned: profile.totalAyahsRead > 1000, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+                { id: "tasbih-master", icon: <Sparkles className="w-6 h-6" />, label: t("profile.badges.tasbihMaster"), earned: profile.totalAthkarRecited > 5000, color: "text-blue-500", bg: "bg-blue-500/10" },
+                { id: "streak-7", icon: <Calendar className="w-6 h-6" />, label: t("profile.badges.sevenDayStreak"), earned: profile.daysActive >= 7, color: "text-rose-500", bg: "bg-rose-500/10" },
+                { id: "khatma-1", icon: <Trophy className="w-6 h-6" />, label: t("profile.badges.firstKhatma"), earned: completedJuzList.length === 30, color: "text-gold", bg: "bg-gold/10" },
+                { id: "night-owl", icon: <Moon className="w-6 h-6" />, label: t("profile.badges.nightOwl"), earned: false, color: "text-indigo-500", bg: "bg-indigo-500/10" },
               ].map((badge) => (
                 <div key={badge.id} className="flex flex-col items-center gap-2 group">
                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border-2 transition-all relative ${
@@ -406,7 +406,7 @@ const Profile = () => {
                     )}
                   </div>
                   <span className={`text-[8px] font-bold uppercase tracking-widest text-center ${badge.earned ? "text-primary" : "text-muted-foreground"}`}>
-                    {isAr ? badge.labelAr : badge.labelEn}
+                    {badge.label}
                   </span>
                 </div>
               ))}
@@ -419,8 +419,8 @@ const Profile = () => {
           <section className="bg-card/80 backdrop-blur-2xl rounded-3xl p-6 shadow-islamic border border-border/20 space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-serif text-lg font-bold text-primary">{i18n.language === 'ar' ? 'مهام اليوم' : 'Daily Quests'}</h3>
-                <p className="text-[10px] text-primary/70 font-serif italic mt-0.5">{i18n.language === 'ar' ? 'أكمل المهام لزيادة رصيدك الإيماني' : 'Complete tasks to increase your faith points'}</p>
+                <h3 className="font-serif text-lg font-bold text-primary">{t("profile.dailyQuestsTitle")}</h3>
+                <p className="text-[10px] text-primary/70 font-serif italic mt-0.5">{t("profile.dailyQuestsDesc")}</p>
               </div>
               <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                 <Sparkles size={20} />
@@ -429,9 +429,9 @@ const Profile = () => {
 
             <div className="space-y-3">
               {[
-                { id: "read-page", labelAr: "قراءة صفحة من المصحف", labelEn: "Read 1 page of Quran", points: 150, completed: profile.totalPagesRead > 0 },
-                { id: "tasbih-100", labelAr: "ذكر الله 100 مرة", labelEn: "Dhikr 100 times", points: 200, completed: profile.totalAthkarRecited > 100 },
-                { id: "check-prayer", labelAr: "تأكيد صلوات اليوم", labelEn: "Confirm today's prayers", points: 500, completed: false },
+                { id: "read-page", label: t("profile.quests.readPage"), points: 150, completed: profile.totalPagesRead > 0 },
+                { id: "tasbih-100", label: t("profile.quests.tasbih100"), points: 200, completed: profile.totalAthkarRecited > 100 },
+                { id: "check-prayer", label: t("profile.quests.checkPrayer"), points: 500, completed: false },
               ].map((quest) => (
                 <div key={quest.id} className={`p-4 rounded-2xl border transition-all flex items-center justify-between ${
                   quest.completed 
@@ -446,7 +446,7 @@ const Profile = () => {
                     </div>
                     <div className={`${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
                       <p className={`text-sm font-serif font-bold ${quest.completed ? "text-primary/60 line-through" : "text-primary"}`}>
-                        {isAr ? quest.labelAr : quest.labelEn}
+                        {quest.label}
                       </p>
                       <p className="text-[9px] font-bold text-gold uppercase tracking-widest">+{toArabicNumber(quest.points)} XP</p>
                     </div>
@@ -763,14 +763,14 @@ const Profile = () => {
                               <div className="p-4 rounded-2xl bg-destructive/10 border border-destructive/20 flex items-center gap-3">
                                 <BellOff size={20} className="text-destructive shrink-0" />
                                 <div className="flex-1">
-                                  <p className="text-[11px] text-destructive font-serif font-bold">{t("profile.notifPermissionRequired") || "إذن التنبيهات مطلوب"}</p>
-                                  <p className="text-[10px] text-destructive/80 font-serif">{t("profile.notifPermissionDesc") || "يرجى منح الإذن لضمان وصول التنبيهات في وقتها."}</p>
+                                  <p className="text-[11px] text-destructive font-serif font-bold">{t("profile.notifPermissionRequired")}</p>
+                                  <p className="text-[10px] text-destructive/80 font-serif">{t("profile.notifPermissionDesc")}</p>
                                 </div>
                                 <button 
                                   onClick={() => requestPermission()}
                                   className="px-3 py-1.5 bg-destructive text-white text-[10px] font-serif rounded-xl font-bold hover:scale-105 transition-all shadow-lg shadow-destructive/20"
                                 >
-                                  {t("profile.enableNotif") || "تفعيل"}
+                                  {t("profile.enableNotif")}
                                 </button>
                               </div>
                             )}

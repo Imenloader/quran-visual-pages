@@ -25,7 +25,9 @@ export default defineConfig(({ mode }) => ({
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
       },
       includeAssets: ["icon.svg", "robots.txt", "sitemap.xml", "pwa-192x192.png", "pwa-512x512.png", "placeholder.svg", "Adhan Sounds/*.mp3"],
+      useCredentials: true,
       manifest: {
+        crossorigin: 'use-credentials',
         name: "القرآن الكريم - مصحف المدينة المنورة",
         short_name: "القرآن الكريم",
         description: "تصفح أجزاء المصحف الشريف الثلاثين بجودة عالية واستمع للتلاوات",

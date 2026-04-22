@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { Search, Copy, BookOpen, Plus, Trash2, X } from "lucide-react";
+import { Search, Copy, BookOpen, Plus, Trash2, X, Share2, Star } from "lucide-react";
 import QuranHeader from "@/components/QuranHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

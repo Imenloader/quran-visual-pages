@@ -92,7 +92,7 @@ const FastingTracker = () => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
         try {
-          const res = await fetch(`https://api.aladhan.com/v1/gregorianCalendar/${m}/${y}`, { signal: controller.signal });
+          const res = await fetch(`https://api.aladhan.com/v1/calendar?latitude=29.9602&longitude=31.2569&method=5&month=${m}&year=${y}`, { signal: controller.signal });
           clearTimeout(timeoutId);
           if (!res.ok) throw new Error(`Failed to fetch calendar for ${m}/${y}`);
           return res.json();
@@ -116,8 +116,8 @@ const FastingTracker = () => {
       const days: FastingDay[] = [];
       const thirtyDaysAhead = addDays(today, 30);
 
-      allDays.forEach((day: { gregorian: { date: string }, hijri: { day: string, month: { en: string, ar: string } } }) => {
-        const parts = day.gregorian.date.split('-');
+      allDays.forEach((day: any) => {
+        const parts = day.date.gregorian.date.split('-');
         const date = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
         
         const compareDate = new Date(date);
@@ -132,8 +132,8 @@ const FastingTracker = () => {
           let titleEn = "";
           let titleAr = "";
 
-          const hijriDay = parseInt(day.hijri.day);
-          const hijriMonth = day.hijri.month.en;
+          const hijriDay = parseInt(day.date.hijri.day);
+          const hijriMonth = day.date.hijri.month.en;
 
           if (isMonday(date)) {
             type = "monday";
@@ -148,7 +148,7 @@ const FastingTracker = () => {
           if (hijriDay === 13 || hijriDay === 14 || hijriDay === 15) {
             type = "white_day";
             titleEn = `White Day (${hijriDay} ${hijriMonth})`;
-            titleAr = `الأيام البيض (${hijriDay} ${day.hijri.month.ar})`;
+            titleAr = `الأيام البيض (${hijriDay} ${day.date.hijri.month.ar})`;
           }
           
           if (hijriMonth === "Muharram" && hijriDay === 10) {
