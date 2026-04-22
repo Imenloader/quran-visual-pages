@@ -25,14 +25,9 @@ const GlobalDhikr = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { addAthkarRecited } = useUser();
 
-  // Sync with Firestore
+  // Sync with Firestore — read-only on mount, write only on tap
   useEffect(() => {
     const dhikrDoc = doc(db, "stats", "dhikr");
-
-    // Ensure the document exists before subscribing
-    setDoc(dhikrDoc, { count: 0 }, { merge: true }).catch(() => {
-      // If permission denied, we'll still try to read via onSnapshot
-    });
 
     const unsubscribe = onSnapshot(
       dhikrDoc,
