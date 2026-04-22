@@ -409,6 +409,8 @@ const resources = {
       },
       "player": {
         "nowPlaying": "Now Playing",
+        "reciter": "Reciter",
+        "selectReciter": "Select reciter",
         "queue": "Playlist Queue",
         "shuffle": "Shuffle",
         "repeat": "Repeat",
@@ -421,7 +423,8 @@ const resources = {
         "close": "Close Player",
         "stop": "Stop Playback",
         "expand": "Expand Player",
-        "collapse": "Collapse Player"
+        "collapse": "Collapse Player",
+        "downloadComplete": "Surah downloaded successfully"
       },
       "ramadan": {
         "title": "Ramadan Kareem",
@@ -500,7 +503,7 @@ const resources = {
           "onlineStatus": "متصل بالإنترنت",
           "offlineStatus": "أنت الآن في وضع عدم الاتصال",
           "downloading": "جاري التجهيز... {{progress}}%",
-          "downloadAll": "تجهيز المصحف للقراءة دون اتصال (Offline)",
+          "downloadAll": "تجهيز المصحف للقراءة دون اتصال",
           "ready": "المصحف جاهز بالكامل للقراءة دون اتصال",
           "storageInfo": "تجهيز المصحف للقراءة دون اتصال يتطلب مساحة تخزين تقريبية (١٥٠ ميجابايت) في متصفحك.",
           "deleteData": "حذف البيانات المحملة",
@@ -857,6 +860,8 @@ const resources = {
       },
       "player": {
         "nowPlaying": "يتم تشغيله الآن",
+        "reciter": "القارئ",
+        "selectReciter": "اختر القارئ",
         "queue": "قائمة التشغيل",
         "shuffle": "تشغيل عشوائي",
         "repeat": "تكرار",
@@ -869,7 +874,8 @@ const resources = {
         "close": "إإغلاق المشغل",
         "stop": "إيقاف التشغيل",
         "expand": "توسيع المشغل",
-        "collapse": "طي المشغل"
+        "collapse": "طي المشغل",
+        "downloadComplete": "تم تحميل السورة بنجاح"
       },
       "ramadan": {
         "title": "شَهْرُ رَمَضَانَ",

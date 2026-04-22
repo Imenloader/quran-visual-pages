@@ -1,18 +1,16 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { DownloadCloud, Info, CheckCircle2, Trash2, Database, Music } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { getQuranPageImageUrl, juzData, toArabicNumber as toArabicDigits } from "@/data/quranData";
 import { useTheme } from "@/contexts/ThemeContext";
 import BackButton from "@/components/BackButton";
 import AudioDownloadManager from "@/components/AudioDownloadManager";
+import OfflineManager from "@/components/OfflineManager";
 import { useOffline } from "@/contexts/OfflineContext";
 
 const Offline = () => {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
   const [downloadedSize, setDownloadedSize] = useState("0 MB");
   const [quranCacheSize, setQuranCacheSize] = useState("0 MB");
   const [apiCacheSize, setApiCacheSize] = useState("0 MB");
@@ -195,10 +193,12 @@ const Offline = () => {
             </div>
 
             <div className="pt-4 border-t border-border/40">
+              <OfflineManager />
+              
               <button
                 onClick={downloadAllPages}
                 disabled={isDownloading}
-                className={`w-full h-16 rounded-2xl bg-primary text-primary-foreground font-bold font-serif flex flex-col items-center justify-center transition-all shadow-lg hover:shadow-primary/20 ${isDownloading ? "opacity-70" : "hover:scale-[1.02]"}`}
+                className={`w-full mt-4 h-16 rounded-2xl bg-primary text-primary-foreground font-bold font-serif flex flex-col items-center justify-center transition-all shadow-lg hover:shadow-primary/20 ${isDownloading ? "opacity-70" : "hover:scale-[1.02]"}`}
               >
                 {isDownloading ? (
                   <div className="flex flex-col items-center gap-1">
