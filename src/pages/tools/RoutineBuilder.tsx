@@ -16,6 +16,7 @@ import {
   LayoutGrid
 } from "lucide-react";
 import QuranHeader from "@/components/QuranHeader";
+import { juzData, toArabicNumber, getQuranPageImageUrl } from "@/data/quranData";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
@@ -38,7 +39,7 @@ const defaultHabits: Habit[] = [
 ];
 
 const RoutineBuilder = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isAr = i18n.language === "ar";
   const todayKey = format(new Date(), 'yyyy-MM-dd');
 
