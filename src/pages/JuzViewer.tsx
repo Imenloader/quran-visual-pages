@@ -1,7 +1,7 @@
 import { useParams, Navigate, Link, useNavigate } from "react-router-dom";
 // --- التعديل هنا: إضافة lazy و Suspense ---
 import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from "react";
-import { juzData, getQuranPageImageUrl, getQuranPageFallbackImageUrl, toArabicNumber, surahIndex } from "@/data/quranData";
+import { juzData, getQuranPageFallbackImageUrl, toArabicNumber, surahIndex } from "@/data/quranData";
 import QuranHeader from "@/components/QuranHeader";
 import ReadingToolbar from "@/components/ReadingToolbar";
 import ProgressBar from "@/components/ProgressBar";
@@ -23,6 +23,7 @@ import { syncService } from "@/services/syncService";
 import BackButton from "@/components/BackButton";
 import AtmosphericBackground from "@/components/AtmosphericBackground";
 import { cn } from "@/lib/utils";
+import { useOffline } from "@/contexts/OfflineContext";
 
 // --- التعديل هنا: تحميل KhatmaCelebration بشكل Lazy ---
 const KhatmaCelebration = lazy(() => import("@/components/KhatmaCelebration"));
@@ -68,12 +69,15 @@ function JuzViewer() {
   const juz = juzData.find((j) => j.number === num);
   const { theme, readingMode, scrollDirection, tajweedMode, hifzMode, setHifzMode, preferredImageSource, setPreferredImageSource, isLoaded } = useTheme();
   const { addAyahRead, addPageRead, addJuzCompleted } = useUser();
+  const { pageStatus, refreshJuzCompletion, prefetchNeighborPages, prepareJuzOffline } = useOffline();
 
 
 
   const [loadingStates, setLoadingStates] = useState<Record<number, boolean>>({});
   const [errorStates, setErrorStates] = useState<Record<number, boolean>>({});
-  const [fallbackLevel, setFallbackLevel] = useState<Record<number, number>>({});
+  const [pageSources, setPageSources] = useState<Record<number, string[]>>({});
+  const [sourceIndexes, setSourceIndexes] = useState<Record<number, number>>({});
+  const [isPreparingJuzOffline, setIsPreparingJuzOffline] = useState(false);
   const [zoom, setZoom] = useState(100);
   const [currentPage, setCurrentPage] = useState(juz?.startPage || 0);
   const [hiddenPages, setHiddenPages] = useState<Record<number, boolean>>(() => {
@@ -126,6 +130,51 @@ function JuzViewer() {
     const index = pages.indexOf(currentPage);
     return Math.round(((index + 1) / pages.length) * 100);
   }, [pages, currentPage]);
+
+  useEffect(() => {
+    if (!pages.length) return;
+    let cancelled = false;
+
+    const buildDeterministicSources = async () => {
+      const nextSources: Record<number, string[]> = {};
+      if (!("caches" in window)) {
+        pages.forEach((page) => {
+          nextSources[page] = getSourceCandidates(page);
+        });
+        if (!cancelled) setPageSources(nextSources);
+        return;
+      }
+
+      const cache = await caches.open("quran-pages-cache");
+      for (const page of pages) {
+        const candidates = getSourceCandidates(page);
+        const cached: string[] = [];
+        const uncached: string[] = [];
+
+        for (const candidate of candidates) {
+          if (candidate === "/placeholder.svg") {
+            uncached.push(candidate);
+            continue;
+          }
+          const hit = await cache.match(candidate);
+          if (hit) cached.push(candidate);
+          else uncached.push(candidate);
+        }
+
+        nextSources[page] = navigator.onLine ? [...cached, ...uncached] : [...cached, "/placeholder.svg", ...uncached];
+      }
+
+      if (!cancelled) {
+        setPageSources(nextSources);
+        setSourceIndexes({});
+      }
+    };
+
+    buildDeterministicSources();
+    return () => {
+      cancelled = true;
+    };
+  }, [pages, getSourceCandidates, currentPage]);
 
 
   useEffect(() => {
@@ -198,6 +247,17 @@ function JuzViewer() {
     initPage();
   }, [pages, num, scrollDirection, currentPage]);
 
+  useEffect(() => {
+    if (!juz) return;
+    refreshJuzCompletion(num);
+    prefetchNeighborPages(juz.startPage, 2, { start: juz.startPage, end: juz.endPage });
+  }, [juz, num, prefetchNeighborPages, refreshJuzCompletion]);
+
+  useEffect(() => {
+    if (!juz || !currentPage) return;
+    prefetchNeighborPages(currentPage, 2, { start: juz.startPage, end: juz.endPage });
+  }, [currentPage, juz, prefetchNeighborPages]);
+
   const scrollToPage = useCallback((page: number) => {
     const el = pageRefs.current[page];
     if (el) {
@@ -225,24 +285,31 @@ function JuzViewer() {
     }
   }, [currentPage, juz, scrollDirection, scrollToPage]);
 
+  const getSourceCandidates = useCallback((page: number) => {
+    const candidates = Array.from({ length: 6 }, (_, level) =>
+      getQuranPageFallbackImageUrl(page, level, tajweedMode, preferredImageSource || undefined)
+    ).filter(Boolean);
+    return [...new Set([...candidates, "/placeholder.svg"])];
+  }, [tajweedMode, preferredImageSource]);
+
   const getImageUrl = useCallback((page: number) => {
-    const level = fallbackLevel[page] || 0;
-    return getQuranPageFallbackImageUrl(page, level, tajweedMode, preferredImageSource || undefined);
-  }, [fallbackLevel, tajweedMode, preferredImageSource]);
+    const sources = pageSources[page] || getSourceCandidates(page);
+    const idx = sourceIndexes[page] || 0;
+    return sources[Math.min(idx, sources.length - 1)];
+  }, [pageSources, sourceIndexes, getSourceCandidates]);
 
   const handleImageLoad = useCallback((page: number) => {
     setLoadingStates(prev => ({ ...prev, [page]: false }));
   }, []);
 
   const handleImageError = useCallback((page: number) => {
-    setFallbackLevel(prev => {
+    setSourceIndexes(prev => {
+      const sources = pageSources[page] || getSourceCandidates(page);
       const current = prev[page] || 0;
-      if (current < 5) {
-        return { ...prev, [page]: current + 1 };
-      }
-      return prev;
+      const next = Math.min(current + 1, sources.length - 1);
+      return { ...prev, [page]: next };
     });
-  }, []);
+  }, [pageSources, getSourceCandidates]);
 
 
   const handleSaveBookmark = useCallback(() => {
@@ -305,6 +372,13 @@ function JuzViewer() {
     }
   }, [readingMode, currentPage]);
 
+  const getPageBadgeLabel = useCallback((page: number) => {
+    const status = pageStatus[page] || "missing";
+    if (status === "cached") return { text: "cached", className: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" };
+    if (status === "downloading") return { text: "downloading", className: "bg-amber-500/15 text-amber-600 border-amber-500/30" };
+    return { text: "missing", className: "bg-muted text-muted-foreground border-border/40" };
+  }, [pageStatus]);
+
   const handleDownloadAudio = useCallback(async () => {
     if (!juz || isDownloadingAudio) return;
     
@@ -346,6 +420,21 @@ function JuzViewer() {
       setIsDownloadingAudio(false);
     }
   }, [juz, isDownloadingAudio, currentSurah]);
+
+  const handlePrepareThisJuzOffline = useCallback(async () => {
+    if (!juz || isPreparingJuzOffline) return;
+    setIsPreparingJuzOffline(true);
+    toast.info(`جاري تجهيز ${juz.nameAr} للعمل دون اتصال...`);
+    try {
+      await prepareJuzOffline(juz.number);
+      toast.success(`تم تجهيز ${juz.nameAr} للأوفلاين`);
+    } catch (error) {
+      console.error("Failed preparing juz offline:", error);
+      toast.error("تعذر تجهيز هذا الجزء للأوفلاين");
+    } finally {
+      setIsPreparingJuzOffline(false);
+    }
+  }, [juz, isPreparingJuzOffline, prepareJuzOffline]);
 
   const { onTouchStart, onTouchMove, onTouchEnd } = useSwipeNavigation({ 
     onSwipeLeft: scrollDirection === "horizontal" ? handleNextPage : undefined, 
@@ -572,6 +661,15 @@ function JuzViewer() {
           </div>
         )}
         <ProgressBar progress={progress} currentPage={currentPage} totalPages={pages.length} startPage={juz.startPage} />
+        <div className="px-4 pb-2">
+          <button
+            onClick={handlePrepareThisJuzOffline}
+            disabled={isPreparingJuzOffline}
+            className="w-full h-10 rounded-xl border border-border/50 bg-card/80 text-sm font-serif text-primary disabled:opacity-60"
+          >
+            {isPreparingJuzOffline ? "جاري التجهيز..." : "تجهيز هذا الجزء للأوفلاين"}
+          </button>
+        </div>
 
         <ReadingToolbar
           zoom={zoom}
@@ -747,6 +845,9 @@ function JuzViewer() {
                       {page}
                     </div>
                     <span className="text-[6px] md:text-[8px] font-bold text-primary/70 uppercase tracking-widest">Page</span>
+                    <span className={cn("text-[8px] px-2 py-0.5 rounded-full border uppercase tracking-wide", getPageBadgeLabel(page).className)}>
+                      {getPageBadgeLabel(page).text}
+                    </span>
                   </div>
 
                   {errorStates[page] && (
@@ -926,6 +1027,9 @@ function JuzViewer() {
                       <div className="w-10 h-10 rounded-2xl bg-primary/20 backdrop-blur-md text-primary flex items-center justify-center font-serif text-sm shadow-sm border border-primary/10">
                         {currentPage}
                       </div>
+                      <span className={cn("text-[9px] px-2 py-0.5 rounded-full border uppercase tracking-wide", getPageBadgeLabel(currentPage).className)}>
+                        {getPageBadgeLabel(currentPage).text}
+                      </span>
                     </div>
                   </motion.div>
                 </AnimatePresence>

@@ -14,6 +14,7 @@ import { AudioPlayerProvider } from "./contexts/AudioPlayerContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { UserProvider } from "./contexts/UserContext";
 import { AdhanProvider } from "./contexts/AdhanContext";
+import { OfflineProvider } from "./contexts/OfflineContext";
 
 import { useTranslation } from "react-i18next";
 import { useRegisterSW } from 'virtual:pwa-register/react';
@@ -191,6 +192,7 @@ const App = () => {
         <ThemeProvider>
           <UserProvider>
             <AdhanProvider>
+              <OfflineProvider>
               <TooltipProvider>
                 <AudioPlayerProvider>
                   <NotificationInitializer />
@@ -265,6 +267,7 @@ const App = () => {
                   <BottomNav />
                 </AudioPlayerProvider>
               </TooltipProvider>
+              </OfflineProvider>
             </AdhanProvider>
           </UserProvider>
         </ThemeProvider>

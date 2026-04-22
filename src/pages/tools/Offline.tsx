@@ -8,6 +8,8 @@ import { getQuranPageImageUrl } from "@/data/quranData";
 import { useTheme } from "@/contexts/ThemeContext";
 import BackButton from "@/components/BackButton";
 import AudioDownloadManager from "@/components/AudioDownloadManager";
+import { juzData, toArabicNumber as toArabicDigits } from "@/data/quranData";
+import { useOffline } from "@/contexts/OfflineContext";
 
 const Offline = () => {
   const { t, i18n } = useTranslation();
@@ -17,6 +19,7 @@ const Offline = () => {
   const [apiCacheSize, setApiCacheSize] = useState("0 MB");
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
+  const { juzCompletion, refreshJuzCompletion } = useOffline();
 
   const toArabicNumber = (str: string) => {
     if (i18n.language !== 'ar') return str;
@@ -65,7 +68,8 @@ const Offline = () => {
       }
     };
     checkStorage();
-  }, []);
+    refreshJuzCompletion();
+  }, [refreshJuzCompletion]);
 
   const clearCache = async () => {
     if (!window.caches) {
@@ -77,6 +81,7 @@ const Offline = () => {
         const keys = await caches.keys();
         await Promise.all(keys.map(key => caches.delete(key)));
         setDownloadedSize("0 MB");
+        await refreshJuzCompletion();
         toast.success(t("hub.offline.clearSuccess"));
       } catch (err) {
         toast.error(t("hub.offline.clearError"));
@@ -129,6 +134,7 @@ const Offline = () => {
       if (usage?.usage) setDownloadedSize(`${(usage.usage / (1024 * 1024)).toFixed(1)} MB`);
       const quranSize = await getCacheSize('quran-pages-cache');
       setQuranCacheSize(`${(quranSize / (1024 * 1024)).toFixed(1)} MB`);
+      await refreshJuzCompletion();
 
     } catch (err) {
       console.error("Download error:", err);
@@ -237,6 +243,26 @@ const Offline = () => {
           </div>
 
           <div className="space-y-4">
+            <div className="p-4 bg-card border border-border rounded-2xl">
+              <h3 className="text-sm font-bold font-serif mb-3">حالة الأجزاء للأوفلاين</h3>
+              <div className="max-h-64 overflow-auto space-y-2 pr-1">
+                {juzData.map((juz) => {
+                  const pct = juzCompletion[juz.number] ?? 0;
+                  return (
+                    <div key={juz.number} className="p-2 rounded-xl border border-border/50 bg-muted/20">
+                      <div className="flex items-center justify-between text-xs font-serif mb-1">
+                        <span>{juz.nameAr}</span>
+                        <span className="font-mono">{i18n.language === 'ar' ? toArabicDigits(pct) : pct}%</span>
+                      </div>
+                      <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div className="h-full bg-accent" style={{ width: `${pct}%` }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
             <button
               onClick={clearCache}
               className="w-full h-14 rounded-2xl border-2 border-destructive/20 text-destructive font-bold font-serif hover:bg-destructive/5 transition-all flex items-center justify-center gap-2"
