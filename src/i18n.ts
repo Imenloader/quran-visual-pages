@@ -70,7 +70,8 @@ const resources = {
           "audioDesc": "Manage audio recitations download for offline listening",
           "fetchError": "Failed to fetch data. Please check your internet connection."
         },
-        "favorites": "Favorites",
+        "favorites": "Favourites",
+        "favourites": "Favourites",
         "prayerTimes": "Prayer Times",
         "qiyam": "Qiyam Al-Layl",
         "khatma_external": "Khatma",
@@ -100,7 +101,8 @@ const resources = {
       },
       "recitations": {
         "audioLibrary": "Audio Library",
-        "favorites": "Favorites",
+        "favorites": "Favourites",
+        "favourites": "Favourites",
         "recitersAndSurahs": "Reciters & Surahs",
         "fetchError": "Failed to fetch recitations. Please try again.",
         "playlists": "Playlists"
@@ -124,7 +126,8 @@ const resources = {
         "done": "Dhikr Done",
         "source": "Source: Hisn al-Muslim, Sahih al-Bukhari and Muslim, and from the remembrances of the Book and the purified Sunnah of the Prophet",
         "charity": "Ongoing Charity",
-        "favorites": "Favorites",
+        "favorites": "Favourites",
+        "favourites": "Favourites",
         "copy": "Copy",
         "copied": "Copied",
         "readMore": "Read More",
@@ -561,7 +564,8 @@ const resources = {
           "audioDesc": "إدارة تحميل التلاوات الصوتية للاستماع بدون اتصال",
           "fetchError": "فشل جلب البيانات. يرجى التأكد من اتصال الإنترنت."
         },
-        "favorites": "المفضلة",
+        "favorites": "المفضلات",
+        "favourites": "المفضلات",
         "prayerTimes": "مواقيت الصلاة",
         "qiyam": "قيام الليل",
         "khatma_external": "ختمة",
@@ -591,7 +595,8 @@ const resources = {
       },
       "recitations": {
         "audioLibrary": "مكتبة التلاوات",
-        "favorites": "المفضلة",
+        "favorites": "المفضلات",
+        "favourites": "المفضلات",
         "recitersAndSurahs": "القراء والسور",
         "playlists": "قوائم التشغيل"
       },
@@ -673,6 +678,23 @@ const resources = {
         "profile": "الملف الشخصي",
         "showMenu": "إظهار القائمة",
         "hideMenu": "إخفاء القائمة"
+      },
+      "juzViewer": {
+        "clickToReview": "انقر للمراجعة",
+        "pageOf": "صفحة {{current}} من {{total}}",
+        "prevJuz": "الجزء السابق",
+        "nextJuz": "الجزء التالي",
+        "prepareOffline": "تجهيز هذا الجزء للأوفلاين",
+        "downloadSuccess": "تم تحميل جميع سور الجزء بنجاح",
+        "linesHidden": "تم إخفاء أسطر الصفحة {{page}}",
+        "linesShown": "تم إظهار أسطر الصفحة {{page}}",
+        "hifzModeActive": "تم تفعيل وضع التحفيظ والمراجعة",
+        "hifzModeDesc": "انقر على الأسطر لإخفائها أو إظهارها",
+        "pageBadge": {
+          "new": "حفظ جديد",
+          "review": "مراجعة",
+          "mastered": "متقن"
+        }
       },
       "profile": {
         "title": "ملفي الشخصي",
@@ -993,6 +1015,7 @@ i18n
     resources,
     lng: 'ar',
     fallbackLng: 'ar',
+    defaultNS: 'translation',
     interpolation: {
       escapeValue: false
     }

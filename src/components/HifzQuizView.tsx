@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { HifzQuestion, generatePageQuiz } from "@/lib/hifzGenerator";
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { CheckCircle2, XCircle, HelpCircle, ArrowLeft, ArrowRight, Sparkles, Trophy, Loader2 } from "lucide-react";
+import { CheckCircle2, XCircle, HelpCircle, ArrowLeft, ArrowRight, Sparkles, Trophy, Loader2, GraduationCap } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useHifzMastery } from "@/hooks/useHifzMastery";

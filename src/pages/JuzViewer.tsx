@@ -13,6 +13,7 @@ import LazyImage from "@/components/LazyImage";
 import QuranTextViewer from "@/components/QuranTextViewer";
 import TajweedLegend from "@/components/TajweedLegend";
 import QuranPlayerBar from "@/components/QuranPlayerBar";
+import { useTranslation } from "react-i18next";
 import { useAudioPlayer, getAudioUrl } from "@/contexts/AudioPlayerContext";
 import { audioDownloadService } from "@/services/audioDownloadService";
 import { toast } from "sonner";
@@ -63,6 +64,8 @@ const saveBookmark = (juz: number, page: number, readingMode: "image" | "text", 
 };
 
 function JuzViewer() {
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
   const navigate = useNavigate();
   const { juzNumber } = useParams();
   const num = parseInt(juzNumber || "0");
@@ -408,11 +411,11 @@ function JuzViewer() {
       } else if (downloadedCount > 0) {
         toast.warning(`تم تحميل ${downloadedCount} من أصل ${total} سور`);
       } else {
-        toast.error("فشل تحميل الصوتيات. تحقق من الاتصال.");
+        toast.error(t("hub.offline.fetchError"));
       }
     } catch (error) {
       console.error("Audio download error:", error);
-      toast.error("حدث خطأ أثناء التحميل");
+      toast.error(t("hub.offline.clearError"));
     } finally {
       setIsDownloadingAudio(false);
     }
@@ -421,13 +424,13 @@ function JuzViewer() {
   const handlePrepareThisJuzOffline = useCallback(async () => {
     if (!juz || isPreparingJuzOffline) return;
     setIsPreparingJuzOffline(true);
-    toast.info(`جاري تجهيز ${juz.nameAr} للعمل دون اتصال...`);
+    toast.info(`${isAr ? "جاري تجهيز" : "Preparing"} ${juz.nameAr} ${isAr ? "للعمل دون اتصال..." : "for offline use..."}`);
     try {
       await prepareJuzOffline(juz.number);
       toast.success(`تم تجهيز ${juz.nameAr} للأوفلاين`);
     } catch (error) {
       console.error("Failed preparing juz offline:", error);
-      toast.error("تعذر تجهيز هذا الجزء للأوفلاين");
+      toast.error(isAr ? "تعذر تجهيز هذا الجزء للأوفلاين" : "Could not prepare this juz for offline");
     } finally {
       setIsPreparingJuzOffline(false);
     }
@@ -474,8 +477,8 @@ function JuzViewer() {
             if (num === 30) {
               setShowKhatmaCelebration(true);
             } else {
-              toast.success("تم الانتهاء من قراءة الجزء", {
-                description: `تهانينا على إتمام الجزء ${toArabicNumber(num.toString())}`,
+              toast.success(t("juzViewer.juzCompleted"), {
+                description: `${t("juzViewer.congrats")} ${isAr ? toArabicNumber(num.toString()) : num}`,
                 icon: <Trophy className="text-gold" />
               });
             }
@@ -614,7 +617,7 @@ function JuzViewer() {
                 scrollToPage(pages[0]);
               }}
               className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-primary text-primary-foreground shadow-2xl flex items-center justify-center hover:scale-110 active:scale-90 transition-all"
-              title="العودة للأعلى"
+              title={t("common.backToTop")}
             >
               <ChevronUp className="size-[20px] md:size-[28px]" />
             </motion.button>
@@ -664,7 +667,7 @@ function JuzViewer() {
             disabled={isPreparingJuzOffline}
             className="w-full h-10 rounded-xl border border-border/50 bg-card/80 text-sm font-serif text-primary disabled:opacity-60"
           >
-            {isPreparingJuzOffline ? "جاري التجهيز..." : "تجهيز هذا الجزء للأوفلاين"}
+            {isPreparingJuzOffline ? t("hub.offline.downloading") : t("juzViewer.prepareOffline")}
           </button>
         </div>
 
@@ -688,8 +691,8 @@ function JuzViewer() {
             setHifzMode(nextMode);
             if (nextMode) {
               hideAllLines(currentPage);
-              toast.success("تم تفعيل وضع التحفيظ والمراجعة", {
-                description: "انقر على الأسطر لإخفائها أو إظهارها"
+              toast.success(t("juzViewer.hifzModeActive"), {
+                description: t("juzViewer.hifzModeDesc")
               });
             }
           }}
@@ -739,7 +742,7 @@ function JuzViewer() {
                 <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-muted/50 flex items-center justify-center group-hover:bg-primary/5 transition-colors">
                   <ChevronRight size={14} strokeWidth={1.5} className="md:w-4 md:h-4" />
                 </div>
-                <span className="group-hover:text-accent italic hidden xs:inline">الجزء السابق</span>
+                <span className="group-hover:text-accent italic hidden xs:inline">{t("juzViewer.prevJuz")}</span>
               </Link>
             )}
           </div>
@@ -747,7 +750,7 @@ function JuzViewer() {
           <div className="flex flex-col items-center gap-0.5 md:gap-1">
             <span className="text-[8px] md:text-[10px] font-bold tracking-[0.2em] md:tracking-[0.3em] text-accent uppercase">إحصائيات القراءة</span>
             <span className="text-xs md:text-sm text-primary font-serif italic">
-              {i18n.language === 'ar' ? toArabicNumber(pages.length.toString()) : pages.length} صفحة مباركة
+              {i18n.language === 'ar' ? toArabicNumber(pages.length.toString()) : pages.length} {t("hub.offline.pages")}
             </span>
           </div>
 
@@ -757,7 +760,7 @@ function JuzViewer() {
                 to={`/juz/${num + 1}`}
                 className="group flex items-center gap-2 md:gap-3 text-xs md:text-sm font-serif font-medium text-muted-foreground hover:text-primary transition-all"
               >
-                <span className="group-hover:text-accent italic hidden xs:inline">الجزء التالي</span>
+                <span className="group-hover:text-accent italic hidden xs:inline">{t("juzViewer.nextJuz")}</span>
                 <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-muted/50 flex items-center justify-center group-hover:bg-primary/5 transition-colors">
                   <ChevronLeft size={14} strokeWidth={1.5} className="md:w-4 md:h-4" />
                 </div>
@@ -779,7 +782,7 @@ function JuzViewer() {
         {hifzMode && readingMode === "image" && (
           <div className="mb-4 text-center">
             <span className="text-xs font-serif text-muted-foreground bg-background/50 px-3 py-1 rounded-full border border-border/20">
-              استخدم الأزرار الموجودة على كل صفحة للتحكم في وضع الحفظ
+              {t("juzViewer.hifzInstructions")}
             </span>
           </div>
         )}
@@ -1015,7 +1018,7 @@ function JuzViewer() {
                         >
                           <div className="bg-muted/60 backdrop-blur-xl p-6 rounded-3xl border border-border/40 shadow-2xl flex flex-col items-center gap-3">
                             <RefreshCw className="w-10 h-10 text-accent animate-spin-slow" />
-                            <p className="text-primary font-serif italic text-sm">انقر للمراجعة</p>
+                            <p className="text-primary font-serif italic text-sm">{t("juzViewer.clickToReview")}</p>
                           </div>
                         </div>
                       )}
@@ -1040,7 +1043,7 @@ function JuzViewer() {
                     <ChevronRight size={24} />
                   </button>
                   <span className="font-serif text-lg text-primary">
-                    صفحة {toArabicNumber(currentPage.toString())} من {toArabicNumber(juz.endPage.toString())}
+                    {t("juzViewer.pageOf", { current: isAr ? toArabicNumber(currentPage.toString()) : currentPage, total: isAr ? toArabicNumber(juz.endPage.toString()) : juz.endPage })}
                   </span>
                   <button 
                     onClick={handleNextPage}
@@ -1078,7 +1081,7 @@ function JuzViewer() {
             <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center group-hover:bg-primary/5 group-hover:shadow-soft transition-all">
               <ArrowUp size={18} strokeWidth={1.5} />
             </div>
-            <span className="italic group-hover:text-accent">العودة للبداية</span>
+            <span className="italic group-hover:text-accent">{t("common.backToTop")}</span>
           </button>
         </div>
       )}
