@@ -56,3 +56,13 @@ export const fetchReciters = async (language = "ar"): Promise<Reciter[]> => {
     return [];
   }
 };
+
+export const fetchPageVerses = async (pageNumber: number) => {
+  const data = await fetchWithCache(`https://api.alquran.cloud/v1/page/${pageNumber}/quran-simple`, {
+    expiry: 30 * 24 * 60 * 60 * 1000 // Cache for 30 days
+  });
+  if (data && data.code === 200 && data.data) {
+    return data.data.ayahs;
+  }
+  return [];
+};

@@ -4,6 +4,9 @@ import ShareButton from "./ShareButton";
 import { useTheme } from "@/contexts/ThemeContext";
 import { motion } from "motion/react";
 import { toast } from "sonner";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
+import HifzQuizView from "./HifzQuizView";
+import { useState } from "react";
 
 interface ReadingToolbarProps {
   zoom: number;
@@ -40,7 +43,8 @@ const ReadingToolbar = ({
   onDownloadAudio,
   isDownloadingAudio
 }: ReadingToolbarProps) => {
-  const { theme, setTheme, readingMode, setReadingMode, scrollDirection, setScrollDirection, tajweedMode, setTajweedMode, atmosphericBackground, setAtmosphericBackground } = useTheme();
+   const { theme, setTheme, readingMode, setReadingMode, scrollDirection, setScrollDirection, tajweedMode, setTajweedMode, atmosphericBackground, setAtmosphericBackground } = useTheme();
+  const [showQuiz, setShowQuiz] = useState(false);
 
   const toggleTheme = () => {
     if (theme === "light") {
@@ -122,12 +126,33 @@ const ReadingToolbar = ({
 
 
           <button
-            onClick={(e) => { e.stopPropagation(); onToggleHifzMode(); }}
+            onClick={(e) => { e.stopPropagation(); setShowQuiz(true); }}
             className={`toolbar-btn !p-1.5 md:!p-2.5 ${hifzMode ? "text-accent bg-accent/10" : ""}`}
-            title="وضع التحفيظ والمراجعة"
+            title="اختبر حفظك لهذه الصفحة"
           >
             <GraduationCap className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
           </button>
+
+          <Sheet open={showQuiz} onOpenChange={setShowQuiz}>
+            <SheetContent side="bottom" className="h-[auto] max-h-[90vh] rounded-t-[2.5rem] border-t-accent/20 bg-card/95 backdrop-blur-xl p-0 overflow-hidden">
+              <SheetHeader className="p-6 border-b border-border/40">
+                <SheetTitle className="text-right font-serif flex items-center gap-2">
+                  <GraduationCap className="text-accent" />
+                  اختبار الحفظ الذكي
+                </SheetTitle>
+              </SheetHeader>
+              <div className="overflow-y-auto pb-12">
+                <HifzQuizView 
+                  pageNumber={currentPage} 
+                  onClose={() => setShowQuiz(false)}
+                  onComplete={() => {
+                    setShowQuiz(false);
+                    toast.success("تم تحديث مستوى إتقان الصفحة");
+                  }}
+                />
+              </div>
+            </SheetContent>
+          </Sheet>
 
           <button
             onClick={(e) => { e.stopPropagation(); setAtmosphericBackground(!atmosphericBackground); }}

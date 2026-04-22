@@ -86,6 +86,7 @@ const LaylatulQadr = lazyWithRetry(() => import("./pages/ramadan/LaylatulQadr"))
 const ZakatAlFitr = lazyWithRetry(() => import("./pages/ramadan/ZakatAlFitr"));
 const HowToUse = lazyWithRetry(() => import("./pages/HowToUse"));
 const Tajweed = lazyWithRetry(() => import("./pages/Tajweed"));
+const HifzTester = lazyWithRetry(() => import("./pages/tools/HifzTester"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -251,6 +252,7 @@ const App = () => {
                         <Route path="/ramadan/zakat-al-fitr" element={<ZakatAlFitr />} />
                         <Route path="/how-to-use" element={<HowToUse />} />
                         <Route path="/tajweed" element={<Tajweed />} />
+                        <Route path="/tools/hifz-tester" element={<HifzTester />} />
                         <Route path="/embed/:siteId" element={<EmbedView />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>

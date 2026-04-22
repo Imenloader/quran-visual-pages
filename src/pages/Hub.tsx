@@ -158,6 +158,7 @@ const Hub = () => {
       tools: [
         { name: t("hub.khatma"), icon: <BookOpen className="w-5 h-5" />, path: "/khatma" },
         { name: i18n.language === 'ar' ? "الختمة الجماعية" : "Collaborative Khatma", icon: <Users className="w-5 h-5" />, path: "/khatma-jamaaiya" },
+        { name: t("hub.hifzTester"), icon: <GraduationCap className="w-5 h-5" />, path: "/tools/hifz-tester" },
         { name: i18n.language === 'ar' ? "الروتين الروحاني" : "Routine Builder", icon: <Zap className="w-5 h-5" />, path: "/routine-builder" },
         { name: i18n.language === 'ar' ? "متتبع الصيام" : "Fasting Tracker", icon: <Moon className="w-5 h-5" />, path: "/fasting-tracker" },
         { name: "سنن الجمعة", icon: <Sparkles className="w-5 h-5" />, path: "/friday-sunan" },

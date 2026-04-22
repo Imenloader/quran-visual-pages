@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { X, BookOpen, Check } from "lucide-react";
 import { juzData, toArabicNumber } from "@/data/quranData";
 import { motion } from "motion/react";
+import { useHifzMastery } from "@/hooks/useHifzMastery";
+import MasteryBadge from "./MasteryBadge";
 
 interface JuzIndexProps {
   onClose: () => void;
@@ -10,6 +12,7 @@ interface JuzIndexProps {
 }
 
 const JuzIndex = ({ onClose, currentJuz }: JuzIndexProps) => {
+  const { masteryData } = useHifzMastery();
   const completedJuz = useMemo(() => {
     try {
       const history = JSON.parse(localStorage.getItem("quran-reading-history") || "{}");
@@ -82,6 +85,7 @@ const JuzIndex = ({ onClose, currentJuz }: JuzIndexProps) => {
                     {isCompleted && (
                       <span className="text-[8px] bg-emerald-500/10 text-emerald-500 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-tighter">مكتمل</span>
                     )}
+                    {masteryData[juz.startPage] && <MasteryBadge level={masteryData[juz.startPage].masteryLevel} />}
                   </div>
                   <p className="text-xs text-muted-foreground font-naskh">{juz.startSurah}</p>
                 </div>
