@@ -32,7 +32,7 @@ const Profile = () => {
   const isAr = i18n.language === "ar";
   const navigate = useNavigate();
   const { theme, setTheme, dimming, setDimming, tajweedMode, setTajweedMode } = useTheme();
-  const { profile, updateProfile, level, levelName, levelProgress, nextLevelPoints, prevLevelPoints } = useUser();
+  const { profile, updateProfile, level, levelName, levelProgress, nextLevelPoints, prevLevelPoints, completeQuest } = useUser();
   const { testPrayerNotification, unlockAudio } = usePrayerTimes();
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -367,7 +367,7 @@ const Profile = () => {
         </ScrollReveal>
 
         {/* Badges & Achievements */}
-        <ScrollReveal index={5}>
+        <ScrollReveal index={4}>
           <section className="bg-card/80 backdrop-blur-2xl rounded-3xl p-6 shadow-islamic border border-border/20 space-y-6">
             <div className="flex items-center justify-between">
               <div>
@@ -385,14 +385,16 @@ const Profile = () => {
                 { id: "quran-lover", icon: <BookOpen className="w-6 h-6" />, label: t("profile.badges.quranLover"), earned: profile.totalAyahsRead >= 500, color: "text-emerald-500", bg: "bg-emerald-500/10" },
                 { id: "tasbih-master", icon: <Sparkles className="w-6 h-6" />, label: t("profile.badges.tasbihMaster"), earned: profile.totalAthkarRecited >= 1000, color: "text-blue-500", bg: "bg-blue-500/10" },
                 { id: "streak-7", icon: <Calendar className="w-6 h-6" />, label: t("profile.badges.sevenDayStreak"), earned: profile.daysActive >= 7, color: "text-rose-500", bg: "bg-rose-500/10" },
-                { id: "khatma-1", icon: <Trophy className="w-6 h-6" />, label: t("profile.badges.firstKhatma"), earned: completedJuzList.length >= 1, color: "text-gold", bg: "bg-gold/10" },
+                { id: "khatma-1", icon: <Trophy className="w-6 h-6" />, label: t("profile.badges.firstKhatma"), earned: profile.totalJuzCompleted >= 1, color: "text-gold", bg: "bg-gold/10" },
                 { id: "consistent", icon: <Shield className="w-6 h-6" />, label: t("profile.badges.consistent"), earned: profile.daysActive >= 30, color: "text-emerald-600", bg: "bg-emerald-600/10" },
                 { id: "scholar", icon: <GraduationCap className="w-6 h-6" />, label: t("profile.badges.scholar"), earned: profile.totalAyahsRead >= 5000, color: "text-indigo-500", bg: "bg-indigo-500/10" },
                 { id: "juz-master", icon: <LayoutGrid className="w-6 h-6" />, label: t("profile.badges.juzMaster"), earned: profile.totalJuzCompleted >= 15, color: "text-primary", bg: "bg-primary/10" },
+                { id: "juz-expert", icon: <Sparkles className="w-6 h-6" />, label: isAr ? "خاتم الأجزاء" : "Juz Expert", earned: profile.totalJuzCompleted >= 30, color: "text-purple-500", bg: "bg-purple-500/10" },
                 { id: "tasbih-pro", icon: <RotateCcw className="w-6 h-6" />, label: t("profile.badges.tasbihPro"), earned: profile.totalAthkarRecited >= 10000, color: "text-cyan-500", bg: "bg-cyan-500/10" },
                 { id: "legend", icon: <Sparkles className="w-6 h-6" />, label: t("profile.badges.spiritualLegend"), earned: level >= 15, color: "text-gold", bg: "bg-gold/15" },
                 { id: "pure-heart", icon: <Heart className="w-6 h-6" />, label: t("profile.badges.pureHeart"), earned: profile.totalAthkarRecited >= 20000, color: "text-rose-600", bg: "bg-rose-600/10" },
                 { id: "night-owl", icon: <Moon className="w-6 h-6" />, label: t("profile.badges.nightOwl"), earned: profile.totalAthkarRecited >= 500 && profile.totalAyahsRead >= 500, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+                { id: "devout", icon: <Flame className="w-6 h-6" />, label: isAr ? "عابد مخلص" : "Devout", earned: level >= 20, color: "text-orange-500", bg: "bg-orange-500/10" },
               ].map((badge) => (
                 <div key={badge.id} className="flex flex-col items-center gap-2 group">
                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border-2 transition-all relative ${
@@ -421,7 +423,7 @@ const Profile = () => {
         </ScrollReveal>
 
         {/* Daily Quests */}
-        <ScrollReveal index={6}>
+        <ScrollReveal index={5}>
           <section className="bg-card/80 backdrop-blur-2xl rounded-3xl p-6 shadow-islamic border border-border/20 space-y-6">
             <div className="flex items-center justify-between">
               <div>
@@ -435,9 +437,9 @@ const Profile = () => {
 
             <div className="space-y-3">
               {[
-                { id: "read-page", label: t("profile.quests.readPage"), points: 150, completed: profile.totalPagesRead > 0 },
-                { id: "tasbih-100", label: t("profile.quests.tasbih100"), points: 200, completed: profile.totalAthkarRecited > 100 },
-                { id: "check-prayer", label: t("profile.quests.checkPrayer"), points: 500, completed: false },
+                { id: "read-page", label: t("profile.quests.readPage"), points: 150, completed: profile.totalPagesRead > 0 || (profile.lastQuestDate === new Date().toISOString().split("T")[0] && profile.completedQuests?.includes("read-page")) },
+                { id: "tasbih-100", label: t("profile.quests.tasbih100"), points: 200, completed: profile.totalAthkarRecited > 100 || (profile.lastQuestDate === new Date().toISOString().split("T")[0] && profile.completedQuests?.includes("tasbih-100")) },
+                { id: "check-prayer", label: t("profile.quests.checkPrayer"), points: 500, completed: profile.lastQuestDate === new Date().toISOString().split("T")[0] && profile.completedQuests?.includes("check-prayer") },
               ].map((quest) => (
                 <div key={quest.id} className={`p-4 rounded-2xl border transition-all flex items-center justify-between ${
                   quest.completed 
@@ -450,18 +452,32 @@ const Profile = () => {
                     }`}>
                       {quest.completed ? <Check size={16} /> : <div className="w-2 h-2 rounded-full bg-current" />}
                     </div>
-                    <div className={`${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                    <div className={`${isAr ? 'text-right' : 'text-left'}`}>
                       <p className={`text-sm font-serif font-bold ${quest.completed ? "text-primary/60 line-through" : "text-primary"}`}>
                         {quest.label}
                       </p>
                       <p className="text-[9px] font-bold text-gold uppercase tracking-widest">+{toArabicNumber(quest.points)} XP</p>
                     </div>
                   </div>
+                  
+                  {!quest.completed && quest.id === "check-prayer" && (
+                    <button 
+                      onClick={() => {
+                        completeQuest(quest.id, quest.points);
+                        toast.success(isAr ? "تم إكمال المهمة! +500 XP" : "Quest completed! +500 XP");
+                      }}
+                      className="text-xs bg-emerald-500/10 text-emerald-600 px-3 py-1.5 rounded-lg font-bold hover:bg-emerald-500/20 transition-colors"
+                    >
+                      {isAr ? "تأكيد" : "Confirm"}
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
           </section>
         </ScrollReveal>
+
+
 
         {/* Quick Actions - Game Menu Style */}
         <div className="grid grid-cols-1 gap-3">

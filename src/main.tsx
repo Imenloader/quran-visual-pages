@@ -32,11 +32,16 @@ const handleChunkError = (message: string) => {
   }
 };
 
-window.addEventListener('error', (e) => handleChunkError(e.message), true);
+window.addEventListener('error', (e) => {
+  // Catch both direct error messages and nested error objects
+  const message = e.message || (e.error && e.error.message) || "";
+  handleChunkError(message);
+}, true);
+
 window.addEventListener('unhandledrejection', (e) => {
-  if (e.reason && e.reason.message) {
-    handleChunkError(e.reason.message);
-  }
+  // Dynamic imports return a rejected promise on failure
+  const message = e.reason?.message || (typeof e.reason === 'string' ? e.reason : "");
+  handleChunkError(message);
 });
 
 // Pre-cache embedded sites after app loads

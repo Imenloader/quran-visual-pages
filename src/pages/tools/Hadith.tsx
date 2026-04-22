@@ -219,7 +219,7 @@ const Hadith = () => {
   };
 
   const filteredHadiths = hadiths.filter(h => 
-    h.arab.includes(searchQuery) || h.number.toString().includes(searchQuery)
+    (h.arab && h.arab.includes(searchQuery)) || (h.number && h.number.toString().includes(searchQuery))
   );
 
   const selectedBookName = books.find(b => b.id === selectedBook)?.name || bookNamesAr[selectedBook] || "صحيح البخاري";

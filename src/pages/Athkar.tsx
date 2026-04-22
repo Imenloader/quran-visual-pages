@@ -84,9 +84,11 @@ const Athkar = () => {
     if (!q) return ATHKAR_DATA;
     return ATHKAR_DATA.map(cat => {
       const matchingAthkar = cat.athkar.filter(
-        d => stripDiacritics(d.text).includes(q) || d.reference.includes(q) || (d.virtue && stripDiacritics(d.virtue).includes(q))
+        d => (d.text && stripDiacritics(d.text).includes(q)) || 
+             (d.reference && d.reference.includes(q)) || 
+             (d.virtue && stripDiacritics(d.virtue).includes(q))
       );
-      const categoryMatches = cat.title.includes(q) || cat.description.includes(q);
+      const categoryMatches = (cat.title && cat.title.includes(q)) || (cat.description && cat.description.includes(q));
       if (categoryMatches) return cat;
       if (matchingAthkar.length === 0) return null;
       return { ...cat, athkar: matchingAthkar };

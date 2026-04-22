@@ -17,6 +17,8 @@ interface UserProfile {
   daysActive: number;
   lastActiveDate: string;
   role: 'user' | 'admin';
+  completedQuests?: string[];
+  lastQuestDate?: string;
 }
 
 interface UserContextType {
@@ -33,6 +35,7 @@ interface UserContextType {
   levelProgress: number;
   levelName: string;
   isAuthReady: boolean;
+  completeQuest: (questId: string, points: number) => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -54,6 +57,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     daysActive: 1,
     lastActiveDate: new Date().toISOString().split("T")[0],
     role: 'user' as const,
+    completedQuests: [],
+    lastQuestDate: new Date().toISOString().split("T")[0],
   }), [t, i18n.language]);
 
   const [profile, setProfile] = useState<UserProfile>(DEFAULT_PROFILE);
@@ -115,6 +120,28 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { ...prev, ...updates };
     });
   }, [addPoints, updateProfile]);
+  
+  const completeQuest = useCallback((questId: string, points: number) => {
+    const today = new Date().toISOString().split("T")[0];
+    setProfile(prev => {
+      // Check if quest was already completed today
+      const isAlreadyCompleted = prev.lastQuestDate === today && prev.completedQuests?.includes(questId);
+      if (isAlreadyCompleted) return prev;
+      
+      const newQuests = prev.lastQuestDate === today 
+        ? [...(prev.completedQuests || []), questId] 
+        : [questId];
+        
+      const updates = { 
+        points: prev.points + points,
+        completedQuests: newQuests,
+        lastQuestDate: today
+      };
+      
+      updateProfile(updates);
+      return { ...prev, ...updates };
+    });
+  }, [updateProfile]);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
@@ -173,16 +200,16 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [profile]);
 
   const calculateLevel = (pts: number) => {
-    // Making it harder: Using 1000 as base instead of 100
-    const lvl = Math.floor((Math.sqrt(8 * pts / 1000 + 1) - 1) / 2);
+    // Making it harder: Using 5000 as base instead of 1000
+    const lvl = Math.floor((Math.sqrt(8 * pts / 5000 + 1) - 1) / 2);
     return Math.max(1, lvl + 1);
   };
 
   const getThreshold = (lvl: number) => {
     if (lvl <= 1) return 0;
     const l = lvl - 1;
-    // Multiplier increased to 1000
-    return 1000 * l * (l + 1) / 2;
+    // Multiplier increased to 5000
+    return 5000 * l * (l + 1) / 2;
   };
 
   const currentLevel = calculateLevel(profile.points);
@@ -199,7 +226,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       profile, updateProfile, addPoints, addAyahRead, addPageRead,
       addJuzCompleted, addAthkarRecited, level: currentLevel,
       nextLevelPoints: nextLevelThreshold, prevLevelPoints: prevLevelThreshold,
-      levelProgress: progress, levelName, isAuthReady
+      levelProgress: progress, levelName, isAuthReady, completeQuest
     }}>
       {children}
     </UserContext.Provider>

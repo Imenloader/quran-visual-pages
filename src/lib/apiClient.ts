@@ -116,17 +116,31 @@ export async function fetchWithCache(
     } catch (e) {
       lastError = e;
       
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      const isFetchError = errorMessage.toLowerCase().includes("failed to fetch") || 
+                          errorMessage.toLowerCase().includes("load failed") ||
+                          errorMessage.toLowerCase().includes("network error");
+
       if (signal?.aborted || (e instanceof Error && e.name === 'AbortError' && signal?.aborted)) {
         throw new Error("Request aborted");
       }
 
-      // Don't retry on 404 or 429 as they are likely permanent or should be handled by user waiting
+      // Check for potential SSL/Clock issues if fetch fails
+      if (isFetchError) {
+        const year = new Date().getFullYear();
+        if (year > 2025 || year < 2024) {
+          console.error("Fetch failed, possibly due to incorrect system clock (Year: " + year + ")");
+          // We don't throw a new error here to allow retries, 
+          // but we log it for diagnostics
+        }
+      }
+
+      // Don't retry on 404 or 429
       if (e instanceof Error && (e.message.includes("404") || e.message.includes("Rate limit"))) {
         throw e;
       }
       
       if (i < retries) {
-        // Wait before retrying (exponential backoff: 1s, 2s)
         await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i)));
       }
     }

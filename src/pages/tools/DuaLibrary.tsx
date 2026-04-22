@@ -53,11 +53,11 @@ const DuaLibrary = () => {
 
   const filteredDuas = allDuas.filter(dua => {
     const matchesSearch =
-      dua.titleEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      dua.titleAr.includes(searchQuery) ||
-      dua.arabic.includes(searchQuery) ||
-      dua.translationEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      dua.translationAr.includes(searchQuery);
+      (dua.titleEn && dua.titleEn.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (dua.titleAr && dua.titleAr.includes(searchQuery)) ||
+      (dua.arabic && dua.arabic.includes(searchQuery)) ||
+      (dua.translationEn && dua.translationEn.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (dua.translationAr && dua.translationAr.includes(searchQuery));
     const matchesCategory = selectedCategory === "all" || dua.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });

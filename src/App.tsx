@@ -25,66 +25,66 @@ import { AudioUnlockBanner } from "./components/AudioUnlockBanner";
 import SplashScreen from "./components/SplashScreen";
 import ScrollRestoration from "./components/ScrollRestoration";
 import CommandPalette from "./components/CommandPalette";
-import { checkNetworkReliability } from "./lib/networkCheck";
+import { lazyWithRetry } from "./lib/lazyRetry";
 
-// --- التعديل هنا: تحميل الصفحات الأساسية بشكل Lazy مرة أخرى لمحاولة حل مشكلة الـ ReferenceError ---
-const Index = lazy(() => import("./pages/Index"));
-const JuzViewer = lazy(() => import("./pages/JuzViewer"));
+// --- التعديل هنا: تحميل الصفحات الأساسية بشكل LazyRetry لمحاولة حل مشكلة الـ ReferenceError و Chunk errors ---
+const Index = lazyWithRetry(() => import("./pages/Index"));
+const JuzViewer = lazyWithRetry(() => import("./pages/JuzViewer"));
 // ------------------------------------------------------------------------------------------
 
 // باقي الصفحات زي ما هي Lazy load مفيش مشكلة
-const Install = lazy(() => import("./pages/Install"));
-const Recitations = lazy(() => import("./pages/Recitations"));
-const EmbedView = lazy(() => import("./pages/EmbedView"));
-const Athkar = lazy(() => import("./pages/Athkar"));
-const Favorites = lazy(() => import("./pages/Favorites"));
-const Profile = lazy(() => import("./pages/Profile"));
-const PrayerTimes = lazy(() => import("./pages/PrayerTimes"));
-const Hub = lazy(() => import("./pages/Hub"));
-const Tasbih = lazy(() => import("./pages/tools/Tasbih"));
-const QiblaFinder = lazy(() => import("./pages/tools/QiblaFinder"));
-const NamesOfAllah = lazy(() => import("./pages/tools/NamesOfAllah"));
-const ZakatCalculator = lazy(() => import("./pages/tools/ZakatCalculator"));
-const PrayerTracker = lazy(() => import("./pages/tools/PrayerTracker"));
-const KhatmaPlanner = lazy(() => import("./pages/tools/KhatmaPlanner"));
-const HijriCalendar = lazy(() => import("./pages/tools/HijriCalendar"));
-const DailyVerse = lazy(() => import("./pages/tools/DailyVerse"));
-const MosqueFinder = lazy(() => import("./pages/tools/MosqueFinder"));
-const HalalPlaces = lazy(() => import("./pages/tools/HalalPlaces"));
-const Tafsir = lazy(() => import("./pages/tools/Tafsir"));
-const Search = lazy(() => import("./pages/tools/Search"));
-const Offline = lazy(() => import("./pages/tools/Offline"));
-const FridaySunan = lazy(() => import("./pages/tools/FridaySunan"));
-const Ramadan = lazy(() => import("./pages/tools/Ramadan"));
-const Library = lazy(() => import("./pages/Library"));
-const HajjGuide = lazy(() => import("./pages/HajjGuide"));
-const ProphetStories = lazy(() => import("./pages/ProphetStories"));
-const NamesDirectory = lazy(() => import("./pages/NamesDirectory"));
-const DailyAdhkar = lazy(() => import("./pages/DailyAdhkar"));
-const KhatmaJamaaiya = lazy(() => import("./pages/KhatmaJamaaiya"));
-const Hadith = lazy(() => import("./pages/tools/Hadith"));
-const SeerahTimeline = lazy(() => import("./pages/tools/SeerahTimeline"));
-const IslamicQuiz = lazy(() => import("./pages/tools/IslamicQuiz"));
-const InheritanceCalculator = lazy(() => import("./pages/tools/InheritanceCalculator"));
-const FastingTracker = lazy(() => import("./pages/tools/FastingTracker"));
-const RoutineBuilder = lazy(() => import("./pages/tools/RoutineBuilder"));
-const SadaqahLogger = lazy(() => import("./pages/tools/SadaqahLogger"));
-const DuaLibrary = lazy(() => import("./pages/tools/DuaLibrary"));
-const GlobalDhikr = lazy(() => import("./pages/tools/GlobalDhikr"));
-const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
-const MoonTracker = lazy(() => import("./pages/tools/MoonTracker"));
-const Memorization = lazy(() => import("./pages/tools/Memorization"));
-const Leaderboard = lazy(() => import("./pages/tools/Leaderboard"));
-const AthkarCircles = lazy(() => import("./pages/tools/AthkarCircles"));
-const Virtues = lazy(() => import("./pages/ramadan/Virtues"));
-const FastingRules = lazy(() => import("./pages/ramadan/FastingRules"));
-const Duas = lazy(() => import("./pages/ramadan/Duas"));
-const Tips = lazy(() => import("./pages/ramadan/Tips"));
-const LaylatulQadr = lazy(() => import("./pages/ramadan/LaylatulQadr"));
-const ZakatAlFitr = lazy(() => import("./pages/ramadan/ZakatAlFitr"));
-const HowToUse = lazy(() => import("./pages/HowToUse"));
-const Tajweed = lazy(() => import("./pages/Tajweed"));
-const NotFound = lazy(() => import("./pages/NotFound"));
+const Install = lazyWithRetry(() => import("./pages/Install"));
+const Recitations = lazyWithRetry(() => import("./pages/Recitations"));
+const EmbedView = lazyWithRetry(() => import("./pages/EmbedView"));
+const Athkar = lazyWithRetry(() => import("./pages/Athkar"));
+const Favorites = lazyWithRetry(() => import("./pages/Favorites"));
+const Profile = lazyWithRetry(() => import("./pages/Profile"));
+const PrayerTimes = lazyWithRetry(() => import("./pages/PrayerTimes"));
+const Hub = lazyWithRetry(() => import("./pages/Hub"));
+const Tasbih = lazyWithRetry(() => import("./pages/tools/Tasbih"));
+const QiblaFinder = lazyWithRetry(() => import("./pages/tools/QiblaFinder"));
+const NamesOfAllah = lazyWithRetry(() => import("./pages/tools/NamesOfAllah"));
+const ZakatCalculator = lazyWithRetry(() => import("./pages/tools/ZakatCalculator"));
+const PrayerTracker = lazyWithRetry(() => import("./pages/tools/PrayerTracker"));
+const KhatmaPlanner = lazyWithRetry(() => import("./pages/tools/KhatmaPlanner"));
+const HijriCalendar = lazyWithRetry(() => import("./pages/tools/HijriCalendar"));
+const DailyVerse = lazyWithRetry(() => import("./pages/tools/DailyVerse"));
+const MosqueFinder = lazyWithRetry(() => import("./pages/tools/MosqueFinder"));
+const HalalPlaces = lazyWithRetry(() => import("./pages/tools/HalalPlaces"));
+const Tafsir = lazyWithRetry(() => import("./pages/tools/Tafsir"));
+const Search = lazyWithRetry(() => import("./pages/tools/Search"));
+const Offline = lazyWithRetry(() => import("./pages/tools/Offline"));
+const FridaySunan = lazyWithRetry(() => import("./pages/tools/FridaySunan"));
+const Ramadan = lazyWithRetry(() => import("./pages/tools/Ramadan"));
+const Library = lazyWithRetry(() => import("./pages/Library"));
+const HajjGuide = lazyWithRetry(() => import("./pages/HajjGuide"));
+const ProphetStories = lazyWithRetry(() => import("./pages/ProphetStories"));
+const NamesDirectory = lazyWithRetry(() => import("./pages/NamesDirectory"));
+const DailyAdhkar = lazyWithRetry(() => import("./pages/DailyAdhkar"));
+const KhatmaJamaaiya = lazyWithRetry(() => import("./pages/KhatmaJamaaiya"));
+const Hadith = lazyWithRetry(() => import("./pages/tools/Hadith"));
+const SeerahTimeline = lazyWithRetry(() => import("./pages/tools/SeerahTimeline"));
+const IslamicQuiz = lazyWithRetry(() => import("./pages/tools/IslamicQuiz"));
+const InheritanceCalculator = lazyWithRetry(() => import("./pages/tools/InheritanceCalculator"));
+const FastingTracker = lazyWithRetry(() => import("./pages/tools/FastingTracker"));
+const RoutineBuilder = lazyWithRetry(() => import("./pages/tools/RoutineBuilder"));
+const SadaqahLogger = lazyWithRetry(() => import("./pages/tools/SadaqahLogger"));
+const DuaLibrary = lazyWithRetry(() => import("./pages/tools/DuaLibrary"));
+const GlobalDhikr = lazyWithRetry(() => import("./pages/tools/GlobalDhikr"));
+const PrivacyPolicy = lazyWithRetry(() => import("./pages/PrivacyPolicy"));
+const MoonTracker = lazyWithRetry(() => import("./pages/tools/MoonTracker"));
+const Memorization = lazyWithRetry(() => import("./pages/tools/Memorization"));
+const Leaderboard = lazyWithRetry(() => import("./pages/tools/Leaderboard"));
+const AthkarCircles = lazyWithRetry(() => import("./pages/tools/AthkarCircles"));
+const Virtues = lazyWithRetry(() => import("./pages/ramadan/Virtues"));
+const FastingRules = lazyWithRetry(() => import("./pages/ramadan/FastingRules"));
+const Duas = lazyWithRetry(() => import("./pages/ramadan/Duas"));
+const Tips = lazyWithRetry(() => import("./pages/ramadan/Tips"));
+const LaylatulQadr = lazyWithRetry(() => import("./pages/ramadan/LaylatulQadr"));
+const ZakatAlFitr = lazyWithRetry(() => import("./pages/ramadan/ZakatAlFitr"));
+const HowToUse = lazyWithRetry(() => import("./pages/HowToUse"));
+const Tajweed = lazyWithRetry(() => import("./pages/Tajweed"));
+const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
@@ -166,11 +166,18 @@ const App = () => {
       }
 
       const reliability = await checkNetworkReliability();
-      if (!reliability.ok && reliability.reason === "certificate_or_network") {
-        toast.error("مشكلة في الاتصال بالخدمات", {
-          description: "يوجد تعذر في التحقق من شهادات الأمان (SSL). قد يكون ذلك بسبب برنامج حماية، بروكسي، أو شبكة مقيدة.",
-          duration: 8000,
-        });
+      if (!reliability.ok) {
+        if (reliability.reason === "clock_error") {
+          toast.error("تنبيه: ساعة النظام غير دقيقة", {
+            description: reliability.details || "التاريخ الخاطئ يؤدي لفشل الاتصال بالخدمات (SSL Error). يرجى ضبط تاريخ الجهاز.",
+            duration: 10000,
+          });
+        } else if (reliability.reason === "certificate_or_network") {
+          toast.error("مشكلة في الاتصال بالخدمات", {
+            description: "تعذر التحقق من شهادات الأمان (SSL). قد يكون ذلك بسبب بروكسي أو شبكة مقيدة.",
+            duration: 8000,
+          });
+        }
       }
     };
     checkEnvironment();

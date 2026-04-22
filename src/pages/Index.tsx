@@ -38,15 +38,6 @@ interface AyahMatch {
   numberInSurah: number;
 }
 
-const getBookmark = (): BookmarkData | null => {
-  try {
-    const data = localStorage.getItem(BOOKMARK_KEY);
-    return data ? JSON.parse(data) : null;
-  } catch {
-    return null;
-  }
-};
-
 function Index() {
   const [searchQuery, setSearchQuery] = useState("");
   const [surahResults, setSurahResults] = useState<SurahInfo[]>([]);
@@ -54,13 +45,20 @@ function Index() {
   const { t, i18n } = useTranslation();
   const { setReadingMode, tajweedMode } = useTheme();
   const navigate = useNavigate();
-  const bookmark = getBookmark();
+  const [bookmark, setBookmark] = useState<BookmarkData | null>(null);
   const [verseOfDay, setVerseOfDay] = useState<{ text: string; surah: string; number: number } | null>(null);
   
   // Sync to native widgets
   useNativeWidgets(verseOfDay);
 
   useEffect(() => {
+    // Load bookmark from cloud/local
+    const loadBookmark = async () => {
+      const data = await syncService.loadData<BookmarkData | null>(BOOKMARK_KEY, null);
+      setBookmark(data);
+    };
+    loadBookmark();
+
     // Fetch verse of the day
     const today = new Date();
     const dateString = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;

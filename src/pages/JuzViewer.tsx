@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useUser } from "@/contexts/UserContext";
+import { syncService } from "@/services/syncService";
 import BackButton from "@/components/BackButton";
 import AtmosphericBackground from "@/components/AtmosphericBackground";
 import { cn } from "@/lib/utils";
@@ -47,7 +48,12 @@ const getBookmark = (): BookmarkData | null => {
 };
 
 const saveBookmark = (juz: number, page: number, readingMode: "image" | "text", verseKey?: string) => {
-  localStorage.setItem(BOOKMARK_KEY, JSON.stringify({ juz, page, readingMode, verseKey }));
+  const data = { juz, page, readingMode, verseKey };
+  localStorage.setItem(BOOKMARK_KEY, JSON.stringify(data));
+  // Also sync to cloud if logged in
+  syncService.saveData(BOOKMARK_KEY, data).catch(err => {
+    console.warn("Failed to sync bookmark to cloud:", err);
+  });
 };
 
 function JuzViewer() {
@@ -168,18 +174,23 @@ function JuzViewer() {
 
 
   useEffect(() => {
-    if (pages.length > 0 && currentPage === 0) {
-      const bookmark = getBookmark();
-      if (bookmark && bookmark.juz === num && pages.includes(bookmark.page)) {
-        setCurrentPage(bookmark.page);
-        if (bookmark.verseKey) setCurrentVerseKey(bookmark.verseKey);
-        if (scrollDirection === "vertical") {
-          setTimeout(() => scrollToPage(bookmark.page), 100);
+    const initPage = async () => {
+      if (pages.length > 0 && currentPage === 0) {
+        // Try to load from cloud/local
+        const cloudBookmark = await syncService.loadData<BookmarkData | null>(BOOKMARK_KEY, null);
+        
+        if (cloudBookmark && cloudBookmark.juz === num && pages.includes(cloudBookmark.page)) {
+          setCurrentPage(cloudBookmark.page);
+          if (cloudBookmark.verseKey) setCurrentVerseKey(cloudBookmark.verseKey);
+          if (scrollDirection === "vertical") {
+            setTimeout(() => scrollToPage(cloudBookmark.page), 100);
+          }
+        } else {
+          setCurrentPage(pages[0]);
         }
-      } else {
-        setCurrentPage(pages[0]);
       }
-    }
+    };
+    initPage();
   }, [pages, num, scrollDirection, currentPage]);
 
   const scrollToPage = useCallback((page: number) => {

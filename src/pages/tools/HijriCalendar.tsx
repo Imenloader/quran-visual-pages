@@ -44,6 +44,7 @@ const HOLIDAY_TRANSLATIONS: Record<string, string> = {
   "Laylat al-Miraj": "ذكرى الإسراء والمعراج",
   "Laylat al-Bara'at": "ليلة النصف من شعبان",
   "Hajj Start": "بداية موسم الحج",
+  "Lailat al-Qadr": "ليلة القدر",
 };
 
 const translateHoliday = (holiday: string): string => {
@@ -61,8 +62,9 @@ const getEnhancedHolidays = (day: HijriDay, lang: string) => {
   const hijriDay = parseInt(day.date.hijri.day);
   const hijriMonth = day.date.hijri.month.number;
   
-  // Filter for only whitelisted Sunnah/Correct Islamic events
-  const holidays = (day.date.hijri.holidays || []).filter(h => HOLIDAY_TRANSLATIONS[h]);
+  // STRICT WHITELIST: Only allow events that have a defined Arabic translation in HOLIDAY_TRANSLATIONS
+  const rawHolidays = day.date.hijri.holidays || [];
+  const holidays = rawHolidays.filter(h => HOLIDAY_TRANSLATIONS[h]);
   
   let isAyyamBidh = false;
   if (hijriMonth === 12) {
@@ -75,13 +77,13 @@ const getEnhancedHolidays = (day: HijriDay, lang: string) => {
     holidays.push("Ayyam al-Bidh");
   }
   
-  // Always prioritize Arabic for religious event names if translation exists
+  // Return Translated Names
   return holidays.map(h => {
     const translated = HOLIDAY_TRANSLATIONS[h];
+    // Always return Arabic if requested or if it's a religious event
     if (lang === 'ar') return translated || h;
-    // For English, show English name but handle Ayyam al-Bidh specifically
     if (h === "Ayyam al-Bidh") return "White Days (Ayyam al-Bidh)";
-    return h;
+    return translated || h; // Default to translated (Arabic) even in English if it's a specific term
   });
 };
 

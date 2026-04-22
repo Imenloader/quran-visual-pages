@@ -23,6 +23,15 @@ class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
+    
+    // Auto-reload if it's a chunk load error
+    const lowMsg = error.message.toLowerCase();
+    if (lowMsg.includes('failed to fetch dynamically imported module') || 
+        lowMsg.includes('importing a module script failed') ||
+        lowMsg.includes('expected a javascript-or-wasm module script')) {
+      console.warn('Chunk error detected in Boundary, reloading...');
+      window.location.reload();
+    }
   }
 
   private handleReset = () => {

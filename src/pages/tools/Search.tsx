@@ -65,9 +65,11 @@ const Search = () => {
 
         if (surahData.status === "OK") {
           const filteredSurahs = surahData.data.filter((s: { name: string; englishName: string; number: number }) => {
-            const normalizedSurahName = normalizeArabic(s.name);
+            const normalizedSurahName = normalizeArabic(s.name || "");
+            const sName = s.name || "";
+            const eName = s.englishName || "";
             return normalizedSurahName.includes(normalizedQuery) || 
-                   s.englishName.toLowerCase().includes(query.toLowerCase()) ||
+                   eName.toLowerCase().includes(query.toLowerCase()) ||
                    normalizedQuery.includes(normalizedSurahName);
           });
           setSurahResults(filteredSurahs);
@@ -75,10 +77,11 @@ const Search = () => {
 
         // 3. Search in Juz
         const filteredJuz = juzList.filter(j => {
-          const normalizedJuzName = normalizeArabic(j.nameAr);
+          const normalizedJuzName = normalizeArabic(j.nameAr || "");
+          const nameEn = j.nameEn || "";
           return normalizedJuzName.includes(normalizedQuery) || 
-                 j.nameEn.toLowerCase().includes(query.toLowerCase()) ||
-                 query.includes(j.number.toString());
+                 nameEn.toLowerCase().includes(query.toLowerCase()) ||
+                 query.includes((j.number || "").toString());
         });
         setJuzResults(filteredJuz);
       } catch (err) {
