@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useEffect, Suspense, lazy } from "react";
+import { useEffect, Suspense } from "react";
 import { getRedirectResult } from "firebase/auth";
 import { auth } from "./firebase";
 import { toast } from "sonner";
@@ -153,18 +153,9 @@ const App = () => {
 
     // Check clock and network reliability
     const checkEnvironment = async () => {
-      const now = new Date();
-      const year = now.getFullYear();
-      
-      // If year is 2026 or beyond, warn about potential SSL issues (since it's currently 2024)
-      // Note: Adjusting this based on the real current date. 
-      // If the prompt says 2026 is the "current" time, I should be careful.
-      // But usually, if ALL certs fail, it's a clock issue.
       const reliability = await checkNetworkReliability();
       if (!reliability.ok) {
         if (reliability.reason === "certificate_or_network") {
-          // Keep this one as it's a real network issue, but maybe make it less intrusive if needed.
-          // For now, only hiding the clock specific ones as requested.
           console.warn("SSL/Network reliability issue detected:", reliability.details);
         }
       }
@@ -193,80 +184,80 @@ const App = () => {
           <UserProvider>
             <AdhanProvider>
               <OfflineProvider>
-              <TooltipProvider>
-                <AudioPlayerProvider>
-                  <NotificationInitializer />
-                  <SplashScreen />
-                  <ServiceWorkerRegistration />
-                  <LanguageHandler />
-                  <NetworkStatus />
-                  <AudioUnlockBanner />
-                  <CommandPalette />
-                  <div className="page-dimming-overlay" />
-                  <Toaster />
-                  <Sonner />
-                  <ScrollRestoration />
-                  <Suspense fallback={<PageLoader />}>
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/juz/:juzNumber" element={<JuzViewer />} />
-                      <Route path="/install" element={<Install />} />
-                      <Route path="/recitations" element={<Recitations />} />
-                      <Route path="/athkar" element={<Athkar />} />
-                      <Route path="/favorites" element={<Favorites />} />
-                      <Route path="/profile" element={<Profile />} />
-                      <Route path="/prayer-times" element={<PrayerTimes />} />
-                      <Route path="/hub" element={<Hub />} />
-                      <Route path="/tasbih" element={<Tasbih />} />
-                      <Route path="/qibla" element={<QiblaFinder />} />
-                      <Route path="/names-of-allah" element={<NamesOfAllah />} />
-                      <Route path="/zakat" element={<ZakatCalculator />} />
-                      <Route path="/prayer-tracker" element={<PrayerTracker />} />
-                      <Route path="/khatma" element={<KhatmaPlanner />} />
-                      <Route path="/hijri" element={<HijriCalendar />} />
-                      <Route path="/daily-verse" element={<DailyVerse />} />
-                      <Route path="/mosque-finder" element={<MosqueFinder />} />
-                      <Route path="/halal-places" element={<HalalPlaces />} />
-                      <Route path="/tafsir" element={<Tafsir />} />
-                      <Route path="/search" element={<Search />} />
-                      <Route path="/offline" element={<Offline />} />
-                      <Route path="/friday-sunan" element={<FridaySunan />} />
-                      <Route path="/ramadan" element={<Ramadan />} />
-                      <Route path="/library" element={<Library />} />
-                      <Route path="/hajj-guide" element={<HajjGuide />} />
-                      <Route path="/prophet-stories" element={<ProphetStories />} />
-                      <Route path="/names-directory" element={<NamesDirectory />} />
-                      <Route path="/daily-adhkar" element={<DailyAdhkar />} />
-                      <Route path="/khatma-jamaaiya" element={<KhatmaJamaaiya />} />
-                      <Route path="/hadith" element={<Hadith />} />
-                      <Route path="/seerah-timeline" element={<SeerahTimeline />} />
-                      <Route path="/islamic-quiz" element={<IslamicQuiz />} />
-                      <Route path="/inheritance-calculator" element={<InheritanceCalculator />} />
-                      <Route path="/fasting-tracker" element={<FastingTracker />} />
-                      <Route path="/routine-builder" element={<RoutineBuilder />} />
-                      <Route path="/sadaqah-logger" element={<SadaqahLogger />} />
-                      <Route path="/dua-library" element={<DuaLibrary />} />
-                      <Route path="/global-dhikr" element={<GlobalDhikr />} />
-                      <Route path="/privacy" element={<PrivacyPolicy />} />
-                      <Route path="/moon-tracker" element={<MoonTracker />} />
-                      <Route path="/memorization" element={<Memorization />} />
-                      <Route path="/leaderboard" element={<Leaderboard />} />
-                      <Route path="/athkar-circles" element={<AthkarCircles />} />
-                      <Route path="/ramadan/virtues" element={<Virtues />} />
-                      <Route path="/ramadan/fasting-rules" element={<FastingRules />} />
-                      <Route path="/ramadan/duas" element={<Duas />} />
-                      <Route path="/ramadan/tips" element={<Tips />} />
-                      <Route path="/ramadan/laylatul-qadr" element={<LaylatulQadr />} />
-                      <Route path="/ramadan/zakat-al-fitr" element={<ZakatAlFitr />} />
-                      <Route path="/how-to-use" element={<HowToUse />} />
-                      <Route path="/tajweed" element={<Tajweed />} />
-                      <Route path="/embed/:siteId" element={<EmbedView />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </Suspense>
-                  <BottomNav />
-                </AudioPlayerProvider>
-              </TooltipProvider>
+                <TooltipProvider>
+                  <AudioPlayerProvider>
+                    <NotificationInitializer />
+                    <SplashScreen />
+                    <ServiceWorkerRegistration />
+                    <LanguageHandler />
+                    <NetworkStatus />
+                    <AudioUnlockBanner />
+                    <CommandPalette />
+                    <div className="page-dimming-overlay" />
+                    <Toaster />
+                    <Sonner />
+                    <ScrollRestoration />
+                    <Suspense fallback={<PageLoader />}>
+                      <Routes>
+                        <Route path="/" element={<Index />} />
+                        <Route path="/juz/:juzNumber" element={<JuzViewer />} />
+                        <Route path="/install" element={<Install />} />
+                        <Route path="/recitations" element={<Recitations />} />
+                        <Route path="/athkar" element={<Athkar />} />
+                        <Route path="/favorites" element={<Favorites />} />
+                        <Route path="/profile" element={<Profile />} />
+                        <Route path="/prayer-times" element={<PrayerTimes />} />
+                        <Route path="/hub" element={<Hub />} />
+                        <Route path="/tasbih" element={<Tasbih />} />
+                        <Route path="/qibla" element={<QiblaFinder />} />
+                        <Route path="/names-of-allah" element={<NamesOfAllah />} />
+                        <Route path="/zakat" element={<ZakatCalculator />} />
+                        <Route path="/prayer-tracker" element={<PrayerTracker />} />
+                        <Route path="/khatma" element={<KhatmaPlanner />} />
+                        <Route path="/hijri" element={<HijriCalendar />} />
+                        <Route path="/daily-verse" element={<DailyVerse />} />
+                        <Route path="/mosque-finder" element={<MosqueFinder />} />
+                        <Route path="/halal-places" element={<HalalPlaces />} />
+                        <Route path="/tafsir" element={<Tafsir />} />
+                        <Route path="/search" element={<Search />} />
+                        <Route path="/offline" element={<Offline />} />
+                        <Route path="/friday-sunan" element={<FridaySunan />} />
+                        <Route path="/ramadan" element={<Ramadan />} />
+                        <Route path="/library" element={<Library />} />
+                        <Route path="/hajj-guide" element={<HajjGuide />} />
+                        <Route path="/prophet-stories" element={<ProphetStories />} />
+                        <Route path="/names-directory" element={<NamesDirectory />} />
+                        <Route path="/daily-adhkar" element={<DailyAdhkar />} />
+                        <Route path="/khatma-jamaaiya" element={<KhatmaJamaaiya />} />
+                        <Route path="/hadith" element={<Hadith />} />
+                        <Route path="/seerah-timeline" element={<SeerahTimeline />} />
+                        <Route path="/islamic-quiz" element={<IslamicQuiz />} />
+                        <Route path="/inheritance-calculator" element={<InheritanceCalculator />} />
+                        <Route path="/fasting-tracker" element={<FastingTracker />} />
+                        <Route path="/routine-builder" element={<RoutineBuilder />} />
+                        <Route path="/sadaqah-logger" element={<SadaqahLogger />} />
+                        <Route path="/dua-library" element={<DuaLibrary />} />
+                        <Route path="/global-dhikr" element={<GlobalDhikr />} />
+                        <Route path="/privacy" element={<PrivacyPolicy />} />
+                        <Route path="/moon-tracker" element={<MoonTracker />} />
+                        <Route path="/memorization" element={<Memorization />} />
+                        <Route path="/leaderboard" element={<Leaderboard />} />
+                        <Route path="/athkar-circles" element={<AthkarCircles />} />
+                        <Route path="/ramadan/virtues" element={<Virtues />} />
+                        <Route path="/ramadan/fasting-rules" element={<FastingRules />} />
+                        <Route path="/ramadan/duas" element={<Duas />} />
+                        <Route path="/ramadan/tips" element={<Tips />} />
+                        <Route path="/ramadan/laylatul-qadr" element={<LaylatulQadr />} />
+                        <Route path="/ramadan/zakat-al-fitr" element={<ZakatAlFitr />} />
+                        <Route path="/how-to-use" element={<HowToUse />} />
+                        <Route path="/tajweed" element={<Tajweed />} />
+                        <Route path="/embed/:siteId" element={<EmbedView />} />
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </Suspense>
+                    <BottomNav />
+                  </AudioPlayerProvider>
+                </TooltipProvider>
               </OfflineProvider>
             </AdhanProvider>
           </UserProvider>

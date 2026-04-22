@@ -1,13 +1,28 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { getQuranPageFallbackImageUrl, getQuranPageImageUrl, juzData } from "@/data/quranData";
+import { offlineOrchestrator, type OfflineBundleStatus, type OfflineGlobalStatus } from "@/services/offlineOrchestrator";
 
 const CACHE_NAME = "quran-pages-cache";
 
 type PageCacheState = "cached" | "missing" | "downloading";
 
 interface OfflineContextValue {
+  // Global Orchestrator State
+  isOnline: boolean;
+  bundles: OfflineBundleStatus[];
+  globalStatus: OfflineGlobalStatus;
+  
+  // Specific Juz Caching State (Legacy/Specialized)
   pageStatus: Record<number, PageCacheState>;
   juzCompletion: Record<number, number>;
+  
+  // Actions
+  refresh: () => Promise<void>;
+  downloadBundle: (bundleId: any) => Promise<void>;
+  clearBundle: (bundleId: any) => Promise<void>;
+  clearAll: () => Promise<void>;
+  
+  // Specialized Actions
   refreshJuzCompletion: (juzNumber?: number) => Promise<void>;
   prefetchNeighborPages: (currentPage: number, distance: number, bounds: { start: number; end: number }) => Promise<void>;
   prepareJuzOffline: (juzNumber: number) => Promise<void>;
@@ -36,8 +51,45 @@ const getOrderedSourceUrls = (page: number, isTajweed = true, preferredSourceId?
 };
 
 export const OfflineProvider = ({ children }: { children: ReactNode }) => {
+  // Global State
+  const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== "undefined" ? navigator.onLine : true);
+  const [bundles, setBundles] = useState<OfflineBundleStatus[]>([]);
+  const [globalStatus, setGlobalStatus] = useState<OfflineGlobalStatus>({
+    bundles: [],
+    totalItems: 0,
+    completedItems: 0,
+    failedItems: 0,
+    progress: 0
+  });
+
+  // Specialized State
   const [pageStatus, setPageStatus] = useState<Record<number, PageCacheState>>({});
   const [juzCompletion, setJuzCompletion] = useState<Record<number, number>>({});
+
+  // Sync with Orchestrator
+  useEffect(() => {
+    const unsubscribe = offlineOrchestrator.subscribe((event) => {
+      setBundles(event.globalStatus.bundles);
+      setGlobalStatus(event.globalStatus);
+      setIsOnline(typeof navigator !== "undefined" ? navigator.onLine : true);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  // Sync with Online/Offline events
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
 
   const isCached = useCallback(async (cache: Cache, url: string) => {
     const hit = await cache.match(url);
@@ -148,12 +200,19 @@ export const OfflineProvider = ({ children }: { children: ReactNode }) => {
   }, [cachePageWithFallbacks, refreshJuzCompletion]);
 
   const value = useMemo(() => ({
+    isOnline,
+    bundles,
+    globalStatus,
     pageStatus,
     juzCompletion,
+    refresh: async () => { /* Orchestrator doesn't have a simple refresh yet */ },
+    downloadBundle: (bundleId: any) => offlineOrchestrator.prepareBundle(bundleId),
+    clearBundle: (bundleId: any) => offlineOrchestrator.clearBundle(bundleId),
+    clearAll: () => offlineOrchestrator.clearAll(),
     refreshJuzCompletion,
     prefetchNeighborPages,
     prepareJuzOffline,
-  }), [pageStatus, juzCompletion, refreshJuzCompletion, prefetchNeighborPages, prepareJuzOffline]);
+  }), [isOnline, bundles, globalStatus, pageStatus, juzCompletion, refreshJuzCompletion, prefetchNeighborPages, prepareJuzOffline]);
 
   return <OfflineContext.Provider value={value}>{children}</OfflineContext.Provider>;
 };
@@ -162,4 +221,25 @@ export const useOffline = () => {
   const ctx = useContext(OfflineContext);
   if (!ctx) throw new Error("useOffline must be used within OfflineProvider");
   return ctx;
+};
+
+// Compatibility hooks for older code that might expect them
+export const useOfflineStatus = () => {
+  const { isOnline, globalStatus } = useOffline();
+  return { 
+    isOnline, 
+    storageUsageBytes: 0, // Simplified for now
+    storageQuotaBytes: 0,
+    lastSyncedAt: Date.now() 
+  };
+};
+
+export const useOfflineBundle = (bundleId: string) => {
+  const { bundles } = useOffline();
+  return bundles.find(b => b.bundleId === bundleId) ?? null;
+};
+
+export const useOfflineActions = () => {
+  const { refresh, downloadBundle, clearBundle, clearAll } = useOffline();
+  return { refresh, downloadBundle, clearBundle, clearAll };
 };

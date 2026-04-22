@@ -82,7 +82,9 @@ class OfflineOrchestrator {
 
   subscribe(listener: OfflineEventListener) {
     this.listeners.add(listener);
-    this.emit({ type: "global-updated", globalStatus: this.toGlobalStatus() });
+    this.getGlobalStatus().then(status => {
+       this.emit({ type: "global-updated", globalStatus: status });
+    });
 
     return () => {
       this.listeners.delete(listener);
@@ -168,6 +170,27 @@ class OfflineOrchestrator {
     await this.withRequest(db.transaction(OFFLINE_BUNDLES_STORE, "readwrite").objectStore(OFFLINE_BUNDLES_STORE).delete(bundleId));
 
     this.emit({ type: "bundle-updated", bundleId, globalStatus: this.toGlobalStatus() });
+  }
+
+  async clearAll(): Promise<void> {
+    await this.readyPromise;
+    
+    // Clear all running bundles
+    this.runningBundles.clear();
+    
+    // Clear all caches
+    if ("caches" in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(key => caches.delete(key)));
+    }
+    
+    // Clear all records from IDB
+    this.records.clear();
+    const db = await this.openDb();
+    const tx = db.transaction(OFFLINE_BUNDLES_STORE, "readwrite");
+    await this.withRequest(tx.objectStore(OFFLINE_BUNDLES_STORE).clear());
+    
+    this.emit({ type: "global-updated", globalStatus: this.toGlobalStatus() });
   }
 
   async getBundleStatus(bundleId: OfflineBundleId): Promise<OfflineBundleStatus> {
