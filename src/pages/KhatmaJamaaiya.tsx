@@ -959,8 +959,8 @@ const KhatmaJamaaiya = () => {
                       ? "اختر جزءاً متاحاً من القائمة أدناه لتبدأ القراءة وتساهم في الختمة."
                       : "Choose an available portion from the list below to start reading."}
                   </p>
-            </div>
-
+                </div>
+              )}
             <div className="space-y-4">
               <h3 className="text-sm font-bold font-naskh text-foreground px-2 flex items-center gap-2">
                 <BookOpen size={16} className="text-primary" />

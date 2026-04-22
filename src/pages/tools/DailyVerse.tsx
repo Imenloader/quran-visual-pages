@@ -15,6 +15,7 @@ const DailyVerse = () => {
   const navigate = useNavigate();
   const { tajweedMode } = useTheme();
   const [verse, setVerse] = useState<DailyVerseData | null>(null);
+  const [isLiked, setIsLiked] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
 
