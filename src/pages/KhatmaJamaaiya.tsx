@@ -18,7 +18,8 @@ import {
   ArrowRight,
   Maximize2,
   LogOut,
-  LogIn
+  LogIn,
+  User as UserIcon
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -974,7 +975,7 @@ const KhatmaJamaaiya = () => {
                                   <img src={portion.claimedByAvatar} className="w-4 h-4 rounded-full" alt="" />
                                 ) : (
                                   <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
-                                    <User size={8} className="text-primary" />
+                                    <UserIcon size={8} className="text-primary" />
                                   </div>
                                 )}
                                 <span className="text-[8px] font-bold text-primary/70">{portion.claimedByName}</span>
@@ -1045,7 +1046,7 @@ const KhatmaJamaaiya = () => {
                               <img src={participant.avatar} className="w-8 h-8 rounded-full" alt="" />
                             ) : (
                               <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                                <User size={16} className="text-primary" />
+                                <UserIcon size={16} className="text-primary" />
                               </div>
                             )}
                             <span className="text-xs font-bold font-naskh">{participant.name}</span>
