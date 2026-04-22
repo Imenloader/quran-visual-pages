@@ -126,14 +126,14 @@ const RoutineBuilder = () => {
       <div className="max-w-4xl mx-auto px-4 mt-12 space-y-8">
         {/* Streak & Progress Header */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-          <div className="md:col-span-4 bento-card !p-8 bg-orange-500 text-white flex flex-col items-center justify-center text-center overflow-hidden relative group">
-            <div className="absolute inset-0 pattern-islamic opacity-10 group-hover:scale-110 transition-transform duration-1000" />
+          <div className="md:col-span-4 bento-card !p-8 bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-400 flex flex-col items-center justify-center text-center overflow-hidden relative group">
+            <div className="absolute inset-0 pattern-islamic opacity-5 group-hover:scale-110 transition-transform duration-1000" />
             <div className="relative z-10 space-y-2">
-              <div className="w-16 h-16 rounded-3xl bg-white/20 flex items-center justify-center mx-auto mb-4 backdrop-blur-md">
+              <div className="w-16 h-16 rounded-3xl bg-orange-500/20 flex items-center justify-center mx-auto mb-4 backdrop-blur-md">
                 <Flame className="w-10 h-10 fill-current" />
               </div>
               <p className="text-sm font-bold uppercase tracking-widest opacity-80">{isAr ? "سلسلة الإنجاز" : "Current Streak"}</p>
-              <p className="text-5xl font-bold">{streak} {isAr ? "أيام" : "Days"}</p>
+              <p className="text-5xl font-bold">{streak} <span className="text-2xl font-normal">{isAr ? "أيام" : "Days"}</span></p>
             </div>
           </div>
 
