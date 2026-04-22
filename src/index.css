@@ -86,6 +86,35 @@
     --input: 35 30% 70%;
     --ring: 25 55% 18%;
   }
+
+  /* AMOLED Pure Black — saves battery on OLED screens */
+  .amoled {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 3%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 3%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 145 65% 65%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 6%;
+    --secondary-foreground: 42 90% 75%;
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 55%;
+    --accent: 42 90% 65%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 10%;
+    --input: 0 0% 10%;
+    --ring: 145 65% 65%;
+    --gold: 42 90% 65%;
+    --gold-light: 42 90% 80%;
+    --gold-dark: 42 90% 35%;
+    --emerald: 145 65% 65%;
+    --emerald-light: 145 65% 80%;
+    --emerald-deep: 0 0% 0%;
+  }
 }
 
 @layer base {

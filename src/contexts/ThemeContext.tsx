@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { storage } from "@/lib/storage";
 
-type Theme = "light" | "dark" | "sepia";
+type Theme = "light" | "dark" | "sepia" | "amoled";
 type ReadingMode = "image" | "text";
 type ScrollDirection = "vertical" | "horizontal";
 
@@ -54,6 +54,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       if (savedTheme === "dark" || savedTheme === "night") setThemeState("dark");
       else if (savedTheme === "sepia") setThemeState("sepia");
+      else if (savedTheme === "amoled") setThemeState("amoled");
       else setThemeState("light");
 
       if (savedReadingMode) setReadingModeState(savedReadingMode as ReadingMode);
@@ -123,12 +124,14 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     const html = document.documentElement;
-    html.classList.remove("dark", "sepia");
+    html.classList.remove("dark", "sepia", "amoled");
     
     if (theme === "dark") {
       html.classList.add("dark");
     } else if (theme === "sepia") {
       html.classList.add("sepia");
+    } else if (theme === "amoled") {
+      html.classList.add("dark", "amoled");
     }
 
     // Apply dimming - Now works as "Intensity" (0 = none, 100 = full dark)

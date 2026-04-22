@@ -11,7 +11,9 @@ import {
   Trash2, 
   Gift, 
   HandHeart,
-  Info
+  Info,
+  Target,
+  CheckCircle2
 } from "lucide-react";
 import QuranHeader from "@/components/QuranHeader";
 import { Button } from "@/components/ui/button";
@@ -47,6 +49,11 @@ const SadaqahLogger = () => {
   const [amount, setAmount] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(categories[0]);
   const [note, setNote] = useState("");
+  const [monthlyGoal, setMonthlyGoal] = useState<number>(() =>
+    parseFloat(localStorage.getItem("sadaqah-monthly-goal") || "0")
+  );
+  const [goalInput, setGoalInput] = useState("");
+  const [showGoalInput, setShowGoalInput] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('sadaqah-entries');
@@ -79,7 +86,24 @@ const SadaqahLogger = () => {
     localStorage.setItem('sadaqah-entries', JSON.stringify(updated));
   };
 
+  const saveGoal = () => {
+    const val = parseFloat(goalInput);
+    if (!isNaN(val) && val >= 0) {
+      setMonthlyGoal(val);
+      localStorage.setItem("sadaqah-monthly-goal", String(val));
+    }
+    setShowGoalInput(false);
+    setGoalInput("");
+  };
+
   const totalAmount = entries.reduce((acc, curr) => acc + curr.amount, 0);
+
+  // This month's total
+  const thisMonth = new Date().toISOString().slice(0, 7); // "2026-04"
+  const monthlyTotal = entries
+    .filter(e => e.date.startsWith(thisMonth))
+    .reduce((acc, curr) => acc + curr.amount, 0);
+  const goalPercent = monthlyGoal > 0 ? Math.min(100, (monthlyTotal / monthlyGoal) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -110,6 +134,67 @@ const SadaqahLogger = () => {
                 <span className="font-bold">{entries.length}</span>
               </div>
             </div>
+          </div>
+
+          {/* Monthly Goal Card */}
+          <div className="bento-card !p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold font-naskh flex items-center gap-2">
+                <Target className="w-4 h-4 text-primary" />
+                {isAr ? "هدف الشهر" : "Monthly Goal"}
+              </h3>
+              <button
+                onClick={() => { setShowGoalInput(v => !v); setGoalInput(monthlyGoal > 0 ? String(monthlyGoal) : ""); }}
+                className="text-xs text-primary font-bold hover:underline"
+              >
+                {isAr ? "تعديل" : "Edit"}
+              </button>
+            </div>
+
+            {showGoalInput && (
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  placeholder={isAr ? "المبلغ المستهدف" : "Target amount"}
+                  value={goalInput}
+                  onChange={e => setGoalInput(e.target.value)}
+                  className="h-10 rounded-xl flex-1"
+                  onKeyDown={e => e.key === "Enter" && saveGoal()}
+                />
+                <Button size="sm" className="rounded-xl" onClick={saveGoal}>
+                  {isAr ? "حفظ" : "Save"}
+                </Button>
+              </div>
+            )}
+
+            {monthlyGoal > 0 ? (
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs text-muted-foreground font-bold">
+                  <span>{isAr ? "هذا الشهر" : "This month"}: ${monthlyTotal.toLocaleString()}</span>
+                  <span>{isAr ? "الهدف" : "Goal"}: ${monthlyGoal.toLocaleString()}</span>
+                </div>
+                <div className="h-3 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-700 ${
+                      goalPercent >= 100 ? "bg-emerald-500" : "bg-rose-500"
+                    }`}
+                    style={{ width: `${goalPercent}%` }}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-muted-foreground">
+                    {goalPercent >= 100
+                      ? (isAr ? "🎉 تجاوزت هدفك هذا الشهر!" : "🎉 Goal achieved this month!")
+                      : (isAr ? `تبقّى $${(monthlyGoal - monthlyTotal).toLocaleString()}` : `$${(monthlyGoal - monthlyTotal).toLocaleString()} remaining`)}
+                  </p>
+                  {goalPercent >= 100 && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground font-naskh">
+                {isAr ? "حدّد هدفاً شهرياً لتتابع تقدمك." : "Set a monthly goal to track your giving progress."}
+              </p>
+            )}
           </div>
 
           {/* Add Entry Form */}

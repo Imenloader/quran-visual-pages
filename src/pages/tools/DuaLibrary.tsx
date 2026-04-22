@@ -1,30 +1,22 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { 
-  Heart, 
-  Search, 
-  Copy, 
-  Share2, 
-  Star, 
-  BookOpen, 
-  Brain, 
-  Shield, 
-  Sparkles, 
-  Sun,
-  Moon,
-  CloudRain,
-  GraduationCap,
-  Stethoscope
-} from "lucide-react";
+import { Search, Copy, BookOpen, Plus, Trash2, X } from "lucide-react";
 import QuranHeader from "@/components/QuranHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-
 import { LayoutGrid, type LucideIcon } from "lucide-react";
 import * as Icons from "lucide-react";
-import { allDuas, duaCategories, type Dua } from "@/data/duaData";
+import { allDuas, duaCategories } from "@/data/duaData";
+
+interface CustomDua {
+  id: string;
+  titleAr: string;
+  titleEn: string;
+  arabic: string;
+  note?: string;
+}
 
 const DuaLibrary = () => {
   const { i18n } = useTranslation();
@@ -32,17 +24,24 @@ const DuaLibrary = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newTitleAr, setNewTitleAr] = useState("");
+  const [newTitleEn, setNewTitleEn] = useState("");
+  const [newArabic, setNewArabic] = useState("");
+  const [newNote, setNewNote] = useState("");
+  const [customDuas, setCustomDuas] = useState<CustomDua[]>(() => {
+    try { return JSON.parse(localStorage.getItem("custom-duas") || "[]"); }
+    catch { return []; }
+  });
 
   const filteredDuas = allDuas.filter(dua => {
-    const matchesSearch = 
+    const matchesSearch =
       dua.titleEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
       dua.titleAr.includes(searchQuery) ||
       dua.arabic.includes(searchQuery) ||
       dua.translationEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
       dua.translationAr.includes(searchQuery);
-    
     const matchesCategory = selectedCategory === "all" || dua.category === selectedCategory;
-    
     return matchesSearch && matchesCategory;
   });
 
@@ -56,6 +55,29 @@ const DuaLibrary = () => {
     return Icon ? <Icon className="w-4 h-4" /> : <LayoutGrid className="w-4 h-4" />;
   };
 
+  const saveCustomDua = () => {
+    if (!newArabic.trim()) return;
+    const entry: CustomDua = {
+      id: Date.now().toString(),
+      titleAr: newTitleAr.trim() || "دعاء شخصي",
+      titleEn: newTitleEn.trim() || "Personal Dua",
+      arabic: newArabic.trim(),
+      note: newNote.trim() || undefined,
+    };
+    const updated = [entry, ...customDuas];
+    setCustomDuas(updated);
+    localStorage.setItem("custom-duas", JSON.stringify(updated));
+    setNewTitleAr(""); setNewTitleEn(""); setNewArabic(""); setNewNote("");
+    setShowAddModal(false);
+    toast.success(isAr ? "تم حفظ الدعاء" : "Dua saved!");
+  };
+
+  const deleteCustomDua = (id: string) => {
+    const updated = customDuas.filter(d => d.id !== id);
+    setCustomDuas(updated);
+    localStorage.setItem("custom-duas", JSON.stringify(updated));
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <QuranHeader 
@@ -67,14 +89,23 @@ const DuaLibrary = () => {
       <div className="max-w-6xl mx-auto px-4 mt-12 space-y-8">
         {/* Search & Categories */}
         <div className="space-y-6">
-          <div className="relative max-w-2xl mx-auto">
-            <Input 
-              placeholder={isAr ? "ابحث عن دعاء..." : "Search for a Dua..."} 
-              className="h-14 pl-12 rounded-2xl text-lg font-naskh shadow-sm"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
+          <div className="flex gap-3 max-w-2xl mx-auto">
+            <div className="relative flex-1">
+              <Input
+                placeholder={isAr ? "ابحث عن دعاء..." : "Search for a Dua..."}
+                className="h-14 pl-12 rounded-2xl text-lg font-naskh shadow-sm"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
+            </div>
+            <Button
+              onClick={() => setShowAddModal(true)}
+              className="h-14 px-5 rounded-2xl gap-2 font-naskh shrink-0"
+            >
+              <Plus className="w-5 h-5" />
+              {isAr ? "دعاء خاص" : "Add Dua"}
+            </Button>
           </div>
 
           <div className="flex flex-wrap justify-center gap-2">
@@ -92,7 +123,92 @@ const DuaLibrary = () => {
           </div>
         </div>
 
-        {/* Dua Cards Grid */}
+        {/* Custom Duas */}
+        {customDuas.length > 0 && (
+          <div className="space-y-4">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+              <BookOpen className="w-4 h-4" />
+              {isAr ? "أدعيتي الخاصة" : "My Personal Duas"}
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {customDuas.map(dua => (
+                <motion.div
+                  key={dua.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="bento-card !p-6 space-y-4 border-primary/20 bg-primary/5"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-3 py-1 rounded-full">
+                        {isAr ? "خاص" : "Personal"}
+                      </span>
+                      <h4 className="text-lg font-bold font-naskh mt-2">
+                        {isAr ? dua.titleAr : dua.titleEn}
+                      </h4>
+                    </div>
+                    <div className="flex gap-1">
+                      <button onClick={() => copyToClipboard(dua.arabic)} className="p-2 rounded-xl hover:bg-muted transition-colors">
+                        <Copy className="w-4 h-4 text-muted-foreground" />
+                      </button>
+                      <button onClick={() => deleteCustomDua(dua.id)} className="p-2 rounded-xl hover:bg-destructive/10 transition-colors">
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="bg-muted/30 p-4 rounded-2xl border border-border/40">
+                    <p className="text-xl font-naskh leading-loose text-center">{dua.arabic}</p>
+                  </div>
+                  {dua.note && <p className="text-xs text-muted-foreground italic">{dua.note}</p>}
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Add Dua Modal */}
+        <AnimatePresence>
+          {showAddModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[600] bg-black/60 backdrop-blur-md flex items-center justify-center p-4"
+              onClick={e => e.target === e.currentTarget && setShowAddModal(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                className="w-full max-w-md bg-card border border-border rounded-[2rem] p-6 space-y-4 shadow-2xl"
+              >
+                <div className="flex justify-between items-center">
+                  <h3 className="font-bold font-naskh text-lg">{isAr ? "إضافة دعاء خاص" : "Add Personal Dua"}</h3>
+                  <button onClick={() => setShowAddModal(false)} className="p-2 rounded-xl hover:bg-muted transition-colors">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <Input placeholder={isAr ? "العنوان بالعربي" : "Title in Arabic"} value={newTitleAr} onChange={e => setNewTitleAr(e.target.value)} className="h-11 rounded-xl font-naskh" dir="rtl" />
+                <Input placeholder={isAr ? "العنوان بالإنجليزية" : "Title in English"} value={newTitleEn} onChange={e => setNewTitleEn(e.target.value)} className="h-11 rounded-xl" />
+                <textarea
+                  placeholder={isAr ? "نص الدعاء بالعربية *" : "Dua text in Arabic *"}
+                  value={newArabic}
+                  onChange={e => setNewArabic(e.target.value)}
+                  rows={4}
+                  dir="rtl"
+                  className="w-full px-4 py-3 rounded-xl bg-muted/50 border border-border font-naskh text-lg leading-loose resize-none focus:outline-none focus:border-primary transition-colors"
+                />
+                <Input placeholder={isAr ? "ملاحظة (اختياري)" : "Note (optional)"} value={newNote} onChange={e => setNewNote(e.target.value)} className="h-11 rounded-xl" />
+                <Button onClick={saveCustomDua} className="w-full h-12 rounded-xl gap-2" disabled={!newArabic.trim()}>
+                  <Plus className="w-4 h-4" />
+                  {isAr ? "حفظ الدعاء" : "Save Dua"}
+                </Button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <AnimatePresence mode="popLayout">
             {filteredDuas.map((dua) => (

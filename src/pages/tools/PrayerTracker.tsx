@@ -1,32 +1,45 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { CheckCircle2, Circle, Calendar, Trophy } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "motion/react";
+import { CheckCircle2, Circle, Calendar, Trophy, Flame, MinusCircle, PlusCircle, Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { format } from "date-fns";
+import { format, subDays } from "date-fns";
 import { ar } from "date-fns/locale";
 import BackButton from "@/components/BackButton";
+import QuranHeader from "@/components/QuranHeader";
 
 const PRAYERS = [
-  { id: "fajr", name: "الفجر" },
-  { id: "dhuhr", name: "الظهر" },
-  { id: "asr", name: "العصر" },
-  { id: "maghrib", name: "المغرب" },
-  { id: "isha", name: "العشاء" },
+  { id: "fajr",    nameAr: "الفجر",   nameEn: "Fajr" },
+  { id: "dhuhr",   nameAr: "الظهر",   nameEn: "Dhuhr" },
+  { id: "asr",     nameAr: "العصر",   nameEn: "Asr" },
+  { id: "maghrib", nameAr: "المغرب",  nameEn: "Maghrib" },
+  { id: "isha",    nameAr: "العشاء",  nameEn: "Isha" },
 ];
 
 const PrayerTracker = () => {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === "ar";
   const today = format(new Date(), "yyyy-MM-dd");
+
   const [history, setHistory] = useState<Record<string, string[]>>(() => {
     const saved = localStorage.getItem("prayer_history");
     return saved ? JSON.parse(saved) : {};
   });
 
+  // Qada (makeup) counts per prayer
+  const [qada, setQada] = useState<Record<string, number>>(() => {
+    const saved = localStorage.getItem("prayer_qada");
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  const [activeTab, setActiveTab] = useState<"today" | "qada">("today");
+
   useEffect(() => {
     localStorage.setItem("prayer_history", JSON.stringify(history));
   }, [history]);
+
+  useEffect(() => {
+    localStorage.setItem("prayer_qada", JSON.stringify(qada));
+  }, [qada]);
 
   const togglePrayer = (prayerId: string) => {
     setHistory(prev => {
@@ -38,63 +51,190 @@ const PrayerTracker = () => {
     });
   };
 
+  const adjustQada = (prayerId: string, delta: number) => {
+    setQada(prev => {
+      const current = prev[prayerId] || 0;
+      const next = Math.max(0, current + delta);
+      return { ...prev, [prayerId]: next };
+    });
+  };
+
   const completedToday = history[today]?.length || 0;
-  const streak = 0; // Placeholder for streak calculation
+
+  // Real streak calculation
+  const streak = (() => {
+    let count = 0;
+    let d = new Date();
+    // Don't count today in streak — only full past days
+    d = subDays(d, 1);
+    while (true) {
+      const key = format(d, "yyyy-MM-dd");
+      const dayPrayers = history[key] || [];
+      if (dayPrayers.length === 5) {
+        count++;
+        d = subDays(d, 1);
+      } else break;
+    }
+    return count;
+  })();
+
+  const totalQada = Object.values(qada).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="min-h-screen bg-background pb-24 pt-6 px-4">
-      <div className="max-w-md mx-auto">
-        <header className="flex items-center justify-between mb-8">
-          <BackButton />
-          <h1 className="text-xl font-bold font-naskh">{t("hub.prayerTracker")}</h1>
-          <div className="w-10 h-10" />
-        </header>
+    <div className="min-h-screen bg-background pb-24">
+      <QuranHeader
+        title={isAr ? "متابعة الصلوات" : "Prayer Tracker"}
+        subtitle={isAr ? "تابع صلواتك اليومية والقضاء" : "Track your daily prayers and makeup"}
+        variant="compact"
+      />
 
-        <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-4 bg-primary/10 border border-primary/20 rounded-2xl text-center">
-              <Trophy className="w-6 h-6 text-primary mx-auto mb-2" />
-              <p className="text-xs text-muted-foreground font-naskh">صلاة اليوم</p>
-              <p className="text-2xl font-bold text-primary">{completedToday} / 5</p>
-            </div>
-            <div className="p-4 bg-accent/10 border border-accent/20 rounded-2xl text-center">
-              <Calendar className="w-6 h-6 text-accent mx-auto mb-2" />
-              <p className="text-xs text-muted-foreground font-naskh">التاريخ</p>
-              <p className="text-sm font-bold text-foreground font-naskh">{format(new Date(), "d MMMM", { locale: ar })}</p>
-            </div>
+      <div className="max-w-md mx-auto px-4 mt-8 space-y-6">
+        {/* Stats Row */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="p-4 bg-primary/10 border border-primary/20 rounded-2xl text-center">
+            <Trophy className="w-5 h-5 text-primary mx-auto mb-1" />
+            <p className="text-[10px] text-muted-foreground font-naskh">{isAr ? "اليوم" : "Today"}</p>
+            <p className="text-xl font-bold text-primary">{completedToday}<span className="text-xs font-normal">/5</span></p>
           </div>
+          <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-2xl text-center">
+            <Flame className="w-5 h-5 text-orange-500 mx-auto mb-1" />
+            <p className="text-[10px] text-muted-foreground font-naskh">{isAr ? "الاستمرارية" : "Streak"}</p>
+            <p className="text-xl font-bold text-orange-500">{streak}<span className="text-xs font-normal"> {isAr ? "يوم" : "d"}</span></p>
+          </div>
+          <div className="p-4 bg-accent/10 border border-accent/20 rounded-2xl text-center">
+            <Calendar className="w-5 h-5 text-accent mx-auto mb-1" />
+            <p className="text-[10px] text-muted-foreground font-naskh">{isAr ? "التاريخ" : "Date"}</p>
+            <p className="text-sm font-bold text-foreground font-naskh">
+              {format(new Date(), "d MMM", { locale: isAr ? ar : undefined })}
+            </p>
+          </div>
+        </div>
 
-          <div className="bg-card border border-border rounded-3xl p-6 space-y-4 shadow-soft">
-            <h2 className="font-bold font-naskh text-foreground mb-4">الصلوات الخمس</h2>
-            <div className="space-y-3">
-              {PRAYERS.map((prayer) => {
+        {/* Tab Switcher */}
+        <div className="flex bg-muted/50 rounded-2xl p-1 border border-border/40">
+          {(["today", "qada"] as const).map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`flex-1 py-2.5 rounded-xl text-sm font-bold font-naskh transition-all ${
+                activeTab === tab
+                  ? "bg-card shadow text-primary"
+                  : "text-muted-foreground hover:text-primary"
+              }`}
+            >
+              {tab === "today"
+                ? (isAr ? "صلوات اليوم" : "Today's Prayers")
+                : (isAr ? `القضاء${totalQada > 0 ? ` (${totalQada})` : ""}` : `Makeup${totalQada > 0 ? ` (${totalQada})` : ""}`)}
+            </button>
+          ))}
+        </div>
+
+        <AnimatePresence mode="wait">
+          {activeTab === "today" ? (
+            <motion.div
+              key="today"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              className="bg-card border border-border rounded-3xl p-6 space-y-3 shadow-soft"
+            >
+              <h2 className="font-bold font-naskh text-foreground mb-2">
+                {isAr ? "الصلوات الخمس" : "Five Daily Prayers"}
+              </h2>
+              {PRAYERS.map(prayer => {
                 const isCompleted = history[today]?.includes(prayer.id);
                 return (
                   <button
                     key={prayer.id}
                     onClick={() => togglePrayer(prayer.id)}
                     className={`w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${
-                      isCompleted 
-                        ? "border-primary bg-primary/5 text-primary" 
+                      isCompleted
+                        ? "border-primary bg-primary/5 text-primary"
                         : "border-border text-muted-foreground hover:bg-muted"
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      {isCompleted ? <CheckCircle2 className="w-6 h-6" /> : <Circle className="w-6 h-6" />}
-                      <span className="font-bold font-naskh">{prayer.name}</span>
+                      {isCompleted
+                        ? <CheckCircle2 className="w-6 h-6" />
+                        : <Circle className="w-6 h-6" />}
+                      <span className="font-bold font-naskh">
+                        {isAr ? prayer.nameAr : prayer.nameEn}
+                      </span>
                     </div>
-                    {isCompleted && <span className="text-[10px] font-bold uppercase tracking-widest">تمت</span>}
+                    {isCompleted && (
+                      <span className="text-[10px] font-bold uppercase tracking-widest">
+                        {isAr ? "تمت" : "Done"}
+                      </span>
+                    )}
                   </button>
                 );
               })}
-            </div>
-          </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="qada"
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              className="space-y-3"
+            >
+              <div className="flex items-start gap-3 p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
+                <Info className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                <p className="text-xs text-muted-foreground font-naskh leading-relaxed">
+                  {isAr
+                    ? "سجّل عدد صلوات القضاء المتبقية عليك وتابع تقدمك في أدائها."
+                    : "Track the number of makeup prayers you owe and your progress repaying them."}
+                </p>
+              </div>
+              <div className="bg-card border border-border rounded-3xl p-6 space-y-4 shadow-soft">
+                <h2 className="font-bold font-naskh text-foreground">
+                  {isAr ? "صلوات القضاء" : "Makeup Prayers"}
+                </h2>
+                {PRAYERS.map(prayer => {
+                  const count = qada[prayer.id] || 0;
+                  return (
+                    <div key={prayer.id} className="flex items-center justify-between py-2 border-b border-border/40 last:border-0">
+                      <span className="font-bold font-naskh text-foreground">
+                        {isAr ? prayer.nameAr : prayer.nameEn}
+                      </span>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => adjustQada(prayer.id, -1)}
+                          disabled={count === 0}
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all disabled:opacity-30"
+                        >
+                          <MinusCircle className="w-5 h-5" />
+                        </button>
+                        <span className={`w-10 text-center font-bold text-lg ${count > 0 ? "text-primary" : "text-muted-foreground"}`}>
+                          {count}
+                        </span>
+                        <button
+                          onClick={() => adjustQada(prayer.id, 1)}
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all"
+                        >
+                          <PlusCircle className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+                {totalQada > 0 && (
+                  <div className="pt-2 flex justify-between items-center text-sm font-bold">
+                    <span className="text-muted-foreground font-naskh">{isAr ? "الإجمالي" : "Total"}</span>
+                    <span className="text-primary">{totalQada} {isAr ? "صلاة" : "prayers"}</span>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-          <div className="p-4 bg-muted/50 rounded-2xl border border-border/50 text-center">
-            <p className="text-xs text-muted-foreground font-naskh">
-              "إن الصلاة كانت على المؤمنين كتاباً موقوتاً"
-            </p>
-          </div>
+        <div className="p-4 bg-muted/50 rounded-2xl border border-border/50 text-center">
+          <p className="text-xs text-muted-foreground font-naskh">
+            {isAr
+              ? "﴿إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا﴾"
+              : '"Indeed, prayer has been decreed upon the believers a decree of specified times." [4:103]'}
+          </p>
         </div>
       </div>
     </div>

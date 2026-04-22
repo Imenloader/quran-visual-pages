@@ -63,9 +63,10 @@ const Profile = () => {
     return parseInt(localStorage.getItem(FONT_SIZE_KEY) || "16");
   });
 
-  const THEME_OPTIONS: { id: ThemeMode; label: string; icon: LucideIcon; preview: string }[] = [
+  const THEME_OPTIONS: { id: ThemeMode | "amoled"; label: string; icon: LucideIcon; preview: string }[] = [
     { id: "light", label: t("settings.themes.light"), icon: Sun, preview: "bg-[hsl(45,30%,98%)]" },
     { id: "dark", label: t("settings.themes.dark"), icon: Moon, preview: "bg-black" },
+    { id: "amoled", label: isAr ? "أسود (AMOLED)" : "AMOLED", icon: Moon, preview: "bg-black" },
     { id: "sepia", label: t("settings.themes.sepia"), icon: Palette, preview: "bg-[hsl(35,45%,85%)]" },
   ];
 
@@ -318,11 +319,11 @@ const Profile = () => {
 
           <ScrollReveal index={4}>
             <div className="bg-card/80 backdrop-blur-2xl rounded-2xl p-4 border border-border/20 text-center space-y-1 group hover:bg-card transition-all">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
-                <Calendar size={16} />
+              <div className="w-8 h-8 rounded-lg bg-orange-500/10 text-orange-500 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                <Flame size={16} />
               </div>
-              <p className="text-xl font-serif font-bold text-primary">{toArabicNumber(profile.daysActive)}</p>
-              <p className="text-[9px] font-bold text-primary/80 uppercase tracking-widest">{t("profile.activeDays")}</p>
+              <p className="text-xl font-serif font-bold text-orange-500">{toArabicNumber(profile.daysActive)}</p>
+              <p className="text-[9px] font-bold text-orange-500/80 uppercase tracking-widest">{isAr ? "أيام الاستمرارية" : "Day Streak"}</p>
             </div>
           </ScrollReveal>
 
