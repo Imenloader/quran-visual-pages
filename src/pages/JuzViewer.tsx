@@ -142,9 +142,9 @@ function JuzViewer() {
   const toggleLineHidden = useCallback((page: number, lineIndex: number) => {
     setHiddenLines(prev => {
       const lines = prev[page] || [];
-      const newLines = lines.includes(lineIndex)
+      const newLines = Array.isArray(lines) && lines.includes(lineIndex)
         ? lines.filter(l => l !== lineIndex)
-        : [...lines, lineIndex];
+        : [...(Array.isArray(lines) ? lines : []), lineIndex];
       return { ...prev, [page]: newLines };
     });
   }, []);
@@ -263,7 +263,7 @@ function JuzViewer() {
 
   const handleMainPlayToggle = useCallback(() => {
     if (!juz) return;
-    const isCurrentJuzPlaying = currentSurah && juz.surahs.includes(currentSurah.name);
+    const isCurrentJuzPlaying = currentSurah && juz.surahs && juz.surahs.includes(currentSurah.name);
     
     if (!isCurrentJuzPlaying) {
       const startSurahParts = juz.startSurah.split(" ");
@@ -359,7 +359,7 @@ function JuzViewer() {
         const history = JSON.parse(localStorage.getItem("quran-reading-history") || "{}");
         const juzHistory = history[num] || { pagesRead: 0, lastPage: 0, visitedPages: [] };
         
-        if (!juzHistory.visitedPages.includes(currentPage)) {
+        if (!(juzHistory.visitedPages || []).includes(currentPage)) {
           juzHistory.visitedPages.push(currentPage);
           juzHistory.pagesRead = juzHistory.visitedPages.length;
           

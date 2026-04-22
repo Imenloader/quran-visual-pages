@@ -71,8 +71,8 @@ const Tafsir = () => {
         
         console.error("Error fetching tafsir:", err);
         setAyahText("");
-        const errorMessage = err instanceof Error ? err.message : "";
-        if (errorMessage.includes("Failed to fetch") || errorMessage.includes("network") || errorMessage.includes("aborted")) {
+        const errorMessage = (err instanceof Error ? err.message : "") || "";
+        if (errorMessage && (errorMessage.includes("Failed to fetch") || errorMessage.includes("network") || errorMessage.includes("aborted"))) {
           setTafsir("فشل الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.");
         } else {
           setTafsir(t("hub.tafsirContent.error"));
