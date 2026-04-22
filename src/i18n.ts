@@ -255,7 +255,13 @@ const resources = {
           "tasbihMaster": "Tasbih Master",
           "sevenDayStreak": "7-Day Streak",
           "firstKhatma": "First Khatma",
-          "nightOwl": "Night Owl"
+          "nightOwl": "Night Owl",
+          "consistent": "Consistent",
+          "scholar": "Quran Scholar",
+          "juzMaster": "Juz Master",
+          "tasbihPro": "Tasbih Pro",
+          "spiritualLegend": "Spiritual Legend",
+          "pureHeart": "Pure Heart"
         },
         "quests": {
           "readPage": "Read 1 page of Quran",
@@ -689,7 +695,13 @@ const resources = {
           "tasbihMaster": "خاشع",
           "sevenDayStreak": "أسبوع كامل",
           "firstKhatma": "خاتم",
-          "nightOwl": "قائم الليل"
+          "nightOwl": "قائم الليل",
+          "consistent": "مداوم",
+          "scholar": "عالم بالقرآن",
+          "juzMaster": "متقن الأجزاء",
+          "tasbihPro": "مسبح محترف",
+          "spiritualLegend": "أسطورة روحانية",
+          "pureHeart": "قلب سليم"
         },
         "quests": {
           "readPage": "قراءة صفحة من المصحف",

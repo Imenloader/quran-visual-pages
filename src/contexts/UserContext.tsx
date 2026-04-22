@@ -173,14 +173,16 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [profile]);
 
   const calculateLevel = (pts: number) => {
-    const lvl = Math.floor((Math.sqrt(8 * pts / 100 + 1) - 1) / 2);
+    // Making it harder: Using 1000 as base instead of 100
+    const lvl = Math.floor((Math.sqrt(8 * pts / 1000 + 1) - 1) / 2);
     return Math.max(1, lvl + 1);
   };
 
   const getThreshold = (lvl: number) => {
     if (lvl <= 1) return 0;
     const l = lvl - 1;
-    return 100 * l * (l + 1) / 2;
+    // Multiplier increased to 1000
+    return 1000 * l * (l + 1) / 2;
   };
 
   const currentLevel = calculateLevel(profile.points);
