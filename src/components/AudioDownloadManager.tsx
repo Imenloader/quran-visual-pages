@@ -5,11 +5,13 @@ import { useTranslation } from "react-i18next";
 import { SURAHS } from "@/data/audioData";
 import { fetchReciters, type Reciter, type Moshaf } from "@/services/quranService";
 import { toArabicNumber } from "@/data/quranData";
+import { useOffline } from "@/contexts/OfflineContext";
 
 const AUDIO_CACHE_NAME = 'quran-audio-cache';
 
 const AudioDownloadManager: React.FC = () => {
   const { t, i18n } = useTranslation();
+  const { refreshStatus } = useOffline();
   const [reciters, setReciters] = useState<Reciter[]>([]);
   const [selectedReciter, setSelectedReciter] = useState<Reciter | null>(null);
   const [selectedMoshaf, setSelectedMoshaf] = useState<Moshaf | null>(null);
@@ -108,6 +110,7 @@ const AudioDownloadManager: React.FC = () => {
 
       toast.success(t("player.downloadComplete") || "تم تحميل السورة بنجاح");
       await checkCacheStatus();
+      await refreshStatus();
     } catch (error) {
       console.error("Audio download failed:", error);
       toast.error(t("hub.offline.clearError"));
@@ -122,6 +125,7 @@ const AudioDownloadManager: React.FC = () => {
       const cache = await caches.open(AUDIO_CACHE_NAME);
       await cache.delete(url);
       await checkCacheStatus();
+      await refreshStatus();
       toast.success(t("hub.offline.clearSuccess"));
     } catch (error) {
       toast.error(t("hub.offline.clearError"));

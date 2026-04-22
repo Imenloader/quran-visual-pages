@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useUser } from "@/contexts/UserContext";
+import { useOffline } from "@/contexts/OfflineContext";
 
 import GlobalAudioPlayer from "./GlobalAudioPlayer";
 
@@ -24,7 +25,11 @@ const BottomNav = () => {
   const location = useLocation();
   const { isFullscreen } = useTheme();
   const { profile } = useUser();
+  const { isOnline, status } = useOffline();
   const [isHidden, setIsHidden] = useState(false);
+  const hasCriticalOfflineData = (status?.bundles ?? []).some(
+    (bundle) => (bundle.bundleId === "quran-pages" || bundle.bundleId === "tafsir") && bundle.entries > 0
+  );
 
   const NAV_ITEMS = [
     { 
@@ -158,6 +163,11 @@ const BottomNav = () => {
                   </Link>
                 );
               })}
+              <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 rounded-full bg-background/80 border border-border/40 text-[9px] text-muted-foreground font-medium">
+                <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? "bg-emerald-500" : "bg-red-500"}`} />
+                <span>{isOnline ? "Online" : "Offline"}</span>
+                {hasCriticalOfflineData && <span className="text-accent">• Ready</span>}
+              </div>
             </div>
           </motion.nav>
         )}

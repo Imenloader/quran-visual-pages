@@ -14,6 +14,7 @@ import { AudioPlayerProvider } from "./contexts/AudioPlayerContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { UserProvider } from "./contexts/UserContext";
 import { AdhanProvider } from "./contexts/AdhanContext";
+import { OfflineProvider } from "./contexts/OfflineContext";
 
 import { useTranslation } from "react-i18next";
 import { useRegisterSW } from 'virtual:pwa-register/react';
@@ -193,19 +194,20 @@ const App = () => {
             <AdhanProvider>
               <TooltipProvider>
                 <AudioPlayerProvider>
-                  <NotificationInitializer />
-                  <SplashScreen />
-                  <ServiceWorkerRegistration />
-                  <LanguageHandler />
-                  <NetworkStatus />
-                  <AudioUnlockBanner />
-                  <CommandPalette />
-                  <div className="page-dimming-overlay" />
-                  <Toaster />
-                  <Sonner />
-                  <ScrollRestoration />
-                  <Suspense fallback={<PageLoader />}>
-                    <Routes>
+                  <OfflineProvider>
+                    <NotificationInitializer />
+                    <SplashScreen />
+                    <ServiceWorkerRegistration />
+                    <LanguageHandler />
+                    <NetworkStatus />
+                    <AudioUnlockBanner />
+                    <CommandPalette />
+                    <div className="page-dimming-overlay" />
+                    <Toaster />
+                    <Sonner />
+                    <ScrollRestoration />
+                    <Suspense fallback={<PageLoader />}>
+                      <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/juz/:juzNumber" element={<JuzViewer />} />
                       <Route path="/install" element={<Install />} />
@@ -260,9 +262,10 @@ const App = () => {
                       <Route path="/tajweed" element={<Tajweed />} />
                       <Route path="/embed/:siteId" element={<EmbedView />} />
                       <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </Suspense>
-                  <BottomNav />
+                      </Routes>
+                    </Suspense>
+                    <BottomNav />
+                  </OfflineProvider>
                 </AudioPlayerProvider>
               </TooltipProvider>
             </AdhanProvider>

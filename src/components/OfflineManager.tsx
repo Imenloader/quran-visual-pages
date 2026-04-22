@@ -14,12 +14,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useOffline } from "@/contexts/OfflineContext";
 
 const CACHE_NAME = 'quran-pages-cache';
 const TOTAL_PAGES = 604;
 
 const OfflineManager: React.FC = () => {
   const { t, i18n } = useTranslation();
+  const { refreshStatus } = useOffline();
   const [isDownloading, setIsDownloading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [downloadedCount, setDownloadedCount] = useState(0);
@@ -133,6 +135,7 @@ const OfflineManager: React.FC = () => {
         toast.success(t("hub.offline.ready"));
       }
       await checkCacheStatus();
+      await refreshStatus();
     } catch (error) {
       console.error("Download failed:", error);
       if (error instanceof Error && (error.name === 'QuotaExceededError' || error.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
@@ -152,6 +155,7 @@ const OfflineManager: React.FC = () => {
       await caches.delete(CACHE_NAME);
       setDownloadedCount(0);
       setProgress(0);
+      await refreshStatus();
       toast.success(t("hub.offline.clearSuccess"));
     } catch (error) {
       toast.error(t("hub.offline.clearError"));

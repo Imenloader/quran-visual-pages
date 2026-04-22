@@ -1,11 +1,12 @@
 /// <reference lib="webworker" />
 
 import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
-import { registerRoute } from 'workbox-routing';
+import { NavigationRoute, registerRoute } from 'workbox-routing';
 import { CacheFirst, StaleWhileRevalidate } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 import { RangeRequestsPlugin } from 'workbox-range-requests';
+import { createHandlerBoundToURL } from 'workbox-precaching';
 
 declare let self: ServiceWorkerGlobalScope;
 
@@ -13,6 +14,13 @@ cleanupOutdatedCaches();
 
 // @ts-expect-error: __WB_MANIFEST is injected by vite-plugin-pwa
 precacheAndRoute(self.__WB_MANIFEST);
+
+const appShellHandler = createHandlerBoundToURL('/index.html');
+registerRoute(
+  new NavigationRoute(appShellHandler, {
+    denylist: [/^\/api\//, /^\/_/, /\/[^/?]+\.[^/]+$/],
+  })
+);
 
 // Quran page images (local) - cache forever
 registerRoute(
@@ -50,13 +58,48 @@ registerRoute(
 
 // Quran API - stale while revalidate
 registerRoute(
-  /^https:\/\/(?:api\.alquran\.cloud|api\.quran\.com|mp3quran\.net)\/api\/.*/i,
+  ({ url }) =>
+    (url.hostname === "api.alquran.cloud" && url.pathname.startsWith("/v1/")) ||
+    (url.hostname === "api.quran.com") ||
+    (url.hostname === "mp3quran.net" && url.pathname.startsWith("/api/")),
   new StaleWhileRevalidate({
     cacheName: 'quran-api-cache',
     plugins: [
       new ExpirationPlugin({
         maxEntries: 100,
         maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+      }),
+      new CacheableResponsePlugin({
+        statuses: [0, 200],
+      }),
+    ],
+  })
+);
+
+registerRoute(
+  ({ url }) => url.hostname === "mp3quran.net" && url.pathname.startsWith("/api/v3/"),
+  new StaleWhileRevalidate({
+    cacheName: 'quran-api-cache',
+    plugins: [
+      new ExpirationPlugin({
+        maxEntries: 100,
+        maxAgeSeconds: 60 * 60 * 24 * 30,
+      }),
+      new CacheableResponsePlugin({
+        statuses: [0, 200],
+      }),
+    ],
+  })
+);
+
+registerRoute(
+  ({ url }) => url.hostname === "api.alquran.cloud" && url.pathname.startsWith("/v1/"),
+  new StaleWhileRevalidate({
+    cacheName: 'tafsir-cache',
+    plugins: [
+      new ExpirationPlugin({
+        maxEntries: 500,
+        maxAgeSeconds: 60 * 60 * 24 * 30,
       }),
       new CacheableResponsePlugin({
         statuses: [0, 200],
@@ -197,6 +240,12 @@ registerRoute(
 self.addEventListener('periodicsync', (event) => {
   if (event.tag === 'refresh-prayer-times') {
     event.waitUntil(refreshPrayerTimes());
+  }
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "OFFLINE_STATUS_REQUEST") {
+    event.source?.postMessage({ type: "OFFLINE_STATUS_ACK", ok: true });
   }
 });
 

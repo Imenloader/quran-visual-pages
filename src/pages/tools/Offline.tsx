@@ -5,12 +5,14 @@ import { toast } from "sonner";
 import BackButton from "@/components/BackButton";
 import AudioDownloadManager from "@/components/AudioDownloadManager";
 import OfflineManager from "@/components/OfflineManager";
+import { useOffline } from "@/contexts/OfflineContext";
 
 const Offline = () => {
   const { t, i18n } = useTranslation();
   const [downloadedSize, setDownloadedSize] = useState("0 MB");
   const [quranCacheSize, setQuranCacheSize] = useState("0 MB");
   const [apiCacheSize, setApiCacheSize] = useState("0 MB");
+  const { status, refreshStatus } = useOffline();
 
   const toArabicNumber = (str: string) => {
     if (i18n.language !== 'ar') return str;
@@ -71,6 +73,7 @@ const Offline = () => {
         const keys = await caches.keys();
         await Promise.all(keys.map(key => caches.delete(key)));
         setDownloadedSize("0 MB");
+        await refreshStatus();
         toast.success(t("hub.offline.clearSuccess"));
       } catch (err) {
         toast.error(t("hub.offline.clearError"));
@@ -135,6 +138,18 @@ const Offline = () => {
               <OfflineManager />
             </div>
           </div>
+
+          {status && (
+            <div className="p-4 bg-card border border-border rounded-2xl space-y-3">
+              <h3 className="text-sm font-bold font-serif text-foreground">حالة التخزين دون اتصال</h3>
+              {status.bundles.map((bundle) => (
+                <div key={bundle.bundleId} className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">{bundle.bundleId}</span>
+                  <span className="font-mono text-primary">{bundle.entries}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Audio Download Manager Section */}
           <div className="space-y-4">
