@@ -8,7 +8,7 @@ import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { Capacitor } from "@capacitor/core";
 import { useUser } from "@/contexts/UserContext";
 import { db } from "@/firebase";
-import { doc, onSnapshot, updateDoc, increment, setDoc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot, updateDoc, increment } from "firebase/firestore";
 import { toast } from "sonner";
 
 const GlobalDhikr = () => {
@@ -24,20 +24,17 @@ const GlobalDhikr = () => {
   useEffect(() => {
     const dhikrDoc = doc(db, "stats", "dhikr");
     
-    // Ensure doc exists
-    getDoc(dhikrDoc).then(snap => {
-      if (!snap.exists()) {
-        setDoc(dhikrDoc, { count: 0, lastUpdate: new Date() });
-      }
-    });
-
-    const unsubscribe = onSnapshot(dhikrDoc, (doc) => {
-      if (doc.exists()) {
-        setGlobalCount(doc.data().count || 0);
+    // Try to read the doc — if permission denied, operate in local-only mode
+    const unsubscribe = onSnapshot(dhikrDoc, (snap) => {
+      if (snap.exists()) {
+        setGlobalCount(snap.data().count || 0);
       }
       setIsLoading(false);
     }, (error) => {
-      console.warn("Global Dhikr Snapshot Error:", error);
+      // Silently degrade — Firestore rules haven't been configured yet
+      if (error.code !== 'permission-denied') {
+        console.warn("Global Dhikr Snapshot Error:", error);
+      }
       setIsLoading(false);
     });
 
@@ -58,21 +55,17 @@ const GlobalDhikr = () => {
       navigator.vibrate(50);
     }
 
+    // Silently attempt Firestore sync — degrades gracefully if rules block it
     try {
       const dhikrDoc = doc(db, "stats", "dhikr");
       await updateDoc(dhikrDoc, {
         count: increment(1),
         lastUpdate: new Date()
-      }).catch(err => {
-        // Handle specific permission errors silently or show a message
-        if (err.code === 'permission-denied') {
-          console.warn("Global Dhikr: Permission denied. Update skipped.");
-        } else {
-          throw err;
-        }
       });
-    } catch (error) {
-      console.error("Error updating global dhikr:", error);
+    } catch (error: any) {
+      if (error?.code !== 'permission-denied') {
+        console.error("Error updating global dhikr:", error);
+      }
     }
   };
 
