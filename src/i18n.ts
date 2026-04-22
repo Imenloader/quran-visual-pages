@@ -588,7 +588,8 @@ const resources = {
           "read": "قرأت"
         },
         "verseOfDay": "آية اليوم",
-        "recitersDesc": "استكشف مجموعة من أجمل التلاوات من مختلف أنحاء العالم"
+        "recitersDesc": "استكشف مجموعة من أجمل التلاوات من مختلف أنحاء العالم",
+        "reciters": "القراء"
       },
       "prayerTimes": {
         "title": "مواقيت الصلاة"
@@ -598,7 +599,8 @@ const resources = {
         "favorites": "المفضلات",
         "favourites": "المفضلات",
         "recitersAndSurahs": "القراء والسور",
-        "playlists": "قوائم التشغيل"
+        "playlists": "قوائم التشغيل",
+        "fetchError": "فشل في جلب التلاوات. يرجى المحاولة مرة أخرى."
       },
       "tasbih": {
         "reset": "إعادة ضبط العداد",
