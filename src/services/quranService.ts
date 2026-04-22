@@ -21,3 +21,7 @@ export const fetchAudioEditions = async (): Promise<Edition[]> => {
 export const fetchSurahAudio = async (surahId: number, edition: string) => {
   return await fetchWithCache(`https://api.alquran.cloud/v1/surah/${surahId}/${edition}?audio=1`, {});
 };
+
+export const fetchSurahText = async (surahId: number) => {
+  return await fetchWithCache(`https://api.alquran.cloud/v1/surah/${surahId}`, {});
+};

@@ -8,6 +8,7 @@ import { juzTextData } from "@/data/juzTextData";
 import { applyTajweedColors } from "@/lib/tajweedParser";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
+import { useFavorites } from "@/hooks/useFavorites";
 import VerseShareCard from "@/components/VerseShareCard";
 import { fetchWithCache } from "@/lib/apiClient";
 import { fetchTafsir } from "@/services/tafsirService";
@@ -64,6 +65,8 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
   const [showShareCard, setShowShareCard] = useState(false);
   const verseRefs = React.useRef<Record<string, HTMLSpanElement | null>>({});
   const lastReportedVerseKey = React.useRef<string | undefined>(undefined);
+  const { isFavorite, toggleFavorite, collections } = useFavorites();
+  const [showCollections, setShowCollections] = useState(false);
 
   // Split text into verses based on common markers and associate with Surah/Ayah
   const versesData = React.useMemo(() => {
@@ -444,6 +447,78 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
                 >
                   <Share2 size={18} />
                 </button>
+                <div className="relative">
+                  <button 
+                    onClick={() => setShowCollections(!showCollections)}
+                    className={cn(
+                      "p-2 rounded-full transition-all",
+                      selectedVerse && isFavorite("verse", selectedVerse.fullKey) 
+                        ? "bg-red-500/10 text-red-500" 
+                        : "hover:bg-accent/10 text-accent"
+                    )}
+                  >
+                    <Heart size={18} fill={selectedVerse && isFavorite("verse", selectedVerse.fullKey) ? "currentColor" : "none"} />
+                  </button>
+                  
+                  <AnimatePresence>
+                    {showCollections && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.9 }}
+                        className="absolute bottom-full right-0 mb-2 w-48 bg-card border border-border/40 rounded-2xl shadow-2xl overflow-hidden z-[100]"
+                      >
+                        <div className="p-3 border-b border-border/10 bg-muted/30">
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{t("favorites.addToCollection") || "أضف إلى مجموعة"}</p>
+                        </div>
+                        <div className="max-h-48 overflow-y-auto">
+                          <button 
+                            onClick={() => {
+                              if (selectedVerse) {
+                                toggleFavorite({ 
+                                  type: "verse", id: selectedVerse.fullKey, 
+                                  surahNumber: selectedVerse.surahNumber, 
+                                  verseNumber: selectedVerse.ayahNumber, 
+                                  surahName: selectedVerse.surahName,
+                                  text: selectedVerse.text
+                                });
+                                setShowCollections(false);
+                              }
+                            }}
+                            className="w-full px-4 py-3 text-right text-xs font-serif hover:bg-accent/5 flex items-center justify-between"
+                          >
+                            <span>الكل</span>
+                            {!selectedVerse?.collectionId && <Check size={12} />}
+                          </button>
+                          {collections.map(col => (
+                            <button 
+                              key={col.id}
+                              onClick={() => {
+                                if (selectedVerse) {
+                                  toggleFavorite({ 
+                                    type: "verse", id: selectedVerse.fullKey, 
+                                    surahNumber: selectedVerse.surahNumber, 
+                                    verseNumber: selectedVerse.ayahNumber, 
+                                    surahName: selectedVerse.surahName,
+                                    text: selectedVerse.text,
+                                    collectionId: col.id
+                                  });
+                                  setShowCollections(false);
+                                }
+                              }}
+                              className="w-full px-4 py-3 text-right text-xs font-serif hover:bg-accent/5 flex items-center justify-between border-t border-border/5"
+                            >
+                              <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: col.color }} />
+                                <span>{col.name}</span>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
                 <button className="p-2 rounded-full hover:bg-accent/10 text-accent transition-colors">
                   <Info size={18} />
                 </button>

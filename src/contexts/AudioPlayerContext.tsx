@@ -34,7 +34,7 @@ interface LastPlayed {
 
 const LAST_PLAYED_KEY = "quran-last-played";
 
-const getAudioUrl = (server: string, surahId: number | string | undefined | null): string => {
+export const getAudioUrl = (server: string, surahId: number | string | undefined | null): string => {
   if (!server) return "";
   const padded = String(surahId ?? "").padStart(3, "0");
   

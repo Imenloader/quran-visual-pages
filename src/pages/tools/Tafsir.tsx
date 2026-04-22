@@ -10,6 +10,7 @@ import { normalizeArabic } from "@/lib/arabicUtils";
 import { useTheme } from "@/contexts/ThemeContext";
 import { applyTajweedColors } from "@/lib/tajweedParser";
 import BackButton from "@/components/BackButton";
+import FontSizeAdjuster from "@/components/FontSizeAdjuster";
 
 interface Surah {
   number: number;
@@ -20,7 +21,7 @@ interface Surah {
 const Tafsir = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { tajweedMode } = useTheme();
+  const { tajweedMode, fontSizes } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
   const [surahs, setSurahs] = useState<Surah[]>([]);
   const [selectedSurah, setSelectedSurah] = useState(1);
@@ -172,6 +173,10 @@ const Tafsir = () => {
             </div>
           </div>
 
+          <div className="flex justify-center mb-6">
+            <FontSizeAdjuster context="tafsir" min={14} max={40} />
+          </div>
+
           <AnimatePresence mode="wait">
             {loading ? (
               <motion.div 
@@ -194,7 +199,10 @@ const Tafsir = () => {
                     {tajweedMode ? applyTajweedColors(ayahText) : ayahText}
                   </p>
                   <div className="h-px bg-primary/10 w-full mb-4" />
-                  <p className="text-sm font-naskh text-foreground leading-relaxed text-right">
+                  <p 
+                    className="font-naskh text-foreground leading-relaxed text-right"
+                    style={{ fontSize: `${fontSizes.tafsir || 18}px` }}
+                  >
                     {tafsir}
                   </p>
                 </div>

@@ -1,4 +1,4 @@
-import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen, List, Moon, Sun, Info, MessageSquareText, Type, FileImage, ArrowDown, ArrowRightLeft, Palette, GraduationCap, Sparkles, Server, Wand2 } from "lucide-react";
+import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen, List, Moon, Sun, Info, MessageSquareText, Type, FileImage, ArrowDown, ArrowRightLeft, Palette, GraduationCap, Sparkles, Server, Wand2, DownloadCloud } from "lucide-react";
 import { toArabicNumber } from "@/data/quranData";
 import ShareButton from "./ShareButton";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -19,6 +19,8 @@ interface ReadingToolbarProps {
   hifzMode: boolean;
   onToggleHifzMode: () => void;
   onToggleSourceSelector: () => void;
+  onDownloadAudio?: () => void;
+  isDownloadingAudio?: boolean;
 }
 
 const ReadingToolbar = ({
@@ -35,6 +37,8 @@ const ReadingToolbar = ({
   hifzMode,
   onToggleHifzMode,
   onToggleSourceSelector,
+  onDownloadAudio,
+  isDownloadingAudio
 }: ReadingToolbarProps) => {
   const { theme, setTheme, readingMode, setReadingMode, scrollDirection, setScrollDirection, tajweedMode, setTajweedMode, atmosphericBackground, setAtmosphericBackground } = useTheme();
 
@@ -140,6 +144,17 @@ const ReadingToolbar = ({
           >
             {scrollDirection === "horizontal" ? <ArrowRightLeft className="size-[16px] md:size-[20px]" strokeWidth={1.5} /> : <ArrowDown className="size-[16px] md:size-[20px]" strokeWidth={1.5} />}
           </button>
+
+          {onDownloadAudio && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onDownloadAudio(); }}
+              disabled={isDownloadingAudio}
+              className={`toolbar-btn !p-1.5 md:!p-2.5 ${isDownloadingAudio ? "opacity-50" : ""}`}
+              title="تحميل الصوت للتلاوة بدون إنترنت"
+            >
+              <DownloadCloud className={`size-[16px] md:size-[20px] ${isDownloadingAudio ? "animate-pulse" : ""}`} strokeWidth={1.5} />
+            </button>
+          )}
 
           <div className="hidden lg:flex items-center gap-1 bg-muted/30 rounded-2xl p-1">
             <button onClick={(e) => { e.stopPropagation(); onZoomOut(); }} className="toolbar-btn !p-1.5" title="تصغير">

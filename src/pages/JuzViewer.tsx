@@ -13,7 +13,8 @@ import LazyImage from "@/components/LazyImage";
 import QuranTextViewer from "@/components/QuranTextViewer";
 import TajweedLegend from "@/components/TajweedLegend";
 import QuranPlayerBar from "@/components/QuranPlayerBar";
-import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
+import { useAudioPlayer, getAudioUrl } from "@/contexts/AudioPlayerContext";
+import { audioDownloadService } from "@/services/audioDownloadService";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -89,6 +90,7 @@ function JuzViewer() {
   const [showJuzIndex, setShowJuzIndex] = useState(false);
   const [showSourceSelector, setShowSourceSelector] = useState(false);
   const [showKhatmaCelebration, setShowKhatmaCelebration] = useState(false);
+  const [isDownloadingAudio, setIsDownloadingAudio] = useState(false);
   const [savedBookmark, setSavedBookmark] = useState<BookmarkData | null>(null);
   const [currentVerseKey, setCurrentVerseKey] = useState<string | undefined>(() => getBookmark()?.verseKey);
 
@@ -276,7 +278,6 @@ function JuzViewer() {
       togglePlay();
     }
   }, [juz, currentSurah, playAyah, togglePlay]);
-
   const handleVerseInView = useCallback((key: string) => {
     setCurrentVerseKey(key);
     if (readingMode === "text") {
@@ -287,6 +288,48 @@ function JuzViewer() {
       }
     }
   }, [readingMode, currentPage]);
+
+  const handleDownloadAudio = useCallback(async () => {
+    if (!juz || isDownloadingAudio) return;
+    
+    setIsDownloadingAudio(true);
+    toast.info("جاري بدء تحميل صوتيات الجزء...", {
+      description: "سيتم تحميل التلاوات للوصول إليها دون اتصال"
+    });
+    
+    try {
+      const surahsInJuz = juz.surahs.map(name => surahIndex.find(s => s.name === name)).filter(Boolean);
+      
+      let downloadedCount = 0;
+      const total = surahsInJuz.length;
+      
+      // Default to Alafasy if nothing playing, or use what's playing
+      const defaultServer = "https://server8.mp3quran.net/afs/";
+      const server = currentSurah?.id ? (localStorage.getItem("quran-last-played") ? JSON.parse(localStorage.getItem("quran-last-played")!).moshafServer : defaultServer) : defaultServer;
+      
+      for (const surah of surahsInJuz) {
+        if (!surah) continue;
+        const url = getAudioUrl(server, surah.number);
+        const fileName = `سورة ${surah.name}`;
+        
+        const success = await audioDownloadService.downloadAudio(url, fileName);
+        if (success) downloadedCount++;
+      }
+      
+      if (downloadedCount === total) {
+        toast.success("تم تحميل جميع سور الجزء بنجاح");
+      } else if (downloadedCount > 0) {
+        toast.warning(`تم تحميل ${downloadedCount} من أصل ${total} سور`);
+      } else {
+        toast.error("فشل تحميل الصوتيات. تحقق من الاتصال.");
+      }
+    } catch (error) {
+      console.error("Audio download error:", error);
+      toast.error("حدث خطأ أثناء التحميل");
+    } finally {
+      setIsDownloadingAudio(false);
+    }
+  }, [juz, isDownloadingAudio, currentSurah]);
 
   const { onTouchStart, onTouchMove, onTouchEnd } = useSwipeNavigation({ 
     onSwipeLeft: scrollDirection === "horizontal" ? handleNextPage : undefined, 
@@ -527,6 +570,8 @@ function JuzViewer() {
           bookmarked={savedBookmark?.juz === num && savedBookmark?.page === currentPage}
           juzNumber={num}
           hifzMode={hifzMode}
+          onDownloadAudio={handleDownloadAudio}
+          isDownloadingAudio={isDownloadingAudio}
           onToggleHifzMode={() => {
             const nextMode = !hifzMode;
             setHifzMode(nextMode);

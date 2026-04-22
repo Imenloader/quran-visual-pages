@@ -7,6 +7,8 @@ import { motion, AnimatePresence } from "motion/react";
 import QuranHeader from "@/components/QuranHeader";
 import { toast } from "sonner";
 import { syncService } from "@/services/syncService";
+import { fetchSurahText } from "@/services/quranService";
+import { Loader2 } from "lucide-react";
 
 interface MemorizationProgress {
   [surahNumber: number]: {
@@ -23,6 +25,7 @@ const Memorization: React.FC = () => {
   const [ayahs, setAyahs] = useState<{ text: string; number: number; hidden: boolean }[]>([]);
   const [progress, setProgress] = useState<MemorizationProgress>({});
   const [loading, setLoading] = useState(true);
+  const [fetchingAyahs, setFetchingAyahs] = useState(false);
 
   useEffect(() => {
     loadProgress();
@@ -41,14 +44,22 @@ const Memorization: React.FC = () => {
 
   const startSurah = async (surah: typeof surahIndex[0]) => {
     setSelectedSurah(surah);
-    // Mocking fetching ayahs (in a real app, we'd fetch from an API or local data)
-    // For now, let's use some dailyVerses or mock data
-    const mockAyahs = Array.from({ length: 10 }, (_, i) => ({
-      text: `آية رقم ${i + 1} من سورة ${surah.name}`,
-      number: i + 1,
-      hidden: true
-    }));
-    setAyahs(mockAyahs);
+    setFetchingAyahs(true);
+    try {
+      const data = await fetchSurahText(surah.number);
+      if (data.code === 200) {
+        const surahAyahs = data.data.ayahs.map((a: any) => ({
+          text: a.text,
+          number: a.numberInSurah,
+          hidden: true
+        }));
+        setAyahs(surahAyahs);
+      }
+    } catch (err) {
+      toast.error(isAr ? "فشل تحميل الآيات" : "Failed to load ayahs");
+    } finally {
+      setFetchingAyahs(false);
+    }
   };
 
   const toggleAyah = (index: number) => {
@@ -144,41 +155,48 @@ const Memorization: React.FC = () => {
             </div>
 
             <div className="space-y-6">
-              {ayahs.map((ayah, idx) => (
-                <motion.div
-                  key={idx}
-                  layout
-                  className="p-8 rounded-[2rem] bg-card border border-border/40 space-y-6 relative overflow-hidden group"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
-                      {isAr ? toArabicNumber(ayah.number) : ayah.number}
-                    </span>
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => toggleAyah(idx)}
-                        className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center hover:bg-primary/10 transition-colors"
-                      >
-                        {ayah.hidden ? <Eye size={18} /> : <EyeOff size={18} />}
-                      </button>
-                      <button 
-                        onClick={() => markAsMastered(ayah.number)}
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
-                          progress[selectedSurah.number]?.masteredAyahs.includes(ayah.number)
-                            ? "bg-emerald-500 text-white"
-                            : "bg-muted hover:bg-emerald-500/10 hover:text-emerald-500"
-                        }`}
-                      >
-                        <CheckCircle2 size={18} />
-                      </button>
+              {fetchingAyahs ? (
+                <div className="flex flex-col items-center justify-center py-20 gap-4">
+                  <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                  <p className="text-muted-foreground font-naskh">{isAr ? "جاري تحميل الآيات..." : "Loading ayahs..."}</p>
+                </div>
+              ) : (
+                ayahs.map((ayah, idx) => (
+                  <motion.div
+                    key={idx}
+                    layout
+                    className="p-8 rounded-[2rem] bg-card border border-border/40 space-y-6 relative overflow-hidden group"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
+                        {isAr ? toArabicNumber(ayah.number) : ayah.number}
+                      </span>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => toggleAyah(idx)}
+                          className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center hover:bg-primary/10 transition-colors"
+                        >
+                          {ayah.hidden ? <Eye size={18} /> : <EyeOff size={18} />}
+                        </button>
+                        <button 
+                          onClick={() => markAsMastered(ayah.number)}
+                          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                            progress[selectedSurah.number]?.masteredAyahs.includes(ayah.number)
+                              ? "bg-emerald-500 text-white"
+                              : "bg-muted hover:bg-emerald-500/10 hover:text-emerald-500"
+                          }`}
+                        >
+                          <CheckCircle2 size={18} />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className={`text-3xl font-quran leading-relaxed text-right transition-all duration-700 ${ayah.hidden ? "blur-md opacity-20 select-none" : "blur-0 opacity-100"}`}>
-                    {ayah.text}
-                  </div>
-                </motion.div>
-              ))}
+                    
+                    <div className={`text-3xl font-quran leading-relaxed text-right transition-all duration-700 ${ayah.hidden ? "blur-md opacity-20 select-none" : "blur-0 opacity-100"}`}>
+                      {ayah.text}
+                    </div>
+                  </motion.div>
+                ))
+              )}
             </div>
           </div>
         )}
