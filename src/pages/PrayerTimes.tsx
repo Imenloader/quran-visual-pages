@@ -25,7 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 
-const CairoClock = lazy(() => import("@/components/CairoClock"));
+import CairoClock from "@/components/CairoClock";
 
 // --- تم تحويل const إلى function لتفادي مشكلة الـ Initialization في الـ APK ---
 function CustomSelect({ 
