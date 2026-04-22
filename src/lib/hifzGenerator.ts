@@ -19,7 +19,7 @@ export const generatePageQuiz = async (pageNumber: number, difficulty: "beginner
 
   // 1. Positional: First word of the page (Good for everyone)
   const firstAyahText = ayahs[0].text;
-  const firstWord = firstAyahText.split(/\s+/)[0];
+  const firstWord = firstAyahText.split(/\s+/).filter(w => w.length > 0)[0];
   
   if (difficulty === "beginner") {
     // MCQ for beginners
@@ -28,7 +28,7 @@ export const generatePageQuiz = async (pageNumber: number, difficulty: "beginner
       type: "positional",
       question: "ما هي الكلمة التي تبدأ بها هذه الصفحة؟",
       answer: firstWord,
-      options: shuffle([firstWord, "الحمد", "يا أيها", "إن الذين"]),
+      options: shuffle([firstWord, "الحمد", "يا أيها", "إن الذين", "قل", "إذا", "سبح"].filter(w => w !== firstWord).slice(0, 3).concat(firstWord)),
       hint: "انظر إلى بداية أول آية"
     });
   } else {
@@ -37,13 +37,14 @@ export const generatePageQuiz = async (pageNumber: number, difficulty: "beginner
       type: "positional",
       question: "ما هي الكلمة الأولى في هذه الصفحة؟",
       answer: firstWord,
-      hint: `تبدأ بحرف: ${firstWord[0]}`
+      hint: `تبدأ بحرف: ${firstWord ? firstWord[0] : ""}`
     });
   }
 
   // 2. Completion: Verse Start (Good for newcomers)
-  const randomIdx = Math.floor(Math.random() * ayahs.length);
-  const verse = ayahs[randomIdx];
+  const filteredAyahs = ayahs.filter(a => a.text.split(/\s+/).length > 4);
+  const randomIdx = Math.floor(Math.random() * (filteredAyahs.length || ayahs.length));
+  const verse = filteredAyahs[randomIdx] || ayahs[randomIdx];
   const verseWords = verse.text.split(/\s+/).filter(w => w.length > 0);
   
   if (difficulty === "beginner" && verseWords.length > 3) {
@@ -54,12 +55,12 @@ export const generatePageQuiz = async (pageNumber: number, difficulty: "beginner
       type: "completion",
       question: `ما هي الكلمة التالية بعد: "${start} ..."؟`,
       answer: nextWord,
-      options: shuffle([nextWord, "الله", "الذين", "كذلك"]),
+      options: shuffle([nextWord, "الله", "الذين", "كذلك", "هم", "كانوا", "من"].filter(w => w !== nextWord).slice(0, 3).concat(nextWord)),
       verseKey: `${verse.surah.number}:${verse.numberInSurah}`
     });
-  } else if (verseWords.length > 5) {
+  } else if (verseWords.length > 3) {
     // Fill in the blank for advanced
-    const targetIdx = Math.floor(Math.random() * (verseWords.length - 3)) + 2;
+    const targetIdx = Math.floor(Math.random() * (verseWords.length - 2)) + 1;
     const missingWord = verseWords[targetIdx];
     const partialVerse = [...verseWords];
     partialVerse[targetIdx] = "..........";
@@ -67,7 +68,7 @@ export const generatePageQuiz = async (pageNumber: number, difficulty: "beginner
     questions.push({
       id: `comp-${pageNumber}-${randomIdx}`,
       type: "completion",
-      question: `أكمل الفراغ في الآية: "${partialVerse.slice(Math.max(0, targetIdx - 3), targetIdx + 4).join(" ")}"`,
+      question: `أكمل الفراغ في الآية: "${partialVerse.slice(Math.max(0, targetIdx - 2), targetIdx + 3).join(" ")}"`,
       answer: missingWord,
       verseKey: `${verse.surah.number}:${verse.numberInSurah}`
     });
@@ -98,7 +99,7 @@ export const generatePageQuiz = async (pageNumber: number, difficulty: "beginner
         type: "transitional",
         question: difficulty === "beginner" ? "كيف تبدأ الصفحة التالية؟" : "اذكر أول كلمات الصفحة التالية",
         answer: nextWords,
-        options: difficulty === "beginner" ? shuffle([nextWords, "يا أيها الناس", "الم", "تبارك الذي"]) : undefined,
+        options: difficulty === "beginner" ? shuffle([nextWords, "يا أيها الناس", "الم", "تبارك الذي", "قد أفلح", "سبح لله", "إنما"].filter(w => w !== nextWords).slice(0, 3).concat(nextWords)) : undefined,
       });
     }
   }
