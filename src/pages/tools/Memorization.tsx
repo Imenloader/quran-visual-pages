@@ -5,6 +5,9 @@ import { surahIndex, toArabicNumber } from "@/data/quranData";
 import { dailyVerses } from "@/data/dailyVersesData";
 import { motion, AnimatePresence } from "motion/react";
 import QuranHeader from "@/components/QuranHeader";
+import { useUser } from "@/contexts/UserContext";
+import { useTheme } from "@/contexts/ThemeContext";
+import FontSizeAdjuster from "@/components/FontSizeAdjuster";
 import { toast } from "sonner";
 import { syncService } from "@/services/syncService";
 import { fetchSurahText } from "@/services/quranService";
@@ -20,6 +23,7 @@ interface MemorizationProgress {
 const Memorization: React.FC = () => {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === "ar";
+  const { fontSizes } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSurah, setSelectedSurah] = useState<typeof surahIndex[0] | null>(null);
   const [ayahs, setAyahs] = useState<{ text: string; number: number; hidden: boolean }[]>([]);
@@ -154,6 +158,10 @@ const Memorization: React.FC = () => {
               </div>
             </div>
 
+            <div className="flex justify-center mb-8">
+              <FontSizeAdjuster context="memorization" min={18} max={60} />
+            </div>
+
             <div className="space-y-6">
               {fetchingAyahs ? (
                 <div className="flex flex-col items-center justify-center py-20 gap-4">
@@ -191,7 +199,10 @@ const Memorization: React.FC = () => {
                       </div>
                     </div>
                     
-                    <div className={`text-3xl font-quran leading-relaxed text-right transition-all duration-700 ${ayah.hidden ? "blur-md opacity-20 select-none" : "blur-0 opacity-100"}`}>
+                    <div 
+                      className={`text-3xl font-quran leading-relaxed text-right transition-all duration-700 ${ayah.hidden ? "blur-md opacity-20 select-none" : "blur-0 opacity-100"}`}
+                      style={{ fontSize: `${fontSizes.memorization || 26}px` }}
+                    >
                       {ayah.text}
                     </div>
                   </motion.div>

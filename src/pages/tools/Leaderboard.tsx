@@ -22,15 +22,17 @@ const Leaderboard: React.FC = () => {
   const [users, setUsers] = useState<LeaderboardUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"points" | "totalJuzCompleted">("points");
 
   useEffect(() => {
     fetchLeaderboard();
-  }, []);
+  }, [sortBy]);
 
   const fetchLeaderboard = async () => {
+    setLoading(true);
     try {
       const usersRef = collection(db, "users");
-      const q = query(usersRef, orderBy("points", "desc"), limit(100));
+      const q = query(usersRef, orderBy(sortBy, "desc"), limit(100));
       const querySnapshot = await getDocs(q);
       
       const leaderboardData = querySnapshot.docs.map(doc => ({
@@ -76,6 +78,21 @@ const Leaderboard: React.FC = () => {
           <p className="text-muted-foreground font-naskh">
             {isAr ? "نخبة من المتنافسين في الخيرات وطاعة الرحمن" : "The elite competitors in good deeds and worship"}
           </p>
+        </div>
+
+        <div className="flex justify-center gap-4">
+          <button
+            onClick={() => setSortBy("points")}
+            className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${sortBy === "points" ? "bg-primary text-white shadow-lg" : "bg-card border border-border text-muted-foreground hover:bg-primary/5"}`}
+          >
+            {isAr ? "بالنقاط" : "By Points"}
+          </button>
+          <button
+            onClick={() => setSortBy("totalJuzCompleted")}
+            className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${sortBy === "totalJuzCompleted" ? "bg-primary text-white shadow-lg" : "bg-card border border-border text-muted-foreground hover:bg-primary/5"}`}
+          >
+            {isAr ? "بالأجزاء المختومة" : "By Juz Completed"}
+          </button>
         </div>
 
         <div className="relative max-w-md mx-auto">
@@ -147,9 +164,13 @@ const Leaderboard: React.FC = () => {
                   <div className="text-left">
                     <div className="flex items-center gap-2 text-gold font-serif font-bold text-xl">
                       <TrendingUp size={18} />
-                      {isAr ? toArabicNumber(user.points) : user.points.toLocaleString()}
+                      {isAr 
+                        ? toArabicNumber(sortBy === "points" ? user.points : (user.totalJuzCompleted || 0)) 
+                        : (sortBy === "points" ? user.points : (user.totalJuzCompleted || 0)).toLocaleString()}
                     </div>
-                    <span className="text-[10px] text-muted-foreground font-sans font-bold tracking-widest uppercase">{isAr ? "نقطة" : "Points"}</span>
+                    <span className="text-[10px] text-muted-foreground font-sans font-bold tracking-widest uppercase">
+                      {sortBy === "points" ? (isAr ? "نقطة" : "Points") : (isAr ? "جزء" : "Juz")}
+                    </span>
                   </div>
                 </motion.div>
               ))}

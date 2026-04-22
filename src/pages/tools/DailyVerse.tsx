@@ -8,16 +8,17 @@ import { toast } from "sonner";
 import { useTheme } from "@/contexts/ThemeContext";
 import { applyTajweedColors } from "@/lib/tajweedParser";
 import BackButton from "@/components/BackButton";
+import { useNativeWidgets } from "@/hooks/useNativeWidgets";
 
 const DailyVerse = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { tajweedMode } = useTheme();
   const [verse, setVerse] = useState<DailyVerseData | null>(null);
-  const [isLiked, setIsLiked] = useState(false);
   const [copied, setCopied] = useState(false);
-
   const [isSharing, setIsSharing] = useState(false);
+
+  useNativeWidgets(verse);
 
   const getDailyVerse = (isRandom = false) => {
     if (isRandom) {

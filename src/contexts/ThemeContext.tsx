@@ -45,6 +45,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     reading: 24,
     athkar: 22,
     tafsir: 20,
+    memorization: 26,
     default: 18
   });
   const [isLoaded, setIsLoaded] = useState(false);

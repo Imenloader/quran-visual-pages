@@ -13,6 +13,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 import { normalizeArabic } from "@/lib/arabicUtils";
 import { applyTajweedColors } from "@/lib/tajweedParser";
 import { motion, AnimatePresence } from "motion/react";
+import { useNativeWidgets } from "@/hooks/useNativeWidgets";
 
 const BOOKMARK_KEY = "quran-bookmark";
 
@@ -55,6 +56,9 @@ function Index() {
   const navigate = useNavigate();
   const bookmark = getBookmark();
   const [verseOfDay, setVerseOfDay] = useState<{ text: string; surah: string; number: number } | null>(null);
+  
+  // Sync to native widgets
+  useNativeWidgets(verseOfDay);
 
   useEffect(() => {
     // Fetch verse of the day

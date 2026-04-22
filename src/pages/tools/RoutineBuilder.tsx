@@ -132,7 +132,7 @@ const RoutineBuilder = () => {
               <div className="w-16 h-16 rounded-3xl bg-orange-500/20 flex items-center justify-center mx-auto mb-4 backdrop-blur-md">
                 <Flame className="w-10 h-10 fill-current" />
               </div>
-              <p className="text-sm font-bold uppercase tracking-widest opacity-80">{isAr ? "سلسلة الإنجاز" : "Current Streak"}</p>
+              <p className="text-sm font-bold uppercase tracking-widest text-orange-700 dark:text-orange-300">{isAr ? "سلسلة الإنجاز" : "Current Streak"}</p>
               <p className="text-5xl font-bold">{streak} <span className="text-2xl font-normal">{isAr ? "أيام" : "Days"}</span></p>
             </div>
           </div>
