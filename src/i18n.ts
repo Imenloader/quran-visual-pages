@@ -1020,6 +1020,10 @@ i18n
     defaultNS: 'translation',
     interpolation: {
       escapeValue: false
+    },
+    detection: {
+      order: ['localStorage', 'navigator'],
+      caches: ['localStorage']
     }
   });
 
