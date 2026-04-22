@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff, Clock, Send, ChevronLeft, X, BookOpen, Wand2, LayoutGrid, DownloadCloud, Sparkles, User, Trophy, Calendar, RefreshCw, Check, Shield, Flame, GraduationCap, Heart, type LucideIcon } from "lucide-react";
+import { Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff, Clock, Send, ChevronLeft, X, BookOpen, Wand2, LayoutGrid, DownloadCloud, Sparkles, User, Trophy, Calendar, RefreshCw, Check, Shield, Flame, GraduationCap, Heart, Upload, Image as ImageIcon, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useNotifications } from "@/hooks/useNotifications";
 import { usePeriodicReminders } from "@/hooks/usePeriodicReminders";
@@ -12,13 +12,15 @@ import { useTheme } from "@/contexts/ThemeContext";
 import JuzImporter from "@/components/JuzImporter";
 import OfflineManager from "@/components/OfflineManager";
 import UpdateManager from "@/components/UpdateManager";
+import AudioDownloadManager from "@/components/AudioDownloadManager";
 import { useTranslation } from "react-i18next";
 import BackButton from "@/components/BackButton";
 
 import { useUser } from "@/contexts/UserContext";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
-import { auth } from "@/firebase";
+import { auth, storage } from "@/firebase";
 import { signOut } from "firebase/auth";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import AuthModal from "@/components/AuthModal";
 
 type ThemeMode = "light" | "dark" | "sepia";
@@ -40,6 +42,7 @@ const Profile = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<any>(null);
   const [newName, setNewName] = useState(profile.name);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   useEffect(() => {
     setNewName(profile.name);
@@ -49,6 +52,45 @@ const Profile = () => {
     updateProfile({ name: newName });
     setIsEditingProfile(false);
     toast.success(t("profile.successUpdate"));
+  };
+
+  const handleUploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error(t("profile.invalidFileType") || "Please select an image file");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error(t("profile.fileTooLarge") || "File size must be less than 5MB");
+      return;
+    }
+
+    if (!auth.currentUser) {
+      toast.error(t("profile.mustBeLoggedIn") || "You must be logged in to upload a profile picture");
+      setShowAuthModal(true);
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+
+    try {
+      const storageRef = ref(storage, `avatars/${auth.currentUser.uid}/${Date.now()}_${file.name}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+
+      updateProfile({ avatar: downloadURL });
+      toast.success(t("profile.avatarUploaded") || "Profile picture uploaded successfully!");
+    } catch (error) {
+      console.error("Avatar upload error:", error);
+      toast.error(t("profile.uploadFailed") || "Failed to upload profile picture");
+    } finally {
+      setIsUploadingAvatar(false);
+    }
   };
   const { settings: notifSettings, updateSettings: updateNotif, permissionState, requestPermission, testNotification, isSupported } = useNotifications();
   const { getSettings: getPeriodicSettings, updateSettings: updatePeriodicSettings } = usePeriodicReminders();
@@ -1181,6 +1223,39 @@ const Profile = () => {
 
                 <div className="space-y-3">
                   <label className={`text-[9px] font-bold text-primary/70 uppercase tracking-widest px-2 block ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t("profile.chooseAvatar")}</label>
+                  
+                  {/* Upload Profile Picture Button */}
+                  <div className="flex flex-col items-center gap-3 p-4 rounded-xl bg-primary/5 border border-primary/10">
+                    <div className="relative">
+                      {profile.avatar ? (
+                        <img src={profile.avatar} alt="Profile" className="w-20 h-20 rounded-full object-cover border-2 border-accent" />
+                      ) : (
+                        <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center border-2 border-primary/20">
+                          <User size={32} className="text-primary/50" />
+                        </div>
+                      )}
+                      {isUploadingAvatar && (
+                        <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center">
+                          <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+                        </div>
+                      )}
+                    </div>
+                    
+                    <label className="cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleUploadAvatar}
+                        disabled={isUploadingAvatar}
+                        className="hidden"
+                      />
+                      <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-deep text-gold font-serif font-bold text-sm shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                        <Upload size={16} />
+                        <span>{isUploadingAvatar ? (t("profile.uploading") || "Uploading...") : (t("profile.uploadPicture") || "Upload Picture")}</span>
+                      </div>
+                    </label>
+                  </div>
+
                   <div className="grid grid-cols-4 gap-2.5">
                     {[
                       "/avatar-man-1.svg",
