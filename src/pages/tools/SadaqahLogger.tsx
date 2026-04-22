@@ -6,7 +6,7 @@ import {
   Plus, 
   History, 
   TrendingUp, 
-  DollarSign, 
+  Banknote, 
   Calendar, 
   Trash2, 
   Gift, 
@@ -140,7 +140,7 @@ const SadaqahLogger = () => {
                 </div>
                 <div className="text-end">
                   <p className="text-xs font-bold uppercase tracking-widest opacity-80">{isAr ? "إجمالي العطاء" : "Total Giving"}</p>
-                  <p className="text-4xl font-bold">{totalAmount.toLocaleString()} <span className="text-sm font-normal">USD</span></p>
+                  <p className="text-4xl font-bold">{totalAmount.toLocaleString()} <span className="text-sm font-normal">{isAr ? "ج.م" : "EGP"}</span></p>
                 </div>
               </div>
               <div className="pt-4 border-t border-white/20 flex justify-between text-sm">
@@ -184,8 +184,8 @@ const SadaqahLogger = () => {
             {monthlyGoal > 0 ? (
               <div className="space-y-2">
                 <div className="flex justify-between text-xs text-muted-foreground font-bold">
-                  <span>{isAr ? "هذا الشهر" : "This month"}: ${monthlyTotal.toLocaleString()}</span>
-                  <span>{isAr ? "الهدف" : "Goal"}: ${monthlyGoal.toLocaleString()}</span>
+                  <span>{isAr ? "هذا الشهر" : "This month"}: {monthlyTotal.toLocaleString()} {isAr ? "ج.م" : "EGP"}</span>
+                  <span>{isAr ? "الهدف" : "Goal"}: {monthlyGoal.toLocaleString()} {isAr ? "ج.م" : "EGP"}</span>
                 </div>
                 <div className="h-3 bg-muted rounded-full overflow-hidden">
                   <div
@@ -199,7 +199,7 @@ const SadaqahLogger = () => {
                   <p className="text-xs text-muted-foreground">
                     {goalPercent >= 100
                       ? (isAr ? "🎉 تجاوزت هدفك هذا الشهر!" : "🎉 Goal achieved this month!")
-                      : (isAr ? `تبقّى $${(monthlyGoal - monthlyTotal).toLocaleString()}` : `$${(monthlyGoal - monthlyTotal).toLocaleString()} remaining`)}
+                      : (isAr ? `تبقّى ${(monthlyGoal - monthlyTotal).toLocaleString()} ج.م` : `${(monthlyGoal - monthlyTotal).toLocaleString()} EGP remaining`)}
                   </p>
                   {goalPercent >= 100 && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
                 </div>
@@ -229,7 +229,7 @@ const SadaqahLogger = () => {
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                   />
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 </div>
               </div>
 
@@ -315,7 +315,7 @@ const SadaqahLogger = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-6">
-                      <p className="text-xl font-bold text-rose-500">+${entry.amount.toLocaleString()}</p>
+                      <p className="text-xl font-bold text-rose-500">+{entry.amount.toLocaleString()} {isAr ? "ج.م" : "EGP"}</p>
                       <Button 
                         variant="ghost" 
                         size="icon" 
