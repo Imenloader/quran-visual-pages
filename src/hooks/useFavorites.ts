@@ -1,36 +1,54 @@
 import { useState, useCallback, useEffect } from "react";
-import { storage } from "@/lib/storage";
+import { syncService } from "@/services/syncService";
+import { auth } from "@/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
-export type FavoriteItem =
+export interface FavoriteCollection {
+  id: string;
+  name: string;
+  color?: string;
+}
+
+export type FavoriteItem = (
   | { type: "juz"; id: number; nickname?: string }
   | { type: "dhikr"; id: number; categoryId: string; nickname?: string }
   | { type: "recitation"; id: number; surahName: string; reciterId: number; reciterName: string; moshafId: number; moshafServer: string; nickname?: string }
   | { type: "reciter"; id: number; name: string; nickname?: string }
-  | { type: "hadith"; id: number; bookId: string; bookName: string; text: string; nickname?: string };
+  | { type: "hadith"; id: number; bookId: string; bookName: string; text: string; nickname?: string }
+) & { collectionId?: string };
 
 const STORAGE_KEY = "quran-favorites";
+const COLLECTIONS_KEY = "quran-favorite-collections";
 
 export const useFavorites = () => {
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
+  const [collections, setCollections] = useState<FavoriteCollection[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  useEffect(() => {
-    const loadData = async () => {
-      const stored = await storage.get(STORAGE_KEY);
-      if (stored) {
-        try {
-          setFavorites(JSON.parse(stored));
-        } catch (e) {
-          console.error("Failed to parse favorites", e);
-        }
-      }
-      setIsLoaded(true);
-    };
-    loadData();
+  const loadData = useCallback(async () => {
+    const savedFavs = await syncService.loadData<FavoriteItem[]>(STORAGE_KEY, []);
+    setFavorites(savedFavs);
+    const savedColls = await syncService.loadData<FavoriteCollection[]>(COLLECTIONS_KEY, []);
+    setCollections(savedColls);
+    setIsLoaded(true);
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loadData();
+      }
+    });
+    loadData();
+    return () => unsubscribe();
+  }, [loadData]);
+
   const saveFavorites = useCallback(async (items: FavoriteItem[]) => {
-    await storage.set(STORAGE_KEY, JSON.stringify(items));
+    await syncService.saveData(STORAGE_KEY, items);
+  }, []);
+
+  const saveCollections = useCallback(async (items: FavoriteCollection[]) => {
+    await syncService.saveData(COLLECTIONS_KEY, items);
   }, []);
 
   const reorderFavorites = useCallback(async (newOrder: FavoriteItem[]) => {
@@ -77,6 +95,29 @@ export const useFavorites = () => {
     await saveFavorites(next);
   }, [favorites, saveFavorites]);
 
+  const addCollection = useCallback(async (name: string, color?: string) => {
+    const newColl: FavoriteCollection = {
+      id: Date.now().toString(),
+      name,
+      color
+    };
+    const next = [...collections, newColl];
+    setCollections(next);
+    await saveCollections(next);
+    return newColl;
+  }, [collections, saveCollections]);
+
+  const removeCollection = useCallback(async (id: string) => {
+    const next = collections.filter(c => c.id !== id);
+    setCollections(next);
+    await saveCollections(next);
+    
+    // Remove collectionId from items in this collection
+    const nextFavs = favorites.map(f => f.collectionId === id ? { ...f, collectionId: undefined } : f);
+    setFavorites(nextFavs);
+    await saveFavorites(nextFavs);
+  }, [collections, favorites, saveCollections, saveFavorites]);
+
   const isFavorite = useCallback(
     (type: FavoriteItem["type"], id: number, reciterId?: number, moshafId?: number) => {
       if (type === "recitation" && reciterId !== undefined && moshafId !== undefined) {
@@ -90,5 +131,9 @@ export const useFavorites = () => {
     [favorites]
   );
 
-  return { favorites, toggleFavorite, isFavorite, reorderFavorites, updateFavorite };
+  return { 
+    favorites, collections, isLoaded, 
+    toggleFavorite, isFavorite, reorderFavorites, updateFavorite,
+    addCollection, removeCollection
+  };
 };

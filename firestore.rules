@@ -83,6 +83,11 @@ service cloud.firestore {
                       (isOwner(userId) && request.resource.data.role == resource.data.role) ||
                       isAdmin()
                     );
+
+      // Allow users to manage their own sub-collections (duas, sadaqah, etc.)
+      match /{allSubcollections=**} {
+        allow read, write: if isOwner(userId);
+      }
     }
 
     match /khatmas/{khatmaId} {

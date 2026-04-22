@@ -11,6 +11,7 @@ import BackButton from "@/components/BackButton";
 
 import { useTheme } from "@/contexts/ThemeContext";
 import { applyTajweedColors, rules } from "@/lib/tajweedParser";
+import FontSizeAdjuster from "@/components/FontSizeAdjuster";
 
 import { useUser } from "@/contexts/UserContext";
 
@@ -66,7 +67,7 @@ const TajweedLegend = ({ className }: { className?: string }) => {
 const Athkar = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const { tajweedMode } = useTheme();
+  const { tajweedMode, fontSizes } = useTheme();
   const isArabic = i18n.language === 'ar';
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const [counters, setCounters] = useState<Record<number, number>>(getCounters());
@@ -256,31 +257,29 @@ const Athkar = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="relative mb-12"
-        >
-          <div className="absolute inset-0 bg-muted/40 backdrop-blur-2xl rounded-[2.5rem] shadow-islamic -z-10" />
-          <SearchIcon size={20} className="absolute right-6 top-1/2 -translate-y-1/2 text-primary/70 pointer-events-none" strokeWidth={1.5} />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={t("athkar.searchPlaceholder")}
-            className="w-full bg-transparent border-none rounded-[2.5rem] pr-16 pl-16 py-6 text-lg font-serif text-primary placeholder:text-primary/60 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
-          />
-          <AnimatePresence>
+        {/* Search & Stats Bar */}
+        <div className="flex flex-col md:flex-row gap-4 items-center mb-12">
+          <div className="relative flex-1 w-full">
+            <SearchIcon className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/40" size={18} />
+            <input
+              type="text"
+              placeholder={t("athkar.searchPlaceholder")}
+              className="w-full h-14 pr-12 pl-6 rounded-2xl bg-card border border-border/40 focus:outline-none focus:ring-2 focus:ring-primary/20 font-naskh text-lg shadow-sm"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
             {searchQuery && (
-              <motion.button 
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                onClick={() => setSearchQuery("")} 
-                className="absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary/5 text-primary/40 hover:text-primary flex items-center justify-center transition-colors"
+              <button 
+                onClick={() => setSearchQuery("")}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 hover:text-primary"
               >
-                <X size={20} strokeWidth={1.5} />
-              </motion.button>
+                <X size={18} />
+              </button>
             )}
-          </AnimatePresence>
-        </motion.div>
+          </div>
+          
+          <FontSizeAdjuster context="athkar" />
+        </div>
 
         {tajweedMode && (
           <motion.div
@@ -365,7 +364,10 @@ const Athkar = () => {
                                 key={dhikr.id} 
                                 className={`relative p-8 rounded-[2rem] border transition-all duration-500 ${isDone ? "bg-emerald-deep/5 border-emerald-deep/10" : "bg-primary/5 border-primary/5 hover:bg-primary/[0.07]"}`}
                               >
-                                <p className="font-amiri text-2xl sm:text-3xl leading-[1.8] text-primary mb-8 text-right">
+                                <p 
+                                  className="font-quran leading-[1.8] text-primary text-center mb-8 selection:bg-accent/20"
+                                  style={{ fontSize: `${fontSizes.athkar || 22}px` }}
+                                >
                                   {tajweedMode ? applyTajweedColors(dhikr.text) : dhikr.text}
                                 </p>
                                 

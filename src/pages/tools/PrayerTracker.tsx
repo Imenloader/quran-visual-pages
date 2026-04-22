@@ -6,6 +6,9 @@ import { format, subDays } from "date-fns";
 import { ar } from "date-fns/locale";
 import BackButton from "@/components/BackButton";
 import QuranHeader from "@/components/QuranHeader";
+import { syncService } from "@/services/syncService";
+import { auth } from "@/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 const PRAYERS = [
   { id: "fajr",    nameAr: "الفجر",   nameEn: "Fajr" },
@@ -20,25 +23,38 @@ const PrayerTracker = () => {
   const isAr = i18n.language === "ar";
   const today = format(new Date(), "yyyy-MM-dd");
 
-  const [history, setHistory] = useState<Record<string, string[]>>(() => {
-    const saved = localStorage.getItem("prayer_history");
-    return saved ? JSON.parse(saved) : {};
-  });
-
-  // Qada (makeup) counts per prayer
-  const [qada, setQada] = useState<Record<string, number>>(() => {
-    const saved = localStorage.getItem("prayer_qada");
-    return saved ? JSON.parse(saved) : {};
-  });
-
+  const [history, setHistory] = useState<Record<string, string[]>>({});
+  const [qada, setQada] = useState<Record<string, number>>({});
   const [activeTab, setActiveTab] = useState<"today" | "qada">("today");
 
   useEffect(() => {
-    localStorage.setItem("prayer_history", JSON.stringify(history));
+    const loadInitialData = async () => {
+      const savedHistory = await syncService.loadData<Record<string, string[]>>("prayer_history", {});
+      setHistory(savedHistory);
+      const savedQada = await syncService.loadData<Record<string, number>>("prayer_qada", {});
+      setQada(savedQada);
+    };
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loadInitialData();
+      }
+    });
+
+    loadInitialData();
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (Object.keys(history).length > 0) {
+      syncService.saveData("prayer_history", history);
+    }
   }, [history]);
 
   useEffect(() => {
-    localStorage.setItem("prayer_qada", JSON.stringify(qada));
+    if (Object.keys(qada).length > 0) {
+      syncService.saveData("prayer_qada", qada);
+    }
   }, [qada]);
 
   const togglePrayer = (prayerId: string) => {

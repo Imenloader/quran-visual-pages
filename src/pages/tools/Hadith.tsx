@@ -21,6 +21,8 @@ import QuranHeader from "@/components/QuranHeader";
 import { toArabicNumber } from "@/data/quranData";
 import { useTranslation } from "react-i18next";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useTheme } from "@/contexts/ThemeContext";
+import FontSizeAdjuster from "@/components/FontSizeAdjuster";
 
 interface HadithBook {
   id: string;
@@ -55,6 +57,7 @@ const getHadithGrade = (bookId: string) => {
 const Hadith = () => {
   const { t, i18n } = useTranslation();
   const { toggleFavorite, isFavorite } = useFavorites();
+  const { fontSizes } = useTheme();
   const [books, setBooks] = useState<HadithBook[]>([]);
   const [selectedBook, setSelectedBook] = useState<string>("bukhari");
   const [hadiths, setHadiths] = useState<HadithItem[]>([]);
@@ -249,6 +252,8 @@ const Hadith = () => {
             <Filter size={20} />
             <span>{selectedBookName}</span>
           </button>
+
+          <FontSizeAdjuster context="tafsir" className="md:self-center" />
         </div>
 
         {/* Book Selector Grid */}
@@ -368,7 +373,10 @@ const Hadith = () => {
                     </div>
                   </div>
 
-                  <p className="text-xl md:text-2xl font-quran leading-loose text-right text-foreground">
+                  <p 
+                    className="font-quran leading-loose text-right text-foreground"
+                    style={{ fontSize: `${fontSizes.tafsir || 20}px` }}
+                  >
                     {hadith.arab}
                   </p>
                 </motion.div>

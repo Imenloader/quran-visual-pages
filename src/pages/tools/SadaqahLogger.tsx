@@ -21,6 +21,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
+import { syncService } from "@/services/syncService";
+import { auth } from "@/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 interface SadaqahEntry {
   id: string;
@@ -49,15 +52,26 @@ const SadaqahLogger = () => {
   const [amount, setAmount] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(categories[0]);
   const [note, setNote] = useState("");
-  const [monthlyGoal, setMonthlyGoal] = useState<number>(() =>
-    parseFloat(localStorage.getItem("sadaqah-monthly-goal") || "0")
-  );
+  const [monthlyGoal, setMonthlyGoal] = useState<number>(0);
   const [goalInput, setGoalInput] = useState("");
   const [showGoalInput, setShowGoalInput] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem('sadaqah-entries');
-    if (saved) setEntries(JSON.parse(saved));
+    const loadInitialData = async () => {
+      const savedEntries = await syncService.loadCollection<SadaqahEntry>('sadaqah-entries');
+      setEntries(savedEntries);
+      const savedGoal = await syncService.loadData<number>("sadaqah-monthly-goal", 0);
+      setMonthlyGoal(savedGoal);
+    };
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loadInitialData();
+      }
+    });
+
+    loadInitialData();
+    return () => unsubscribe();
   }, []);
 
   const addEntry = () => {
@@ -75,7 +89,7 @@ const SadaqahLogger = () => {
 
     const updated = [newEntry, ...entries];
     setEntries(updated);
-    localStorage.setItem('sadaqah-entries', JSON.stringify(updated));
+    syncService.saveCollectionItem('sadaqah-entries', newEntry);
     setAmount("");
     setNote("");
   };
@@ -83,14 +97,14 @@ const SadaqahLogger = () => {
   const removeEntry = (id: string) => {
     const updated = entries.filter(e => e.id !== id);
     setEntries(updated);
-    localStorage.setItem('sadaqah-entries', JSON.stringify(updated));
+    syncService.deleteCollectionItem('sadaqah-entries', id);
   };
 
   const saveGoal = () => {
     const val = parseFloat(goalInput);
     if (!isNaN(val) && val >= 0) {
       setMonthlyGoal(val);
-      localStorage.setItem("sadaqah-monthly-goal", String(val));
+      syncService.saveData("sadaqah-monthly-goal", val);
     }
     setShowGoalInput(false);
     setGoalInput("");

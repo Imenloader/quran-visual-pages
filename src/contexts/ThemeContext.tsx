@@ -24,6 +24,8 @@ interface ThemeContextType {
   setPreferredImageSource: (id: string | null) => void;
   atmosphericBackground: boolean;
   setAtmosphericBackground: (v: boolean) => void;
+  fontSizes: Record<string, number>;
+  setFontSize: (context: string, size: number) => void;
   isLoaded: boolean;
 }
 
@@ -39,6 +41,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [hifzMode, setHifzModeState] = useState<boolean>(false);
   const [preferredImageSource, setPreferredImageSourceState] = useState<string | null>(null);
   const [atmosphericBackground, setAtmosphericBackgroundState] = useState<boolean>(false);
+  const [fontSizes, setFontSizesState] = useState<Record<string, number>>({
+    reading: 24,
+    athkar: 22,
+    tafsir: 20,
+    default: 18
+  });
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -64,6 +72,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (savedHifz) setHifzModeState(savedHifz === "true");
       if (savedImageSource) setPreferredImageSourceState(savedImageSource);
       if (savedAtmospheric) setAtmosphericBackgroundState(savedAtmospheric === "true");
+      
+      const savedFontSizes = await storage.get("quran-font-sizes");
+      if (savedFontSizes) {
+        try {
+          setFontSizesState(JSON.parse(savedFontSizes));
+        } catch (e) {
+          console.error("Failed to parse font sizes", e);
+        }
+      }
       
       setIsLoaded(true);
     };
@@ -111,6 +128,14 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     await storage.set("quran-atmospheric-bg", v.toString());
   };
 
+  const setFontSize = async (context: string, size: number) => {
+    setFontSizesState(prev => {
+      const next = { ...prev, [context]: size };
+      storage.set("quran-font-sizes", JSON.stringify(next));
+      return next;
+    });
+  };
+
   const setIsFullscreen = (v: boolean) => {
     setIsFullscreenState(v);
     if (v) {
@@ -152,7 +177,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       isFullscreen, setIsFullscreen,
       preferredImageSource, setPreferredImageSource,
       atmosphericBackground, setAtmosphericBackground,
-      isLoaded
+      isLoaded,
+      fontSizes,
+      setFontSize
     }}>
       {children}
     </ThemeContext.Provider>

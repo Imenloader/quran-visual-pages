@@ -17,6 +17,7 @@ import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 
 import TajweedLegend from "@/components/TajweedLegend";
+import FontSizeAdjuster from "@/components/FontSizeAdjuster";
 
 interface VerseData {
   text: string;
@@ -43,7 +44,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
   onVerseInView,
   readOnly = false
 }) => {
-  const { theme, tajweedMode } = useTheme();
+  const { theme, tajweedMode, fontSizes } = useTheme();
   const { 
     currentVerseKey, syncMode, setSyncMode, 
     isPlaying, togglePlay, skipNextAyah, skipPrevAyah,
@@ -374,9 +375,16 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
 
       {tajweedMode && !hifzMode && <TajweedLegend />}
 
+      {!readOnly && (
+        <div className="flex justify-center mb-8">
+          <FontSizeAdjuster context="reading" min={20} max={80} />
+        </div>
+      )}
+
       <div 
-        className="text-3xl md:text-5xl text-primary text-center whitespace-pre-wrap break-words selection:bg-accent/30"
+        className="text-primary text-center whitespace-pre-wrap break-words selection:bg-accent/30"
         style={{ 
+          fontSize: `${fontSizes.reading || 32}px`,
           lineHeight: "2.2", 
           wordSpacing: "-0.05em",
           paddingBottom: "4rem",

@@ -45,11 +45,14 @@ const Favorites = () => {
   const { t, i18n } = useTranslation();
   const { tajweedMode } = useTheme();
   const isArabic = i18n.language === 'ar';
-  const { favorites, toggleFavorite, reorderFavorites, updateFavorite } = useFavorites();
+  const { favorites, toggleFavorite, reorderFavorites, updateFavorite, collections, addCollection, removeCollection } = useFavorites();
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<TabKey>("all");
+  const [selectedCollectionId, setSelectedCollectionId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [editingItem, setEditingItem] = useState<{ id: number; type: string; nickname: string } | null>(null);
+  const [showAddCollection, setShowAddCollection] = useState(false);
+  const [newCollectionName, setNewCollectionName] = useState("");
+  const [editingItem, setEditingItem] = useState<{ id: number; type: string; nickname: string; collectionId?: string } | null>(null);
 
   const counts = useMemo(() => {
     return {
@@ -73,6 +76,9 @@ const Favorites = () => {
         if (activeTab === "hadith") return f.type === "hadith";
         return true;
       });
+    }
+    if (selectedCollectionId) {
+      list = list.filter(f => f.collectionId === selectedCollectionId);
     }
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase();
@@ -126,10 +132,22 @@ const Favorites = () => {
     if (editingItem) {
       const originalItem = favorites.find(f => f.type === editingItem.type && f.id === editingItem.id);
       if (originalItem) {
-        updateFavorite(originalItem, { nickname: editingItem.nickname });
+        updateFavorite(originalItem, { 
+          nickname: editingItem.nickname,
+          collectionId: editingItem.collectionId === "none" ? undefined : editingItem.collectionId 
+        });
         setEditingItem(null);
         toast.success(t("profile.successUpdate"));
       }
+    }
+  };
+
+  const handleAddCollection = async () => {
+    if (newCollectionName.trim()) {
+      await addCollection(newCollectionName.trim());
+      setNewCollectionName("");
+      setShowAddCollection(false);
+      toast.success(isArabic ? "تم إنشاء المجموعة" : "Collection created!");
     }
   };
 
@@ -172,20 +190,52 @@ const Favorites = () => {
                 <motion.button
                   key={tab.key}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setActiveTab(tab.key)}
+                  onClick={() => {
+                    setActiveTab(tab.key);
+                    setSelectedCollectionId(null);
+                  }}
                   className={`flex items-center gap-3 px-6 py-3 rounded-2xl text-xs font-serif font-bold whitespace-nowrap transition-all ${
-                    activeTab === tab.key 
+                    activeTab === tab.key && !selectedCollectionId
                       ? "bg-emerald-deep text-gold shadow-lg" 
                       : "text-foreground/70 hover:bg-foreground/5"
                   }`}
                 >
-                  <span className={activeTab === tab.key ? "text-gold" : "text-foreground/20"}>{tab.icon}</span>
+                  <span className={activeTab === tab.key && !selectedCollectionId ? "text-gold" : "text-foreground/20"}>{tab.icon}</span>
                   <span>{tab.label}</span>
                   {counts[tab.key] > 0 && (
                     <span className={`min-w-[20px] h-[20px] rounded-full text-[10px] flex items-center justify-center ${
-                      activeTab === tab.key ? "bg-primary/10 text-gold" : "bg-foreground/5 text-foreground/40"
+                      activeTab === tab.key && !selectedCollectionId ? "bg-primary/10 text-gold" : "bg-foreground/5 text-foreground/40"
                     }`}>{toArabicNumber(counts[tab.key])}</span>
                   )}
+                </motion.button>
+              ))}
+            </div>
+
+            {/* Collections Bar */}
+            <div className="flex items-center gap-2 p-1 pt-0 overflow-x-auto no-scrollbar border-t border-border/5">
+              <button
+                onClick={() => setShowAddCollection(true)}
+                className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/5 text-primary/60 hover:text-primary transition-all shrink-0"
+              >
+                <Plus size={18} />
+              </button>
+              
+              {collections.map(coll => (
+                <motion.button
+                  key={coll.id}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    setSelectedCollectionId(coll.id);
+                    setActiveTab("all");
+                  }}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+                    selectedCollectionId === coll.id
+                      ? "bg-accent text-white shadow-md"
+                      : "bg-primary/5 text-primary/60 hover:bg-primary/10"
+                  }`}
+                >
+                  <Bookmark size={12} />
+                  <span>{coll.name}</span>
                 </motion.button>
               ))}
             </div>
@@ -344,7 +394,12 @@ const Favorites = () => {
 
                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
                           <button
-                            onClick={() => setEditingItem({ id: item.id, type: item.type, nickname: item.nickname || "" })}
+                            onClick={() => setEditingItem({ 
+                              id: item.id, 
+                              type: item.type, 
+                              nickname: item.nickname || "",
+                              collectionId: item.collectionId
+                            })}
                             className="w-9 h-9 rounded-xl bg-primary/5 text-primary/40 hover:text-accent hover:bg-accent/10 flex items-center justify-center transition-all"
                             title="تعديل"
                           >
@@ -399,12 +454,72 @@ const Favorites = () => {
                     autoFocus
                   />
                 </div>
+                
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-primary/40 uppercase tracking-widest px-2">المجموعة</label>
+                  <select
+                    value={editingItem.collectionId || "none"}
+                    onChange={(e) => setEditingItem({ ...editingItem, collectionId: e.target.value })}
+                    className="w-full p-4 rounded-2xl bg-primary/5 border border-primary/10 focus:border-accent outline-none font-serif text-lg transition-all text-right appearance-none"
+                  >
+                    <option value="none">بدون مجموعة</option>
+                    {collections.map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+
                 <button
                   onClick={handleUpdateNickname}
                   className="w-full py-4 rounded-2xl bg-emerald-deep text-gold font-serif font-bold text-lg shadow-lg shadow-emerald-deep/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
                 >
                   <Save size={20} />
                   حفظ التعديلات
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Add Collection Modal */}
+        <AnimatePresence>
+          {showAddCollection && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[600] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+            >
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                className="w-full max-w-md bg-card rounded-[2.5rem] border border-border/20 shadow-2xl p-6 space-y-6"
+              >
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xl font-serif font-bold text-primary">إنشاء مجموعة جديدة</h3>
+                  <button onClick={() => setShowAddCollection(false)} className="p-2 hover:bg-primary/5 rounded-xl">
+                    <X size={20} />
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-primary/40 uppercase tracking-widest px-2">اسم المجموعة</label>
+                  <input
+                    type="text"
+                    value={newCollectionName}
+                    onChange={(e) => setNewCollectionName(e.target.value)}
+                    className="w-full p-4 rounded-2xl bg-primary/5 border border-primary/10 focus:border-accent outline-none font-serif text-lg transition-all text-right"
+                    placeholder="مثال: أذكار الصباح، آيات مختارة..."
+                    autoFocus
+                    onKeyDown={(e) => e.key === 'Enter' && handleAddCollection()}
+                  />
+                </div>
+                <button
+                  onClick={handleAddCollection}
+                  className="w-full py-4 rounded-2xl bg-emerald-deep text-gold font-serif font-bold text-lg shadow-lg shadow-emerald-deep/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                >
+                  <Plus size={20} />
+                  إنشاء المجموعة
                 </button>
               </motion.div>
             </motion.div>

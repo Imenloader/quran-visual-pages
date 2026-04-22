@@ -9,6 +9,10 @@ import { toast } from "sonner";
 import { LayoutGrid, type LucideIcon } from "lucide-react";
 import * as Icons from "lucide-react";
 import { allDuas, duaCategories } from "@/data/duaData";
+import { syncService } from "@/services/syncService";
+import { auth } from "@/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { useEffect } from "react";
 
 interface CustomDua {
   id: string;
@@ -29,10 +33,23 @@ const DuaLibrary = () => {
   const [newTitleEn, setNewTitleEn] = useState("");
   const [newArabic, setNewArabic] = useState("");
   const [newNote, setNewNote] = useState("");
-  const [customDuas, setCustomDuas] = useState<CustomDua[]>(() => {
-    try { return JSON.parse(localStorage.getItem("custom-duas") || "[]"); }
-    catch { return []; }
-  });
+  const [customDuas, setCustomDuas] = useState<CustomDua[]>([]);
+
+  useEffect(() => {
+    const loadInitialData = async () => {
+      const saved = await syncService.loadCollection<CustomDua>("custom-duas");
+      setCustomDuas(saved);
+    };
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loadInitialData();
+      }
+    });
+
+    loadInitialData();
+    return () => unsubscribe();
+  }, []);
 
   const filteredDuas = allDuas.filter(dua => {
     const matchesSearch =
@@ -66,7 +83,7 @@ const DuaLibrary = () => {
     };
     const updated = [entry, ...customDuas];
     setCustomDuas(updated);
-    localStorage.setItem("custom-duas", JSON.stringify(updated));
+    syncService.saveCollectionItem("custom-duas", entry);
     setNewTitleAr(""); setNewTitleEn(""); setNewArabic(""); setNewNote("");
     setShowAddModal(false);
     toast.success(isAr ? "تم حفظ الدعاء" : "Dua saved!");
@@ -75,7 +92,7 @@ const DuaLibrary = () => {
   const deleteCustomDua = (id: string) => {
     const updated = customDuas.filter(d => d.id !== id);
     setCustomDuas(updated);
-    localStorage.setItem("custom-duas", JSON.stringify(updated));
+    syncService.deleteCollectionItem("custom-duas", id);
   };
 
   return (
