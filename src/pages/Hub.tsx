@@ -146,10 +146,10 @@ const Hub = () => {
         { name: t("hub.prayerTimes"), icon: <Zap className="w-5 h-5" />, path: "/prayer-times" },
         { name: t("hub.qibla"), icon: <Compass className="w-5 h-5" />, path: "/qibla" },
         { name: t("hub.tasbih"), icon: <Fingerprint className="w-5 h-5" />, path: "/tasbih" },
-        { name: i18n.language === 'ar' ? "التسبيح العالمي" : "Global Dhikr", icon: <Globe className="w-5 h-5" />, path: "/global-dhikr" },
+        { name: t("hub.globalDhikr"), icon: <Globe className="w-5 h-5" />, path: "/global-dhikr" },
         { name: t("hub.zakat"), icon: <Calculator className="w-5 h-5" />, path: "/zakat" },
-        { name: i18n.language === 'ar' ? "سجل الصدقات" : "Sadaqah Logger", icon: <Heart className="w-5 h-5" />, path: "/sadaqah-logger" },
-        { name: i18n.language === 'ar' ? "مكتبة الأدعية" : "Dua Library", icon: <Sparkles className="w-5 h-5" />, path: "/dua-library" },
+        { name: t("hub.sadaqahLogger"), icon: <Heart className="w-5 h-5" />, path: "/sadaqah-logger" },
+        { name: t("hub.duaLibrary"), icon: <Sparkles className="w-5 h-5" />, path: "/dua-library" },
         { name: t("hub.namesOfAllah"), icon: <Heart className="w-5 h-5" />, path: "/names-of-allah" },
       ]
     },
@@ -158,11 +158,11 @@ const Hub = () => {
       icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />,
       tools: [
         { name: t("hub.khatma"), icon: <BookOpen className="w-5 h-5" />, path: "/khatma" },
-        { name: i18n.language === 'ar' ? "الختمة الجماعية" : "Collaborative Khatma", icon: <Users className="w-5 h-5" />, path: "/khatma-jamaaiya" },
+        { name: t("hub.collaborativeKhatma"), icon: <Users className="w-5 h-5" />, path: "/khatma-jamaaiya" },
         { name: t("hub.hifzTester"), icon: <GradIcon className="w-5 h-5" />, path: "/tools/hifz-tester" },
-        { name: i18n.language === 'ar' ? "الروتين الروحاني" : "Routine Builder", icon: <Zap className="w-5 h-5" />, path: "/routine-builder" },
-        { name: i18n.language === 'ar' ? "متتبع الصيام" : "Fasting Tracker", icon: <Moon className="w-5 h-5" />, path: "/fasting-tracker" },
-        { name: "سنن الجمعة", icon: <Sparkles className="w-5 h-5" />, path: "/friday-sunan" },
+        { name: t("hub.routineBuilder"), icon: <Zap className="w-5 h-5" />, path: "/routine-builder" },
+        { name: t("hub.fastingTracker"), icon: <Moon className="w-5 h-5" />, path: "/fasting-tracker" },
+        { name: t("hub.fridaySunan"), icon: <Sparkles className="w-5 h-5" />, path: "/friday-sunan" },
         { name: t("hub.prayerTracker"), icon: <CheckCircle2 className="w-5 h-5" />, path: "/prayer-tracker" },
         { name: t("hub.qiyam"), icon: <Moon className="w-5 h-5" />, path: "/embed/qiyam" },
         { name: t("hub.khatma_external"), icon: <BookOpen className="w-5 h-5" />, path: "/embed/khatma" },
@@ -174,7 +174,7 @@ const Hub = () => {
       tools: [
         { name: t("hub.mosqueFinder"), icon: <MapPin className="w-5 h-5" />, path: "/mosque-finder" },
         { name: t("hub.halalPlaces"), icon: <MapPin className="w-5 h-5" />, path: "/halal-places" },
-        { name: i18n.language === 'ar' ? "راصد الأهلة" : "Moon Tracker", icon: <Moon className="w-5 h-5" />, path: "/moon-tracker" },
+        { name: t("hub.moonTracker"), icon: <Moon className="w-5 h-5" />, path: "/moon-tracker" },
       ]
     },
     {
@@ -183,13 +183,13 @@ const Hub = () => {
       tools: [
         { name: t("ramadan.title"), icon: <Moon className="w-5 h-5" />, path: "/ramadan" },
         { name: t("hub.library"), icon: <BookOpen className="w-5 h-5" />, path: "/library" },
-        { name: i18n.language === 'ar' ? "السيرة النبوية" : "Seerah Timeline", icon: <Calendar className="w-5 h-5" />, path: "/seerah-timeline" },
-        { name: i18n.language === 'ar' ? "المسابقة الإسلامية" : "Islamic Quiz", icon: <Brain className="w-5 h-5" />, path: "/islamic-quiz" },
-        { name: i18n.language === 'ar' ? "حاسبة المواريث" : "Inheritance Calc", icon: <Calculator className="w-5 h-5" />, path: "/inheritance-calculator" },
-        { name: i18n.language === 'ar' ? "دليل الحج والعمرة" : "Hajj & Umrah Guide", icon: <MapPin className="w-5 h-5" />, path: "/hajj-guide" },
-        { name: i18n.language === 'ar' ? "قصص الأنبياء" : "Stories of the Prophets", icon: <BookOpen className="w-5 h-5" />, path: "/prophet-stories" },
-        { name: i18n.language === 'ar' ? "دليل الأسماء الإسلامية" : "Islamic Names Directory", icon: <Fingerprint className="w-5 h-5" />, path: "/names-directory" },
-        { name: i18n.language === 'ar' ? "السنن النبوية" : "Prophetic Sunnan", icon: <Sparkles className="w-5 h-5" />, path: "/daily-adhkar" },
+        { name: t("hub.seerahTimeline"), icon: <Calendar className="w-5 h-5" />, path: "/seerah-timeline" },
+        { name: t("hub.islamicQuiz"), icon: <Brain className="w-5 h-5" />, path: "/islamic-quiz" },
+        { name: t("hub.inheritanceCalculator"), icon: <Calculator className="w-5 h-5" />, path: "/inheritance-calculator" },
+        { name: t("hub.hajjUmrahGuide"), icon: <MapPin className="w-5 h-5" />, path: "/hajj-guide" },
+        { name: t("hub.prophetStories"), icon: <BookOpen className="w-5 h-5" />, path: "/prophet-stories" },
+        { name: t("hub.namesDirectory"), icon: <Fingerprint className="w-5 h-5" />, path: "/names-directory" },
+        { name: t("hub.propheticSunnan"), icon: <Sparkles className="w-5 h-5" />, path: "/daily-adhkar" },
         { name: t("hub.hadith"), icon: <Book className="w-5 h-5" />, path: "/hadith" },
         { name: t("hub.hijri"), icon: <Calendar className="w-5 h-5" />, path: "/hijri" },
         { name: t("hub.dailyVerse"), icon: <BookOpen className="w-5 h-5" />, path: "/daily-verse" },
@@ -365,24 +365,22 @@ const Hub = () => {
           <div className={`text-center ${i18n.language === 'ar' ? 'md:text-right' : 'md:text-left'}`}>
             <h3 className="text-lg font-serif font-bold text-primary mb-2">Quraaniat — قرآنيات</h3>
             <p className="text-xs text-muted-foreground font-serif leading-relaxed italic max-w-sm">
-              {i18n.language === 'ar' 
-                ? "تطبيق شامل يهدف إلى تقريب المسلم من كتاب الله وسنة نبيه عبر تجربة رقمية فاخرة."
-                : "A comprehensive app aiming to bring Muslims closer to the Book of Allah and the Sunnah of His Prophet through a premium digital experience."}
+              {t("hub.footerDescription")}
             </p>
           </div>
           
           <div className="flex flex-wrap justify-center gap-6">
             <Link to="/privacy" className="text-xs font-serif text-muted-foreground hover:text-accent transition-colors flex items-center gap-2">
               <Shield size={14} />
-              {i18n.language === 'ar' ? "سياسة الخصوصية" : "Privacy Policy"}
+              {t("hub.privacyPolicy")}
             </Link>
             <Link to="/how-to-use" className="text-xs font-serif text-muted-foreground hover:text-accent transition-colors flex items-center gap-2">
               <BookOpen size={14} />
-              {i18n.language === 'ar' ? "دليل المستخدم" : "User Guide"}
+              {t("hub.userGuide")}
             </Link>
             <a href="mailto:GreenFeeda@gmail.com" className="text-xs font-serif text-muted-foreground hover:text-accent transition-colors flex items-center gap-2">
               <Sparkles size={14} />
-              {i18n.language === 'ar' ? "تواصل معنا" : "Contact Us"}
+              {t("hub.contactUs")}
             </a>
           </div>
           
