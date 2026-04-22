@@ -4,11 +4,10 @@ import { DownloadCloud, Info, CheckCircle2, Trash2, Database, Music } from "luci
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { getQuranPageImageUrl } from "@/data/quranData";
+import { getQuranPageImageUrl, juzData, toArabicNumber as toArabicDigits } from "@/data/quranData";
 import { useTheme } from "@/contexts/ThemeContext";
 import BackButton from "@/components/BackButton";
 import AudioDownloadManager from "@/components/AudioDownloadManager";
-import { juzData, toArabicNumber as toArabicDigits } from "@/data/quranData";
 import { useOffline } from "@/contexts/OfflineContext";
 
 const Offline = () => {
@@ -68,7 +67,7 @@ const Offline = () => {
       }
     };
     checkStorage();
-    refreshJuzCompletion();
+    if (refreshJuzCompletion) refreshJuzCompletion();
   }, [refreshJuzCompletion]);
 
   const clearCache = async () => {
@@ -81,7 +80,7 @@ const Offline = () => {
         const keys = await caches.keys();
         await Promise.all(keys.map(key => caches.delete(key)));
         setDownloadedSize("0 MB");
-        await refreshJuzCompletion();
+        if (refreshJuzCompletion) await refreshJuzCompletion();
         toast.success(t("hub.offline.clearSuccess"));
       } catch (err) {
         toast.error(t("hub.offline.clearError"));
@@ -114,7 +113,6 @@ const Offline = () => {
           const url = getQuranPageImageUrl(pageNum, tajweedMode, preferredImageSource || undefined);
           batch.push(
             fetch(url, { mode: 'no-cors' }).then(async () => {
-              // Note: no-cors responses can't be read but can be put in cache
               await cache.add(url);
               downloadedCount++;
               setDownloadProgress(Math.round((downloadedCount / totalPages) * 100));
@@ -129,12 +127,11 @@ const Offline = () => {
 
       toast.success("تم تحميل جميع صفحات المصحف بنجاح");
       
-      // Update sizes
       const usage = await navigator.storage.estimate();
       if (usage?.usage) setDownloadedSize(`${(usage.usage / (1024 * 1024)).toFixed(1)} MB`);
       const quranSize = await getCacheSize('quran-pages-cache');
       setQuranCacheSize(`${(quranSize / (1024 * 1024)).toFixed(1)} MB`);
-      await refreshJuzCompletion();
+      if (refreshJuzCompletion) await refreshJuzCompletion();
 
     } catch (err) {
       console.error("Download error:", err);
@@ -247,7 +244,7 @@ const Offline = () => {
               <h3 className="text-sm font-bold font-serif mb-3">حالة الأجزاء للأوفلاين</h3>
               <div className="max-h-64 overflow-auto space-y-2 pr-1">
                 {juzData.map((juz) => {
-                  const pct = juzCompletion[juz.number] ?? 0;
+                  const pct = (juzCompletion && juzCompletion[juz.number]) ?? 0;
                   return (
                     <div key={juz.number} className="p-2 rounded-xl border border-border/50 bg-muted/20">
                       <div className="flex items-center justify-between text-xs font-serif mb-1">
