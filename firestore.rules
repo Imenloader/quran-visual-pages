@@ -70,21 +70,14 @@ service cloud.firestore {
     // ===============================================================
 
     match /users/{userId} {
+      // Allow any authenticated user to read profiles (needed for leaderboards/social)
       allow read: if isAuthenticated();
       
-      allow create: if isAuthenticated() && 
-                    isOwner(userId) && 
-                    isValidUser(request.resource.data) &&
-                    request.resource.data.role == 'user';
-      
-      allow update: if isAuthenticated() && 
-                    isValidUser(request.resource.data) &&
-                    (
-                      (isOwner(userId) && request.resource.data.role == resource.data.role) ||
-                      isAdmin()
-                    );
+      // Allow only the owner to create/update their own profile
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
 
-      // Allow users to manage all their own data and sub-collections recursively
+      // Recursive rule for all sub-collections (favorites, athkar, etc.)
       match /{allPaths=**} {
         allow read, write: if isOwner(userId);
       }

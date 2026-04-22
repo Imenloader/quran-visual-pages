@@ -22,13 +22,22 @@ createRoot(document.getElementById("root")!).render(
 registerPeriodicSync();
 
 // Handle chunk loading errors (refresh the page if a chunk fails to load)
-window.addEventListener('error', (e) => {
-  if (e.message.includes('Failed to fetch dynamically imported module') || 
-      e.message.includes('importing a module script failed')) {
-    console.warn('Chunk load failed, reloading...', e);
+const handleChunkError = (message: string) => {
+  const lowMsg = message.toLowerCase();
+  if (lowMsg.includes('failed to fetch dynamically imported module') || 
+      lowMsg.includes('importing a module script failed') ||
+      lowMsg.includes('expected a javascript-or-wasm module script')) {
+    console.warn('Chunk load failed, reloading...', message);
     window.location.reload();
   }
-}, true);
+};
+
+window.addEventListener('error', (e) => handleChunkError(e.message), true);
+window.addEventListener('unhandledrejection', (e) => {
+  if (e.reason && e.reason.message) {
+    handleChunkError(e.reason.message);
+  }
+});
 
 // Pre-cache embedded sites after app loads
 const preCacheEmbeddedSites = async () => {
