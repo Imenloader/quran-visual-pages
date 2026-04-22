@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { DownloadCloud, Info, CheckCircle2, Trash2, Database } from "lucide-react";
+import { DownloadCloud, Info, CheckCircle2, Trash2, Database, Music } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { getQuranPageImageUrl } from "@/data/quranData";
 import { useTheme } from "@/contexts/ThemeContext";
 import BackButton from "@/components/BackButton";
+import AudioDownloadManager from "@/components/AudioDownloadManager";
 
 const Offline = () => {
   const { t, i18n } = useTranslation();
@@ -216,6 +217,22 @@ const Offline = () => {
                   </div>
                 )}
               </button>
+            </div>
+          </div>
+
+          {/* Audio Download Manager Section */}
+          <div className="space-y-4">
+            <div className="p-4 bg-card border border-border rounded-2xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
+                  <Music className="w-5 h-5" />
+                </div>
+                <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                  <h3 className="text-sm font-bold font-serif text-foreground">التلاوات الصوتية</h3>
+                  <p className="text-[10px] text-muted-foreground font-serif">إدارة تحميل التلاوات للاستماع بدون اتصال</p>
+                </div>
+              </div>
+              <AudioDownloadManager />
             </div>
           </div>
 

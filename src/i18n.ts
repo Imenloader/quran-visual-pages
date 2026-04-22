@@ -64,7 +64,8 @@ const resources = {
           "pause": "Pause",
           "resume": "Resume",
           "readyDesc": "All pages are downloaded and ready for offline use.",
-          "notReadyDesc": "Download all pages to access them without internet connection."
+          "notReadyDesc": "Download all pages to access them without internet connection.",
+          "audioDesc": "Manage audio recitations download for offline listening"
         },
         "favorites": "Favorites",
         "prayerTimes": "Prayer Times",
@@ -248,6 +249,13 @@ const resources = {
         "help": "How to Use",
         "learnHowToUse": "Learn how to navigate and use all features",
         "juzCompletedMsg": "Juz Completed!",
+        "uploadPicture": "Upload Picture",
+        "uploading": "Uploading...",
+        "avatarUploaded": "Profile picture uploaded successfully!",
+        "uploadFailed": "Failed to upload profile picture",
+        "mustBeLoggedIn": "You must be logged in to upload a profile picture",
+        "invalidFileType": "Please select an image file",
+        "fileTooLarge": "File size must be less than 5MB",
         "juzCompletedDesc": "Congratulations! You have completed Juz {{num}}.",
         "badges": {
           "earlyBird": "Early Bird",
@@ -504,7 +512,8 @@ const resources = {
           "pause": "إيقاف مؤقت",
           "resume": "استئناف",
           "readyDesc": "تم تحميل جميع الصفحات وهي جاهزة للاستخدام بدون إنترنت.",
-          "notReadyDesc": "قم بتحميل جميع الصفحات للوصول إليها في أي وقت بدون إنترنت."
+          "notReadyDesc": "قم بتحميل جميع الصفحات للوصول إليها في أي وقت بدون إنترنت.",
+          "audioDesc": "إدارة تحميل التلاوات الصوتية للاستماع بدون اتصال"
         },
         "favorites": "المفضلة",
         "prayerTimes": "مواقيت الصلاة",
@@ -689,6 +698,13 @@ const resources = {
         "learnHowToUse": "تعرف على كيفية التنقل واستخدام جميع المميزات",
         "juzCompletedMsg": "تم ختم الجزء!",
         "juzCompletedDesc": "مبارك! لقد أتممت قراءة الجزء {{num}}.",
+        "uploadPicture": "رفع صورة",
+        "uploading": "جاري الرفع...",
+        "avatarUploaded": "تم رفع الصورة الشخصية بنجاح!",
+        "uploadFailed": "فشل رفع الصورة الشخصية",
+        "mustBeLoggedIn": "يجب تسجيل الدخول لرفع صورة شخصية",
+        "invalidFileType": "يرجى اختيار ملف صورة",
+        "fileTooLarge": "يجب أن يكون حجم الملف أقل من 5 ميجابايت",
         "badges": {
           "earlyBird": "طائر مبكر",
           "quranLover": "محب القرآن",

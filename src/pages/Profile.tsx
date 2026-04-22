@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff, Clock, Send, ChevronLeft, X, BookOpen, Wand2, LayoutGrid, DownloadCloud, Sparkles, User, Trophy, Calendar, RefreshCw, Check, Shield, Flame, GraduationCap, Heart, Upload, Image as ImageIcon, type LucideIcon } from "lucide-react";
+import { Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff, Clock, Send, ChevronLeft, X, BookOpen, Wand2, LayoutGrid, DownloadCloud, Sparkles, User, Trophy, Calendar, RefreshCw, Check, Shield, Flame, GraduationCap, Heart, Upload, Image as ImageIcon, Music, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useNotifications } from "@/hooks/useNotifications";
 import { usePeriodicReminders } from "@/hooks/usePeriodicReminders";
@@ -833,12 +833,26 @@ const Profile = () => {
                     )}
 
                     {activeCategory === "offline" && (
-                      <section className="space-y-3">
+                      <section className="space-y-4">
                         <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
                           <h3 className="text-sm font-serif font-bold text-primary">{t("hub.offline.title")}</h3>
                           <p className="text-[8px] text-primary/70">{t("hub.offline.manageDesc") || "Manage offline content and storage"}</p>
                         </div>
                         <OfflineManager />
+                        
+                        {/* Audio Download Manager Section */}
+                        <div className="pt-4 border-t border-border/40">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
+                              <Music className="w-5 h-5" />
+                            </div>
+                            <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                              <h3 className="text-sm font-bold font-serif text-foreground">{t("recitations.audioLibrary") || "مكتبة التلاوات"}</h3>
+                              <p className="text-[10px] text-muted-foreground font-serif">{t("hub.offline.audioDesc") || "إدارة تحميل التلاوات للاستماع بدون اتصال"}</p>
+                            </div>
+                          </div>
+                          <AudioDownloadManager />
+                        </div>
                       </section>
                     )}
 
