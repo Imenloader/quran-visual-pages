@@ -39,10 +39,10 @@ const AudioDownloadManager: React.FC = () => {
       .then((items) => {
         setReciters(items);
         if (items.length === 0) {
-          setRecitersError(t("hub.offline.clearError"));
+          setRecitersError(t("hub.offline.fetchError"));
         }
       })
-      .catch(() => setRecitersError(t("hub.offline.clearError")))
+      .catch(() => setRecitersError(t("hub.offline.fetchError")))
       .finally(() => setIsLoadingReciters(false));
 
     checkCacheStatus();

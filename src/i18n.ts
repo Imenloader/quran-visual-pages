@@ -65,7 +65,8 @@ const resources = {
           "resume": "Resume",
           "readyDesc": "All pages are downloaded and ready for offline use.",
           "notReadyDesc": "Download all pages to access them without internet connection.",
-          "audioDesc": "Manage audio recitations download for offline listening"
+          "audioDesc": "Manage audio recitations download for offline listening",
+          "fetchError": "Failed to fetch data. Please check your internet connection."
         },
         "favorites": "Favorites",
         "prayerTimes": "Prayer Times",
@@ -99,6 +100,7 @@ const resources = {
         "audioLibrary": "Audio Library",
         "favorites": "Favorites",
         "recitersAndSurahs": "Reciters & Surahs",
+        "fetchError": "Failed to fetch recitations. Please try again.",
         "playlists": "Playlists"
       },
       "tasbih": {
@@ -209,6 +211,8 @@ const resources = {
         "fontSize": "Font Size",
         "notifications": "Notifications",
         "account": "Account",
+        "accountManagement": "Account Management",
+        "offlineManagement": "Content Management",
         "syncDesc": "Sync your progress across devices",
         "loginPrompt": "Sign in to sync your points, levels, and Khatma progress to the cloud.",
         "loginWithGoogle": "Login with Google",
@@ -313,6 +317,17 @@ const resources = {
           "20": "Ultimate Sage"
         }
       },
+      "routine": {
+        "title": "Spiritual Routine Builder",
+        "subtitle": "Build your daily habits and maintain acts of worship",
+        "streak": "Current Streak",
+        "days": "Days",
+        "progress": "Today's Progress",
+        "progressDesc": "You completed {{completed}} out of {{total}} habits",
+        "newHabit": "Add a new habit...",
+        "dailyHabit": "Daily Habit",
+        "quote": "“The most beloved of deeds to Allah are those that are most consistent, even if they are small.” — Prophetic Hadith"
+      },
       "settings": {
         "title": "Customize Experience",
         "subtitle": "Configure your spiritual space for comfort, making your daily routine a journey of peace and beauty",
@@ -338,7 +353,8 @@ const resources = {
           "sepia": "Warm Sepia"
         },
         "update": {
-          "title": "App Updates",
+          "title": "Updates",
+          "system": "App Updates",
           "version": "App Version",
           "check": "Check for Updates",
           "checking": "Checking...",
@@ -350,6 +366,27 @@ const resources = {
           "installNow": "Install New Update",
           "lastCheck": "Last check",
           "info": "The app updates automatically when connected to the internet. You can manually check here to ensure you have the latest features and fixes."
+        }
+      },
+      "hub": {
+        "offline": {
+          "title": "Offline Management",
+          "manageDesc": "Manage offline content and storage",
+          "audioDesc": "Manage recitations for offline listening",
+          "ready": "Content is ready for offline use",
+          "downloading": "Downloading... {{progress}}%",
+          "downloadAll": "Download All Content",
+          "downloadFailed": "Failed to download {{count}} items",
+          "deleteData": "Clear All Cached Data",
+          "fetchError": "Failed to fetch reciters list",
+          "connectToStart": "Connect to internet to start download",
+          "clearSuccess": "Data cleared successfully",
+          "clearError": "Action failed. Please try again.",
+          "clearConfirm": "This will remove all downloaded pages and audio from your device. Do you want to proceed?",
+          "onlineStatus": "You are online",
+          "offlineStatus": "You are offline",
+          "pages": "Pages",
+          "storageInfo": "Downloaded content is stored in your browser's local cache and will be available even without internet connection."
         }
       },
       "index": {
@@ -517,7 +554,8 @@ const resources = {
           "resume": "استئناف",
           "readyDesc": "تم تحميل جميع الصفحات وهي جاهزة للاستخدام بدون إنترنت.",
           "notReadyDesc": "قم بتحميل جميع الصفحات للوصول إليها في أي وقت بدون إنترنت.",
-          "audioDesc": "إدارة تحميل التلاوات الصوتية للاستماع بدون اتصال"
+          "audioDesc": "إدارة تحميل التلاوات الصوتية للاستماع بدون اتصال",
+          "fetchError": "فشل جلب البيانات. يرجى التأكد من اتصال الإنترنت."
         },
         "favorites": "المفضلة",
         "prayerTimes": "مواقيت الصلاة",
@@ -661,6 +699,8 @@ const resources = {
         "fontSize": "حجم الخط",
         "notifications": "التنبيهات",
         "account": "الحساب",
+        "accountManagement": "إدارة الحساب",
+        "offlineManagement": "إدارة المحتوى",
         "syncDesc": "مزامنة تقدمك عبر جميع أجهزتك",
         "loginPrompt": "قم بتسجيل الدخول لمزامنة نقاطك ومستواك وتقدمك في الختمات مع السحابة.",
         "loginWithGoogle": "تسجيل الدخول بجوجل",
@@ -765,6 +805,17 @@ const resources = {
           "20": "الحكيم الأسمى"
         }
       },
+      "routine": {
+        "title": "مخطط الروتين الروحاني",
+        "subtitle": "ابنِ عاداتك اليومية وداوم على الطاعات",
+        "streak": "سلسلة الإنجاز",
+        "days": "أيام",
+        "progress": "إنجاز اليوم",
+        "progressDesc": "لقد أتممت {{completed}} من أصل {{total}} عادات",
+        "newHabit": "أضف عادة جديدة...",
+        "dailyHabit": "عادة يومية",
+        "quote": "«أحب الأعمال إلى الله أدومها وإن قل» — حديث شريف"
+      },
       "settings": {
         "title": "تخصيص التجربة",
         "subtitle": "قم بتهيئة مساحتك الإيمانية بما يتناسب مع راحتك، ليكون وردك اليومي رحلة من السكينة والجمال",
@@ -790,7 +841,8 @@ const resources = {
           "sepia": "بني دافئ"
         },
         "update": {
-          "title": "تحديثات التطبيق",
+          "title": "التحديثات",
+          "system": "تحديثات التطبيق",
           "version": "إصدار التطبيق",
           "check": "التحقق من وجود تحديثات",
           "checking": "جاري التحقق...",
@@ -802,6 +854,27 @@ const resources = {
           "installNow": "تثبيت التحديث الجديد",
           "lastCheck": "آخر فحص",
           "info": "يتم تحديث التطبيق تلقائياً عند توفر اتصال بالإنترنت. يمكنك التحقق يدوياً من هنا للتأكد من حصولك على أحدث الميزات والإصلاحات."
+        }
+      },
+      "hub": {
+        "offline": {
+          "title": "إدارة وضع الأوفلاين",
+          "manageDesc": "إدارة المحتوى والمساحة التخزينية",
+          "audioDesc": "إدارة تحميل التلاوات للاستماع بدون اتصال",
+          "ready": "المحتوى جاهز للاستخدام بدون اتصال",
+          "downloading": "جاري التحميل... {{progress}}%",
+          "downloadAll": "تحميل كافة المحتوى",
+          "downloadFailed": "فشل تحميل {{count}} ملف",
+          "deleteData": "مسح كافة البيانات المخزنة",
+          "fetchError": "فشل في تحميل قائمة القراء",
+          "connectToStart": "اتصل بالإنترنت لبدء التحميل",
+          "clearSuccess": "تم مسح البيانات بنجاح",
+          "clearError": "فشلت العملية، يرجى المحاولة مرة أخرى",
+          "clearConfirm": "سيؤدي هذا إلى حذف كافة الصفحات والتلاوات المحملة من جهازك. هل تريد الاستمرار؟",
+          "onlineStatus": "أنت متصل بالإنترنت",
+          "offlineStatus": "أنت في وضع عدم الاتصال",
+          "pages": "صفحات",
+          "storageInfo": "يتم تخزين المحتوى المحمل في ذاكرة المتصفح المحلية وسيكون متاحاً حتى بدون وجود اتصال بالإنترنت."
         }
       },
       "index": {

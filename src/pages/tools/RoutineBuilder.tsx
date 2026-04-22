@@ -63,7 +63,7 @@ const RoutineBuilder = () => {
       }
 
       const savedStreak = await storage.get('routine-streak');
-      setStreak(savedStreak ? parseInt(savedStreak) : 5);
+      setStreak(savedStreak ? parseInt(savedStreak) : 0);
       setIsLoaded(true);
     };
     loadData();
@@ -118,8 +118,8 @@ const RoutineBuilder = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <QuranHeader 
-        title={isAr ? "مخطط الروتين الروحاني" : "Spiritual Routine Builder"} 
-        subtitle={isAr ? "ابنِ عاداتك اليومية وداوم على الطاعات" : "Build your daily habits and maintain acts of worship"}
+        title={t("routine.title")} 
+        subtitle={t("routine.subtitle")}
         variant="compact"
       />
 
@@ -132,22 +132,23 @@ const RoutineBuilder = () => {
               <div className="w-16 h-16 rounded-3xl bg-orange-500/20 flex items-center justify-center mx-auto mb-4 backdrop-blur-md">
                 <Flame className="w-10 h-10 fill-current" />
               </div>
-              <p className="text-sm font-bold uppercase tracking-widest text-orange-700 dark:text-orange-300">{isAr ? "سلسلة الإنجاز" : "Current Streak"}</p>
-              <p className="text-5xl font-bold">{streak} <span className="text-2xl font-normal">{isAr ? "أيام" : "Days"}</span></p>
+              <p className="text-sm font-bold uppercase tracking-widest text-orange-700 dark:text-orange-300">{t("routine.streak")}</p>
+              <p className="text-5xl font-bold">{isAr ? toArabicNumber(streak.toString()) : streak} <span className="text-2xl font-normal">{t("routine.days")}</span></p>
             </div>
           </div>
 
           <div className="md:col-span-8 bento-card !p-8 flex flex-col justify-center space-y-6">
             <div className="flex justify-between items-end">
               <div className="space-y-1">
-                <h3 className="text-2xl font-bold font-naskh">{isAr ? "إنجاز اليوم" : "Today's Progress"}</h3>
+                <h3 className="text-2xl font-bold font-naskh">{t("routine.progress")}</h3>
                 <p className="text-muted-foreground text-sm">
-                  {isAr 
-                    ? `لقد أتممت ${habits.filter(h => h.isCompleted).length} من أصل ${habits.length} عادات` 
-                    : `You completed ${habits.filter(h => h.isCompleted).length} out of ${habits.length} habits`}
+                  {t("routine.progressDesc", { 
+                    completed: isAr ? toArabicNumber(habits.filter(h => h.isCompleted).length.toString()) : habits.filter(h => h.isCompleted).length,
+                    total: isAr ? toArabicNumber(habits.length.toString()) : habits.length
+                  })}
                 </p>
               </div>
-              <span className="text-4xl font-bold text-primary">{progress}%</span>
+              <span className="text-4xl font-bold text-primary">{isAr ? toArabicNumber(progress.toString()) : progress}%</span>
             </div>
             <div className="h-4 bg-muted rounded-full overflow-hidden p-1 border border-border/40">
               <motion.div 
@@ -162,7 +163,7 @@ const RoutineBuilder = () => {
         {/* Add Habit Section */}
         <div className="flex gap-4">
           <Input 
-            placeholder={isAr ? "أضف عادة جديدة..." : "Add a new habit..."} 
+            placeholder={t("routine.newHabit")} 
             className="h-14 rounded-2xl px-6 text-lg border-border/60 focus-visible:ring-primary"
             value={newHabitName}
             onChange={(e) => setNewHabitName(e.target.value)}
@@ -194,7 +195,7 @@ const RoutineBuilder = () => {
                       {isAr ? habit.nameAr : habit.nameEn}
                     </h4>
                     <p className="text-xs text-muted-foreground">
-                      {isAr ? "عادة يومية" : "Daily Habit"}
+                      {t("routine.dailyHabit")}
                     </p>
                   </div>
                 </div>
@@ -225,9 +226,7 @@ const RoutineBuilder = () => {
         <div className="text-center p-12 space-y-4">
           <Sparkles className="w-12 h-12 text-primary/20 mx-auto" />
           <p className="text-xl font-naskh text-muted-foreground italic leading-relaxed max-w-2xl mx-auto">
-            {isAr 
-              ? "«أحب الأعمال إلى الله أدومها وإن قل» — حديث شريف" 
-              : "“The most beloved of deeds to Allah are those that are most consistent, even if they are small.” — Prophetic Hadith"}
+            {t("routine.quote")}
           </p>
         </div>
       </div>

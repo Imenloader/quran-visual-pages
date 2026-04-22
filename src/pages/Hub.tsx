@@ -26,7 +26,9 @@ import {
   Shield,
   ChevronRight,
   Users,
-  Globe
+  Globe,
+  Wifi,
+  WifiOff
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -35,6 +37,8 @@ import { juzData, toArabicNumber, getQuranPageImageUrl } from "@/data/quranData"
 import { useFavorites } from "@/hooks/useFavorites";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import QuranHeader from "@/components/QuranHeader";
+import { offlineOrchestrator } from "@/services/offlineOrchestrator";
+import { toast } from "sonner";
 
 const ReadingProgress = lazy(() => import("@/components/ReadingProgress"));
 
@@ -45,22 +49,9 @@ const Hub = () => {
   const { playSurah: globalPlaySurah } = useAudioPlayer();
   const [verseOfDay, setVerseOfDay] = useState<{ text: string; surah: string; number: number } | null>(null);
   
-  const [downloadAllState, setDownloadAllState] = useState<"idle" | "downloading" | "paused" | "done">(() => {
-    const saved = localStorage.getItem("quran-download-all-state");
-    if (saved === "idle" || saved === "downloading" || saved === "paused" || saved === "done") {
-      return saved;
-    }
-    return "idle";
-  });
-  const [downloadAllProgress, setDownloadAllProgress] = useState(() => {
-    const saved = localStorage.getItem("quran-download-all-progress");
-    return saved ? parseInt(saved) : 0;
-  });
-  const dlAbortRef = useRef<AbortController | null>(null);
-  const dlLoadedRef = useRef(() => {
-    const saved = localStorage.getItem("quran-download-all-loaded");
-    return saved ? parseInt(saved) : 0;
-  });
+  const [downloadAllState, setDownloadAllState] = useState<"idle" | "downloading" | "paused" | "done">("idle");
+  const [downloadAllProgress, setDownloadAllProgress] = useState(0);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   const totalPages = 604;
 
@@ -78,91 +69,71 @@ const Hub = () => {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("quran-download-all-state", downloadAllState);
-  }, [downloadAllState]);
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
-  useEffect(() => {
-    localStorage.setItem("quran-download-all-progress", downloadAllProgress.toString());
-  }, [downloadAllProgress]);
-
-  const downloadAll = useCallback(async () => {
-    if (downloadAllState === "downloading") return;
-    const startFrom = typeof dlLoadedRef.current === "function" ? dlLoadedRef.current() : dlLoadedRef.current;
-    setDownloadAllState("downloading");
-    const controller = new AbortController();
-    dlAbortRef.current = controller;
-    let loaded = startFrom;
-    setDownloadAllProgress(Math.round((loaded / totalPages) * 100));
-    const batchSize = 4; // Reduced batch size for better stability
-    const juzDownloadState = JSON.parse(localStorage.getItem("juz-download-state") || "{}");
-
-    const fetchWithRetry = async (url: string, retries = 3): Promise<Response> => {
-      for (let i = 0; i < retries; i++) {
-        try {
-          const res = await fetch(url, { cache: "force-cache", signal: controller.signal });
-          if (res.ok) return res;
-        } catch (err) {
-          if (controller.signal.aborted) throw err;
-          console.warn(`Retry ${i + 1} for ${url}`);
-        }
-        await new Promise(r => setTimeout(r, 1000));
+    const bootstrap = async () => {
+      try {
+        const status = await offlineOrchestrator.getBundleStatus("quran-pages");
+        setDownloadAllProgress(status.progress);
+        if (status.state === "running") setDownloadAllState("downloading");
+        else if (status.state === "paused") setDownloadAllState("paused");
+        else if (status.state === "completed") setDownloadAllState("done");
+        else setDownloadAllState("idle");
+      } catch (error) {
+        console.error("Failed to bootstrap Hub offline status:", error);
       }
-      throw new Error(`Failed after ${retries} retries`);
     };
 
-    try {
-      for (let i = startFrom + 1; i <= totalPages; i += batchSize) {
-        if (controller.signal.aborted) break;
-        const batch = Array.from({ length: Math.min(batchSize, totalPages - i + 1) }, (_, k) => i + k);
-        
-        await Promise.all(
-          batch.map(async (page) => {
-            try {
-              const res = await fetchWithRetry(getQuranPageImageUrl(page, true));
-              await res.blob();
-              loaded++;
-              dlLoadedRef.current = loaded;
-              localStorage.setItem("quran-download-all-loaded", loaded.toString());
-              setDownloadAllProgress(Math.round((loaded / totalPages) * 100));
+    void bootstrap();
 
-              juzData.forEach(j => {
-                if (page >= j.startPage && page <= j.endPage) {
-                  if (page === j.endPage) {
-                    juzDownloadState[j.number] = true;
-                    localStorage.setItem("juz-download-state", JSON.stringify(juzDownloadState));
-                  }
-                }
-              });
-            } catch (err) {
-              if (!controller.signal.aborted) {
-                console.error(`Failed to download page ${page}:`, err);
-              }
-            }
-          })
-        );
-      }
+    const unsubscribe = offlineOrchestrator.subscribe((event) => {
+      if (event.bundleId !== "quran-pages" || !event.bundleStatus) return;
       
-      if (!controller.signal.aborted && loaded >= totalPages) {
-        setDownloadAllState("done");
-        dlLoadedRef.current = 0;
-        localStorage.setItem("quran-download-all-loaded", "0");
-        const finalState = juzData.reduce((acc, j) => ({ ...acc, [j.number]: true }), {});
-        localStorage.setItem("juz-download-state", JSON.stringify(finalState));
-        setTimeout(() => setDownloadAllState("idle"), 5000);
-      } else if (controller.signal.aborted) {
-        setDownloadAllState("paused");
+      const status = event.bundleStatus;
+      setDownloadAllProgress(status.progress);
+      
+      if (status.state === "running") setDownloadAllState("downloading");
+      else if (status.state === "paused") setDownloadAllState("paused");
+      else if (status.state === "completed") setDownloadAllState("done");
+      else if (status.state === "error") setDownloadAllState("paused");
+      else setDownloadAllState("idle");
+    });
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  const downloadAll = useCallback(async () => {
+    if (!isOnline) {
+      toast.error(t("hub.offline.connectToStart"));
+      return;
+    }
+
+    try {
+      const status = await offlineOrchestrator.getBundleStatus("quran-pages");
+      if (status.state === "paused") {
+        await offlineOrchestrator.resumeBundle("quran-pages");
+      } else {
+        await offlineOrchestrator.prepareBundle("quran-pages");
       }
     } catch (error) {
-      if (!controller.signal.aborted) {
-        console.error("Download all error:", error);
-        setDownloadAllState("paused");
-      }
+      console.error("Hub download failed:", error);
+      toast.error(t("hub.offline.clearError"));
     }
-  }, [downloadAllState]);
+  }, [isOnline, t]);
 
-  const pauseDownload = useCallback(() => {
-    dlAbortRef.current?.abort();
-    setDownloadAllState("paused");
+  const pauseDownload = useCallback(async () => {
+    try {
+      await offlineOrchestrator.pauseBundle("quran-pages");
+    } catch (error) {
+      console.error("Hub pause failed:", error);
+    }
   }, []);
 
   const categories = [

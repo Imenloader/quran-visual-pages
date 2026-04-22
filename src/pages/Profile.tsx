@@ -835,8 +835,8 @@ const Profile = () => {
                     {activeCategory === "offline" && (
                       <section className="space-y-4">
                         <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                          <h3 className="text-sm font-serif font-bold text-primary">{t("hub.offline.title")}</h3>
-                          <p className="text-[8px] text-primary/70">{t("hub.offline.manageDesc") || "Manage offline content and storage"}</p>
+                          <h3 className="text-sm font-serif font-bold text-primary">{t("profile.offlineManagement") || (isAr ? "إدارة المحتوى" : "Content Management")}</h3>
+                          <p className="text-[8px] text-primary/70">{t("hub.offline.manageDesc") || (isAr ? "إدارة المحتوى والمساحة التخزينية" : "Manage offline content and storage")}</p>
                         </div>
                         <OfflineManager />
                         
@@ -859,7 +859,7 @@ const Profile = () => {
                     {activeCategory === "update" && (
                       <section className="space-y-3">
                         <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                          <h3 className="text-sm font-serif font-bold text-primary">{t("settings.update.title")}</h3>
+                          <h3 className="text-sm font-serif font-bold text-primary">{t("settings.update.system") || (isAr ? "تحديثات النظام" : "App Updates")}</h3>
                           <p className="text-[8px] text-primary/70">{t("settings.update.info")}</p>
                         </div>
                         <UpdateManager />
@@ -1082,7 +1082,7 @@ const Profile = () => {
                     {activeCategory === "account" && (
                       <section className="space-y-4">
                         <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                          <h3 className="text-sm font-serif font-bold text-primary">{t("profile.account")}</h3>
+                          <h3 className="text-sm font-serif font-bold text-primary">{t("profile.accountManagement") || (isAr ? "إدارة الحساب" : "Account Management")}</h3>
                           <p className="text-[8px] text-primary/70">{t("profile.syncDesc") || "Sync your progress across devices"}</p>
                         </div>
                         

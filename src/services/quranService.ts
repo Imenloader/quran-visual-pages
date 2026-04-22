@@ -47,11 +47,10 @@ interface RecitersApiResponse {
 
 export const fetchReciters = async (language = "ar"): Promise<Reciter[]> => {
   try {
-    const response = await fetch(`https://mp3quran.net/api/v3/reciters?language=${language}`);
-    if (!response.ok) throw new Error(`Failed to fetch reciters: ${response.status}`);
-
-    const data = (await response.json()) as RecitersApiResponse;
-    return (data.reciters ?? []).filter((reciter) => Array.isArray(reciter.moshaf) && reciter.moshaf.length > 0);
+    const data = await fetchWithCache(`https://mp3quran.net/api/v3/reciters?language=${language}`, {
+      expiry: 7 * 24 * 60 * 60 * 1000 // Cache for 7 days
+    });
+    return (data.reciters ?? []).filter((reciter: any) => Array.isArray(reciter.moshaf) && reciter.moshaf.length > 0);
   } catch (error) {
     console.error("Error fetching reciters:", error);
     return [];

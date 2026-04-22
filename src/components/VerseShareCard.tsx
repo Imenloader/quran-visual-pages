@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Download, Share2, X, Sparkles, MoonStar, Loader2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { toArabicNumber } from '@/data/quranData';
 import { useTheme } from '@/contexts/ThemeContext';
 import { applyTajweedColors } from '@/lib/tajweedParser';

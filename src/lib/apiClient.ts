@@ -128,7 +128,7 @@ export async function fetchWithCache(
       // Check for potential SSL/Clock issues if fetch fails
       if (isFetchError) {
         const year = new Date().getFullYear();
-        if (year > 2025 || year < 2024) {
+        if (year > 2030 || year < 2024) {
           console.error("Fetch failed, possibly due to incorrect system clock (Year: " + year + ")");
           // We don't throw a new error here to allow retries, 
           // but we log it for diagnostics

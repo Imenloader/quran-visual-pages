@@ -75,6 +75,10 @@ const publishMetricLog = (
     timestamp: new Date().toISOString(),
   };
 
+  // Only log in production for errors, or all logs in development
+  const isDev = self.location.hostname === 'localhost';
+  if (!isDev && level === 'info') return;
+
   console[level]('[sw-metrics]', payload);
 };
 
@@ -167,15 +171,13 @@ const cacheEventPlugin = {
 // --- Route Registration Functions ---
 
 function registerQuranImageRoutes() {
-  const quranPagesCacheName = 'quran-pages-cache';
-  
   // Quran page images (local)
   registerRoute(
     ({ url }) => url.pathname.startsWith('/quran-images/'),
     new CacheFirst({
-      cacheName: quranPagesCacheName,
+      cacheName: 'quran-pages-cache',
       plugins: [
-        metricsPlugin('quran-pages', '/quran-images/*', quranPagesCacheName),
+        metricsPlugin('quran-pages', '/quran-images/*', 'quran-pages-cache'),
         new ExpirationPlugin({
           maxEntries: 700,
           maxAgeSeconds: 60 * 60 * 24 * 365 * 2,
@@ -192,9 +194,9 @@ function registerQuranImageRoutes() {
   registerRoute(
     ({ url }) => url.hostname === 'jahedev.github.io' && url.pathname.startsWith('/tajweed-quran-pages/'),
     new CacheFirst({
-      cacheName: quranPagesCacheName,
+      cacheName: 'quran-pages-cache',
       plugins: [
-        metricsPlugin('quran-pages', 'jahedev.github.io/tajweed-quran-pages/*', quranPagesCacheName),
+        metricsPlugin('quran-pages', 'jahedev.github.io/tajweed-quran-pages/*', 'quran-pages-cache'),
         new ExpirationPlugin({
           maxEntries: 700,
           maxAgeSeconds: 60 * 60 * 24 * 365 * 2,
@@ -226,9 +228,9 @@ function registerTafsirRoutes() {
   registerRoute(
     isTafsirRequest,
     new StaleWhileRevalidate({
-      cacheName: tafsirCacheName,
+      cacheName: 'quran-tafsir-cache',
       plugins: [
-        metricsPlugin('quran-tafsir', 'api.quran.com|api.alquran.cloud/tafsir/*', tafsirCacheName),
+        metricsPlugin('quran-tafsir', 'api.quran.com|api.alquran.cloud/tafsir/*', 'quran-tafsir-cache'),
         new ExpirationPlugin({
           maxEntries: 200,
           maxAgeSeconds: 60 * 60 * 24 * 30,
@@ -257,9 +259,9 @@ function registerAudioRoutes() {
   registerRoute(
     isMp3QuranApiRequest,
     new StaleWhileRevalidate({
-      cacheName: apiCacheName,
+      cacheName: 'quran-api-cache',
       plugins: [
-        metricsPlugin('quran-api', 'mp3quran.net/api/*', apiCacheName),
+        metricsPlugin('quran-api', 'mp3quran.net/api/*', 'quran-api-cache'),
         new ExpirationPlugin({
           maxEntries: 150,
           maxAgeSeconds: 60 * 60 * 24 * 30,
@@ -276,9 +278,9 @@ function registerAudioRoutes() {
   registerRoute(
     ({ request, url }) => request.destination === 'audio' || /\.mp3$/i.test(url.pathname),
     new CacheFirst({
-      cacheName: audioCacheName,
+      cacheName: 'quran-audio-cache',
       plugins: [
-        metricsPlugin('audio', '*.mp3', audioCacheName),
+        metricsPlugin('audio', '*.mp3', 'quran-audio-cache'),
         new ExpirationPlugin({
           maxEntries: 1000,
           maxAgeSeconds: 60 * 60 * 24 * 365 * 2,
@@ -414,7 +416,10 @@ function registerShellRoutes() {
   // Catch-all navigation fallback for SPA routes
   const navigationHandler = createHandlerBoundToURL('/index.html');
   registerRoute(
-    new NavigationRoute(navigationHandler, {
+    new NavigationRoute(async (params) => {
+      // metricsPlugin('shell', 'navigation', 'shell-cache')
+      return navigationHandler(params);
+    }, {
       denylist: [/^\/api\//, /^\/quran-images\//],
     })
   );

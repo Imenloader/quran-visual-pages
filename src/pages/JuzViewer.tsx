@@ -186,6 +186,32 @@ function JuzViewer() {
   }, [hiddenLines]);
 
 
+  const getSourceCandidates = useCallback((page: number) => {
+    const candidates = Array.from({ length: 6 }, (_, level) =>
+      getQuranPageFallbackImageUrl(page, level, tajweedMode, preferredImageSource || undefined)
+    ).filter(Boolean);
+    return [...new Set([...candidates, "/placeholder.svg"])];
+  }, [tajweedMode, preferredImageSource]);
+
+  const getImageUrl = useCallback((page: number) => {
+    const sources = pageSources[page] || getSourceCandidates(page);
+    const idx = sourceIndexes[page] || 0;
+    return sources[Math.min(idx, sources.length - 1)];
+  }, [pageSources, sourceIndexes, getSourceCandidates]);
+
+  const handleImageLoad = useCallback((page: number) => {
+    setLoadingStates(prev => ({ ...prev, [page]: false }));
+  }, []);
+
+  const handleImageError = useCallback((page: number) => {
+    setSourceIndexes(prev => {
+      const sources = pageSources[page] || getSourceCandidates(page);
+      const current = prev[page] || 0;
+      const next = Math.min(current + 1, sources.length - 1);
+      return { ...prev, [page]: next };
+    });
+  }, [pageSources, getSourceCandidates]);
+
   const isPageHidden = (page: number) => hifzMode && !!hiddenPages[page];
 
   const togglePageHidden = useCallback((page: number) => {
@@ -214,7 +240,7 @@ function JuzViewer() {
       ...prev,
       [page]: Array.from({ length: 15 }, (_, i) => i)
     }));
-    toast.info(`تم إخفاء أسطر الصفحة ${toArabicNumber(page)}`);
+    toast.info(`تم إخفاء أسطر الصفحة ${formatArabicNumber(page.toString())}`);
   }, []);
 
   const showAllLines = useCallback((page: number) => {
@@ -222,7 +248,7 @@ function JuzViewer() {
       ...prev,
       [page]: []
     }));
-    toast.info(`تم إظهار أسطر الصفحة ${toArabicNumber(page)}`);
+    toast.info(`تم إظهار أسطر الصفحة ${formatArabicNumber(page.toString())}`);
   }, []);
 
 
@@ -284,33 +310,6 @@ function JuzViewer() {
       }
     }
   }, [currentPage, juz, scrollDirection, scrollToPage]);
-
-  const getSourceCandidates = useCallback((page: number) => {
-    const candidates = Array.from({ length: 6 }, (_, level) =>
-      getQuranPageFallbackImageUrl(page, level, tajweedMode, preferredImageSource || undefined)
-    ).filter(Boolean);
-    return [...new Set([...candidates, "/placeholder.svg"])];
-  }, [tajweedMode, preferredImageSource]);
-
-  const getImageUrl = useCallback((page: number) => {
-    const sources = pageSources[page] || getSourceCandidates(page);
-    const idx = sourceIndexes[page] || 0;
-    return sources[Math.min(idx, sources.length - 1)];
-  }, [pageSources, sourceIndexes, getSourceCandidates]);
-
-  const handleImageLoad = useCallback((page: number) => {
-    setLoadingStates(prev => ({ ...prev, [page]: false }));
-  }, []);
-
-  const handleImageError = useCallback((page: number) => {
-    setSourceIndexes(prev => {
-      const sources = pageSources[page] || getSourceCandidates(page);
-      const current = prev[page] || 0;
-      const next = Math.min(current + 1, sources.length - 1);
-      return { ...prev, [page]: next };
-    });
-  }, [pageSources, getSourceCandidates]);
-
 
   const handleSaveBookmark = useCallback(() => {
     if (currentPage) {
@@ -478,7 +477,7 @@ function JuzViewer() {
               setShowKhatmaCelebration(true);
             } else {
               toast.success("تم الانتهاء من قراءة الجزء", {
-                description: `تهانينا على إتمام الجزء ${toArabicNumber(num)}`,
+                description: `تهانينا على إتمام الجزء ${formatArabicNumber(num.toString())}`,
                 icon: <Trophy className="text-gold" />
               });
             }
@@ -637,7 +636,7 @@ function JuzViewer() {
           </button>
         )}
 
-        {!isFullscreen && (
+{!isFullscreen && (
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -750,7 +749,7 @@ function JuzViewer() {
           <div className="flex flex-col items-center gap-0.5 md:gap-1">
             <span className="text-[8px] md:text-[10px] font-bold tracking-[0.2em] md:tracking-[0.3em] text-accent uppercase">إحصائيات القراءة</span>
             <span className="text-xs md:text-sm text-primary font-serif italic">
-              {toArabicNumber(pages.length)} صفحة مباركة
+              {i18n.language === 'ar' ? formatArabicNumber(pages.length.toString()) : pages.length} صفحة مباركة
             </span>
           </div>
 
@@ -1043,7 +1042,7 @@ function JuzViewer() {
                     <ChevronRight size={24} />
                   </button>
                   <span className="font-serif text-lg text-primary">
-                    صفحة {toArabicNumber(currentPage)} من {toArabicNumber(juz.endPage)}
+                    صفحة {formatArabicNumber(currentPage.toString())} من {formatArabicNumber(juz.endPage.toString())}
                   </span>
                   <button 
                     onClick={handleNextPage}
@@ -1097,7 +1096,7 @@ function JuzViewer() {
             {currentPage > 0 && (
               <div className="h-12 md:h-14 px-6 rounded-full bg-primary/90 backdrop-blur-xl border border-primary/10 flex items-center gap-3 shadow-2xl">
                 <span className="text-[8px] md:text-[10px] font-bold text-gold uppercase tracking-widest">الصفحة</span>
-                <span className="font-serif text-lg md:text-xl font-medium text-white">{toArabicNumber(currentPage)}</span>
+                <span className="font-serif text-lg md:text-xl font-medium text-white">{formatArabicNumber(currentPage.toString())}</span>
               </div>
             )}
           </motion.div>

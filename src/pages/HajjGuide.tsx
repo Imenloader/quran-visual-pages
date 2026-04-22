@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -10,17 +10,18 @@ import {
   Compass,
   Play,
   Info,
-  ChevronRight
+  ChevronRight,
+  Sparkles
 } from "lucide-react";
 import QuranHeader from "@/components/QuranHeader";
 import ScrollReveal from "@/components/ScrollReveal";
 import BackButton from "@/components/BackButton";
-import { hajjSteps, packingChecklist, HajjStep } from "@/data/hajjData";
+import { hajjSteps, packingChecklist, HajjStep, hajjTips } from "@/data/hajjData";
 
 const HajjGuide = () => {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<"rituals" | "checklist" | "tour">("rituals");
+  const [activeTab, setActiveTab] = useState<"rituals" | "checklist" | "tips" | "tour">("rituals");
   const [selectedStep, setSelectedStep] = useState<HajjStep | null>(null);
   const [completedSteps, setCompletedSteps] = useState<string[]>(() => {
     const saved = localStorage.getItem("hajj-completed-steps");
@@ -74,11 +75,12 @@ const HajjGuide = () => {
           {[
             { id: "rituals", label: i18n.language === 'ar' ? "المناسك" : "Rituals", icon: <Map className="w-4 h-4" /> },
             { id: "checklist", label: i18n.language === 'ar' ? "الحقيبة" : "Checklist", icon: <Backpack className="w-4 h-4" /> },
-            { id: "tour", label: i18n.language === 'ar' ? "جولة افتراضية" : "Virtual Tour", icon: <Compass className="w-4 h-4" /> }
+            { id: "tips", label: i18n.language === 'ar' ? "نصائح" : "Tips", icon: <Info className="w-4 h-4" /> },
+            { id: "tour", label: i18n.language === 'ar' ? "جولة" : "Tour", icon: <Compass className="w-4 h-4" /> }
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as "rituals" | "checklist" | "tour")}
+              onClick={() => setActiveTab(tab.id as "rituals" | "checklist" | "tips" | "tour")}
               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${
                 activeTab === tab.id ? "bg-white dark:bg-zinc-800 shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
@@ -179,6 +181,28 @@ const HajjGuide = () => {
                   <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground px-2 py-1 bg-muted rounded-md">
                     {item.category}
                   </span>
+                </div>
+              ))}
+            </motion.div>
+          )}
+
+          {activeTab === "tips" && (
+            <motion.div 
+              key="tips"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-4"
+            >
+              {hajjTips.map((tip, idx) => (
+                <div key={idx} className="p-6 bg-card border border-border rounded-3xl space-y-2 group hover:border-primary transition-all">
+                  <h4 className="font-bold text-lg text-primary flex items-center gap-2">
+                    <Sparkles className="w-5 h-5" />
+                    {i18n.language === 'ar' ? tip.title : tip.titleEn}
+                  </h4>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {i18n.language === 'ar' ? tip.content : tip.contentEn}
+                  </p>
                 </div>
               ))}
             </motion.div>

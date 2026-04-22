@@ -17,7 +17,7 @@ export const checkNetworkReliability = async (): Promise<{ ok: boolean; reason?:
         errorMessage.includes("networkerror")) {
       
       const year = new Date().getFullYear();
-      if (year > 2025 || year < 2024) {
+      if (year > 2030 || year < 2024) {
         return { ok: false, reason: "clock_error", details: `Year is ${year}. Please correct your device date/time.` };
       }
       

@@ -182,6 +182,116 @@ const quizQuestions: Question[] = [
     correctIndex: 2,
     explanationEn: "Prophet Musa (AS) is mentioned 136 times in the Holy Quran.",
     explanationAr: "ذكر اسم النبي موسى عليه السلام ١٣٦ مرة في القرآن الكريم."
+  },
+  {
+    id: 16,
+    category: "fiqh",
+    questionEn: "What is the term for the dry ablution performed when water is unavailable?",
+    questionAr: "ما هو المصطلح الذي يطلق على الوضوء الجاف عند عدم توفر الماء؟",
+    optionsEn: ["Ghusl", "Wudu", "Tayammum", "Istinja"],
+    optionsAr: ["الغسل", "الوضوء", "التيمم", "الاستنجاء"],
+    correctIndex: 2,
+    explanationEn: "Tayammum is the Islamic act of dry ritual purification using clean earth or dust.",
+    explanationAr: "التيمم هو طهارة ترابية شرعية تقوم مقام الوضوء أو الغسل عند فقده."
+  },
+  {
+    id: 17,
+    category: "quran",
+    questionEn: "Which Surah is mandatory to recite in every Rakah of Salah?",
+    questionAr: "أي سورة يجب قراءتها في كل ركعة من ركعات الصلاة؟",
+    optionsEn: ["Surah Al-Ikhlas", "Surah Al-Fatihah", "Surah Al-Asr", "Surah Al-Kafirun"],
+    optionsAr: ["سورة الإخلاص", "سورة الفاتحة", "سورة العصر", "سورة الكافرون"],
+    correctIndex: 1,
+    explanationEn: "Surah Al-Fatihah is known as 'The Opening' and its recitation is an essential pillar of Salah.",
+    explanationAr: "سورة الفاتحة هي ركن من أركان الصلاة ولا تصح الصلاة بدونها."
+  },
+  {
+    id: 18,
+    category: "sahaba",
+    questionEn: "Who was the 'Zun-Nurayn' (Possessor of Two Lights)?",
+    questionAr: "من هو الصحابي الملقب بـ 'ذي النورين'؟",
+    optionsEn: ["Umar ibn al-Khattab", "Abu Bakr as-Siddiq", "Uthman ibn Affan", "Ali ibn Abi Talib"],
+    optionsAr: ["عمر بن الخطاب", "أبو بكر الصديق", "عثمان بن عفان", "علي بن أبي طالب"],
+    correctIndex: 2,
+    explanationEn: "Uthman (RA) was given this title because he married two of the Prophet's (PBUH) daughters: Ruqayyah and Umm Kulthum.",
+    explanationAr: "لُقب عثمان رضي الله عنه بهذا اللقب لأنه تزوج من ابنتي النبي صلى الله عليه وسلم: رقية وأم كلثوم."
+  },
+  {
+    id: 19,
+    category: "fiqh",
+    questionEn: "How many times did the Prophet (PBUH) perform Hajj?",
+    questionAr: "كم مرة حج النبي صلى الله عليه وسلم؟",
+    optionsEn: ["Once", "Twice", "Three times", "Four times"],
+    optionsAr: ["مرة واحدة", "مرتين", "ثلاث مرات", "أربع مرات"],
+    correctIndex: 0,
+    explanationEn: "The Prophet (PBUH) performed Hajj once, known as 'Hajjat al-Wada' (The Farewell Pilgrimage).",
+    explanationAr: "حج النبي صلى الله عليه وسلم مرة واحدة في عمره وتسمى حجة الوداع."
+  },
+  {
+    id: 20,
+    category: "quran",
+    questionEn: "Which Surah is named after a type of metal?",
+    questionAr: "أي سورة سميت باسم نوع من المعادن؟",
+    optionsEn: ["Surah Al-Dhahab", "Surah Al-Hadid", "Surah Al-Fidda", "Surah Al-Nuhas"],
+    optionsAr: ["سورة الذهب", "سورة الحديد", "سورة الفضة", "سورة النحاس"],
+    correctIndex: 1,
+    explanationEn: "Surah Al-Hadid means 'The Iron'.",
+    explanationAr: "سورة الحديد هي السورة التي سميت باسم معدن الحديد."
+  },
+  {
+    id: 21,
+    category: "sahaba",
+    questionEn: "Who was the 'Lion of Allah' and the Prophet's uncle?",
+    questionAr: "من هو الصحابي الملقب بـ 'أسد الله' وهو عم النبي؟",
+    optionsEn: ["Abu Talib", "Al-Abbas", "Hamza ibn Abdul-Muttalib", "Ja'far ibn Abi Talib"],
+    optionsAr: ["أبو طالب", "العباس", "حمزة بن عبد المطلب", "جعفر بن أبي طالب"],
+    correctIndex: 2,
+    explanationEn: "Hamza (RA) was known for his immense bravery and was called the Lion of Allah.",
+    explanationAr: "حمزة بن عبد المطلب رضي الله عنه لُقب بأسد الله وأسد رسوله لشجاعته الفائقة."
+  },
+  {
+    id: 22,
+    category: "fiqh",
+    questionEn: "What is the Islamic greeting?",
+    questionAr: "ما هي تحية الإسلام؟",
+    optionsEn: ["Marhaba", "Assalamu Alaikum", "Sabah al-Khair", "Ahlan wa Sahlan"],
+    optionsAr: ["مرحباً", "السلام عليكم", "صباح الخير", "أهلاً وسهلاً"],
+    correctIndex: 1,
+    explanationEn: "Assalamu Alaikum means 'Peace be upon you'.",
+    explanationAr: "السلام عليكم هي تحية الإسلام وتعني الأمان والسلام عليكم."
+  },
+  {
+    id: 23,
+    category: "quran",
+    questionEn: "How many Juz (parts) are there in the Quran?",
+    questionAr: "كم عدد أجزاء القرآن الكريم؟",
+    optionsEn: ["20", "25", "30", "40"],
+    optionsAr: ["٢٠", "٢٥", "٣٠", "٤٠"],
+    correctIndex: 2,
+    explanationEn: "The Holy Quran is divided into 30 equal parts called Juz.",
+    explanationAr: "ينقسم القرآن الكريم إلى ٣٠ جزءاً متساوياً."
+  },
+  {
+    id: 24,
+    category: "sahaba",
+    questionEn: "Who was the 'Translator of the Quran' among the Sahaba?",
+    questionAr: "من هو الصحابي الذي لُقب بـ 'ترجمان القرآن'؟",
+    optionsEn: ["Abdullah ibn Masud", "Abdullah ibn Abbas", "Abdullah ibn Umar", "Zayd ibn Thabit"],
+    optionsAr: ["عبد الله بن مسعود", "عبد الله بن عباس", "عبد الله بن عمر", "زيد بن ثابت"],
+    correctIndex: 1,
+    explanationEn: "Abdullah ibn Abbas (RA) was known for his profound knowledge and interpretation of the Quran.",
+    explanationAr: "عبد الله بن عباس رضي الله عنه لُقب بترجمان القرآن لسعة علمه بتفسير آيات الله."
+  },
+  {
+    id: 25,
+    category: "fiqh",
+    questionEn: "What is the charity given at the end of Ramadan called?",
+    questionAr: "ماذا تسمى الصدقة التي تخرج في نهاية شهر رمضان؟",
+    optionsEn: ["Zakat al-Mal", "Sadaqah Jariyah", "Zakat al-Fitr", "Kaffarah"],
+    optionsAr: ["زكاة المال", "صدقة جارية", "زكاة الفطر", "كفارة"],
+    correctIndex: 2,
+    explanationEn: "Zakat al-Fitr is mandatory for every Muslim who can afford it before the Eid prayer.",
+    explanationAr: "زكاة الفطر هي زكاة مفروضة على كل مسلم قبل صلاة عيد الفطر."
   }
 ];
 
