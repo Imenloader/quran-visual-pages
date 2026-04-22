@@ -28,7 +28,8 @@ import {
   Users,
   Globe,
   Wifi,
-  WifiOff
+  WifiOff,
+  GraduationCap
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import ScrollReveal from "@/components/ScrollReveal";
