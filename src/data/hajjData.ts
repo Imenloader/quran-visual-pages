@@ -161,78 +161,29 @@ export const packingChecklist = [
   { item: "معقم يدين", itemEn: "Hand Sanitizer", category: "health" }
 ];
 
- e x p o r t   c o n s t   h a j j T i p s   =   [ 
-     { 
-         t i t l e :   \  
- 'DF5J-) 
- 'D1H-J)\ , 
-         t i t l e E n :   \ S p i r i t u a l  
- T i p \ , 
-         c o n t e n t :   \ '3*-61 
- FJ) 
- 'D%.D'5 
- DDG 
- AJ 
- CD 
- .7H) 
- H*0C1 
- #FC 
- AJ 
- 1-D) 
- 'D9E1.  
- D' 
- *4:D 
- FA3C 
- ('D.DB 
- H',9D 
- D3'FC 
- 17('K 
- (0C1 
- 'DDG. \ , 
-         c o n t e n t E n :   \ M a i n t a i n  
- s i n c e r i t y  
- f o r  
- A l l a h  
- i n  
- e v e r y  
- s t e p  
- a n d  
- r e m e m b e r  
- t h i s  
- i s  
- t h e  
- j o u r n e y  
- o f  
- a  
- l i f e t i m e .  
- D o n t   b e   p r e o c c u p i e d   w i t h   p e o p l e ,   a n d   k e e p   y o u r   t o n g u e   m o i s t   w i t h   t h e   r e m e m b r a n c e   o f   A l l a h . \ " 
-     } , 
-     { 
-         t i t l e :   \ " 'D5(1  H'D#.D'B\ " , 
-         t i t l e E n :   \ " P a t i e n c e   &   M a n n e r s \ " , 
-         c o n t e n t :   \ " 'D-,  9('/)  AJG'  E4B)  H2-'E  ACF  5(H1'K  1AJB'K  (%.H'FC  E*,'H2'K  9F  'D2D'*  EB*/J'K  (#.D'B  'DF(J  ��. \ " , 
-         c o n t e n t E n :   \ " H a j j   i n v o l v e s   h a r d s h i p   a n d   c r o w d s ;   b e   p a t i e n t ,   k i n d   t o   o t h e r s ,   o v e r l o o k i n g   m i s t a k e s ,   a n d   f o l l o w i n g   t h e   c h a r a c t e r   o f   t h e   P r o p h e t   ( S A W ) . \ " 
-     } , 
-     { 
-         t i t l e :   \ " 'D5-)  H'D3D'E)\ " , 
-         t i t l e E n :   \ " H e a l t h   &   S a f e t y \ " , 
-         c o n t e n t :   \ " '41(  CEJ'*  C'AJ)  EF  'DE'!  H*,F(  'D*916  'DE('41  D#49)  'D4E3  DA*1'*  7HJD)  H'3*./E  'DE8D)  'D4E3J)  /'&E'K. \ " , 
-         c o n t e n t E n :   \ " D r i n k   p l e n t y   o f   w a t e r ,   a v o i d   d i r e c t   s u n   e x p o s u r e   f o r   l o n g   p e r i o d s ,   a n d   a l w a y s   u s e   a   s u n   u m b r e l l a . \ " 
-     } , 
-     { 
-         t i t l e :   \ " 'D*ABG  AJ  'DEF'3C\ " , 
-         t i t l e E n :   \ " L e a r n i n g   R i t u a l s \ " , 
-         c o n t e n t :   \ " '-15  9DI  E1',9)  #-C'E  'D-,  H'D9E1)  B(D  'D(/!  H'3#D  #GD  'D9DE  9E'  #4CD  9DJC  D*CHF  9('/*C  9DI  (5J1). \ " , 
-         c o n t e n t E n :   \ " M a k e   s u r e   t o   r e v i e w   t h e   r u l i n g s   o f   H a j j   a n d   U m r a h   b e f o r e   s t a r t i n g ,   a n d   a s k   s c h o l a r s   a b o u t   w h a t   y o u r e  
- u n s u r e  
- o f  
- s o  
- y o u r  
- w o r s h i p  
- i s  
- b a s e d  
- o n  
- k n o w l e d g e . \ 
-     } 
- ] ;  
- 
+export const hajjTips = [
+  {
+    title: "النصيحة الروحية",
+    titleEn: "Spiritual Tip",
+    content: "استحضر نية الإخلاص لله في كل خطوة، وتذكر أنك في رحلة العمر. لا تشغل نفسك بالخلق، واجعل لسانك رطباً بذكر الله.",
+    contentEn: "Maintain sincerity for Allah in every step, and remember this is the journey of a lifetime. Don't be preoccupied with people, and keep your tongue moist with the remembrance of Allah."
+  },
+  {
+    title: "الصبر والأخلاق",
+    titleEn: "Patience & Manners",
+    content: "الحج عبادة فيها مشقة وزحام؛ فكن صبوراً، رفيقاً بإخوانك، متجاوزاً عن الزلات، مقتدياً بأخلاق النبي ﷺ.",
+    contentEn: "Hajj involves hardship and crowds; be patient, kind to others, overlooking mistakes, and following the character of the Prophet (SAW)."
+  },
+  {
+    title: "الصحة والسلامة",
+    titleEn: "Health & Safety",
+    content: "اشرب كميات كافية من الماء، وتجنب التعرض المباشر لأشعة الشمس لفترات طويلة، واستخدم المظلة الشمسية دائماً.",
+    contentEn: "Drink plenty of water, avoid direct sun exposure for long periods, and always use a sun umbrella."
+  },
+  {
+    title: "التفقه في المناسك",
+    titleEn: "Learning Rituals",
+    content: "احرص على مراجعة أحكام الحج والعمرة قبل البدء، واسأل أهل العلم عما أشكل عليك لتكون عبادتك على بصيرة.",
+    contentEn: "Make sure to review the rulings of Hajj and Umrah before starting, and ask scholars about what you're unsure of so your worship is based on knowledge."
+  }
+];
