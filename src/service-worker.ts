@@ -9,10 +9,122 @@ import { RangeRequestsPlugin } from 'workbox-range-requests';
 
 declare let self: ServiceWorkerGlobalScope;
 
+type MetricRecord = {
+  bundle: string;
+  endpoint: string;
+  cacheName: string;
+  cacheHits: number;
+  cacheMisses: number;
+  networkSuccesses: number;
+  networkFailures: number;
+  handlerFailures: number;
+};
+
+const routeMetrics = new Map<string, MetricRecord>();
+
+const getMetricKey = (bundle: string, endpoint: string) => `${bundle}::${endpoint}`;
+
+const getMetricSnapshot = (bundle: string, endpoint: string, cacheName: string): MetricRecord => {
+  const key = getMetricKey(bundle, endpoint);
+  const existing = routeMetrics.get(key);
+  if (existing) return existing;
+
+  const fresh: MetricRecord = {
+    bundle,
+    endpoint,
+    cacheName,
+    cacheHits: 0,
+    cacheMisses: 0,
+    networkSuccesses: 0,
+    networkFailures: 0,
+    handlerFailures: 0,
+  };
+
+  routeMetrics.set(key, fresh);
+  return fresh;
+};
+
+const publishMetricLog = (
+  level: 'info' | 'warn' | 'error',
+  event: string,
+  metric: MetricRecord,
+  request?: Request,
+  extra?: Record<string, unknown>
+) => {
+  const cacheTotal = metric.cacheHits + metric.cacheMisses;
+  const networkTotal = metric.networkSuccesses + metric.networkFailures;
+
+  const payload = {
+    event,
+    bundle: metric.bundle,
+    endpoint: metric.endpoint,
+    cacheName: metric.cacheName,
+    requestUrl: request?.url,
+    method: request?.method,
+    metrics: {
+      cacheHits: metric.cacheHits,
+      cacheMisses: metric.cacheMisses,
+      cacheSuccessRate: cacheTotal ? Number((metric.cacheHits / cacheTotal).toFixed(4)) : null,
+      networkSuccesses: metric.networkSuccesses,
+      networkFailures: metric.networkFailures,
+      networkSuccessRate: networkTotal ? Number((metric.networkSuccesses / networkTotal).toFixed(4)) : null,
+      handlerFailures: metric.handlerFailures,
+    },
+    ...extra,
+    timestamp: new Date().toISOString(),
+  };
+
+  console[level]('[sw-metrics]', payload);
+};
+
+const metricsPlugin = (bundle: string, endpoint: string, cacheName: string) => ({
+  cachedResponseWillBeUsed: async ({ cachedResponse, request }: { cachedResponse?: Response | null; request: Request }) => {
+    const metric = getMetricSnapshot(bundle, endpoint, cacheName);
+    if (cachedResponse) {
+      metric.cacheHits += 1;
+      publishMetricLog('info', 'cache_hit', metric, request);
+    } else {
+      metric.cacheMisses += 1;
+      publishMetricLog('warn', 'cache_miss', metric, request);
+    }
+
+    return cachedResponse;
+  },
+
+  fetchDidSucceed: async ({ response, request }: { response: Response; request: Request }) => {
+    const metric = getMetricSnapshot(bundle, endpoint, cacheName);
+    metric.networkSuccesses += 1;
+    publishMetricLog('info', 'network_success', metric, request, { responseStatus: response.status });
+    return response;
+  },
+
+  fetchDidFail: async ({ error, request }: { error: Error; request: Request }) => {
+    const metric = getMetricSnapshot(bundle, endpoint, cacheName);
+    metric.networkFailures += 1;
+    publishMetricLog('error', 'network_failure', metric, request, { error: error.message });
+  },
+
+  handlerDidError: async ({ error, request }: { error: Error; request: Request }) => {
+    const metric = getMetricSnapshot(bundle, endpoint, cacheName);
+    metric.handlerFailures += 1;
+    publishMetricLog('error', 'handler_failure', metric, request, { error: error.message });
+  },
+});
+
 cleanupOutdatedCaches();
 
 // @ts-expect-error: __WB_MANIFEST is injected by vite-plugin-pwa
 precacheAndRoute(self.__WB_MANIFEST);
+
+self.addEventListener('message', (event) => {
+  if (event.data?.type !== 'GET_SW_METRICS') return;
+
+  event.source?.postMessage({
+    type: 'SW_METRICS_SNAPSHOT',
+    metrics: Array.from(routeMetrics.values()),
+    timestamp: Date.now(),
+  });
+});
 
 // Quran page images (local) - cache forever
 registerRoute(
@@ -20,6 +132,7 @@ registerRoute(
   new CacheFirst({
     cacheName: 'quran-pages-cache',
     plugins: [
+      metricsPlugin('quran-pages', '/quran-images/*', 'quran-pages-cache'),
       new ExpirationPlugin({
         maxEntries: 700,
         maxAgeSeconds: 60 * 60 * 24 * 365 * 2, // 2 years
@@ -37,6 +150,7 @@ registerRoute(
   new CacheFirst({
     cacheName: 'quran-pages-cache',
     plugins: [
+      metricsPlugin('quran-pages', 'jahedev.github.io/tajweed-quran-pages/*', 'quran-pages-cache'),
       new ExpirationPlugin({
         maxEntries: 700,
         maxAgeSeconds: 60 * 60 * 24 * 365 * 2, // 2 years
@@ -54,6 +168,7 @@ registerRoute(
   new StaleWhileRevalidate({
     cacheName: 'quran-api-cache',
     plugins: [
+      metricsPlugin('quran-api', 'api.alquran.cloud|api.quran.com|mp3quran.net/api/*', 'quran-api-cache'),
       new ExpirationPlugin({
         maxEntries: 100,
         maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
@@ -71,6 +186,7 @@ registerRoute(
   new StaleWhileRevalidate({
     cacheName: 'embedded-quraaniat-cache',
     plugins: [
+      metricsPlugin('embedded', 'quraaniat.vercel.app/*', 'embedded-quraaniat-cache'),
       new ExpirationPlugin({
         maxEntries: 100,
         maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
@@ -87,6 +203,7 @@ registerRoute(
   new StaleWhileRevalidate({
     cacheName: 'embedded-mohammedhesham-cache',
     plugins: [
+      metricsPlugin('embedded', 'www.mohammedhesham.site/*', 'embedded-mohammedhesham-cache'),
       new ExpirationPlugin({
         maxEntries: 100,
         maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
@@ -104,6 +221,7 @@ registerRoute(
   new CacheFirst({
     cacheName: 'google-fonts-stylesheets',
     plugins: [
+      metricsPlugin('fonts', 'fonts.googleapis.com/*', 'google-fonts-stylesheets'),
       new ExpirationPlugin({
         maxEntries: 10,
         maxAgeSeconds: 60 * 60 * 24 * 365 * 2,
@@ -117,6 +235,7 @@ registerRoute(
   new CacheFirst({
     cacheName: 'google-fonts-webfonts',
     plugins: [
+      metricsPlugin('fonts', 'fonts.gstatic.com/*', 'google-fonts-webfonts'),
       new ExpirationPlugin({
         maxEntries: 20,
         maxAgeSeconds: 60 * 60 * 24 * 365 * 2,
@@ -134,6 +253,7 @@ registerRoute(
   new StaleWhileRevalidate({
     cacheName: 'prayer-times-cache',
     plugins: [
+      metricsPlugin('prayer-times', 'api.aladhan.com/*', 'prayer-times-cache'),
       new ExpirationPlugin({
         maxEntries: 30,
         maxAgeSeconds: 60 * 60 * 24, // 1 day
@@ -151,6 +271,7 @@ registerRoute(
   new StaleWhileRevalidate({
     cacheName: 'static-assets-cache',
     plugins: [
+      metricsPlugin('static-assets', '/sitemap.xml', 'static-assets-cache'),
       new CacheableResponsePlugin({
         statuses: [0, 200],
       }),
@@ -164,6 +285,7 @@ registerRoute(
   new CacheFirst({
     cacheName: 'quran-audio-cache',
     plugins: [
+      metricsPlugin('audio', '*.mp3', 'quran-audio-cache'),
       new ExpirationPlugin({
         maxEntries: 1000,
         maxAgeSeconds: 60 * 60 * 24 * 365 * 2,
@@ -182,6 +304,7 @@ registerRoute(
   new CacheFirst({
     cacheName: 'images-cache',
     plugins: [
+      metricsPlugin('images', '*.(png|jpg|jpeg|svg|gif|webp)', 'images-cache'),
       new ExpirationPlugin({
         maxEntries: 200,
         maxAgeSeconds: 60 * 60 * 24 * 365,
@@ -204,27 +327,27 @@ async function refreshPrayerTimes() {
   const cache = await caches.open('prayer-times-cache');
   // This is a simplified version, in a real app you'd get the user's location from IndexedDB
   // and fetch the latest times to ensure they are ready when the user opens the app.
-  console.log('Periodic sync: Refreshing prayer times...');
+  console.log('Periodic sync: Refreshing prayer times...', cache);
 }
 
 self.addEventListener('push', (event) => {
-  let data = {};
+  let data: Record<string, unknown> = {};
   try {
     data = event.data ? event.data.json() : {};
-  } catch (e) {
+  } catch (_error) {
     data = { title: 'تنبيه إسلامي', body: event.data ? event.data.text() : 'حان وقت الصلاة أو الذكر' };
   }
-  
-  const title = data.title || 'تنبيه إسلامي';
+
+  const title = (data.title as string) || 'تنبيه إسلامي';
   const options = {
-    body: data.body || 'حان وقت الصلاة أو الذكر',
+    body: (data.body as string) || 'حان وقت الصلاة أو الذكر',
     icon: '/pwa-192x192.png',
     badge: '/pwa-192x192.png',
-    tag: data.tag || 'islamic-notification',
+    tag: (data.tag as string) || 'islamic-notification',
     renotify: true,
     data: {
-      url: data.url || '/'
-    }
+      url: (data.url as string) || '/',
+    },
   };
 
   event.waitUntil(self.registration.showNotification(title, options));
@@ -244,7 +367,7 @@ self.addEventListener('notificationclick', (event) => {
         }
       });
 
-      for (let i = 0; i < windowClients.length; i++) {
+      for (let i = 0; i < windowClients.length; i += 1) {
         const client = windowClients[i];
         if (client.url === urlToOpen && 'focus' in client) {
           return client.focus();
@@ -253,6 +376,7 @@ self.addEventListener('notificationclick', (event) => {
       if (self.clients.openWindow) {
         return self.clients.openWindow(urlToOpen);
       }
+      return undefined;
     })
   );
 });

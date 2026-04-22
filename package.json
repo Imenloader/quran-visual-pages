@@ -11,7 +11,10 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "cap": "cap"
+    "cap": "cap",
+    "sw:validate": "node scripts/validate-sw-config.mjs",
+    "e2e:offline": "npx playwright test e2e/playwright/offline.spec.ts",
+    "e2e": "npx playwright test"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.0",

@@ -26,6 +26,9 @@ jobs:
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Validate Service Worker Route + Cache Key Stability
+        run: npm run sw:validate
+
       - name: Build Web App
         run: npm run build
 

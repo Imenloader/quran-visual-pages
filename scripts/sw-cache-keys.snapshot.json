@@ -1,0 +1,15 @@
+{
+  "cacheNames": [
+    "embedded-mohammedhesham-cache",
+    "embedded-quraaniat-cache",
+    "google-fonts-stylesheets",
+    "google-fonts-webfonts",
+    "images-cache",
+    "prayer-times-cache",
+    "quran-api-cache",
+    "quran-audio-cache",
+    "quran-pages-cache",
+    "static-assets-cache"
+  ],
+  "routeRegistrations": 11
+}
