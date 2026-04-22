@@ -13,9 +13,35 @@ import { doc, onSnapshot, setDoc, increment } from "firebase/firestore";
 // Persist personal daily count in localStorage keyed by today's date
 const getTodayKey = () => `global-dhikr-personal-${new Date().toISOString().split("T")[0]}`;
 
+// Daily rotating adhkar — same dhikr worldwide on the same day
+const DAILY_ADHKAR = [
+  { ar: "سُبْحَانَ اللَّهِ",        en: "Subhan Allah",           meaning: { ar: "سبحان الله", en: "Glory be to Allah" } },
+  { ar: "الْحَمْدُ لِلَّهِ",       en: "Alhamdulillah",          meaning: { ar: "الحمد لله", en: "All praise is due to Allah" } },
+  { ar: "اللَّهُ أَكْبَرُ",        en: "Allahu Akbar",           meaning: { ar: "الله أكبر", en: "Allah is the Greatest" } },
+  { ar: "لَا إِلَٰهَ إِلَّا اللَّهُ", en: "La ilaha illallah",    meaning: { ar: "لا إله إلا الله", en: "There is no god but Allah" } },
+  { ar: "أَسْتَغْفِرُ اللَّهَ",     en: "Astaghfirullah",        meaning: { ar: "أستغفر الله", en: "I seek forgiveness from Allah" } },
+  { ar: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ", en: "Subhan Allahi wa bihamdihi", meaning: { ar: "سبحان الله وبحمده", en: "Glory and praise be to Allah" } },
+  { ar: "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ", en: "La hawla wala quwwata illa billah", meaning: { ar: "لا حول ولا قوة إلا بالله", en: "No power except with Allah" } },
+  { ar: "سُبْحَانَ اللَّهِ الْعَظِيمِ", en: "Subhan Allahil Azim",  meaning: { ar: "سبحان الله العظيم", en: "Glory be to Allah the Magnificent" } },
+  { ar: "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ", en: "Allahumma salli ala Muhammad", meaning: { ar: "اللهم صل على محمد", en: "O Allah, send blessings upon Muhammad" } },
+  { ar: "حَسْبِيَ اللَّهُ وَنِعْمَ الْوَكِيلُ", en: "Hasbiyallahu wa ni'mal wakil", meaning: { ar: "حسبي الله ونعم الوكيل", en: "Allah is sufficient for me" } },
+  { ar: "يَا حَيُّ يَا قَيُّومُ",    en: "Ya Hayyu Ya Qayyum",     meaning: { ar: "يا حي يا قيوم", en: "O Living, O Sustaining" } },
+  { ar: "رَبِّ اغْفِرْ لِي",         en: "Rabbi ighfir li",         meaning: { ar: "رب اغفر لي", en: "My Lord, forgive me" } },
+  { ar: "تَوَكَّلْتُ عَلَى اللَّهِ",  en: "Tawakkaltu ala Allah",   meaning: { ar: "توكلت على الله", en: "I put my trust in Allah" } },
+  { ar: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", en: "Bismillahir Rahmanir Rahim", meaning: { ar: "بسم الله الرحمن الرحيم", en: "In the name of Allah, the Most Gracious" } },
+];
+
+// Deterministic daily pick — same for all users on the same day
+const getDailyDhikr = () => {
+  const today = new Date().toISOString().split("T")[0]; // "2026-04-22"
+  const seed = today.split("-").reduce((acc, n) => acc + parseInt(n), 0);
+  return DAILY_ADHKAR[seed % DAILY_ADHKAR.length];
+};
+
 const GlobalDhikr = () => {
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
+  const dailyDhikr = getDailyDhikr();
   const [globalCount, setGlobalCount] = useState<number>(0);
   const [sessionCount, setSessionCount] = useState<number>(0);
   const [personalCount, setPersonalCount] = useState<number>(() => {
@@ -220,12 +246,19 @@ const GlobalDhikr = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleDhikr}
-              className="relative w-64 h-64 rounded-full bg-gradient-to-br from-emerald-600 to-emerald-800 shadow-2xl flex flex-col items-center justify-center gap-4 border-[12px] border-white/10 group-active:border-white/20 transition-all"
+              className="relative w-64 h-64 rounded-full bg-gradient-to-br from-emerald-600 to-emerald-800 shadow-2xl flex flex-col items-center justify-center gap-3 border-[12px] border-white/10 group-active:border-white/20 transition-all px-4"
             >
-              <Fingerprint className="w-20 h-20 text-white group-hover:scale-110 transition-transform" />
-              <div className="flex flex-col items-center">
-                <span className="text-2xl font-bold text-white font-naskh">سُبْحَانَ اللَّهِ</span>
-                <span className="text-[10px] text-white/60 uppercase tracking-widest">Tap to Praise</span>
+              <Fingerprint className="w-14 h-14 text-white group-hover:scale-110 transition-transform shrink-0" />
+              <div className="flex flex-col items-center gap-1 text-center">
+                <span className="text-xl font-bold text-white font-naskh leading-tight">
+                  {dailyDhikr.ar}
+                </span>
+                <span className="text-[9px] text-white/50 uppercase tracking-widest">
+                  {dailyDhikr.en}
+                </span>
+                <span className="text-[8px] text-white/40 italic">
+                  {isAr ? dailyDhikr.meaning.ar : dailyDhikr.meaning.en}
+                </span>
               </div>
 
               <AnimatePresence>
