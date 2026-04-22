@@ -1,35 +1,3 @@
 ```
-# Dependencies
 node_modules/
-package-lock.json
-
-# TypeScript/JavaScript build artifacts
-*.js.map
-*.tsbuildinfo
-
-# Environment
-.env
-.env.local
-.env.*
-
-# Logs
-*.log
-
-# Coverage
-coverage/
-.nyc_output/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Build outputs
-dist/
-build/
 ```
