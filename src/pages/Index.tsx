@@ -14,6 +14,7 @@ import { normalizeArabic } from "@/lib/arabicUtils";
 import { applyTajweedColors } from "@/lib/tajweedParser";
 import { motion, AnimatePresence } from "motion/react";
 import { useNativeWidgets } from "@/hooks/useNativeWidgets";
+import { syncService } from "@/services/syncService";
 
 const BOOKMARK_KEY = "quran-bookmark";
 

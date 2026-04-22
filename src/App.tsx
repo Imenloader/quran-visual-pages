@@ -26,6 +26,7 @@ import SplashScreen from "./components/SplashScreen";
 import ScrollRestoration from "./components/ScrollRestoration";
 import CommandPalette from "./components/CommandPalette";
 import { lazyWithRetry } from "./lib/lazyRetry";
+import { checkNetworkReliability } from "./lib/networkCheck";
 
 // --- التعديل هنا: تحميل الصفحات الأساسية بشكل LazyRetry لمحاولة حل مشكلة الـ ReferenceError و Chunk errors ---
 const Index = lazyWithRetry(() => import("./pages/Index"));

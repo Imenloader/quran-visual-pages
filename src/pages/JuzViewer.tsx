@@ -48,7 +48,12 @@ const getBookmark = (): BookmarkData | null => {
 };
 
 const saveBookmark = (juz: number, page: number, readingMode: "image" | "text", verseKey?: string) => {
-  const data = { juz, page, readingMode, verseKey };
+  const data = { 
+    juz, 
+    page, 
+    readingMode, 
+    verseKey: verseKey || "" // Ensure never undefined for Firestore
+  };
   localStorage.setItem(BOOKMARK_KEY, JSON.stringify(data));
   // Also sync to cloud if logged in
   syncService.saveData(BOOKMARK_KEY, data).catch(err => {

@@ -27,31 +27,33 @@ import { QRCodeSVG } from "qrcode.react";
 import { 
   collection, 
   query, 
-  where, 
-  limit, 
-  getDocs, 
-  addDoc, 
-  updateDoc, 
+  where,
+  limit,
+  getDocs,
+  getDoc,
+  doc,
+  addDoc,
+  updateDoc,
   deleteDoc,
-  doc, 
-  onSnapshot, 
-  Timestamp,
+  onSnapshot,
   serverTimestamp,
-  orderBy,
-  getDoc
+  Timestamp,
+  arrayUnion,
+  arrayRemove,
+  orderBy
 } from "firebase/firestore";
-import { onAuthStateChanged, type User } from "firebase/auth";
-import { db, auth, handleFirestoreError, OperationType } from "@/firebase";
+import { onAuthStateChanged, User } from "firebase/auth";
+import { auth, db, handleFirestoreError, OperationType } from "@/firebase";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useUser } from "@/contexts/UserContext";
 import BackButton from "@/components/BackButton";
-import { toArabicNumber } from "@/data/quranData";
+import QuranHeader from "@/components/QuranHeader";
+import { JUZ_DATA, juzData, toArabicNumber } from "@/data/quranData";
 import QuranTextViewer from "@/components/QuranTextViewer";
 import QuranPlayerBar from "@/components/QuranPlayerBar";
-import { useTheme } from "@/contexts/ThemeContext";
 import AuthModal from "@/components/AuthModal";
 
 // --- Types ---
-// ... (rest of types)
 
 interface Portion {
   status: 'available' | 'claimed' | 'completed';
@@ -93,6 +95,8 @@ const KhatmaJamaaiya = () => {
   
   const [searchParams, setSearchParams] = useSearchParams();
   const [user, setUser] = useState<User | null>(auth.currentUser);
+  const currentUser = user; // Alias for compatibility with rest of the code
+
   const [currentKhatma, setCurrentKhatma] = useState<Khatma | null>(null);
   const [myKhatmas, setMyKhatmas] = useState<Khatma[]>([]);
   const [availableKhatmas, setAvailableKhatmas] = useState<Khatma[]>([]);
@@ -116,7 +120,6 @@ const KhatmaJamaaiya = () => {
       if (!u) setLoading(false);
     });
 
-    // Safety timeout: if still loading after 8 seconds, force stop loading
     const timer = setTimeout(() => {
       setLoading(false);
     }, 8000);
@@ -126,8 +129,6 @@ const KhatmaJamaaiya = () => {
       clearTimeout(timer);
     };
   }, []);
-
-
 
   // 3. Timeout Logic (Lazy)
   const handleTimeouts = useCallback(async (id: string, portions: Record<string, Portion>) => {
@@ -167,11 +168,9 @@ const KhatmaJamaaiya = () => {
     let isSubscribed = true;
 
     const khatmaId = searchParams.get("id");
-    console.log("Khatma Effect Triggered:", { khatmaId, userId: user.uid });
 
     if (khatmaId) {
       setLoading(true);
-      // Load specific khatma
       const unsubscribe = onSnapshot(doc(db, "khatmas", khatmaId), (snapshot) => {
         if (!isSubscribed) return;
         
@@ -179,17 +178,14 @@ const KhatmaJamaaiya = () => {
           const data = snapshot.data() as Omit<Khatma, 'id'>;
           setCurrentKhatma({ id: snapshot.id, ...data });
           setLoading(false);
-          // Check for timeouts
           handleTimeouts(snapshot.id, data.portions);
         } else {
-          console.warn("Khatma not found:", khatmaId);
           toast.error(isAr ? "الختمة غير موجودة" : "Khatma not found");
           setCurrentKhatma(null);
           setLoading(false);
         }
       }, (err) => {
         if (!isSubscribed) return;
-        console.error("Khatma Snapshot Error:", err);
         handleFirestoreError(err, OperationType.GET, `khatmas/${khatmaId}`);
         setLoading(false);
       });
@@ -200,12 +196,10 @@ const KhatmaJamaaiya = () => {
       };
     } else {
       setCurrentKhatma(null);
-      // Load lists
       const loadLists = async () => {
         if (!isSubscribed) return;
         setLoading(true);
         try {
-          console.log("Loading khatma lists for user:", user.uid);
           const q = query(
             collection(db, "khatmas"),
             where("status", "==", "active"),
@@ -232,7 +226,6 @@ const KhatmaJamaaiya = () => {
           setAvailableKhatmas(available);
         } catch (e) {
           if (isSubscribed) {
-            console.error("Load Lists Error:", e);
             handleFirestoreError(e, OperationType.LIST, "khatmas");
           }
         } finally {
@@ -273,7 +266,6 @@ const KhatmaJamaaiya = () => {
     }
 
     try {
-      console.log("Creating Khatma...", { type, title: newKhatmaTitle });
       const docRef = await addDoc(collection(db, "khatmas"), {
         title: newKhatmaTitle || (type === 'public' ? (isAr ? "ختمة عامة" : "Public Khatma") : (isAr ? "ختمة خاصة" : "Private Khatma")),
         type,
@@ -283,14 +275,12 @@ const KhatmaJamaaiya = () => {
         portions: initialPortions
       });
       
-      console.log("Khatma created, navigating to:", docRef.id);
       toast.success(isAr ? "تم إنشاء الختمة بنجاح" : "Khatma created successfully", { id: toastId });
       setShowCreateModal(false);
       setNewKhatmaTitle("");
       window.scrollTo(0, 0);
       navigate(`/khatma-jamaaiya?id=${docRef.id}`, { replace: true });
     } catch (e) {
-      console.error("Create Khatma Error:", e);
       handleFirestoreError(e, OperationType.CREATE, "khatmas");
       toast.error(isAr ? "فشل إنشاء الختمة" : "Failed to create Khatma", { id: toastId });
     } finally {
@@ -307,10 +297,8 @@ const KhatmaJamaaiya = () => {
 
     setActionLoading(true);
     const toastId = toast.loading(isAr ? "جاري البحث عن ختمة متاحة..." : "Searching for available Khatma...");
-    console.log("Joining Public Khatma...");
     
     try {
-      // 1. Check if user is already in an active khatma
       const activeQ = query(
         collection(db, "khatmas"),
         where("status", "==", "active"),
@@ -323,14 +311,12 @@ const KhatmaJamaaiya = () => {
       });
 
       if (existingKhatma) {
-        console.log("User already in active khatma, navigating:", existingKhatma.id);
         toast.success(isAr ? "أنت مشارك بالفعل في ختمة نشطة" : "You are already participating in an active Khatma", { id: toastId });
         window.scrollTo(0, 0);
         navigate(`/khatma-jamaaiya?id=${existingKhatma.id}`, { replace: true });
         return;
       }
 
-      // 2. Find active public khatma with available portions
       const q = query(
         collection(db, "khatmas"), 
         where("type", "==", "public"), 
@@ -344,16 +330,11 @@ const KhatmaJamaaiya = () => {
 
       for (const d of snapshot.docs) {
         const data = d.data() as Khatma;
-        
-        // Check if user has already finished a juz in this khatma
         const hasFinishedInThis = Object.values(data.portions).some(
           p => p.claimedBy === currentUser.uid && p.status === 'completed'
         );
         
-        if (hasFinishedInThis) {
-          console.log(`User already finished a juz in khatma ${d.id}, skipping...`);
-          continue; // Skip this khatma and look for another one
-        }
+        if (hasFinishedInThis) continue;
 
         const available = Object.entries(data.portions)
           .filter(([_, p]) => p.status === 'available')
@@ -367,16 +348,13 @@ const KhatmaJamaaiya = () => {
       }
 
       if (targetKhatmaId) {
-        // 3. Assign a random available Juz
         const randomIndex = Math.floor(Math.random() * availableJuz.length);
         const selectedJuz = availableJuz[randomIndex];
         await assignJuz(targetKhatmaId, selectedJuz);
-        console.log("Joined existing public khatma, navigating to:", targetKhatmaId);
         toast.success(isAr ? "تم الانضمام للختمة بنجاح" : "Joined Khatma successfully", { id: toastId });
         window.scrollTo(0, 0);
         navigate(`/khatma-jamaaiya?id=${targetKhatmaId}`, { replace: true });
       } else {
-        // 4. Create new public one and assign random Juz
         const randomJuz = (Math.floor(Math.random() * 30) + 1).toString();
         const initialPortions: Record<string, Portion> = {};
         for (let i = 1; i <= 30; i++) {
@@ -398,13 +376,11 @@ const KhatmaJamaaiya = () => {
           portions: initialPortions
         });
         
-        console.log("Created and joined new public khatma, navigating to:", docRef.id);
         toast.success(isAr ? "تم إنشاء ختمة جديدة والانضمام إليها" : "Created and joined new public Khatma", { id: toastId });
         window.scrollTo(0, 0);
         navigate(`/khatma-jamaaiya?id=${docRef.id}`, { replace: true });
       }
     } catch (e) {
-      console.error("Join Public Khatma Error:", e);
       handleFirestoreError(e, OperationType.WRITE, "khatmas");
       toast.error(isAr ? "فشل الانضمام للختمة" : "Failed to join Khatma", { id: toastId });
     } finally {
@@ -434,7 +410,6 @@ const KhatmaJamaaiya = () => {
   const claimPortion = async (juzIndex: string) => {
     if (!user || !currentKhatma) return;
     
-    // Check if user already has a claimed portion in this khatma
     const alreadyClaimed = Object.values(currentKhatma.portions).some(p => p.claimedBy === user.uid && p.status === 'claimed');
     if (alreadyClaimed) {
       toast.error(isAr ? "لديك جزء قيد القراءة بالفعل" : "You already have a portion being read");
@@ -446,7 +421,6 @@ const KhatmaJamaaiya = () => {
       await assignJuz(currentKhatma.id, juzIndex);
       toast.success(isAr ? "تم حجز الجزء بنجاح" : "Portion claimed successfully");
     } catch (e) {
-      // Error handled in assignJuz
     } finally {
       setActionLoading(false);
     }
@@ -463,7 +437,6 @@ const KhatmaJamaaiya = () => {
         completedAt: Timestamp.now()
       };
 
-      // Check if all are completed
       const allCompleted = Object.values(updatedPortions).every(p => p.status === 'completed');
       
       await updateDoc(doc(db, "khatmas", currentKhatma.id), {
@@ -472,11 +445,10 @@ const KhatmaJamaaiya = () => {
         status: allCompleted ? 'completed' : 'active'
       });
 
-      addPoints(500); // Reward for completing a portion
+      addPoints(500); 
       if (allCompleted) {
         addJuzCompleted();
         toast.success(isAr ? "مبارك! اكتملت الختمة بالكامل" : "Mabrouk! The entire Khatma is complete");
-        // Redirect after a delay to allow seeing the trophy
         setTimeout(() => {
           navigate("/khatma-jamaaiya", { replace: true });
         }, 5000);
