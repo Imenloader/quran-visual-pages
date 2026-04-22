@@ -8,62 +8,80 @@ import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { Capacitor } from "@capacitor/core";
 import { useUser } from "@/contexts/UserContext";
 import { db } from "@/firebase";
-import { doc, onSnapshot, updateDoc, increment } from "firebase/firestore";
-import { toast } from "sonner";
+import { doc, onSnapshot, setDoc, increment } from "firebase/firestore";
+
+// Persist personal daily count in localStorage keyed by today's date
+const getTodayKey = () => `global-dhikr-personal-${new Date().toISOString().split("T")[0]}`;
 
 const GlobalDhikr = () => {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
   const [globalCount, setGlobalCount] = useState<number>(0);
-  const [personalCount, setPersonalCount] = useState<number>(0);
   const [sessionCount, setSessionCount] = useState<number>(0);
+  const [personalCount, setPersonalCount] = useState<number>(() => {
+    // Restore today's personal count from localStorage
+    return parseInt(localStorage.getItem(getTodayKey()) || "0", 10);
+  });
   const [isLoading, setIsLoading] = useState(true);
   const { addAthkarRecited } = useUser();
 
   // Sync with Firestore
   useEffect(() => {
     const dhikrDoc = doc(db, "stats", "dhikr");
-    
-    // Try to read the doc — if permission denied, operate in local-only mode
-    const unsubscribe = onSnapshot(dhikrDoc, (snap) => {
-      if (snap.exists()) {
-        setGlobalCount(snap.data().count || 0);
-      }
-      setIsLoading(false);
-    }, (error) => {
-      // Silently degrade — Firestore rules haven't been configured yet
-      if (error.code !== 'permission-denied') {
-        console.warn("Global Dhikr Snapshot Error:", error);
-      }
-      setIsLoading(false);
+
+    // Ensure the document exists before subscribing
+    setDoc(dhikrDoc, { count: 0 }, { merge: true }).catch(() => {
+      // If permission denied, we'll still try to read via onSnapshot
     });
+
+    const unsubscribe = onSnapshot(
+      dhikrDoc,
+      (snap) => {
+        if (snap.exists()) {
+          setGlobalCount(snap.data().count || 0);
+        }
+        setIsLoading(false);
+      },
+      (error) => {
+        if (error.code !== "permission-denied") {
+          console.warn("Global Dhikr Snapshot Error:", error);
+        }
+        setIsLoading(false);
+      }
+    );
 
     return () => unsubscribe();
   }, []);
 
   const handleDhikr = async () => {
-    setSessionCount(prev => prev + 1);
-    setPersonalCount(prev => prev + 1);
-    
+    // Update local counters immediately (optimistic)
+    setSessionCount((prev) => prev + 1);
+    const newPersonal = personalCount + 1;
+    setPersonalCount(newPersonal);
+
+    // Persist personal count for today
+    localStorage.setItem(getTodayKey(), String(newPersonal));
+
     // Increment personal stats and points
     addAthkarRecited(1);
 
-    // Haptic feedback for native and supported browsers
+    // Haptic feedback
     if (Capacitor.isNativePlatform()) {
       Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
-    } else if ('vibrate' in navigator) {
+    } else if ("vibrate" in navigator) {
       navigator.vibrate(50);
     }
 
-    // Silently attempt Firestore sync — degrades gracefully if rules block it
+    // Sync to Firestore — use setDoc with merge so it creates the doc if missing
     try {
       const dhikrDoc = doc(db, "stats", "dhikr");
-      await updateDoc(dhikrDoc, {
-        count: increment(1),
-        lastUpdate: new Date()
-      });
+      await setDoc(
+        dhikrDoc,
+        { count: increment(1), lastUpdate: new Date() },
+        { merge: true }
+      );
     } catch (error: any) {
-      if (error?.code !== 'permission-denied') {
+      if (error?.code !== "permission-denied") {
         console.error("Error updating global dhikr:", error);
       }
     }
@@ -71,8 +89,8 @@ const GlobalDhikr = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col pb-24 overflow-x-hidden">
-      <QuranHeader 
-        title={isAr ? "تسبيح عالمي" : "Global Dhikr"} 
+      <QuranHeader
+        title={isAr ? "تسبيح عالمي" : "Global Dhikr"}
         subtitle={isAr ? "شارك المسلمين حول العالم في ذكر الله" : "Join Muslims worldwide in remembering Allah"}
         variant="compact"
       />
@@ -88,7 +106,7 @@ const GlobalDhikr = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Global Counter Card */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             className="bento-card !p-8 bg-gradient-to-br from-primary/10 to-accent/5 border-primary/20 relative overflow-hidden group"
@@ -101,9 +119,11 @@ const GlobalDhikr = () => {
                 <div className="w-10 h-10 rounded-xl bg-white/50 dark:bg-black/20 flex items-center justify-center shadow-inner">
                   <Users className="w-5 h-5 text-primary" />
                 </div>
-                <h3 className="text-sm font-bold tracking-widest uppercase text-muted-foreground">{isAr ? "إجمالي التسبيح العالمي" : "Global Dhikr Total"}</h3>
+                <h3 className="text-sm font-bold tracking-widest uppercase text-muted-foreground">
+                  {isAr ? "إجمالي التسبيح العالمي" : "Global Dhikr Total"}
+                </h3>
               </div>
-              
+
               <div className="space-y-1">
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -112,10 +132,16 @@ const GlobalDhikr = () => {
                     animate={{ y: 0, opacity: 1 }}
                     className="text-6xl font-bold tracking-tighter text-primary"
                   >
-                    {globalCount.toLocaleString()}
+                    {isLoading ? (
+                      <span className="text-3xl text-muted-foreground animate-pulse">…</span>
+                    ) : (
+                      globalCount.toLocaleString()
+                    )}
                   </motion.div>
                 </AnimatePresence>
-                <p className="text-xs text-muted-foreground font-medium">{isAr ? "تسبيحة تمت حتى الآن" : "Praises performed so far"}</p>
+                <p className="text-xs text-muted-foreground font-medium">
+                  {isAr ? "تسبيحة تمت حتى الآن" : "Praises performed so far"}
+                </p>
               </div>
 
               <div className="pt-4 border-t border-primary/10">
@@ -128,7 +154,7 @@ const GlobalDhikr = () => {
           </motion.div>
 
           {/* Personal Stats Card */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             className="bento-card !p-8 bg-card border-border/40 space-y-8"
@@ -137,25 +163,49 @@ const GlobalDhikr = () => {
               <div className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center shadow-inner">
                 <Fingerprint className="w-5 h-5 text-accent" />
               </div>
-              <h3 className="text-sm font-bold tracking-widest uppercase text-muted-foreground">{isAr ? "مساهمتك اليوم" : "Your Contribution"}</h3>
+              <h3 className="text-sm font-bold tracking-widest uppercase text-muted-foreground">
+                {isAr ? "مساهمتك اليوم" : "Your Contribution"}
+              </h3>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <div className="text-3xl font-bold text-foreground">{sessionCount}</div>
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{isAr ? "هذه الجلسة" : "This Session"}</p>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={sessionCount}
+                    initial={{ scale: 1.3, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="text-3xl font-bold text-foreground"
+                  >
+                    {sessionCount}
+                  </motion.div>
+                </AnimatePresence>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  {isAr ? "هذه الجلسة" : "This Session"}
+                </p>
               </div>
               <div className="space-y-1">
-                <div className="text-3xl font-bold text-foreground">{personalCount}</div>
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{isAr ? "الإجمالي الشخصي" : "Personal Total"}</p>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={personalCount}
+                    initial={{ scale: 1.3, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="text-3xl font-bold text-foreground"
+                  >
+                    {personalCount}
+                  </motion.div>
+                </AnimatePresence>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  {isAr ? "تسبيحاتك اليوم" : "Today's Total"}
+                </p>
               </div>
             </div>
 
             <div className="p-4 rounded-2xl bg-accent/5 border border-accent/10 flex items-start gap-3">
               <Sparkles className="w-4 h-4 text-accent mt-0.5" />
               <p className="text-[10px] leading-relaxed text-muted-foreground italic">
-                {isAr 
-                  ? "كل تسبيحة تقوم بها ترفع رصيد الأمة وتكتب لك أجراً بإذن الله." 
+                {isAr
+                  ? "كل تسبيحة تقوم بها ترفع رصيد الأمة وتكتب لك أجراً بإذن الله."
                   : "Every praise you make increases the Ummah's balance and earns you reward, InshaAllah."}
               </p>
             </div>
@@ -165,15 +215,12 @@ const GlobalDhikr = () => {
         {/* The Dhikr Button */}
         <div className="flex flex-col items-center justify-center py-12 space-y-12">
           <div className="relative group">
-            <motion.div 
-              animate={{ 
-                scale: [1, 1.05, 1],
-                opacity: [0.5, 0.8, 0.5]
-              }}
+            <motion.div
+              animate={{ scale: [1, 1.05, 1], opacity: [0.5, 0.8, 0.5] }}
               transition={{ duration: 3, repeat: Infinity }}
               className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full group-hover:bg-primary/40 transition-colors"
             />
-            
+
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -185,8 +232,7 @@ const GlobalDhikr = () => {
                 <span className="text-2xl font-bold text-white font-naskh">سُبْحَانَ اللَّهِ</span>
                 <span className="text-[10px] text-white/60 uppercase tracking-widest">Tap to Praise</span>
               </div>
-              
-              {/* Pulse effect */}
+
               <AnimatePresence>
                 {sessionCount > 0 && (
                   <motion.div
@@ -204,8 +250,8 @@ const GlobalDhikr = () => {
           <div className="p-4 bg-muted/50 rounded-2xl border border-border/50 flex items-start gap-3 max-w-md mx-auto">
             <Info className="w-5 h-5 text-accent shrink-0 mt-0.5" />
             <p className="text-xs text-muted-foreground font-naskh leading-relaxed">
-              {isAr 
-                ? "يتم تحديث العداد العالمي بشكل فوري ومباشر عند كل تسبيحة من أي مستخدم حول العالم." 
+              {isAr
+                ? "يتم تحديث العداد العالمي بشكل فوري ومباشر عند كل تسبيحة من أي مستخدم حول العالم."
                 : "The global counter is updated in real-time as users worldwide perform Dhikr."}
             </p>
           </div>
