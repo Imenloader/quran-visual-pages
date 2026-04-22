@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { ChevronLeft, Calendar as CalendarIcon, Info, ChevronRight, Loader2, X, Star, Target, Check, Trash2, Plus, Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { format, addMonths, subMonths, isSameDay } from "date-fns";
+import { format, addMonths, subMonths, isSameDay, differenceInDays } from "date-fns";
 import { ar } from "date-fns/locale";
 import BackButton from "@/components/BackButton";
 import { LocalNotifications } from "@capacitor/local-notifications";
@@ -88,6 +88,7 @@ const HijriCalendar = () => {
   const [loading, setLoading] = useState(true);
   const [currentHijri, setCurrentHijri] = useState<{ day: string; month: string; year: string } | null>(null);
   
+  const isAr = i18n.language === 'ar';
   const [selectedDay, setSelectedDay] = useState<HijriDay | null>(null);
   const [goals, setGoals] = useState<Record<string, Goal[]>>(() => {
     const saved = localStorage.getItem("hijri_goals");
@@ -143,6 +144,38 @@ const HijriCalendar = () => {
   useEffect(() => {
     fetchCalendar(viewDate);
   }, [viewDate, fetchCalendar]);
+
+  // To find upcoming events, we might need next month's data too, but for simplicity, we'll scan the currently loaded calendarData
+  // and show any future events from today.
+  const upcomingEvents = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const events: { date: Date, name: string, daysLeft: number, hijriStr: string }[] = [];
+
+    calendarData.forEach(day => {
+      const gDate = new Date(
+        parseInt(day.date.gregorian.year),
+        day.date.gregorian.month.number - 1,
+        parseInt(day.date.gregorian.day)
+      );
+      if (gDate >= today) {
+        const hols = getEnhancedHolidays(day, i18n.language);
+        hols.forEach(hol => {
+          if (hol !== "Ayyam al-Bidh" && hol !== "الأيام البيض") { // exclude recurring monthly events
+            events.push({
+              date: gDate,
+              name: hol,
+              daysLeft: differenceInDays(gDate, today),
+              hijriStr: `${day.date.hijri.day} ${i18n.language === 'ar' ? day.date.hijri.month.ar : day.date.hijri.month.en}`
+            });
+          }
+        });
+      }
+    });
+
+    return events.sort((a, b) => a.daysLeft - b.daysLeft).slice(0, 3);
+  }, [calendarData, i18n.language]);
 
   const handlePrevMonth = () => setViewDate(prev => subMonths(prev, 1));
   const handleNextMonth = () => setViewDate(prev => addMonths(prev, 1));
@@ -350,6 +383,29 @@ const HijriCalendar = () => {
               {t("hijri.info", "يمكنك الضغط على أي يوم لإضافة أهدافك أو رؤية المناسبات الإسلامية.")}
             </p>
           </div>
+
+          {upcomingEvents.length > 0 && (
+            <div className="space-y-4 pt-4">
+              <h3 className="font-bold font-naskh text-foreground flex items-center gap-2">
+                <Star className="w-5 h-5 text-gold" />
+                {isAr ? "مناسبات قادمة هذا الشهر" : "Upcoming Events"}
+              </h3>
+              <div className="grid gap-3">
+                {upcomingEvents.map((evt, idx) => (
+                  <div key={idx} className="bento-card !p-4 flex items-center justify-between border-gold/20 bg-gold/5">
+                    <div className="space-y-1">
+                      <p className="font-bold font-naskh text-gold-dark dark:text-gold-light text-lg">{evt.name}</p>
+                      <p className="text-[10px] text-muted-foreground font-naskh">{evt.hijriStr} • {format(evt.date, "d MMM", { locale: isAr ? ar : undefined })}</p>
+                    </div>
+                    <div className="text-center bg-background rounded-xl p-2 border border-border shadow-sm min-w-[4rem]">
+                      <p className="text-xl font-bold font-mono text-primary">{toArabicDigits(evt.daysLeft)}</p>
+                      <p className="text-[9px] uppercase tracking-widest text-muted-foreground">{isAr ? "يوم" : "Days"}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

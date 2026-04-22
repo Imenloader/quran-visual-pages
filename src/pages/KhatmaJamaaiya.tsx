@@ -23,6 +23,7 @@ import {
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { QRCodeSVG } from "qrcode.react";
 import { 
   collection, 
   query, 
@@ -99,6 +100,7 @@ const KhatmaJamaaiya = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [newKhatmaTitle, setNewKhatmaTitle] = useState("");
   const [isReading, setIsReading] = useState(false);
@@ -539,11 +541,6 @@ const KhatmaJamaaiya = () => {
     if (!currentKhatma) return;
     const url = window.location.href;
     
-    const copyToClipboard = () => {
-      navigator.clipboard.writeText(url);
-      toast.success(isAr ? "تم نسخ الرابط" : "Link copied to clipboard");
-    };
-
     if (navigator.share) {
       try {
         await navigator.share({
@@ -552,12 +549,17 @@ const KhatmaJamaaiya = () => {
           url
         });
       } catch (e) {
-        console.warn("Share failed, falling back to clipboard:", e);
-        copyToClipboard();
+        console.warn("Share failed, falling back to QR Modal:", e);
+        setShowShareModal(true);
       }
     } else {
-      copyToClipboard();
+      setShowShareModal(true);
     }
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast.success(isAr ? "تم نسخ الرابط" : "Link copied to clipboard");
   };
 
   // 5. Calculations
@@ -1162,6 +1164,62 @@ const KhatmaJamaaiya = () => {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Share Modal with QR Code */}
+      <AnimatePresence>
+        {showShareModal && currentKhatma && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowShareModal(false)}
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-full max-w-sm bg-card border border-border rounded-[2.5rem] p-8 shadow-2xl space-y-6 text-center"
+            >
+              <div className="space-y-2">
+                <h3 className="text-xl font-bold font-naskh text-foreground">
+                  {isAr ? "مشاركة الختمة" : "Share Khatma"}
+                </h3>
+                <p className="text-xs text-muted-foreground font-naskh">
+                  {isAr ? "امسح الرمز أو انسخ الرابط" : "Scan QR code or copy link"}
+                </p>
+              </div>
+
+              <div className="bg-white p-4 rounded-3xl mx-auto w-fit shadow-sm">
+                <QRCodeSVG 
+                  value={window.location.href} 
+                  size={200}
+                  level="H"
+                  includeMargin={false}
+                  className="rounded-xl"
+                />
+              </div>
+
+              <button
+                onClick={copyToClipboard}
+                className="w-full py-4 bg-primary/10 text-primary rounded-xl font-bold font-naskh hover:bg-primary/20 transition-all flex items-center justify-center gap-2"
+              >
+                <Share2 className="w-5 h-5" />
+                {isAr ? "نسخ الرابط" : "Copy Link"}
+              </button>
+
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="w-full py-3 text-muted-foreground hover:bg-muted rounded-xl font-bold font-naskh transition-all"
+              >
+                {isAr ? "إغلاق" : "Close"}
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Quit Confirmation Modal */}
       <AnimatePresence>
         {showQuitConfirm && (
