@@ -42,7 +42,7 @@ import {
   arrayRemove,
   orderBy
 } from "firebase/firestore";
-import { onAuthStateChanged, User } from "firebase/auth";
+import { onAuthStateChanged, type User } from "firebase/auth";
 import { auth, db, handleFirestoreError, OperationType } from "@/firebase";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useUser } from "@/contexts/UserContext";
