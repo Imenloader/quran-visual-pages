@@ -96,6 +96,7 @@ const HubManager = lazyWithRetry(() => import("./pages/admin/HubManager"));
 const QuizManager = lazyWithRetry(() => import("./pages/admin/QuizManager"));
 const NamesOfAllahManager = lazyWithRetry(() => import("./pages/admin/NamesOfAllahManager"));
 const ProphetStoriesManager = lazyWithRetry(() => import("./pages/admin/ProphetStoriesManager"));
+const KhatmaModeration = lazyWithRetry(() => import("./pages/admin/KhatmaModeration"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -274,6 +275,7 @@ const App = () => {
                           <Route path="/admin/quiz" element={<QuizManager />} />
                           <Route path="/admin/names" element={<NamesOfAllahManager />} />
                           <Route path="/admin/stories" element={<ProphetStoriesManager />} />
+                          <Route path="/admin/khatmas" element={<KhatmaModeration />} />
                           {/* Future admin modules will be added here */}
                         </Route>
 
