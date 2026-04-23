@@ -51,13 +51,47 @@ const HubManager = () => {
       if (snap.exists()) {
         setSections(snap.data().sections as HubSection[]);
       } else {
-        // We'll initialize from the default structure if not found
-        // For now, let's just use empty
+        setSections([]);
       }
       setLoading(false);
     });
     return () => unsub();
   }, []);
+
+  const handleInitialize = async () => {
+    const defaultSections: HubSection[] = [
+      {
+        id: "spiritual",
+        title: "الأدوات الروحانية",
+        tools: [
+          { id: "tasbih", name: "المسبحة الرقمية", path: "/tasbih", visible: true, order: 1 },
+          { id: "dhikr", name: "التسبيح العالمي", path: "/global-dhikr", visible: true, order: 2 },
+          { id: "qibla", name: "بوصلة القبلة", path: "/qibla", visible: true, order: 3 },
+          { id: "names", name: "أسماء الله الحسنى", path: "/names-of-allah", visible: true, order: 4 }
+        ]
+      },
+      {
+        id: "knowledge",
+        title: "المحتوى والمعرفة",
+        tools: [
+          { id: "stories", name: "قصص الأنبياء", path: "/prophet-stories", visible: true, order: 1 },
+          { id: "quiz", name: "المسابقة الإسلامية", path: "/islamic-quiz", visible: true, order: 2 },
+          { id: "hadith", name: "الأحاديث النبوية", path: "/hadith", visible: true, order: 3 },
+          { id: "library", name: "المكتبة الإسلامية", path: "/library", visible: true, order: 4 }
+        ]
+      }
+    ];
+
+    setSaving(true);
+    try {
+      await setDoc(doc(db, "settings", "hub"), { sections: defaultSections });
+      toast.success("تمت تهيئة المركز بنجاح");
+    } catch (err) {
+      toast.error("فشل التهيئة");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -143,13 +177,10 @@ const HubManager = () => {
             <div className="text-center py-24 bg-card border border-border rounded-[2.5rem] space-y-4">
               <p className="text-muted-foreground font-naskh text-sm">لم يتم تهيئة إعدادات المركز بعد</p>
               <button 
-                onClick={() => {
-                   // Initial seed logic would go here
-                   toast.info("يرجى تفعيل التهيئة من الكود أولاً");
-                }}
-                className="px-6 py-2 bg-primary text-white rounded-xl text-xs font-bold"
+                onClick={handleInitialize}
+                className="px-8 py-3 bg-accent text-accent-foreground rounded-2xl text-sm font-bold shadow-xl hover:scale-105 transition-all"
               >
-                بدء التهيئة
+                بدء التهيئة (إضافة الأدوات الافتراضية)
               </button>
             </div>
           )}

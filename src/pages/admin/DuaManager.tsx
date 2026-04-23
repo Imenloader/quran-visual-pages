@@ -77,6 +77,27 @@ const DuaManager = () => {
     }
   };
 
+  const handleSeed = async () => {
+    if (!window.confirm("هل تريد نسخ الأدعية الافتراضية من التطبيق إلى قاعدة البيانات؟")) return;
+    setLoading(true);
+    try {
+      const { DUA_DATA } = await import("@/data/duaData");
+      const batchPromises = DUA_DATA.map(dua => 
+        addDoc(collection(db, "content_duas"), {
+          ...dua,
+          createdAt: Date.now()
+        })
+      );
+      await Promise.all(batchPromises);
+      toast.success("تم نسخ الأدعية بنجاح");
+      fetchDuas();
+    } catch (err) {
+      toast.error("فشل النسخ");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!formData.arabic || !formData.titleAr) {
       toast.error("يرجى ملء الحقول الأساسية");
@@ -196,7 +217,15 @@ const DuaManager = () => {
               </div>
             ))
           ) : (
-            <p className="text-center text-muted-foreground py-12">لا توجد أدعية حالياً</p>
+            <div className="text-center py-24 bg-card border border-border rounded-[2.5rem] space-y-4">
+              <p className="text-muted-foreground font-naskh text-sm">لا توجد أدعية حالياً</p>
+              <button 
+                onClick={handleSeed}
+                className="px-8 py-3 bg-primary text-white rounded-2xl text-sm font-bold shadow-xl"
+              >
+                نسخ الأدعية الافتراضية لقاعدة البيانات
+              </button>
+            </div>
           )}
         </div>
       </div>

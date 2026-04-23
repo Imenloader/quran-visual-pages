@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 
+import BackButton from "@/components/BackButton";
+
 interface Khatma {
   id: string;
   title: string;
@@ -60,12 +62,15 @@ const KhatmaModeration = () => {
   return (
     <div className="p-6 space-y-8 max-w-6xl mx-auto pb-24">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Book className="text-emerald-500" />
-            إدارة الختمات الجماعية
-          </h1>
-          <p className="text-muted-foreground mt-1">مراقبة وحذف الختمات العامة في التطبيق</p>
+        <div className="flex items-center gap-4">
+          <BackButton />
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-3">
+              <Book className="text-emerald-500" />
+              إدارة الختمات الجماعية
+            </h1>
+            <p className="text-muted-foreground mt-1">مراقبة وحذف الختمات العامة في التطبيق</p>
+          </div>
         </div>
         <Button variant="outline" onClick={fetchKhatmas} disabled={loading} className="rounded-xl gap-2">
           <RefreshCw className={loading ? "animate-spin" : ""} size={16} />

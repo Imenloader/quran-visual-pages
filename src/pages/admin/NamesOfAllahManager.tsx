@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { db } from "@/firebase";
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy } from "firebase/firestore";
-import { Plus, Trash2, Edit2, Save, X, Search, Heart, Info, Volume2 } from "lucide-react";
+import { Plus, Trash2, Edit2, Save, X, Search, Heart as LucideHeart, Info, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -38,6 +38,27 @@ const NamesOfAllahManager = () => {
     } catch (err) {
       console.error("Fetch error:", err);
       toast.error("فشل تحميل الأسماء من السحابة");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSeed = async () => {
+    if (!window.confirm("نسخ أسماء الله الحسنى؟")) return;
+    setLoading(true);
+    try {
+      const { NAMES_OF_ALLAH } = await import("@/data/namesOfAllahData");
+      const batchPromises = NAMES_OF_ALLAH.map(name => 
+        addDoc(collection(db, "content_names_of_allah"), {
+          ...name,
+          createdAt: Date.now()
+        })
+      );
+      await Promise.all(batchPromises);
+      toast.success("تم النسخ بنجاح");
+      fetchNames();
+    } catch (err) {
+      toast.error("فشل النسخ");
     } finally {
       setLoading(false);
     }
@@ -97,12 +118,15 @@ const NamesOfAllahManager = () => {
   return (
     <div className="p-6 space-y-8 max-w-6xl mx-auto pb-24">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Heart className="text-rose-500" />
-            إدارة أسماء الله الحسنى
-          </h1>
-          <p className="text-muted-foreground mt-1">أضف أو عدل أسماء الله الحسنى في التطبيق</p>
+        <div className="flex items-center gap-4">
+          <BackButton />
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-3">
+              <LucideHeart className="text-rose-500" />
+              إدارة أسماء الله الحسنى
+            </h1>
+            <p className="text-muted-foreground mt-1">أضف أو عدل أسماء الله الحسنى في التطبيق</p>
+          </div>
         </div>
         <Button onClick={() => setIsAdding(true)} className="rounded-2xl gap-2 shadow-lg shadow-primary/20">
           <Plus size={18} />
@@ -189,6 +213,18 @@ const NamesOfAllahManager = () => {
               )}
             </motion.div>
           ))}
+
+          {names.length === 0 && !loading && (
+            <div className="col-span-full text-center py-24 bg-card border border-border rounded-[2.5rem] space-y-4">
+              <p className="text-muted-foreground font-naskh text-sm">لا توجد أسماء مخصصة حالياً</p>
+              <button 
+                onClick={handleSeed}
+                className="px-8 py-3 bg-primary text-white rounded-2xl text-sm font-bold shadow-xl"
+              >
+                نسخ الأسماء الافتراضية لقاعدة البيانات
+              </button>
+            </div>
+          )}
         </AnimatePresence>
       </div>
 

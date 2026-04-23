@@ -74,6 +74,27 @@ const QuizManager = () => {
     }
   };
 
+  const handleSeed = async () => {
+    if (!window.confirm("نسخ الأسئلة الافتراضية؟")) return;
+    setLoading(true);
+    try {
+      const { QUIZ_QUESTIONS } = await import("@/data/quizData");
+      const batchPromises = QUIZ_QUESTIONS.map(q => 
+        addDoc(collection(db, "content_quiz"), {
+          ...q,
+          createdAt: Date.now()
+        })
+      );
+      await Promise.all(batchPromises);
+      toast.success("تم النسخ بنجاح");
+      fetchQuestions();
+    } catch (err) {
+      toast.error("فشل النسخ");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!formData.questionAr || !formData.questionEn) return;
     try {
@@ -153,6 +174,16 @@ const QuizManager = () => {
                 </div>
               </div>
             ))
+          ) : (
+            <div className="text-center py-24 bg-card border border-border rounded-[2.5rem] space-y-4">
+              <p className="text-muted-foreground font-naskh text-sm">لا توجد أسئلة حالياً</p>
+              <button 
+                onClick={handleSeed}
+                className="px-8 py-3 bg-primary text-white rounded-2xl text-sm font-bold shadow-xl"
+              >
+                إضافة الأسئلة الافتراضية
+              </button>
+            </div>
           )}
         </div>
       </div>
