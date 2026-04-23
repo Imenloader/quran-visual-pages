@@ -1,4 +1,4 @@
-import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen, List, Moon, Sun, Info, MessageSquareText, Type, FileImage, ArrowDown, ArrowRightLeft, Palette, GraduationCap, Sparkles, Server, Wand2, DownloadCloud } from "lucide-react";
+import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen, List, Moon, Sun, Info, MessageSquareText, Type, FileImage, ArrowDown, ArrowRightLeft, Palette, GraduationCap, Sparkles, Server, Wand2, DownloadCloud, EyeOff } from "lucide-react";
 import { toArabicNumber } from "@/data/quranData";
 import ShareButton from "./ShareButton";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -126,8 +126,16 @@ const ReadingToolbar = ({
 
 
           <button
-            onClick={(e) => { e.stopPropagation(); setShowQuiz(true); }}
+            onClick={(e) => { e.stopPropagation(); onToggleHifzMode(); }}
             className={`toolbar-btn !p-1.5 md:!p-2.5 ${hifzMode ? "text-accent bg-accent/10" : ""}`}
+            title="وضع الحفظ (إخفاء الأسطر)"
+          >
+            <EyeOff className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
+          </button>
+
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowQuiz(true); }}
+            className="toolbar-btn !p-1.5 md:!p-2.5"
             title="اختبر حفظك لهذه الصفحة"
           >
             <GraduationCap className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
