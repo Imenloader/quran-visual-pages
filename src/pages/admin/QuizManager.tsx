@@ -158,7 +158,7 @@ const QuizManager = () => {
         <div className="space-y-4">
           {loading ? (
             <div className="flex justify-center py-12"><Loader2 className="animate-spin text-accent" /></div>
-          ) : (
+          ) : filtered.length > 0 ? (
             filtered.map(q => (
               <div key={q.id} className="p-5 bg-card border border-border rounded-3xl flex items-center justify-between">
                 <div className="flex items-center gap-4">
