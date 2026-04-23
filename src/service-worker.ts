@@ -395,9 +395,15 @@ function registerShellRoutes() {
     })
   );
 
-  // Generic images
+  // Generic images (excluding Firebase Storage)
   registerRoute(
-    ({ request, url }) => request.destination === 'image' || /\.(?:png|jpg|jpeg|svg|gif|webp)$/i.test(url.pathname),
+    ({ request, url }) => {
+      const isImage = request.destination === 'image' || /\.(?:png|jpg|jpeg|svg|gif|webp)$/i.test(url.pathname);
+      const isFirebase = url.hostname.includes('firebasestorage.googleapis.com') || 
+                        url.hostname.includes('firebasestorage.app') ||
+                        url.hostname.includes('firebaseapp.com');
+      return isImage && !isFirebase;
+    },
     new CacheFirst({
       cacheName: 'images-cache',
       plugins: [

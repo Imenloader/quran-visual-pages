@@ -31,3 +31,6 @@ dist-ssr
 *.apk
 *.aab
 .env
+
+# Keystore Data
+keystore_info.txt

@@ -77,18 +77,25 @@ const Profile = () => {
     }
 
     setIsUploadingAvatar(true);
+    console.log("Starting avatar upload for file:", file.name);
 
     try {
       const storageRef = ref(storage, `avatars/${auth.currentUser.uid}/${Date.now()}_${file.name}`);
+      console.log("Storage ref created:", storageRef.fullPath);
+      
       const snapshot = await uploadBytes(storageRef, file);
+      console.log("Upload bytes completed, getting download URL...");
+      
       const downloadURL = await getDownloadURL(snapshot.ref);
+      console.log("Download URL obtained:", downloadURL);
 
       updateProfile({ avatar: downloadURL });
       toast.success(t("profile.avatarUploaded") || "Profile picture uploaded successfully!");
     } catch (error) {
-      console.error("Avatar upload error:", error);
+      console.error("Avatar upload error details:", error);
       toast.error(t("profile.uploadFailed") || "Failed to upload profile picture");
     } finally {
+      console.log("Avatar upload process finished.");
       setIsUploadingAvatar(false);
     }
   };
