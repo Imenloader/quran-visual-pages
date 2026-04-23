@@ -87,7 +87,12 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
     // Use a flexible regex for Basmalah to handle potential whitespace variations
     const BASMALAH_REGEX = /^بِسْمِ\s+اللَّهِ\s+الرَّحْمَنِ\s+الرَّحِيمِ\s*/;
     
-    lines.forEach((line) => {
+    let carryOverText = "";
+
+    lines.forEach((rawLine) => {
+      const line = `${carryOverText} ${rawLine}`.trim();
+      carryOverText = "";
+
       // Split by verse markers
       const regex = /(۝\s*[\u0660-\u0669\u06F0-\u06F9\d]+|[([﴿][\u0660-\u0669\u06F0-\u06F9\d]+[)\]﴾])/g;
       const parts = line.split(regex);
@@ -133,6 +138,15 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
               showBasmalah: hasBasmalah
             });
           }
+        } else if (text) {
+          // Ignore standalone surah heading lines (e.g. "سُورَةُ الفَاتِحَةِ").
+          if (/^سُ?ورَةُ?\s+/u.test(text)) {
+            continue;
+          }
+
+          // Keep trailing text that has no marker yet (common when an ayah wraps lines
+          // and its number appears at the beginning of the next line).
+          carryOverText = `${carryOverText} ${text}`.trim();
         }
       }
     });
