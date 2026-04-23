@@ -274,4 +274,3 @@ export const getQuranPageFallbackImageUrl = (
   const source = sources[level % sources.length];
   return source.getUrl(paddedPage);
 };
-
