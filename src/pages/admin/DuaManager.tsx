@@ -25,7 +25,7 @@ import {
 } from "firebase/firestore";
 import { toast } from "sonner";
 import BackButton from "@/components/BackButton";
-import { duaCategories } from "@/data/duaData";
+import { allDuas } from "@/data/duaData";
 import * as Icons from "lucide-react";
 
 interface GlobalDua {
@@ -81,8 +81,7 @@ const DuaManager = () => {
     if (!window.confirm("هل تريد نسخ الأدعية الافتراضية من التطبيق إلى قاعدة البيانات؟")) return;
     setLoading(true);
     try {
-      const { DUA_DATA } = await import("@/data/duaData");
-      const batchPromises = DUA_DATA.map(dua => 
+      const batchPromises = allDuas.map(dua => 
         addDoc(collection(db, "content_duas"), {
           ...dua,
           createdAt: Date.now()
