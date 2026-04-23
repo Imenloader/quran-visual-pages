@@ -64,5 +64,27 @@ service cloud.firestore {
       // Only the creator or an admin can delete a khatma
       allow delete: if isAuthenticated() && (resource.data.createdBy == request.auth.uid || isAdmin());
     }
+
+    // ===============================================================
+    // CMS & Global Content Management
+    // ===============================================================
+
+    // All content library collections (quiz, duas, hadiths, etc.)
+    match /content_{collectionId}/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Global App Settings (Maintenance mode, feature flags, etc.)
+    match /settings_{collectionId}/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Website Services & Hub Settings
+    match /services/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
   }
 }
