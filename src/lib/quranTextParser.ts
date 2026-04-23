@@ -17,7 +17,13 @@ export const parseJuzTextToVerses = (localText: string | null, currentJuz: numbe
   if (!juzInfo) return [];
 
   const surahNames = juzInfo.surahs;
-  const lines = localText.split("\n").filter(line => line.trim().length > 0);
+  // Defensive normalization: in some environments/fonts, tanween glyphs may be copied
+  // or persisted as percent signs. Convert Arabic-context %/٪ back to Uthmani tanween mark.
+  const normalizedText = localText.replace(
+    /(?<=[\u0600-\u06FF])[%٪](?=[\u0600-\u06FF])/gu,
+    "\u065E"
+  );
+  const lines = normalizedText.split("\n").filter(line => line.trim().length > 0);
   const result: ParsedVerseData[] = [];
   let currentSurahIdx = 0;
 
