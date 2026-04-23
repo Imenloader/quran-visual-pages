@@ -73,9 +73,15 @@ export async function fetchWithCache(
         // SSL/Network Fallback for api.alquran.cloud
         if (url.includes("api.alquran.cloud")) {
           console.warn("Primary API call failed, trying proxy fallback...", fetchError);
-          const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-          response = await fetch(proxyUrl, { signal: controller.signal });
-          if (!response.ok) throw fetchError;
+          // Using allorigins as a more reliable fallback
+          const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+          const proxyResponse = await fetch(proxyUrl, { signal: controller.signal });
+          if (proxyResponse.ok) {
+            const proxyData = await proxyResponse.json();
+            // AllOrigins wraps the response in a 'contents' field
+            return JSON.parse(proxyData.contents);
+          }
+          throw fetchError;
         } else {
           throw fetchError;
         }

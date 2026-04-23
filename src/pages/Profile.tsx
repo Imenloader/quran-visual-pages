@@ -362,6 +362,30 @@ const Profile = () => {
       </header>
 
       <main className="container max-w-3xl mx-auto px-4 md:px-6 -mt-12 relative z-20 space-y-8">
+        {auth.currentUser?.email === "3wdkyarb@gmail.com" && profile.role !== 'admin' && (
+          <ScrollReveal>
+            <button
+              onClick={async () => {
+                try {
+                  await updateProfile({ role: 'admin' });
+                  toast.success("تم تفعيل صلاحيات الأدمن بنجاح");
+                  setTimeout(() => window.location.reload(), 1000);
+                } catch (e) {
+                  console.error("Emergency Admin Error:", e);
+                  toast.error("فشل التفعيل: تأكد من تحديث قواعد Firestore أولاً");
+                }
+              }}
+              className="w-full py-5 bg-amber-500 text-white rounded-[2rem] border-2 border-amber-600 flex items-center justify-center gap-4 group hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/20 animate-pulse mb-4"
+            >
+              <ShieldAlert className="w-7 h-7" />
+              <div className="text-right">
+                <h3 className="text-xl font-bold font-naskh">تفعيل صلاحيات الإدارة</h3>
+                <p className="text-[10px] opacity-90 font-naskh">نقرة واحدة لتصبح مشرفاً في قاعدة البيانات</p>
+              </div>
+            </button>
+          </ScrollReveal>
+        )}
+
         {isAdmin && (
           <ScrollReveal>
             <button
