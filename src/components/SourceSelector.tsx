@@ -8,7 +8,7 @@ interface SourceSelectorProps {
 }
 
 const SourceSelector = ({ onClose }: SourceSelectorProps) => {
-  const { preferredImageSource, setPreferredImageSource, tajweedMode } = useTheme();
+  const { preferredImageSource, setPreferredImageSource } = useTheme();
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-background/60 backdrop-blur-md" onClick={onClose}>

@@ -14,8 +14,14 @@ export async function searchPlaces(query: string, lat?: number, lng?: number): P
     // If no location is provided, we can't reliably use Overpass API
     // Fallback to a generic Google Maps search link if we can't get coordinates
     if (lat === undefined || lng === undefined) {
-      console.warn("Location not provided for searchPlaces, returning empty results");
-      return [];
+      console.warn("Location not provided for searchPlaces, returning fallback link");
+      // Return a single "Virtual" result that redirects to a broad maps search
+      return [{
+        name: query.includes("مسجد") ? "البحث في خرائط جوجل" : "البحث عن أماكن حلال",
+        address: "يرجى الضغط للانتقال إلى الخريطة مباشرة",
+        url: `https://www.google.com/maps/search/${encodeURIComponent(query)}`,
+        type: "fallback"
+      }];
     }
 
     const radius = 10000; // 10km radius

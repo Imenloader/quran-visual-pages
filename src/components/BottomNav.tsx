@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useUser } from "@/contexts/UserContext";
+import { useSystem } from "@/contexts/SystemContext";
 
 import GlobalAudioPlayer from "./GlobalAudioPlayer";
 
@@ -23,7 +24,8 @@ const BottomNav = () => {
   const { t, i18n } = useTranslation();
   const location = useLocation();
   const { isFullscreen } = useTheme();
-  const { profile } = useUser();
+  const { profile, isAdmin } = useUser();
+  const { settings, loading: systemLoading } = useSystem();
   const [isHidden, setIsHidden] = useState(false);
 
   const NAV_ITEMS = [
@@ -53,6 +55,9 @@ const BottomNav = () => {
   };
 
   if (isFullscreen) return null;
+  
+  // Hide in maintenance mode for non-admins
+  if (settings.maintenanceMode && !isAdmin && !systemLoading) return null;
 
   return (
     <div className="fixed left-0 right-0 bottom-0 z-50 flex flex-col-reverse items-center pointer-events-none pb-4 md:pb-6">

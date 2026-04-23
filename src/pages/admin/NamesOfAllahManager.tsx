@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { db } from "@/firebase";
-import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy } from "firebase/firestore";
+import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy, writeBatch } from "firebase/firestore";
 import { Plus, Trash2, Edit2, Save, X, Search, Heart as LucideHeart, Info, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,17 +48,24 @@ const NamesOfAllahManager = () => {
     if (!window.confirm("نسخ أسماء الله الحسنى؟")) return;
     setLoading(true);
     try {
+      console.log("Starting names seed process...");
       const { NAMES_OF_ALLAH } = await import("@/data/namesOfAllahData");
-      const batchPromises = NAMES_OF_ALLAH.map(name => 
-        addDoc(collection(db, "content_names_of_allah"), {
+      const batch = writeBatch(db);
+      
+      NAMES_OF_ALLAH.forEach(name => {
+        const newDocRef = doc(collection(db, "content_names_of_allah"));
+        batch.set(newDocRef, {
           ...name,
           createdAt: Date.now()
-        })
-      );
-      await Promise.all(batchPromises);
+        });
+      });
+
+      await batch.commit();
+      console.log("Names batch committed successfully");
       toast.success("تم النسخ بنجاح");
       fetchNames();
     } catch (err) {
+      console.error("Names Seed Error:", err);
       toast.error("فشل النسخ");
     } finally {
       setLoading(false);

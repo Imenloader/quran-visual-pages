@@ -22,7 +22,8 @@ import {
   deleteDoc, 
   doc, 
   query, 
-  orderBy 
+  orderBy,
+  writeBatch
 } from "firebase/firestore";
 import { toast } from "sonner";
 import BackButton from "@/components/BackButton";
@@ -79,13 +80,15 @@ const QuizManager = () => {
     setLoading(true);
     try {
       const { QUIZ_QUESTIONS } = await import("@/data/quizData");
-      const batchPromises = QUIZ_QUESTIONS.map(q => 
-        addDoc(collection(db, "content_quiz"), {
+      const batch = writeBatch(db);
+      QUIZ_QUESTIONS.forEach(q => {
+        const qRef = doc(collection(db, "content_quiz"));
+        batch.set(qRef, {
           ...q,
           createdAt: Date.now()
-        })
-      );
-      await Promise.all(batchPromises);
+        });
+      });
+      await batch.commit();
       toast.success("تم النسخ بنجاح");
       fetchQuestions();
     } catch (err) {

@@ -14,7 +14,11 @@ import { AudioPlayerProvider } from "./contexts/AudioPlayerContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { UserProvider } from "./contexts/UserContext";
 import { AdhanProvider } from "./contexts/AdhanContext";
-import { OfflineProvider } from "./contexts/OfflineContext";
+import { SystemProvider } from "./contexts/SystemContext";
+import MaintenanceGuard from "./contexts/MaintenanceGuard";
+import { useSystem } from "./contexts/SystemContext";
+import { useUser } from "./contexts/UserContext";
+import { AlertTriangle } from "lucide-react";
 
 import { useTranslation } from "react-i18next";
 import { useRegisterSW } from 'virtual:pwa-register/react';
@@ -154,7 +158,7 @@ const NotificationInitializer = () => {
 
 const App = () => {
   useEffect(() => {
-    // Initialize Google Auth once on mount (for Native)
+    // ... same init code as before ...
     const initGoogleAuth = async () => {
       try {
         const { Capacitor } = await import("@capacitor/core");
@@ -172,7 +176,6 @@ const App = () => {
     };
     initGoogleAuth();
 
-    // Check clock and network reliability
     const checkEnvironment = async () => {
       const reliability = await checkNetworkReliability();
       if (!reliability.ok) {
@@ -183,7 +186,6 @@ const App = () => {
     };
     checkEnvironment();
 
-    // Handle redirect result on mount
     getRedirectResult(auth)
       .then((result) => {
         if (result?.user) {
@@ -205,20 +207,47 @@ const App = () => {
           <UserProvider>
             <AdhanProvider>
               <OfflineProvider>
-                <TooltipProvider>
-                  <AudioPlayerProvider>
-                    <NotificationInitializer />
-                    <SplashScreen />
-                    <ServiceWorkerRegistration />
-                    <LanguageHandler />
-                    <NetworkStatus />
-                    <AudioUnlockBanner />
-                    <CommandPalette />
-                    <div className="page-dimming-overlay" />
-                    <Toaster />
-                    <Sonner />
-                    <ScrollRestoration />
-                    <Suspense fallback={<PageLoader />}>
+                <SystemProvider>
+                  <AppContent />
+                </SystemProvider>
+              </OfflineProvider>
+            </AdhanProvider>
+          </UserProvider>
+        </ThemeProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
+};
+
+const AppContent = () => {
+  const { settings } = useSystem();
+  const { isAdmin } = useUser();
+
+  return (
+    <TooltipProvider>
+      <AudioPlayerProvider>
+        <NotificationInitializer />
+        <SplashScreen />
+        <ServiceWorkerRegistration />
+        <LanguageHandler />
+        <NetworkStatus />
+        <AudioUnlockBanner />
+        <CommandPalette />
+        <div className="page-dimming-overlay" />
+        <Toaster />
+        <Sonner />
+        <ScrollRestoration />
+        
+        {/* Admin Maintenance Banner */}
+        {settings.maintenanceMode && isAdmin && (
+          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[1000] bg-rose-500 text-white px-4 py-2 rounded-full text-[10px] font-bold flex items-center gap-2 shadow-lg animate-pulse border border-white/20 whitespace-nowrap">
+            <AlertTriangle size={14} />
+            وضع الصيانة مفعل للمستخدمين
+          </div>
+        )}
+
+        <MaintenanceGuard>
+          <Suspense fallback={<PageLoader />}>
                       <Routes>
                         <Route path="/" element={<Index />} />
                         <Route path="/juz/:juzNumber" element={<JuzViewer />} />
@@ -302,9 +331,11 @@ const App = () => {
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </Suspense>
+                    </MaintenanceGuard>
                     <BottomNav />
                   </AudioPlayerProvider>
                 </TooltipProvider>
+                </SystemProvider>
               </OfflineProvider>
             </AdhanProvider>
           </UserProvider>

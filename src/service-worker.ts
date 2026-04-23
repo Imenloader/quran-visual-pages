@@ -2,7 +2,7 @@
 
 import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching';
 import { NavigationRoute, registerRoute } from 'workbox-routing';
-import { CacheFirst, StaleWhileRevalidate } from 'workbox-strategies';
+import { CacheFirst, StaleWhileRevalidate, NetworkFirst } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 import { RangeRequestsPlugin } from 'workbox-range-requests';
@@ -214,12 +214,16 @@ function registerTafsirRoutes() {
   const tafsirCacheName = 'quran-tafsir-cache';
   
   const isTafsirRequest = ({ url }: { url: URL }) => {
+    // Only catch specific API calls to avoid over-matching
     if (url.hostname === 'api.quran.com') {
-      return url.pathname.startsWith('/api/') || url.pathname.includes('/tafsirs') || url.pathname.includes('/tafsir');
+      return url.pathname.includes('/tafsirs') || 
+             url.pathname.includes('/tafsir') || 
+             url.pathname.includes('/resources/recitations') ||
+             url.pathname.includes('/chapter_recitations');
     }
 
     if (url.hostname === 'api.quran.g0v.id') {
-      return url.pathname.startsWith('/v1/') || url.pathname.includes('/tafsir');
+      return url.pathname.startsWith('/v1/ayah/') || url.pathname.includes('/tafsir');
     }
 
     return false;
@@ -227,13 +231,13 @@ function registerTafsirRoutes() {
 
   registerRoute(
     isTafsirRequest,
-    new StaleWhileRevalidate({
+    new NetworkFirst({
       cacheName: 'quran-tafsir-cache',
       plugins: [
-        metricsPlugin('quran-tafsir', 'api.quran.com|api.quran.g0v.id/tafsir/*', 'quran-tafsir-cache'),
+        metricsPlugin('quran-api-v4', 'api.quran.com|api.quran.g0v.id/*', 'quran-tafsir-cache'),
         new ExpirationPlugin({
-          maxEntries: 200,
-          maxAgeSeconds: 60 * 60 * 24 * 30,
+          maxEntries: 300,
+          maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
         }),
         new CacheableResponsePlugin({
           statuses: [0, 200],

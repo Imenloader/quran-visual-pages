@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff, Clock, Send, ChevronLeft, X, BookOpen, Wand2, LayoutGrid, DownloadCloud, Sparkles, User, Trophy, Calendar, RefreshCw, Check, Shield, ShieldCheck, ShieldAlert, Flame, GraduationCap, Heart, Upload, Image as ImageIcon, Music, type LucideIcon } from "lucide-react";
+import { Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff, Clock, Send, ChevronLeft, X, BookOpen, Wand2, LayoutGrid, DownloadCloud, Sparkles, User, Trophy, Calendar, RefreshCw, Check, Shield, ShieldCheck, AlertCircle, Flame, GraduationCap, Heart, Upload, Image as ImageIcon, Music, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useNotifications } from "@/hooks/useNotifications";
 import { usePeriodicReminders } from "@/hooks/usePeriodicReminders";
@@ -377,7 +377,7 @@ const Profile = () => {
               }}
               className="w-full py-5 bg-amber-500 text-white rounded-[2rem] border-2 border-amber-600 flex items-center justify-center gap-4 group hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/20 animate-pulse mb-4"
             >
-              <ShieldAlert className="w-7 h-7" />
+              <AlertCircle className="w-7 h-7" />
               <div className="text-right">
                 <h3 className="text-xl font-bold font-naskh">تفعيل صلاحيات الإدارة</h3>
                 <p className="text-[10px] opacity-90 font-naskh">نقرة واحدة لتصبح مشرفاً في قاعدة البيانات</p>

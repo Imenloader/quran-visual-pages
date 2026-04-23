@@ -21,7 +21,8 @@ import {
   deleteDoc, 
   doc, 
   query, 
-  orderBy 
+  orderBy,
+  writeBatch
 } from "firebase/firestore";
 import { toast } from "sonner";
 import BackButton from "@/components/BackButton";
@@ -64,13 +65,15 @@ const AthkarManager = () => {
     if (!window.confirm("هل تريد نسخ الأذكار الافتراضية من التطبيق إلى قاعدة البيانات؟")) return;
     setLoading(true);
     try {
-      const batchPromises = ATHKAR_DATA.map(cat => 
-        setDoc(doc(db, "content_athkar", cat.id), {
+      const batch = writeBatch(db);
+      ATHKAR_DATA.forEach(cat => {
+        const catRef = doc(db, "content_athkar", cat.id);
+        batch.set(catRef, {
           ...cat,
           createdAt: Date.now()
-        })
-      );
-      await Promise.all(batchPromises);
+        });
+      });
+      await batch.commit();
       toast.success("تم نسخ الأذكار بنجاح");
       fetchCategories();
     } catch (err) {

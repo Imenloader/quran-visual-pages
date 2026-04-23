@@ -70,8 +70,8 @@ export async function fetchWithCache(
           throw new Error(`API error: ${response.status}`);
         }
       } catch (fetchError) {
-        // SSL/Network Fallback for api.quran.g0v.id
-        if (url.includes("api.quran.g0v.id")) {
+        // SSL/Network Fallback for Quran APIs
+        if (url.includes("api.quran.g0v.id") || url.includes("api.quran.com")) {
           console.warn("Primary API call failed, trying proxy fallback...", fetchError);
           // Using allorigins as a more reliable fallback
           const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
@@ -79,7 +79,8 @@ export async function fetchWithCache(
           if (proxyResponse.ok) {
             const proxyData = await proxyResponse.json();
             // AllOrigins wraps the response in a 'contents' field
-            return JSON.parse(proxyData.contents);
+            // api.quran.com might return a string or object depending on what allorigins thinks
+            return typeof proxyData.contents === 'string' ? JSON.parse(proxyData.contents) : proxyData.contents;
           }
           throw fetchError;
         } else {

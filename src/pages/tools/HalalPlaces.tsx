@@ -102,15 +102,21 @@ const HalalPlaces = () => {
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: idx * 0.1 }}
-                    className="p-4 bg-card border border-border rounded-2xl shadow-soft flex items-center justify-between group hover:bg-accent/5 transition-colors"
+                    className={`p-4 border rounded-2xl shadow-soft flex items-center justify-between group transition-colors ${
+                      place.type === 'fallback' 
+                        ? 'bg-accent/10 border-accent/30' 
+                        : 'bg-card border-border hover:bg-accent/5'
+                    }`}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
+                        place.type === 'fallback' ? 'bg-accent text-white' : 'bg-amber-500/10 text-amber-500'
+                      }`}>
                         <Utensils className="w-6 h-6" />
                       </div>
                       <div className="space-y-1">
                         <h3 className="font-bold font-naskh text-foreground">{place.name}</h3>
-                        <p className="text-[10px] text-muted-foreground font-naskh">{place.type || "مطعم حلال"}</p>
+                        <p className="text-[10px] text-muted-foreground font-naskh">{place.type === 'fallback' ? place.address : (place.type || "مطعم حلال")}</p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -122,10 +128,10 @@ const HalalPlaces = () => {
                           className="text-xs text-accent font-bold font-naskh flex items-center gap-1 hover:underline"
                         >
                           <ExternalLink className="w-3 h-3" />
-                          الخريطة
+                          {place.type === 'fallback' ? "فتح الخرائط" : "الخريطة"}
                         </a>
                       )}
-                      {place.rating && (
+                      {place.rating && place.type !== 'fallback' && (
                         <div className="flex items-center gap-1 mt-1 justify-end">
                           <span className="text-[10px] font-bold text-foreground">{place.rating}</span>
                           <Star className="w-3 h-3 text-amber-500 fill-amber-500" />

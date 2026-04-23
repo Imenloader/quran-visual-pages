@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { db } from "@/firebase";
 import { collection, getDocs, updateDoc, doc, query, orderBy, limit, where } from "firebase/firestore";
-import { Users, Search, Shield, User, Mail, Calendar, ShieldCheck, ShieldAlert, Star } from "lucide-react";
+import { Users, Search, Shield, User, Mail, Calendar, ShieldCheck, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";

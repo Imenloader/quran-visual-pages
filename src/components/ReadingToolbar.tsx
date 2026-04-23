@@ -57,7 +57,17 @@ const ReadingToolbar = ({
   };
 
   const toggleReadingMode = () => {
-    setReadingMode(readingMode === "image" ? "text" : "image");
+    const nextMode = readingMode === "image" ? "text" : "image";
+    setReadingMode(nextMode);
+    
+    // Auto-toggle tajweed based on user request: only for text quran
+    if (nextMode === "text") {
+      setTajweedMode(true);
+    } else {
+      // In image mode, we typically use the source's own tajweed property, 
+      // but the "global" tajweedMode toggle can be off.
+      setTajweedMode(false);
+    }
   };
 
   const toggleScrollDirection = () => {
@@ -108,13 +118,15 @@ const ReadingToolbar = ({
             {readingMode === "text" ? <FileImage className="size-[16px] md:size-[20px]" strokeWidth={1.5} /> : <Type className="size-[16px] md:size-[20px]" strokeWidth={1.5} />}
           </button>
 
-          <button
-            onClick={(e) => { e.stopPropagation(); toggleTajweedMode(); }}
-            className={`toolbar-btn !p-1.5 md:!p-2.5 ${tajweedMode ? "text-emerald-500 bg-emerald-500/10" : ""}`}
-            title="التجويد الملون"
-          >
-            <Sparkles className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
-          </button>
+          {readingMode === "text" && (
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleTajweedMode(); }}
+              className={`toolbar-btn !p-1.5 md:!p-2.5 ${tajweedMode ? "text-emerald-500 bg-emerald-500/10" : ""}`}
+              title="التجويد الملون"
+            >
+              <Sparkles className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
+            </button>
+          )}
 
           <button
             onClick={(e) => { e.stopPropagation(); onToggleSourceSelector(); }}

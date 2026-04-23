@@ -14,9 +14,12 @@ import {
 import { db } from "@/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import BackButton from "@/components/BackButton";
 
 const SettingsManager = () => {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === "ar";
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [config, setConfig] = useState({
@@ -86,17 +89,50 @@ const SettingsManager = () => {
             </h2>
             
             <div className="flex items-center justify-between p-4 bg-muted/20 rounded-2xl">
-              <div>
+              <div className="flex-1">
                 <p className="font-bold text-sm">وضع الصيانة</p>
                 <p className="text-[10px] text-muted-foreground">عند تفعيله، لن يتمكن المستخدمون من استخدام التطبيق</p>
               </div>
               <button 
                 onClick={() => setConfig({...config, maintenanceMode: !config.maintenanceMode})}
-                className={`w-12 h-6 rounded-full transition-colors relative ${config.maintenanceMode ? 'bg-rose-500' : 'bg-muted-foreground/30'}`}
+                className={`w-12 h-6 rounded-full transition-all duration-300 relative ${config.maintenanceMode ? 'bg-rose-500' : 'bg-muted-foreground/30'}`}
               >
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${config.maintenanceMode ? 'right-1' : 'right-7'}`} />
+                <motion.div 
+                  animate={{ x: config.maintenanceMode ? (isAr ? -24 : 24) : 0 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm" 
+                />
               </button>
             </div>
+
+            {config.maintenanceMode && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="space-y-4 pt-2"
+              >
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase">رسالة الصيانة (عربي)</label>
+                  <textarea 
+                    value={(config as any).maintenanceMessageAr || ""}
+                    onChange={e => setConfig({...config, maintenanceMessageAr: e.target.value} as any)}
+                    className="w-full bg-muted/50 border border-border rounded-xl p-3 text-sm font-naskh"
+                    rows={2}
+                    placeholder="المنصة في وضع الصيانة حالياً..."
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase">Maintenance Message (En)</label>
+                  <textarea 
+                    value={(config as any).maintenanceMessageEn || ""}
+                    onChange={e => setConfig({...config, maintenanceMessageEn: e.target.value} as any)}
+                    className="w-full bg-muted/50 border border-border rounded-xl p-3 text-sm"
+                    rows={2}
+                    placeholder="The platform is currently in maintenance mode..."
+                  />
+                </div>
+              </motion.div>
+            )}
 
             <div className="flex items-center justify-between p-4 bg-muted/20 rounded-2xl">
               <div>
@@ -105,9 +141,13 @@ const SettingsManager = () => {
               </div>
               <button 
                 onClick={() => setConfig({...config, registrationEnabled: !config.registrationEnabled})}
-                className={`w-12 h-6 rounded-full transition-colors relative ${config.registrationEnabled ? 'bg-emerald-500' : 'bg-muted-foreground/30'}`}
+                className={`w-12 h-6 rounded-full transition-all duration-300 relative ${config.registrationEnabled ? 'bg-emerald-500' : 'bg-muted-foreground/30'}`}
               >
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${config.registrationEnabled ? 'right-1' : 'right-7'}`} />
+                <motion.div 
+                  animate={{ x: config.registrationEnabled ? (isAr ? -24 : 24) : 0 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm" 
+                />
               </button>
             </div>
           </section>

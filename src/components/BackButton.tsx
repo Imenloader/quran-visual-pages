@@ -14,7 +14,7 @@ const BackButton = ({
 }: BackButtonProps) => {
   const navigate = useNavigate();
   const { i18n } = useTranslation();
-  const isArabic = i18n.language === "ar";
+  const isArabic = i18n.language.startsWith("ar");
 
   const variants = {
     default: "bg-primary/10 text-primary hover:bg-primary/20 border border-primary/10",

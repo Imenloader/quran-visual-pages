@@ -12,6 +12,7 @@ import {
   signInWithCredential,
 } from "firebase/auth";
 import { toast } from "sonner";
+import { useSystem } from "@/contexts/SystemContext";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ type AuthTab = "signin" | "signup";
 const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
+  const { settings } = useSystem();
 
   const [tab, setTab] = useState<AuthTab>("signin");
   const [email, setEmail] = useState("");
@@ -108,6 +110,11 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
           setLoading(false);
           return;
         }
+        if (!settings.registrationEnabled) {
+          setError(isAr ? "التسجيل مغلق حالياً." : "Registration is currently disabled.");
+          setLoading(false);
+          return;
+        }
         const result = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(result.user, { displayName: name.trim() });
         toast.success(isAr ? "تم إنشاء الحساب بنجاح!" : "Account created successfully!");
@@ -175,6 +182,9 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
                     {t === "signin"
                       ? (isAr ? "دخول" : "Sign In")
                       : (isAr ? "إنشاء حساب" : "Register")}
+                    {!settings.registrationEnabled && t === "signup" && (
+                      <Lock size={10} className="inline ml-1 opacity-50" />
+                    )}
                   </button>
                 ))}
               </div>
@@ -188,6 +198,17 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
                 <Globe size={16} className="text-blue-500" />
                 {isAr ? "الدخول بجوجل" : "Continue with Google"}
               </button>
+
+              {!settings.registrationEnabled && tab === "signup" && (
+                <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center gap-3 text-amber-600">
+                  <AlertCircle size={20} className="shrink-0" />
+                  <p className="text-xs font-serif font-bold">
+                    {isAr 
+                      ? "عذراً، باب التسجيل مغلق حالياً بقرار من الإدارة." 
+                      : "Sorry, registration is currently closed by the administration."}
+                  </p>
+                </div>
+              )}
 
               <div className="flex items-center gap-3">
                 <div className="flex-1 h-px bg-border/40" />

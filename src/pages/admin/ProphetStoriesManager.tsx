@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { db } from "@/firebase";
-import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy } from "firebase/firestore";
+import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy, writeBatch } from "firebase/firestore";
 import { Plus, Trash2, Edit2, Save, X, Search, BookOpen, Scroll, Video, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
 import BackButton from "@/components/BackButton";
+import { prophetStories } from "@/data/prophetStoriesData";
 
 interface ProphetStory {
   docId?: string;
@@ -60,18 +61,36 @@ const ProphetStoriesManager = () => {
     if (!window.confirm("نسخ قصص الأنبياء الافتراضية؟")) return;
     setLoading(true);
     try {
-      const { PROPHET_STORIES_DATA } = await import("@/data/prophetStoriesData");
-      const batchPromises = PROPHET_STORIES_DATA.map(story => 
-        addDoc(collection(db, "content_prophet_stories"), {
-          ...story,
+      console.log("Starting seed process...");
+      const data = prophetStories;
+      
+      if (!Array.isArray(data)) {
+        console.error("Data is not an array:", data);
+        throw new Error("Invalid data format");
+      }
+
+      const batch = writeBatch(db);
+      
+      data.forEach(story => {
+        const newDocRef = doc(collection(db, "content_prophet_stories"));
+        batch.set(newDocRef, {
+          id: story.id,
+          nameAr: story.name,
+          nameEn: story.nameEn,
+          descriptionAr: story.summary,
+          descriptionEn: story.summaryEn,
+          era: story.period,
           createdAt: Date.now()
-        })
-      );
-      await Promise.all(batchPromises);
+        });
+      });
+
+      await batch.commit();
+      console.log("Batch committed successfully");
       toast.success("تم النسخ بنجاح");
       fetchStories();
     } catch (err) {
-      toast.error("فشل النسخ");
+      console.error("Seed error details:", err);
+      toast.error(`فشل النسخ: ${err instanceof Error ? err.message : 'خطأ غير معروف'}`);
     } finally {
       setLoading(false);
     }
@@ -241,48 +260,6 @@ const ProphetStoriesManager = () => {
               </button>
             </div>
           )}
-
-          {stories.map((story) => (
-            <motion.div key={story.docId} layout className="bento-card !p-6 relative group">
-              {editingId === story.docId ? (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input value={formData.nameAr} onChange={e => setFormData({...formData, nameAr: e.target.value})} className="rounded-xl font-bold" />
-                    <Input value={formData.nameEn} onChange={e => setFormData({...formData, nameEn: e.target.value})} className="rounded-xl" />
-                  </div>
-                  <Textarea value={formData.descriptionAr} onChange={e => setFormData({...formData, descriptionAr: e.target.value})} className="rounded-xl h-48" />
-                  <div className="flex gap-2 justify-end">
-                    <Button variant="ghost" onClick={() => setEditingId(null)} className="rounded-xl">إلغاء</Button>
-                    <Button onClick={() => handleUpdate(story.docId!)} className="rounded-xl">تحديث</Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col md:flex-row gap-6">
-                  <div className="flex-1 space-y-3">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600">
-                          <Scroll size={20} />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-bold font-naskh">{story.nameAr}</h3>
-                          <p className="text-xs text-muted-foreground">{story.era}</p>
-                        </div>
-                      </div>
-                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button variant="ghost" size="icon" onClick={() => startEdit(story)} className="h-8 w-8 rounded-lg text-blue-500"><Edit2 size={14} /></Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(story.docId!)} className="h-8 w-8 rounded-lg text-rose-500"><Trash2 size={14} /></Button>
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed font-naskh">{story.descriptionAr}</p>
-                    <div className="flex gap-3">
-                      {story.videoUrl && <div className="flex items-center gap-1 text-[10px] font-bold text-rose-500 bg-rose-500/10 px-2 py-1 rounded-full"><Video size={10} /> فيديو متوفر</div>}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          ))}
         </AnimatePresence>
       </div>
     </div>

@@ -104,10 +104,16 @@ const MosqueFinder = () => {
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: idx * 0.1 }}
-                    className="p-4 bg-card border border-border rounded-2xl shadow-soft flex items-center justify-between group hover:bg-accent/5 transition-colors"
+                    className={`p-4 border rounded-2xl shadow-soft flex items-center justify-between group transition-colors ${
+                      mosque.type === 'fallback' 
+                        ? 'bg-accent/10 border-accent/30' 
+                        : 'bg-card border-border hover:bg-accent/5'
+                    }`}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
+                        mosque.type === 'fallback' ? 'bg-accent text-white' : 'bg-primary/10 text-primary'
+                      }`}>
                         <MapPin className="w-6 h-6" />
                       </div>
                       <div className="space-y-1">
@@ -124,7 +130,7 @@ const MosqueFinder = () => {
                           className="text-xs text-accent font-bold font-naskh flex items-center gap-1 hover:underline"
                         >
                           <ExternalLink className="w-3 h-3" />
-                          الخريطة
+                          {mosque.type === 'fallback' ? "فتح الخرائط" : "الخريطة"}
                         </a>
                       )}
                     </div>

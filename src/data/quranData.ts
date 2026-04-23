@@ -196,39 +196,39 @@ export interface QuranImageSource {
 
 export const QURAN_IMAGE_SOURCES: QuranImageSource[] = [
   {
-    id: "tajweed-jahe",
-    nameAr: "مصحف التجويد (الأساسي)",
-    nameEn: "Tajweed Quran (Primary)",
+    id: "tajweed",
+    nameAr: "مصحف التجويد",
+    nameEn: "Tajweed Quran",
     isTajweed: true,
     getUrl: (p) => `https://jahedev.github.io/tajweed-quran-pages/hafs/tajweed-${p}.jpg`
   },
   {
-    id: "tajweed-github",
-    nameAr: "مصحف التجويد (مصدر 2)",
-    nameEn: "Tajweed Quran (Source 2)",
-    isTajweed: true,
-    getUrl: (p) => `https://raw.githubusercontent.com/Jahedev/tajweed-quran-pages/main/hafs/tajweed-${p}.jpg`
-  },
-  {
-    id: "quran-com-1260",
+    id: "madinah-high",
     nameAr: "مصحف المدينة (دقة عالية)",
-    nameEn: "Madinah Quran (High Res)",
+    nameEn: "Madinah (High Res)",
     isTajweed: false,
     getUrl: (p) => `https://android.quran.com/data/width_1260/page${p}.png`
   },
   {
-    id: "quran-com-1024",
-    nameAr: "مصحف المدينة (دقة متوسطة)",
-    nameEn: "Madinah Quran (Medium Res)",
-    isTajweed: false,
-    getUrl: (p) => `https://android.quran.com/data/width_1024/page${p}.png`
-  },
-  {
-    id: "madinah-direct",
-    nameAr: "مصحف المدينة (مباشر)",
-    nameEn: "Madinah Quran (Direct)",
+    id: "madinah-classic",
+    nameAr: "مصحف المدينة (كلاسيكي)",
+    nameEn: "Madinah (Classic)",
     isTajweed: false,
     getUrl: (p) => `https://madinah-quran.com/pages/${p}.png`
+  },
+  {
+    id: "madinah-alt",
+    nameAr: "مصحف المدينة (مصدر بديل)",
+    nameEn: "Madinah (Alt)",
+    isTajweed: false,
+    getUrl: (p) => `https://raw.githubusercontent.com/zeyadetman/quran-pages-images/master/images/${p}.jpg`
+  },
+  {
+    id: "mushaf-standard",
+    nameAr: "المصحف القياسي",
+    nameEn: "Standard Mushaf",
+    isTajweed: false,
+    getUrl: (p) => `https://quran.com/images/quran_pages/${p}.png`
   }
 ];
 

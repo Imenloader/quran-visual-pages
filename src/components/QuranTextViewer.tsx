@@ -13,6 +13,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import VerseShareCard from "@/components/VerseShareCard";
 import { fetchWithCache } from "@/lib/apiClient";
 import { fetchTafsir } from "@/services/tafsirService";
+import { tajweedService } from "@/services/tajweedService";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -56,6 +57,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [localText, setLocalText] = useState<string | null>(null);
+  const [tajweedVerses, setTajweedVerses] = useState<Record<string, string>>({});
   const [currentJuz, setCurrentJuz] = useState<number | null>(null);
   const [hiddenVerses, setHiddenVerses] = useState<Set<number>>(new Set());
   
@@ -88,25 +90,26 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
 
     let currentSurahIdx = 0;
 
+    // Use a flexible regex for Basmalah to handle potential whitespace variations
+    const BASMALAH_REGEX = /^بِسْمِ\s+اللَّهِ\s+الرَّحْمَنِ\s+الرَّحِيمِ\s*/;
+    
     lines.forEach((line) => {
       // Split by verse markers
       const regex = /(۝\s*[\u0660-\u0669\u06F0-\u06F9\d]+|[([﴿][\u0660-\u0669\u06F0-\u06F9\d]+[)\]﴾])/g;
       const parts = line.split(regex);
 
       for (let i = 0; i < parts.length; i += 2) {
-        const text = parts[i];
+        let text = parts[i]?.trim();
         const marker = parts[i + 1] || "";
         
-        if (marker) {
+        if (marker && text !== undefined) {
           // Extract number from marker
           const numMatch = marker.match(/[\d\u0660-\u0669\u06F0-\u06F9]+/);
           if (numMatch) {
             const rawNum = numMatch[0];
-            // Convert Arabic digits to Western
             const westernNum = rawNum.replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d).toString());
             const ayahNumber = parseInt(westernNum);
             
-            // Check for surah change: if ayahNumber is 1 and it's not the very first verse of the juz
             if (ayahNumber === 1 && result.length > 0) {
               currentSurahIdx++;
             }
@@ -115,12 +118,25 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
             const surahInfo = surahIndex.find(s => s.name === surahName);
             const surahNumber = surahInfo ? surahInfo.number : 0;
 
+            let hasBasmalah = false;
+            // Strip Basmalah from Ayah 1 (except Fatihah and Tawbah)
+            if (ayahNumber === 1 && surahNumber !== 9) {
+              if (BASMALAH_REGEX.test(text)) {
+                text = text.replace(BASMALAH_REGEX, "").trim();
+                hasBasmalah = true;
+              }
+            }
+
             result.push({
               text: text + marker,
               surahNumber,
               ayahNumber,
               surahName,
-              fullKey: `${surahNumber}:${ayahNumber}`
+              fullKey: `${surahNumber}:${ayahNumber}`,
+              // @ts-ignore
+              isFirstAyah: ayahNumber === 1,
+              // @ts-ignore
+              showBasmalah: hasBasmalah
             });
           }
         }
@@ -205,6 +221,23 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
     };
 
     loadText();
+    
+    // Fetch Tajweed data if enabled
+    if (tajweedMode) {
+      const fetchTajweed = async () => {
+        let targetJuz = juzNumber;
+        if (!targetJuz && pageNumber) {
+          const juz = juzData.find(j => pageNumber >= j.startPage && pageNumber <= j.endPage);
+          if (juz) targetJuz = juz.number;
+        }
+        
+        if (targetJuz) {
+          const data = await tajweedService.getJuzTajweed(targetJuz);
+          setTajweedVerses(data);
+        }
+      };
+      fetchTajweed();
+    }
 
     // Listen for updates from the importer
     const handleUpdate = (e: StorageEvent) => {
@@ -217,7 +250,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
     return () => {
       window.removeEventListener("storage", handleUpdate);
     };
-  }, [pageNumber, juzNumber]);
+  }, [pageNumber, juzNumber, tajweedMode]);
 
   // Load hidden verses from localStorage
   useEffect(() => {
@@ -399,23 +432,51 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
         {versesData.map((verse, index) => {
           const isHidden = hifzMode && hiddenVerses.has(index);
           const isPlaying = currentVerseKey === verse.fullKey;
+          // @ts-ignore
+          const isNewSurah = index === 0 || versesData[index-1].surahNumber !== verse.surahNumber;
           
           return (
-            <span
-              key={index}
-              ref={el => { verseRefs.current[verse.fullKey] = el; }}
-              data-verse-key={verse.fullKey}
-              onClick={() => handleVerseClick(verse, index)}
-              className={`inline-block transition-all duration-500 cursor-pointer rounded-lg px-1 ${
-                isHidden 
-                  ? "blur-2xl opacity-5 grayscale scale-95 bg-muted/20" 
-                  : isPlaying
-                    ? "bg-accent/20 ring-2 ring-accent/30 scale-105 shadow-lg shadow-accent/10"
-                    : "blur-0 opacity-100 scale-100 hover:bg-accent/5"
-              }`}
-            >
-              {tajweedMode && !isHidden ? applyTajweedColors(verse.text) : verse.text}
-            </span>
+            <React.Fragment key={index}>
+              {isNewSurah && (
+                <div className="w-full my-12 flex flex-col items-center gap-6 no-select" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center gap-4 w-full">
+                    <div className="flex-1 h-px bg-gradient-to-l from-transparent to-accent/30" />
+                    <div className="px-8 py-3 rounded-2xl bg-accent/5 border border-accent/20">
+                      <h3 className="text-2xl md:text-3xl font-serif text-accent">{verse.surahName}</h3>
+                    </div>
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent to-accent/30" />
+                  </div>
+                  
+                  {/* @ts-ignore */}
+                  {verse.showBasmalah && (
+                    <div className="text-4xl md:text-5xl font-quran text-primary/80 py-4">
+                      بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <span
+                ref={el => { verseRefs.current[verse.fullKey] = el; }}
+                data-verse-key={verse.fullKey}
+                onClick={() => handleVerseClick(verse, index)}
+                className={`inline-block transition-all duration-500 cursor-pointer rounded-lg px-1 ${
+                  isHidden 
+                    ? "blur-2xl opacity-5 grayscale scale-95 bg-muted/20" 
+                    : isPlaying
+                      ? "bg-accent/20 ring-2 ring-accent/30 scale-105 shadow-lg shadow-accent/10"
+                      : "blur-0 opacity-100 scale-100 hover:bg-accent/5"
+                }`}
+              >
+                {tajweedMode && !isHidden && tajweedVerses[verse.fullKey] ? (
+                  <span dangerouslySetInnerHTML={{ __html: tajweedVerses[verse.fullKey] }} />
+                ) : tajweedMode && !isHidden ? (
+                  applyTajweedColors(verse.text)
+                ) : (
+                  verse.text
+                )}
+              </span>
+            </React.Fragment>
           );
         })}
       </div>
@@ -546,7 +607,13 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
               <div className="space-y-8 pb-12">
                 <div className="p-6 rounded-2xl bg-accent/5 border border-accent/10">
                   <p className="text-2xl md:text-3xl font-quran leading-relaxed text-primary text-center">
-                    {tajweedMode && selectedVerse?.text ? applyTajweedColors(selectedVerse.text) : selectedVerse?.text}
+                    {tajweedMode && selectedVerse?.fullKey && tajweedVerses[selectedVerse.fullKey] ? (
+                      <span dangerouslySetInnerHTML={{ __html: tajweedVerses[selectedVerse.fullKey] }} />
+                    ) : tajweedMode && selectedVerse?.text ? (
+                      applyTajweedColors(selectedVerse.text)
+                    ) : (
+                      selectedVerse?.text
+                    )}
                   </p>
                 </div>
                 <div className="space-y-4">

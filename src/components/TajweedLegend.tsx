@@ -11,17 +11,18 @@ const TajweedLegend: React.FC = () => {
       
       <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 px-4 py-2 rounded-2xl bg-card/50 border border-border/40 backdrop-blur-sm">
         {[
-          { label: "غنة", color: "#22c55e" },
-          { label: "قلقلة", color: "#3b82f6" },
-          { label: "مد", color: "#ef4444" },
-          { label: "إخفاء", color: "#f59e0b" },
-          { label: "إدغام", color: "#94a3b8" },
-          { label: "إقلاب", color: "#06b6d4" },
-          { label: "إخفاء شفوي", color: "#a855f7" },
+          { label: "غنة / إدغام بغنة", color: "#00A86B" },
+          { label: "قلقلة", color: "#1E90FF" },
+          { label: "مد", color: "#FF0000" },
+          { label: "إخفاء", color: "#FF8C00" },
+          { label: "إدغام بدون غنة", color: "#A9A9A9" },
+          { label: "حروف صغيرة / سجدة", color: "#FF4500" },
+          { label: "وقف لازم", color: "#E11D48" },
+          { label: "وقف معانقة", color: "#D97706" },
         ].map((item) => (
-          <div key={item.label} className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-            <span className="text-[10px] font-naskh text-muted-foreground">{item.label}</span>
+          <div key={item.label} className="flex items-center gap-1.5 whitespace-nowrap">
+            <div className="w-2 h-2 rounded-full shadow-sm ring-1 ring-border/20" style={{ backgroundColor: item.color }} />
+            <span className="text-[9px] font-naskh text-muted-foreground/90">{item.label}</span>
           </div>
         ))}
       </div>

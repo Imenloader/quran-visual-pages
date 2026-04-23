@@ -147,67 +147,90 @@ function JuzViewer() {
     return sources[Math.min(idx, sources.length - 1)];
   }, [pageSources, sourceIndexes, getSourceCandidates]);
 
+  const lastTriggerRef = useRef("");
+  
   useEffect(() => {
     if (!pages.length) return;
+    
+    // Only run if the triggering state has actually changed to avoid scroll-refresh loops
+    const triggerKey = JSON.stringify({
+      juz: juz?.number,
+      tajweed: tajweedMode,
+      preferred: preferredImageSource
+    });
+    
+    if (lastTriggerRef.current === triggerKey) return;
+    lastTriggerRef.current = triggerKey;
+
     let cancelled = false;
     
-    // Clear current source cache to force immediate fallback to the new preferred source
-    setPageSources({});
-    setSourceIndexes({});
-
     const buildDeterministicSources = async () => {
       const nextSources: Record<number, string[]> = {};
+      
+      // If we're offline, we MUST prefer cached items
+      const isOffline = !navigator.onLine;
+
       if (!("caches" in window)) {
         pages.forEach((page) => {
           nextSources[page] = getSourceCandidates(page);
         });
-        if (!cancelled) setPageSources(nextSources);
+        if (!cancelled) {
+          setPageSources(nextSources);
+        }
         return;
       }
 
       const cache = await caches.open("quran-pages-cache");
-      for (const page of pages) {
+      
+      // Batch cache checks to be faster
+      const results = await Promise.all(pages.map(async (page) => {
         const candidates = getSourceCandidates(page);
-        const preferred = candidates[0]; // The first one is the preferred one from getSourceCandidates
-        const otherCandidates = candidates.slice(1);
+        const preferred = candidates[0];
+        const others = candidates.slice(1);
         
         const cached: string[] = [];
         const uncached: string[] = [];
-
-        for (const candidate of otherCandidates) {
-          if (candidate === "/placeholder.svg") {
-            uncached.push(candidate);
-            continue;
-          }
-          const hit = await cache.match(candidate);
-          if (hit) cached.push(candidate);
-          else uncached.push(candidate);
-        }
-
-        // Check if preferred is cached
-        const preferredHit = preferred !== "/placeholder.svg" ? await cache.match(preferred) : null;
         
-        if (preferredHit) {
-          nextSources[page] = [preferred, ...cached, ...uncached];
-        } else {
-          // Even if not cached, if it's the user's preference, it should probably be first if online
-          nextSources[page] = navigator.onLine 
-            ? [preferred, ...cached, ...uncached] 
-            : [...cached, preferred, ...uncached];
+        for (const c of others) {
+          if (c === "/placeholder.svg") {
+            uncached.push(c);
+          } else {
+            const hit = await cache.match(c);
+            if (hit) cached.push(c);
+            else uncached.push(c);
+          }
         }
-      }
+        
+        const prefHit = preferred !== "/placeholder.svg" ? await cache.match(preferred) : null;
+        
+        let final: string[];
+        if (prefHit) {
+          final = [preferred, ...cached, ...uncached];
+        } else {
+          final = isOffline 
+            ? [...cached, preferred, ...uncached] 
+            : [preferred, ...cached, ...uncached];
+        }
+        return { page, sources: final };
+      }));
 
-      if (!cancelled) {
-        setPageSources(nextSources);
-        setSourceIndexes({});
-      }
+      if (cancelled) return;
+
+      results.forEach(res => {
+        nextSources[res.page] = res.sources;
+      });
+
+      setPageSources(prev => {
+        if (JSON.stringify(prev) === JSON.stringify(nextSources)) return prev;
+        return nextSources;
+      });
     };
 
     buildDeterministicSources();
     return () => {
       cancelled = true;
     };
-  }, [pages, getSourceCandidates, currentPage]);
+  }, [pages, getSourceCandidates, tajweedMode, preferredImageSource, juz?.number]);
 
   useEffect(() => {
     localStorage.setItem("quran-hidden-pages", JSON.stringify(hiddenPages));

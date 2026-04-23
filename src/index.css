@@ -312,14 +312,38 @@
   position: relative;
 }
 
-.ornament-border::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, hsl(var(--accent)), transparent);
 }
+
+/* Tajweed Coloring Rules (Standards used by Quran.com) */
+.tajweed-ghunnah { color: #00A86B !important; }
+.tajweed-madd_obligatory, .madd_6 { color: #FF0000 !important; }
+.tajweed-madd_permissible { color: #FF4500 !important; }
+.tajweed-qalqalah { color: #1E90FF !important; }
+.tajweed-ikhfa { color: #FF8C00 !important; }
+.tajweed-ikhfa_shafawi { color: #9370DB !important; }
+.tajweed-iqlab { color: #20B2AA !important; }
+.tajweed-idgham { color: #A9A9A9 !important; }
+.tajweed-idgham_with_ghunnah { color: #00A86B !important; }
+.tajweed-idgham_without_ghunnah { color: #A9A9A9 !important; }
+.tajweed-hamzat_wasl { color: #AAAAAA !important; }
+.tajweed-silent { color: #AAAAAA !important; }
+.tajweed-lam_jalalah { color: #FF0000 !important; }
+
+.dark .tajweed-ghunnah { color: #10B981 !important; }
+.dark .tajweed-qalqalah { color: #3B82F6 !important; }
+.dark .tajweed-ikhfa { color: #F59E0B !important; }
+.dark .tajweed-silent { color: #4B5563 !important; }
+.dark .tajweed-hamzat_wasl { color: #4B5563 !important; }
+
+.sepia .tajweed-ikhfa { color: #92400E !important; }
+
+/* Waqf (Stop) Signs */
+.waqf_mandatory, .tajweed-waqf_mandatory { color: #E11D48 !important; }
+.waqf_prohibited, .tajweed-waqf_prohibited { color: #DC2626 !important; }
+.waqf_permissible, .tajweed-waqf_permissible { color: #059669 !important; }
+.waqf_preferable_stop, .tajweed-waqf_preferable_stop, .tajweed-qali { color: #2563EB !important; }
+.waqf_preferable_continue, .tajweed-waqf_preferable_continue, .tajweed-sali { color: #7C3AED !important; }
+.waqf_muanaqah, .tajweed-waqf_muanaqah { color: #D97706 !important; }
+.tajweed-sajdah { color: #7C3AED !important; }
+.tajweed-small_letters, .tajweed-small_alif { color: #FF4500 !important; }
 

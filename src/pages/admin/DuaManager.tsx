@@ -21,7 +21,8 @@ import {
   deleteDoc, 
   doc, 
   query, 
-  orderBy 
+  orderBy,
+  writeBatch
 } from "firebase/firestore";
 import { toast } from "sonner";
 import BackButton from "@/components/BackButton";
@@ -81,17 +82,23 @@ const DuaManager = () => {
     if (!window.confirm("هل تريد نسخ الأدعية الافتراضية من التطبيق إلى قاعدة البيانات؟")) return;
     setLoading(true);
     try {
-      const batchPromises = allDuas.map(dua => 
-        addDoc(collection(db, "content_duas"), {
+      console.log("Starting dua seed process...");
+      const batch = writeBatch(db);
+      
+      allDuas.forEach(dua => {
+        const newDocRef = doc(collection(db, "content_duas"));
+        batch.set(newDocRef, {
           ...dua,
           createdAt: Date.now()
-        })
-      );
-      await Promise.all(batchPromises);
+        });
+      });
+
+      await batch.commit();
+      console.log("Dua batch committed successfully");
       toast.success("تم نسخ الأدعية بنجاح");
       fetchDuas();
     } catch (err: any) {
-      console.error("Seed Error Details:", err);
+      console.error("Dua Seed Error Details:", err);
       toast.error(`فشل النسخ: ${err.message || 'خطأ غير معروف'}`);
     } finally {
       setLoading(false);

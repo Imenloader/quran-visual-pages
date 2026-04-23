@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { formatInTimeZone, toZonedTime } from "date-fns-tz";
-import { isBefore, addDays } from "date-fns";
-import { toast } from "sonner";
+import { toZonedTime } from "date-fns-tz";
 import { speakPrayerName } from "@/services/ttsService";
 import { useAdhan } from "@/contexts/AdhanContext";
 import { Geolocation } from "@capacitor/geolocation";
@@ -26,19 +24,6 @@ export {
   PRAYER_NAMES,
   type PrayerTimesData, 
   type PrayerSettings 
-};
-
-const getSettings = (): PrayerSettings => {
-  try {
-    const stored = localStorage.getItem(PRAYER_SETTINGS_KEY);
-    return stored ? { ...DEFAULT_SETTINGS, ...JSON.parse(stored) } : DEFAULT_SETTINGS;
-  } catch {
-    return DEFAULT_SETTINGS;
-  }
-};
-
-const saveSettings = (settings: PrayerSettings) => {
-  localStorage.setItem(PRAYER_SETTINGS_KEY, JSON.stringify(settings));
 };
 
 export const getLocalTime = (): Date => {
@@ -77,7 +62,6 @@ const getNextPrayer = (
       return { name, time: times[name] };
     }
   }
-  // All prayers passed, next is Fajr tomorrow
   return { name: "Fajr", time: times.Fajr };
 };
 
@@ -106,7 +90,6 @@ const getRemainingTime = (timeStr: string, now: Date): string => {
 
 export const formatTime = (timeStr: string, format: "12h" | "24h"): string => {
   if (format === "24h") return timeStr;
-  
   const [hours, minutes] = timeStr.split(":").map(Number);
   const period = hours >= 12 ? "م" : "ص";
   const h = hours % 12 || 12;
@@ -115,16 +98,17 @@ export const formatTime = (timeStr: string, format: "12h" | "24h"): string => {
 
 export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
   const [settings, setSettings] = useState<PrayerSettings>(DEFAULT_SETTINGS);
-  const [isSettingsLoaded, setIsSettingsLoaded] = useState(false);
   const [times, setTimes] = useState<PrayerTimesData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const { isAdhanPlaying, playAdhan, stopAdhan } = useAdhan();
-  const notifTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const optionsRef = useRef(options);
 
-  // Load settings on mount
+  useEffect(() => {
+    optionsRef.current = options;
+  }, [options]);
+
   useEffect(() => {
     const loadSettings = async () => {
       const stored = await storage.get(PRAYER_SETTINGS_KEY);
@@ -135,7 +119,6 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
           console.error("Failed to parse settings", e);
         }
       }
-      setIsSettingsLoaded(true);
     };
     loadSettings();
   }, []);
@@ -143,17 +126,6 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
   const getNow = useCallback(() => {
     return getEffectiveNow(settings);
   }, [settings]);
-
-  useEffect(() => {
-    optionsRef.current = options;
-  }, [options]);
-
-  const playAdhanSound = useCallback(async (soundId: string, prayerNameAr?: string) => {
-    if (optionsRef.current?.onAdhanStart) {
-      optionsRef.current.onAdhanStart();
-    }
-    return playAdhan(soundId, prayerNameAr || "");
-  }, [playAdhan]);
 
   const fetchTimes = useCallback(async (lat: number, lng: number, method: number) => {
     setLoading(true);
@@ -166,7 +138,6 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
       const dateKey = `${dd}-${mm}-${yyyy}`;
       const cacheKey = `prayer_times_${lat.toFixed(2)}_${lng.toFixed(2)}_${method}_${dateKey}`;
       
-      // Try local storage cache first
       const cached = await storage.get(cacheKey);
       if (cached) {
         setTimes(JSON.parse(cached));
@@ -174,25 +145,15 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
         return;
       }
 
-      const res = await fetch(
-        `https://api.aladhan.com/v1/timings/${dateKey}?latitude=${lat}&longitude=${lng}&method=${method}`
-      );
-      if (!res.ok) throw new Error("فشل في جلب المواقيت");
+      const res = await fetch(`https://api.aladhan.com/v1/timings/${dateKey}?latitude=${lat}&longitude=${lng}&method=${method}`);
+      if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
       const t = data.data.timings;
-      const prayerTimes: PrayerTimesData = {
-        Fajr: t.Fajr,
-        Sunrise: t.Sunrise,
-        Dhuhr: t.Dhuhr,
-        Asr: t.Asr,
-        Maghrib: t.Maghrib,
-        Isha: t.Isha,
-      };
+      const prayerTimes: PrayerTimesData = { Fajr: t.Fajr, Sunrise: t.Sunrise, Dhuhr: t.Dhuhr, Asr: t.Asr, Maghrib: t.Maghrib, Isha: t.Isha };
       setTimes(prayerTimes);
-      // Cache for 24 hours
       await storage.set(cacheKey, JSON.stringify(prayerTimes));
     } catch {
-      setError("تعذر جلب مواقيت الصلاة. تحقق من الاتصال بالإنترنت");
+      setError("تعذر جلب مواقيت الصلاة");
     } finally {
       setLoading(false);
     }
@@ -201,348 +162,94 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
   const detectLocation = useCallback(async () => {
     setLocationLoading(true);
     setError(null);
-
     try {
-      let latitude: number;
-      let longitude: number;
-
+      let latitude: number, longitude: number;
       if (Capacitor.isNativePlatform()) {
         const permissions = await Geolocation.checkPermissions();
-        if (permissions.location !== 'granted') {
-          const request = await Geolocation.requestPermissions();
-          if (request.location !== 'granted') {
-            throw new Error("تم رفض إذن تحديد الموقع");
-          }
-        }
-        const position = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 10000
-        });
-        latitude = position.coords.latitude;
-        longitude = position.coords.longitude;
+        if (permissions.location !== 'granted') await Geolocation.requestPermissions();
+        const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+        latitude = pos.coords.latitude;
+        longitude = pos.coords.longitude;
       } else {
-        if (!navigator.geolocation) {
-          throw new Error("المتصفح لا يدعم تحديد الموقع");
-        }
-        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: true,
-            timeout: 10000
-          });
-        });
-        latitude = position.coords.latitude;
-        longitude = position.coords.longitude;
+        const pos = await new Promise<GeolocationPosition>((res, rej) => navigator.geolocation.getCurrentPosition(res, rej));
+        latitude = pos.coords.latitude;
+        longitude = pos.coords.longitude;
       }
 
-      // Reverse geocode for city name
       let cityName = "موقعك الحالي";
       try {
-        const geoRes = await fetch(
-          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=ar`
-        );
+        const geoRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=ar`);
         if (geoRes.ok) {
           const geoData = await geoRes.json();
-          cityName = geoData.city || geoData.locality || geoData.principalSubdivision || cityName;
+          cityName = geoData.city || geoData.locality || cityName;
         }
-      } catch { /* ignore */ }
+      } catch {}
 
       const newSettings = { ...settings, latitude, longitude, cityName };
       setSettings(newSettings);
       await storage.set(PRAYER_SETTINGS_KEY, JSON.stringify(newSettings));
-      await fetchTimes(latitude, longitude, settings.method);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "تعذر تحديد الموقع";
-      setError(errorMessage);
+      fetchTimes(latitude, longitude, settings.method);
+    } catch {
+      setError("تعذر تحديد الموقع");
     } finally {
       setLocationLoading(false);
     }
   }, [settings, fetchTimes]);
 
-  // Apply manual overrides
-  const effectiveTimes = useMemo<PrayerTimesData | null>(() => {
-    return times ? { ...times, ...settings.manualOverrides } : null;
-  }, [times, settings.manualOverrides]);
+  const effectiveTimes = useMemo(() => times ? { ...times, ...settings.manualOverrides } : null, [times, settings.manualOverrides]);
 
-  // Load times on mount if we have coordinates
   useEffect(() => {
     if (settings.latitude && settings.longitude) {
       fetchTimes(settings.latitude, settings.longitude, settings.method);
     }
   }, [settings.latitude, settings.longitude, settings.method, fetchTimes]);
 
-  // Sync to widget whenever times or settings change
   useEffect(() => {
     if (effectiveTimes && settings.cityName) {
       const next = getNextPrayer(effectiveTimes, getNow());
-      if (next) {
-        syncToNativeWidget(next.name, next.time, settings.cityName);
-      }
+      if (next) syncToNativeWidget(next.name, next.time, settings.cityName);
     }
   }, [effectiveTimes, settings.cityName, getNow]);
 
-  // Schedule notifications
-  useEffect(() => {
-    notifTimersRef.current.forEach(clearTimeout);
-    notifTimersRef.current = [];
+  const playAdhanSound = useCallback(async (soundId: string, prayerNameAr?: string) => {
+    if (optionsRef.current?.onAdhanStart) optionsRef.current.onAdhanStart();
+    return playAdhan(soundId, prayerNameAr || "");
+  }, [playAdhan]);
 
-    if (!settings.notificationsEnabled || !effectiveTimes) return;
-    
-    const prayersToNotify = settings.enabledPrayers;
-
-    if (Capacitor.isNativePlatform()) {
-      // Native Local Notifications
-      const scheduleNativeNotifications = async () => {
-        try {
-          // Cancel previous notifications
-          const pending = await LocalNotifications.getPending();
-          const idsToCancel = pending.notifications
-            .filter(n => n.id >= 10 && n.id <= 30) // Our prayer ID range
-            .map(n => n.id);
-          
-          if (idsToCancel.length > 0) {
-            await LocalNotifications.cancel({ notifications: idsToCancel.map(id => ({ id })) });
-          }
-
-          const notifications = [];
-          
-          for (const prayer of prayersToNotify) {
-            const timeStr = effectiveTimes[prayer];
-            const [hours, minutes] = timeStr.split(":").map(Number);
-            
-            const now = getNow();
-            const target = new Date(now);
-            target.setHours(hours, minutes, 0, 0);
-            if (isBefore(target, now)) target.setDate(target.getDate() + 1);
-
-            // Adhan Notification
-            notifications.push({
-              title: `🕌 حان الآن وقت صلاة ${PRAYER_NAMES[prayer]}`,
-              body: `الله أكبر، الله أكبر.. حان الآن موعد أذان صلاة ${PRAYER_NAMES[prayer]} حسب توقيت ${settings.cityName || "القاهرة"}`,
-              id: 10 + ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"].indexOf(prayer),
-              schedule: { at: target, repeats: true, every: 'day' },
-              sound: 'adhan.mp3', // Needs to be in android/app/src/main/res/raw/
-              extra: { url: "/prayer-times", prayer }
-            });
-
-            // Pre-prayer Notification
-            if (settings.prePrayerNotification && prayer !== "Sunrise") {
-              const preTarget = new Date(target);
-              preTarget.setMinutes(preTarget.getMinutes() - settings.prePrayerMinutes);
-              
-              if (!isBefore(preTarget, now)) {
-                notifications.push({
-                  title: `🔔 اقترب موعد صلاة ${PRAYER_NAMES[prayer]}`,
-                  body: `بقي ${settings.prePrayerMinutes} دقائق على أذان صلاة ${PRAYER_NAMES[prayer]}`,
-                  id: 20 + ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"].indexOf(prayer),
-                  schedule: { at: preTarget, repeats: true, every: 'day' },
-                  extra: { url: "/prayer-times" }
-                });
-              }
-            }
-          }
-
-          if (notifications.length > 0) {
-            // @ts-expect-error - LocalNotifications.schedule expects exact types but this is generally correct
-            await LocalNotifications.schedule({ notifications });
-          }
-        } catch (err) {
-      console.error("Native notification scheduling error:", err);
+  const updateSettings = useCallback(async (partial: Partial<PrayerSettings>) => {
+    const next = { ...settings, ...partial };
+    setSettings(next);
+    await storage.set(PRAYER_SETTINGS_KEY, JSON.stringify(next));
+    if ((partial.method !== undefined || partial.latitude !== undefined) && next.latitude) {
+      fetchTimes(next.latitude, next.longitude, next.method);
     }
-  };
-
-  scheduleNativeNotifications();
-  return;
-}
-
-// Web Notifications
-const winNotif = (window as unknown as { Notification: typeof Notification }).Notification;
-if (!winNotif || winNotif.permission !== "granted") return;
-
-prayersToNotify.forEach((prayer) => {
-  const timeStr = effectiveTimes[prayer];
-  const [hours, minutes] = timeStr.split(":").map(Number);
-  
-  const now = getNow();
-  
-  // 1. Schedule Main Prayer Notification
-  const target = new Date(now);
-  target.setHours(hours, minutes, 0, 0);
-  if (isBefore(target, now)) target.setDate(target.getDate() + 1);
-
-  const ms = target.getTime() - now.getTime();
-  if (ms > 0) {
-    const timer = setTimeout(() => {
-      const title = `🕌 حان الآن وقت صلاة ${PRAYER_NAMES[prayer]}`;
-      const body = `الله أكبر، الله أكبر.. حان الآن موعد أذان صلاة ${PRAYER_NAMES[prayer]} حسب توقيت ${settings.cityName || "القاهرة"}`;
-      
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.ready.then((reg) => {
-          reg.showNotification(title, {
-            body,
-            icon: "/pwa-192x192.png",
-            tag: `prayer-${prayer}`,
-            dir: "rtl",
-            lang: "ar",
-            renotify: true,
-            vibrate: [200, 100, 200, 100, 200],
-            data: { url: "/prayer-times" }
-          } as NotificationOptions).catch((err: unknown) => {
-            console.error("Failed to show notification via SW:", err);
-            const winNotif2 = (window as unknown as { Notification: typeof Notification }).Notification;
-            if (winNotif2 && winNotif2.permission === "granted") {
-              new winNotif2(title, { body, icon: "/pwa-192x192.png", tag: `prayer-${prayer}`, dir: "rtl", lang: "ar" });
-            }
-          });
-        });
-      } else {
-        const winNotif3 = (window as unknown as { Notification: typeof Notification }).Notification;
-        if (winNotif3 && winNotif3.permission === "granted") {
-          new winNotif3(title, {
-            body,
-            icon: "/pwa-192x192.png",
-            tag: `prayer-${prayer}`,
-            dir: "rtl",
-            lang: "ar",
-          });
-        }
-      }
-
-      playAdhanSound(settings.adhanSound, PRAYER_NAMES[prayer]);
-    }, ms);
-    notifTimersRef.current.push(timer);
-  }
-
-  // 2. Schedule Pre-Prayer Notification
-  if (settings.prePrayerNotification && prayer !== "Sunrise") {
-    const preTarget = new Date(target);
-    preTarget.setMinutes(preTarget.getMinutes() - settings.prePrayerMinutes);
-    
-    const preMs = preTarget.getTime() - now.getTime();
-    if (preMs > 0) {
-      const preTimer = setTimeout(() => {
-        const title = `🔔 اقترب موعد صلاة ${PRAYER_NAMES[prayer]}`;
-        const body = `بقي ${settings.prePrayerMinutes} دقائق على أذان صلاة ${PRAYER_NAMES[prayer]}`;
-        
-        if ("serviceWorker" in navigator) {
-          navigator.serviceWorker.ready.then((reg) => {
-            reg.showNotification(title, {
-              body,
-              icon: "/pwa-192x192.png",
-              tag: `pre-prayer-${prayer}`,
-              dir: "rtl",
-              lang: "ar",
-              renotify: true,
-              data: { url: "/prayer-times" }
-            } as NotificationOptions);
-          });
-        } else {
-          const winNotif4 = (window as unknown as { Notification: typeof Notification }).Notification;
-          if (winNotif4) {
-            new winNotif4(title, {
-              body,
-              icon: "/pwa-192x192.png",
-              tag: `pre-prayer-${prayer}`,
-              dir: "rtl",
-              lang: "ar",
-            });
-          }
-        }
-      }, preMs);
-      notifTimersRef.current.push(preTimer);
-    }
-  }
-});
-
-return () => {
-  notifTimersRef.current.forEach(clearTimeout);
-  notifTimersRef.current = [];
-};
-}, [effectiveTimes, settings.notificationsEnabled, settings.adhanSound, settings.cityName, settings.enabledPrayers, settings.prePrayerMinutes, settings.prePrayerNotification, playAdhanSound, getNow]);
-
-const updateSettings = useCallback(
-async (partial: Partial<PrayerSettings>) => {
-  const next = { ...settings, ...partial };
-  setSettings(next);
-  await storage.set(PRAYER_SETTINGS_KEY, JSON.stringify(next));
-  
-  // Refetch if method or coords changed
-  if (
-    (partial.method !== undefined || partial.latitude !== undefined || partial.longitude !== undefined) &&
-    next.latitude && next.longitude
-  ) {
-    fetchTimes(next.latitude, next.longitude, next.method);
-  }
-},
-[settings, fetchTimes]
-);
-
-  const previewAdhan = useCallback((soundId: string) => {
-    playAdhanSound(soundId, "العصر"); // Use Asr as preview example
-    
-    // Stop after 15 seconds
-    const stopTimer = setTimeout(() => {
-      stopAdhan();
-    }, 15000);
-    
-    return () => clearTimeout(stopTimer);
-  }, [playAdhanSound, stopAdhan]);
+  }, [settings, fetchTimes]);
 
   const testPrayerNotification = useCallback((prayer: keyof PrayerTimesData) => {
-    const timeStr = effectiveTimes ? effectiveTimes[prayer] : "--:--";
     const prayerNameAr = PRAYER_NAMES[prayer];
     const title = `🕌 حان الآن موعد صلاة ${prayerNameAr}`;
-    const body = `حان الآن موعد أذان صلاة ${prayerNameAr} في ${settings.cityName} - الوقت: ${timeStr}`;
+    const body = `تجربة تنبيه صلاة ${prayerNameAr}`;
     
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.ready.then((reg) => {
-        reg.showNotification(title, {
-          body, 
-          icon: "/pwa-192x192.png", 
-          tag: `test-${prayer}`, 
-          dir: "rtl", 
-          lang: "ar", 
-          renotify: true,
-          vibrate: [200, 100, 200],
-          data: { url: "/prayer-times" }
-        } as NotificationOptions);
-      });
+      navigator.serviceWorker.ready.then(reg => reg.showNotification(title, { body, icon: "/pwa-192x192.png", tag: `test-${prayer}`, dir: "rtl" }));
     } else {
-      const winNotif5 = (window as unknown as { Notification: typeof Notification }).Notification;
-      if (winNotif5 && winNotif5.permission === "granted") {
-        new winNotif5(title, { 
-          body, 
-          icon: "/pwa-192x192.png", 
-          tag: `test-${prayer}`, 
-          dir: "rtl", 
-          lang: "ar" 
-        });
-      }
+      const winNotif = (window as any).Notification;
+      if (winNotif?.permission === "granted") new winNotif(title, { body, icon: "/pwa-192x192.png" });
     }
-    
-    // Play adhan
     playAdhanSound(settings.adhanSound, prayerNameAr);
-    
-    // Stop after 20 seconds
     setTimeout(() => stopAdhan(), 20000);
-  }, [effectiveTimes, settings.adhanSound, settings.cityName, playAdhanSound, stopAdhan]);
+  }, [settings.adhanSound, playAdhanSound, stopAdhan]);
 
   return {
-    settings,
-    updateSettings,
-    times: effectiveTimes,
-    loading,
-    error,
-    locationLoading,
-    detectLocation,
+    settings, updateSettings, times: effectiveTimes, loading, error, locationLoading, detectLocation,
     nextPrayer: effectiveTimes ? getNextPrayer(effectiveTimes, getNow()) : null,
     getRemainingTime: (timeStr: string) => getRemainingTime(timeStr, getNow()),
-    previewAdhan,
-    stopAdhan,
-    testPrayerNotification,
-    speakPrayer: (prayer: keyof PrayerTimesData) => {
-      console.log("speakPrayer hook called for:", prayer);
-      return speakPrayerName(prayer);
+    previewAdhan: (soundId: string) => {
+      playAdhanSound(soundId, "العصر");
+      setTimeout(() => stopAdhan(), 15000);
     },
+    stopAdhan, testPrayerNotification,
+    speakPrayer: (prayer: keyof PrayerTimesData) => speakPrayerName(prayer),
     isAdhanPlaying,
   };
 }
