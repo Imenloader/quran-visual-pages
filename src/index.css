@@ -312,8 +312,6 @@
   position: relative;
 }
 
-}
-
 /* Tajweed Coloring Rules (Standards used by Quran.com) */
 .tajweed-ghunnah { color: #00A86B !important; }
 .tajweed-madd_obligatory, .madd_6 { color: #FF0000 !important; }
