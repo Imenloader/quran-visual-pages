@@ -62,6 +62,13 @@ jobs:
           keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
           buildToolsVersion: "34.0.0"
 
+      - name: Get Digital Fingerprints (SHA)
+        run: |
+          echo "--- Keystore Fingerprints ---"
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > release.keystore
+          keytool -list -v -keystore release.keystore -alias "${{ secrets.ANDROID_KEY_ALIAS }}" -storepass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" | grep -E "SHA1|SHA256"
+          rm release.keystore
+
       - name: Upload Signed Artifacts
         uses: actions/upload-artifact@v4
         with:
