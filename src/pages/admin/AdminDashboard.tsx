@@ -61,6 +61,7 @@ const AdminDashboard = () => {
     { id: 'stories', title: "إدارة قصص الأنبياء", icon: <BookOpen />, path: "/admin/stories", color: "bg-amber-500/10 text-amber-500" },
     { id: 'khatmas', title: "إدارة الختمات", icon: <Book />, path: "/admin/khatmas", color: "bg-emerald-500/10 text-emerald-500" },
     { id: 'dhikr', title: "إدارة الذكر العالمي", icon: <Sparkles />, path: "/admin/dhikr", color: "bg-amber-500/10 text-amber-500" },
+    { id: 'ramadan', title: "إدارة رمضان", icon: <Moon />, path: "/admin/ramadan", color: "bg-indigo-500/10 text-indigo-500" },
     { id: 'users', title: "المستخدمين", icon: <Users />, path: "/admin/users", color: "bg-green-500/10 text-green-500" },
     { id: 'settings', title: "إعدادات النظام", icon: <Settings />, path: "/admin/settings", color: "bg-purple-500/10 text-purple-500" },
     { id: 'analytics', title: "الإحصائيات", icon: <BarChart3 />, path: "/admin/analytics", color: "bg-amber-500/10 text-amber-500" },

@@ -98,6 +98,7 @@ const NamesOfAllahManager = lazyWithRetry(() => import("./pages/admin/NamesOfAll
 const ProphetStoriesManager = lazyWithRetry(() => import("./pages/admin/ProphetStoriesManager"));
 const KhatmaModeration = lazyWithRetry(() => import("./pages/admin/KhatmaModeration"));
 const GlobalDhikrManager = lazyWithRetry(() => import("./pages/admin/GlobalDhikrManager"));
+const RamadanManager = lazyWithRetry(() => import("./pages/admin/RamadanManager"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -278,6 +279,7 @@ const App = () => {
                           <Route path="/admin/stories" element={<ProphetStoriesManager />} />
                           <Route path="/admin/khatmas" element={<KhatmaModeration />} />
                           <Route path="/admin/dhikr" element={<GlobalDhikrManager />} />
+                          <Route path="/admin/ramadan" element={<RamadanManager />} />
                           {/* Future admin modules will be added here */}
                         </Route>
 
