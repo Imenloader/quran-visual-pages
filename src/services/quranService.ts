@@ -26,7 +26,7 @@ export interface Reciter {
 }
 
 export const fetchAudioEditions = async (): Promise<Edition[]> => {
-  const data = await fetchWithCache("https://api.alquran.cloud/v1/edition?format=audio&type=versebyverse", {});
+  const data = await fetchWithCache("https://api.quran.g0v.id/v1/edition?format=audio&type=versebyverse", {});
   if (data.code === 200) {
     return data.data;
   }
@@ -34,11 +34,11 @@ export const fetchAudioEditions = async (): Promise<Edition[]> => {
 };
 
 export const fetchSurahAudio = async (surahId: number, edition: string) => {
-  return await fetchWithCache(`https://api.alquran.cloud/v1/surah/${surahId}/${edition}?audio=1`, {});
+  return await fetchWithCache(`https://api.quran.g0v.id/v1/surah/${surahId}/${edition}?audio=1`, {});
 };
 
 export const fetchSurahText = async (surahId: number) => {
-  return await fetchWithCache(`https://api.alquran.cloud/v1/surah/${surahId}`, {});
+  return await fetchWithCache(`https://api.quran.g0v.id/v1/surah/${surahId}`, {});
 };
 
 interface RecitersApiResponse {
@@ -58,7 +58,7 @@ export const fetchReciters = async (language = "ar"): Promise<Reciter[]> => {
 };
 
 export const fetchPageVerses = async (pageNumber: number) => {
-  const data = await fetchWithCache(`https://api.alquran.cloud/v1/page/${pageNumber}/quran-simple`, {
+  const data = await fetchWithCache(`https://api.quran.g0v.id/v1/page/${pageNumber}/quran-simple`, {
     expiry: 30 * 24 * 60 * 60 * 1000 // Cache for 30 days
   });
   if (data && data.code === 200 && data.data) {

@@ -50,10 +50,10 @@ const Search = () => {
         const encodedQuery = encodeURIComponent(query);
         
         // 1. Search in Ayahs
-        const ayahPromise = fetchWithCache(`https://api.alquran.cloud/v1/search/${encodedQuery}/all/ar.quran-simple`, { signal: controller.signal });
+        const ayahPromise = fetchWithCache(`https://api.quran.g0v.id/v1/search/${encodedQuery}/all/ar.quran-simple`, { signal: controller.signal });
           
         // 2. Search in Surahs (by fetching all and filtering)
-        const surahPromise = fetchWithCache(`https://api.alquran.cloud/v1/surah`, { signal: controller.signal });
+        const surahPromise = fetchWithCache(`https://api.quran.g0v.id/v1/surah`, { signal: controller.signal });
 
         const [ayahData, surahData] = await Promise.all([ayahPromise, surahPromise]);
 

@@ -10,9 +10,9 @@ export async function fetchTafsir(surah: number, ayah: number, signal?: AbortSig
   
   // Source 1: AlQuran.cloud (Primary)
   try {
-    const data = await fetchWithCache(`https://api.alquran.cloud/v1/ayah/${verseKey}/ar.muyassar`, { signal, timeout: 8000 });
+    const data = await fetchWithCache(`https://api.quran.g0v.id/v1/ayah/${verseKey}/ar.muyassar`, { signal, timeout: 8000 });
     if (data && data.code === 200 && data.data && data.data.text) {
-      return { text: data.data.text, source: "AlQuran.cloud" };
+      return { text: data.data.text, source: "Quran Mirror" };
     }
   } catch (e) {
     if (e instanceof Error && e.message === "Request aborted") throw e;
@@ -48,7 +48,7 @@ export async function fetchAyahText(surah: number, ayah: number, signal?: AbortS
   const verseKey = `${surah}:${ayah}`;
   
   try {
-    const data = await fetchWithCache(`https://api.alquran.cloud/v1/ayah/${verseKey}/ar.quran-simple`, { signal, timeout: 8000 });
+    const data = await fetchWithCache(`https://api.quran.g0v.id/v1/ayah/${verseKey}/ar.quran-simple`, { signal, timeout: 8000 });
     if (data && data.code === 200 && data.data && data.data.text) {
       return data.data.text;
     }
