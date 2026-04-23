@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useTheme } from "./ThemeContext";
 import { getQuranPageFallbackImageUrl, getQuranPageImageUrl, juzData } from "@/data/quranData";
 import { offlineOrchestrator, type OfflineBundleStatus, type OfflineGlobalStatus } from "@/services/offlineOrchestrator";
 
@@ -65,6 +66,7 @@ export const OfflineProvider = ({ children }: { children: ReactNode }) => {
   // Specialized State
   const [pageStatus, setPageStatus] = useState<Record<number, PageCacheState>>({});
   const [juzCompletion, setJuzCompletion] = useState<Record<number, number>>({});
+  const { preferredImageSource, tajweedMode } = useTheme();
 
   // Sync with Orchestrator
   useEffect(() => {
@@ -97,7 +99,7 @@ export const OfflineProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const cachePageWithFallbacks = useCallback(async (cache: Cache, page: number) => {
-    const candidates = getOrderedSourceUrls(page, true);
+    const candidates = getOrderedSourceUrls(page, tajweedMode, preferredImageSource || undefined);
 
     for (const url of candidates) {
       if (await isCached(cache, url)) {
@@ -131,7 +133,7 @@ export const OfflineProvider = ({ children }: { children: ReactNode }) => {
         let cached = 0;
 
         for (const page of pages) {
-          const urls = getOrderedSourceUrls(page, true);
+          const urls = getOrderedSourceUrls(page, tajweedMode, preferredImageSource || undefined);
           const hasAny = await Promise.any(urls.map(async (url) => {
             const hit = await cache.match(url);
             if (!hit) throw new Error("miss");

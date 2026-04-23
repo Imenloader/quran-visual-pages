@@ -150,6 +150,10 @@ function JuzViewer() {
   useEffect(() => {
     if (!pages.length) return;
     let cancelled = false;
+    
+    // Clear current source cache to force immediate fallback to the new preferred source
+    setPageSources({});
+    setSourceIndexes({});
 
     const buildDeterministicSources = async () => {
       const nextSources: Record<number, string[]> = {};
@@ -164,10 +168,13 @@ function JuzViewer() {
       const cache = await caches.open("quran-pages-cache");
       for (const page of pages) {
         const candidates = getSourceCandidates(page);
+        const preferred = candidates[0]; // The first one is the preferred one from getSourceCandidates
+        const otherCandidates = candidates.slice(1);
+        
         const cached: string[] = [];
         const uncached: string[] = [];
 
-        for (const candidate of candidates) {
+        for (const candidate of otherCandidates) {
           if (candidate === "/placeholder.svg") {
             uncached.push(candidate);
             continue;
@@ -177,7 +184,17 @@ function JuzViewer() {
           else uncached.push(candidate);
         }
 
-        nextSources[page] = navigator.onLine ? [...cached, ...uncached] : [...cached, "/placeholder.svg", ...uncached];
+        // Check if preferred is cached
+        const preferredHit = preferred !== "/placeholder.svg" ? await cache.match(preferred) : null;
+        
+        if (preferredHit) {
+          nextSources[page] = [preferred, ...cached, ...uncached];
+        } else {
+          // Even if not cached, if it's the user's preference, it should probably be first if online
+          nextSources[page] = navigator.onLine 
+            ? [preferred, ...cached, ...uncached] 
+            : [...cached, preferred, ...uncached];
+        }
       }
 
       if (!cancelled) {
