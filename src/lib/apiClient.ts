@@ -59,32 +59,29 @@ export async function fetchWithCache(
       }
 
       let currentUrl = url;
+      let response;
 
-      const response = await fetch(currentUrl, { 
-        signal: controller.signal
-      });
-      
-      // Fallback for older browsers if AbortSignal.any is not available
-      // In modern browsers we can use AbortSignal.any([signal, controller.signal])
-      // For now, let's just use the controller.signal and check the parent signal manually
-      
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          try {
-            const errorData = await response.json();
-            return errorData;
-          } catch (e) {
-            // Fall through
-          }
+      try {
+        response = await fetch(currentUrl, { 
+          signal: controller.signal
+        });
+        
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
         }
-        if (response.status === 429) {
-          throw new Error("Rate limit exceeded. Please try again later.");
+      } catch (fetchError) {
+        // SSL/Network Fallback for api.alquran.cloud
+        if (url.includes("api.alquran.cloud")) {
+          console.warn("Primary API call failed, trying proxy fallback...", fetchError);
+          const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+          response = await fetch(proxyUrl, { signal: controller.signal });
+          if (!response.ok) throw fetchError;
+        } else {
+          throw fetchError;
         }
-        throw new Error(`API error: ${response.status}`);
       }
       
+      clearTimeout(timeoutId);
       const data = await response.json();
       
       try {

@@ -18,7 +18,7 @@ service cloud.firestore {
         (
           (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
            get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
-          (request.auth.token.email == "3wdkyarb@gmail.com" && request.auth.token.email_verified == true)
+          (request.auth.token.email == "3wdkyarb@gmail.com")
         );
     }
 
@@ -34,16 +34,16 @@ service cloud.firestore {
     // APP CONTENT (CMS)
     // ----------------------------------------------------------------------
     
-    // List of all content collections managed by the Admin Panel
+    // Explicitly listing all content collections for the Admin Panel
     match /content_quiz/{id} { allow read: if true; allow write: if isAdmin(); }
     match /content_athkar/{id} { allow read: if true; allow write: if isAdmin(); }
-    match /content_dua/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /content_duas/{id} { allow read: if true; allow write: if isAdmin(); }
     match /content_hadiths/{id} { allow read: if true; allow write: if isAdmin(); }
     match /content_seerah/{id} { allow read: if true; allow write: if isAdmin(); }
     match /content_library/{id} { allow read: if true; allow write: if isAdmin(); }
     match /content_ramadan/{id} { allow read: if true; allow write: if isAdmin(); }
     match /content_prophet_stories/{id} { allow read: if true; allow write: if isAdmin(); }
-    match /content_names_allah/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /content_names_of_allah/{id} { allow read: if true; allow write: if isAdmin(); }
     match /content_sunan_friday/{id} { allow read: if true; allow write: if isAdmin(); }
     match /content_routine/{id} { allow read: if true; allow write: if isAdmin(); }
 
@@ -51,8 +51,8 @@ service cloud.firestore {
     // SETTINGS & SERVICES
     // ----------------------------------------------------------------------
 
-    // Global App Settings (Maintenance, Maintenance mode, etc.)
-    match /settings_global/{id} {
+    // Global and Feature Settings (Ramadan, Routine, Hub, etc.)
+    match /settings/{id} {
       allow read: if true;
       allow write: if isAdmin();
     }
@@ -69,13 +69,9 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isAuthenticated();
       
-      // Prevent users from changing their own 'role' during creation
       allow create: if isOwner(userId) && (!request.resource.data.keys().contains('role') || request.resource.data.role == 'user');
-      
-      // Prevent users from changing their own 'role' during update
       allow update: if (isOwner(userId) && (!request.resource.data.keys().contains('role') || request.resource.data.role == resource.data.role)) || isAdmin();
 
-      // Recursive rule for personal sync data (e.g., quran-favorites, data/bookmarks)
       match /{allPaths=**} {
         allow read, write: if isOwner(userId);
       }
