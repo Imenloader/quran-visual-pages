@@ -23,9 +23,9 @@ describe("parseJuzTextToVerses", () => {
     }
   });
 
-  it("normalizes accidental percent signs to tanween mark in Arabic-context Quran text", () => {
+  it("normalizes accidental percent signs to dammatan in Arabic-context Quran text", () => {
     const sample = "سُورَةُ الفَاتِحَةِ\nغِشَٰوَة٪ۖ وَلَهُمۡ (1)";
     const verses = parseJuzTextToVerses(sample, 1);
-    expect(verses[0].text).toContain("غِشَٰوَةٞۖ وَلَهُمۡ");
+    expect(verses[0].text).toContain("غِشَٰوَةٌۖ وَلَهُمۡ");
   });
 });
