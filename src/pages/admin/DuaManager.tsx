@@ -25,7 +25,7 @@ import {
 } from "firebase/firestore";
 import { toast } from "sonner";
 import BackButton from "@/components/BackButton";
-import { allDuas } from "@/data/duaData";
+import { allDuas, duaCategories } from "@/data/duaData";
 import * as Icons from "lucide-react";
 
 interface GlobalDua {
