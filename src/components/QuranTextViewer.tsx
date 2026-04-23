@@ -4,7 +4,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { Loader2, AlertCircle, RefreshCw, BookOpen, GraduationCap, Sparkles, Share2, Info, Play, Pause, SkipBack, SkipForward, Music, Settings2, Volume2, Heart, Check } from "lucide-react";
-import { juzData, toArabicNumber, surahIndex } from "@/data/quranData";
+import { juzData, toArabicNumber } from "@/data/quranData";
 import { juzTextData } from "@/data/juzTextData";
 import { applyTajweedColors } from "@/lib/tajweedParser";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
@@ -13,6 +13,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import VerseShareCard from "@/components/VerseShareCard";
 import { fetchTafsir } from "@/services/tafsirService";
 import { cn } from "@/lib/utils";
+import { parseJuzTextToVerses, type ParsedVerseData } from "@/lib/quranTextParser";
 
 import TajweedLegend from "@/components/TajweedLegend";
 import FontSizeAdjuster from "@/components/FontSizeAdjuster";
@@ -24,6 +25,8 @@ interface VerseData {
   surahName: string;
   fullKey: string; // "surah:ayah"
 }
+
+type VerseDataWithBasmalah = VerseData & Pick<ParsedVerseData, "isFirstAyah" | "showBasmalah">;
 
 interface QuranTextViewerProps {
   pageNumber?: number;
@@ -68,90 +71,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
 
   // Split text into verses based on common markers and associate with Surah/Ayah
   const versesData = React.useMemo(() => {
-    if (!localText || !currentJuz) return [];
-    
-    const juzInfo = juzData[currentJuz - 1];
-    const surahNames = juzInfo.surahs;
-    const lines = localText.split("\n").filter(line => line.trim().length > 0);
-    
-    const result: VerseData[] = [];
-    
-    // Parse startSurah to get initial Ayah number
-    // Format: "SurahName AyahNumber" or just "SurahName"
-    const startSurahParts = juzInfo.startSurah.split(" ");
-    const startSurahName = startSurahParts[0];
-    const startAyahOffset = startSurahParts.length > 1 ? parseInt(startSurahParts[1]) : 1;
-
-    let currentSurahIdx = 0;
-
-    // Use a flexible regex for Basmalah to handle potential whitespace variations
-    const BASMALAH_REGEX = /^بِسْمِ\s+اللَّهِ\s+الرَّحْمَنِ\s+الرَّحِيمِ\s*/;
-    
-    let carryOverText = "";
-
-    lines.forEach((rawLine) => {
-      const line = `${carryOverText} ${rawLine}`.trim();
-      carryOverText = "";
-
-      // Split by verse markers
-      const regex = /(۝\s*[\u0660-\u0669\u06F0-\u06F9\d]+|[([﴿][\u0660-\u0669\u06F0-\u06F9\d]+[)\]﴾])/g;
-      const parts = line.split(regex);
-
-      for (let i = 0; i < parts.length; i += 2) {
-        let text = parts[i]?.trim();
-        const marker = parts[i + 1] || "";
-        
-        if (marker && text !== undefined) {
-          // Extract number from marker
-          const numMatch = marker.match(/[\d\u0660-\u0669\u06F0-\u06F9]+/);
-          if (numMatch) {
-            const rawNum = numMatch[0];
-            const westernNum = rawNum.replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d).toString());
-            const ayahNumber = parseInt(westernNum);
-            
-            if (ayahNumber === 1 && result.length > 0) {
-              currentSurahIdx++;
-            }
-            
-            const surahName = surahNames[currentSurahIdx] || surahNames[surahNames.length - 1];
-            const surahInfo = surahIndex.find(s => s.name === surahName);
-            const surahNumber = surahInfo ? surahInfo.number : 0;
-
-            let hasBasmalah = false;
-            // Strip Basmalah from Ayah 1 (except Fatihah and Tawbah)
-            if (ayahNumber === 1 && surahNumber !== 9) {
-              if (BASMALAH_REGEX.test(text)) {
-                text = text.replace(BASMALAH_REGEX, "").trim();
-                hasBasmalah = true;
-              }
-            }
-
-            result.push({
-              text: `${text} (${ayahNumber})`,
-              surahNumber,
-              ayahNumber,
-              surahName,
-              fullKey: `${surahNumber}:${ayahNumber}`,
-              // @ts-ignore
-              isFirstAyah: ayahNumber === 1,
-              // @ts-ignore
-              showBasmalah: hasBasmalah
-            });
-          }
-        } else if (text) {
-          // Ignore standalone surah heading lines (e.g. "سُورَةُ الفَاتِحَةِ").
-          if (/^سُ?ورَةُ?\s+/u.test(text)) {
-            continue;
-          }
-
-          // Keep trailing text that has no marker yet (common when an ayah wraps lines
-          // and its number appears at the beginning of the next line).
-          carryOverText = `${carryOverText} ${text}`.trim();
-        }
-      }
-    });
-    
-    return result;
+    return parseJuzTextToVerses(localText, currentJuz) as VerseDataWithBasmalah[];
   }, [localText, currentJuz]);
 
   // Scroll to initial verse
@@ -398,9 +318,9 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
         }}
       >
         {versesData.map((verse, index) => {
+          const verseMeta = verse as VerseDataWithBasmalah;
           const isHidden = hifzMode && hiddenVerses.has(index);
           const isPlaying = currentVerseKey === verse.fullKey;
-          // @ts-ignore
           const isNewSurah = index === 0 || versesData[index-1].surahNumber !== verse.surahNumber;
           
           return (
@@ -415,8 +335,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
                     <div className="flex-1 h-px bg-gradient-to-r from-transparent to-accent/30" />
                   </div>
                   
-                  {/* @ts-ignore */}
-                  {verse.showBasmalah && (
+                  {verseMeta.showBasmalah && (
                     <div className="text-4xl md:text-5xl font-quran text-primary/80 py-4">
                       بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
                     </div>
