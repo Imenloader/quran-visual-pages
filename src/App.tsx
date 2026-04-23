@@ -15,6 +15,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { UserProvider } from "./contexts/UserContext";
 import { AdhanProvider } from "./contexts/AdhanContext";
 import { SystemProvider } from "./contexts/SystemContext";
+import { OfflineProvider } from "./contexts/OfflineContext";
 import MaintenanceGuard from "./contexts/MaintenanceGuard";
 import { useSystem } from "./contexts/SystemContext";
 import { useUser } from "./contexts/UserContext";
@@ -335,13 +336,6 @@ const AppContent = () => {
                     <BottomNav />
                   </AudioPlayerProvider>
                 </TooltipProvider>
-                </SystemProvider>
-              </OfflineProvider>
-            </AdhanProvider>
-          </UserProvider>
-        </ThemeProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
   );
 };
 
