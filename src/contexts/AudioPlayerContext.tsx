@@ -426,7 +426,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     
     if (syncModeRef.current && selectedEdition) {
       try {
-        const data = await fetchWithCache(`https://api.alquran.cloud/v1/surah/${surah.id}/${selectedEdition.identifier}?audio=1`, {});
+        const data = await fetchWithCache(`https://api.quran.g0v.id/v1/surah/${surah.id}/${selectedEdition.identifier}?audio=1`, {});
         if (data.code === 200) {
           const ayahs = data.data.ayahs as AyahAudio[];
           setCurrentAyahs(ayahs);
@@ -548,7 +548,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     setAudioLoading(true);
     
     try {
-      const data = await fetchWithCache(`https://api.alquran.cloud/v1/surah/${surahId}/${selectedEdition.identifier}?audio=1`, {});
+      const data = await fetchWithCache(`https://api.quran.g0v.id/v1/surah/${surahId}/${selectedEdition.identifier}?audio=1`, {});
       if (data.code === 200) {
         const ayahs = data.data.ayahs as AyahAudio[];
         setCurrentAyahs(ayahs);

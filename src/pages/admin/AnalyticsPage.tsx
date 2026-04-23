@@ -11,7 +11,7 @@ import {
   Loader2
 } from "lucide-react";
 import { db } from "@/firebase";
-import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, limit, doc, getDoc } from "firebase/firestore";
 import BackButton from "@/components/BackButton";
 
 const AnalyticsPage = () => {
@@ -35,11 +35,18 @@ const AnalyticsPage = () => {
           .sort((a: any, b: any) => (b.points || 0) - (a.points || 0))
           .slice(0, 5);
 
+        const dhikrSnap = await getDoc(doc(db, "stats", "dhikr"));
+        const totalDhikrVal = dhikrSnap.exists() ? (dhikrSnap.data().total || 0) : 0;
+
         setStats({
           totalUsers: usersSnap.size,
-          newUsersToday: usersSnap.docs.filter(d => d.data().joinedDate > Date.now() - 86400000).length,
+          newUsersToday: usersSnap.docs.filter(d => {
+            const joined = d.data().joinedDate;
+            if (!joined) return false;
+            return new Date(joined).getTime() > Date.now() - 86400000;
+          }).length,
           activeKhatmas: khatmasSnap.size,
-          totalDhikr: 15420, // Example aggregate
+          totalDhikr: totalDhikrVal,
           topUsers: sortedUsers
         });
       } catch (err) {

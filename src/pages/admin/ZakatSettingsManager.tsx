@@ -6,6 +6,7 @@ import { Banknote, Save, TrendingUp, Info, Coins, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import BackButton from "@/components/BackButton";
 
 const ZakatSettingsManager = () => {
   const [settings, setSettings] = useState({
@@ -45,12 +46,15 @@ const ZakatSettingsManager = () => {
 
   return (
     <div className="p-6 space-y-8 max-w-4xl mx-auto pb-24">
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-3">
-          <Banknote className="text-emerald-500" />
-          إعدادات الزكاة والعملات
-        </h1>
-        <p className="text-muted-foreground mt-1">تحديث أسعار الذهب والفضة والعملة الافتراضية</p>
+      <div className="flex items-center gap-4">
+        <BackButton />
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-3">
+            <Banknote className="text-emerald-500" />
+            إعدادات الزكاة والعملات
+          </h1>
+          <p className="text-muted-foreground mt-1">تحديث أسعار الذهب والفضة والعملة الافتراضية</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

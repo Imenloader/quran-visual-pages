@@ -32,7 +32,7 @@ const Tafsir = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchWithCache("https://api.alquran.cloud/v1/surah", { expiry: CACHE_EXPIRY })
+    fetchWithCache("https://api.quran.g0v.id/v1/surah", { expiry: CACHE_EXPIRY })
       .then(data => {
         if (data.status === "OK") {
           setSurahs(data.data);
@@ -95,7 +95,7 @@ const Tafsir = () => {
     const normalizedQuery = normalizeArabic(searchQuery);
     const encodedQuery = encodeURIComponent(searchQuery);
     
-    fetchWithCache(`https://api.alquran.cloud/v1/search/${encodedQuery}/all/ar.quran-simple`, { expiry: CACHE_EXPIRY })
+    fetchWithCache(`https://api.quran.g0v.id/v1/search/${encodedQuery}/all/ar.quran-simple`, { expiry: CACHE_EXPIRY })
       .then(data => {
         if (data.status === "OK" && data.data.count > 0) {
           const firstResult = data.data.matches[0];

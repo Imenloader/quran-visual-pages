@@ -218,7 +218,7 @@ function registerTafsirRoutes() {
       return url.pathname.startsWith('/api/') || url.pathname.includes('/tafsirs') || url.pathname.includes('/tafsir');
     }
 
-    if (url.hostname === 'api.alquran.cloud') {
+    if (url.hostname === 'api.quran.g0v.id') {
       return url.pathname.startsWith('/v1/') || url.pathname.includes('/tafsir');
     }
 
@@ -230,7 +230,7 @@ function registerTafsirRoutes() {
     new StaleWhileRevalidate({
       cacheName: 'quran-tafsir-cache',
       plugins: [
-        metricsPlugin('quran-tafsir', 'api.quran.com|api.alquran.cloud/tafsir/*', 'quran-tafsir-cache'),
+        metricsPlugin('quran-tafsir', 'api.quran.com|api.quran.g0v.id/tafsir/*', 'quran-tafsir-cache'),
         new ExpirationPlugin({
           maxEntries: 200,
           maxAgeSeconds: 60 * 60 * 24 * 30,

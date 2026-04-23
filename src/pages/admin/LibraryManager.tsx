@@ -6,6 +6,7 @@ import { Library, Plus, Trash2, Edit2, ExternalLink, Search, Tag, Info, BookOpen
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import BackButton from "@/components/BackButton";
 
 interface LibraryItem {
   docId?: string;
@@ -89,12 +90,15 @@ const LibraryManager = () => {
   return (
     <div className="p-6 space-y-8 max-w-6xl mx-auto pb-24">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Library className="text-emerald-500" />
-            إدارة المكتبة الإسلامية
-          </h1>
-          <p className="text-muted-foreground mt-1">تنظيم المصادر والكتب والروابط الخارجية</p>
+        <div className="flex items-center gap-4">
+          <BackButton />
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-3">
+              <Library className="text-emerald-500" />
+              إدارة المكتبة الإسلامية
+            </h1>
+            <p className="text-muted-foreground mt-1">تنظيم المصادر والكتب والروابط الخارجية</p>
+          </div>
         </div>
         <Button onClick={() => setIsAdding(true)} className="rounded-2xl gap-2 shadow-lg shadow-primary/20">
           <Plus size={18} />

@@ -70,8 +70,8 @@ export async function fetchWithCache(
           throw new Error(`API error: ${response.status}`);
         }
       } catch (fetchError) {
-        // SSL/Network Fallback for api.alquran.cloud
-        if (url.includes("api.alquran.cloud")) {
+        // SSL/Network Fallback for api.quran.g0v.id
+        if (url.includes("api.quran.g0v.id")) {
           console.warn("Primary API call failed, trying proxy fallback...", fetchError);
           // Using allorigins as a more reliable fallback
           const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
