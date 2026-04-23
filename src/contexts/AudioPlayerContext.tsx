@@ -426,9 +426,14 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     
     if (syncModeRef.current && selectedEdition) {
       try {
-        const data = await fetchWithCache(`https://api.quran.g0v.id/v1/surah/${surah.id}/${selectedEdition.identifier}?audio=1`, {});
-        if (data.code === 200) {
-          const ayahs = data.data.ayahs as AyahAudio[];
+        const data = await fetchWithCache(`https://api.quran.com/api/v4/quran/verses/uthmani?chapter_number=${surah.id}`, {});
+        if (data && data.verses) {
+          const ayahs = data.verses.map((v: any) => ({
+            number: v.verse_key,
+            numberInSurah: v.verse_number,
+            text: v.text_uthmani,
+            audio: `https://verses.quran.com/Alafasy/mp3/${String(surah.id).padStart(3, '0')}${String(v.verse_number).padStart(3, '0')}.mp3` // Fallback logic
+          })) as AyahAudio[];
           setCurrentAyahs(ayahs);
           playAyahInternalRef.current?.(surah.id, 0, ayahs);
           return;
@@ -548,9 +553,14 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     setAudioLoading(true);
     
     try {
-      const data = await fetchWithCache(`https://api.quran.g0v.id/v1/surah/${surahId}/${selectedEdition.identifier}?audio=1`, {});
-      if (data.code === 200) {
-        const ayahs = data.data.ayahs as AyahAudio[];
+      const data = await fetchWithCache(`https://api.quran.com/api/v4/quran/verses/uthmani?chapter_number=${surahId}`, {});
+      if (data && data.verses) {
+        const ayahs = data.verses.map((v: any) => ({
+          number: v.verse_key,
+          numberInSurah: v.verse_number,
+          text: v.text_uthmani,
+          audio: `https://verses.quran.com/Alafasy/mp3/${String(surahId).padStart(3, '0')}${String(v.verse_number).padStart(3, '0')}.mp3`
+        })) as AyahAudio[];
         setCurrentAyahs(ayahs);
         const surah = SURAHS.find(s => s.id === surahId);
         if (surah) setCurrentSurah(surah);

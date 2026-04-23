@@ -50,28 +50,37 @@ const Search = () => {
         const encodedQuery = encodeURIComponent(query);
         
         // 1. Search in Ayahs
-        const ayahPromise = fetchWithCache(`https://api.quran.g0v.id/v1/search/${encodedQuery}/all/ar.quran-simple`, { signal: controller.signal });
+        const ayahPromise = fetchWithCache(`https://api.quran.com/api/v4/search?q=${encodedQuery}&size=20&language=ar`, { signal: controller.signal });
           
-        // 2. Search in Surahs (by fetching all and filtering)
-        const surahPromise = fetchWithCache(`https://api.quran.g0v.id/v1/surah`, { signal: controller.signal });
+        // 2. Search in Surahs
+        const surahPromise = fetchWithCache(`https://api.quran.com/api/v4/chapters?language=ar`, { signal: controller.signal });
 
         const [ayahData, surahData] = await Promise.all([ayahPromise, surahPromise]);
 
-        if (ayahData.status === "OK") {
-          setResults(ayahData.data.matches);
+        if (ayahData && ayahData.search && ayahData.search.results) {
+          setResults(ayahData.search.results.map((r: any) => ({
+            text: r.text.replace(/<[^>]*>?/gm, ''),
+            surah: {
+              number: parseInt(r.verse_key.split(':')[0]),
+              name: r.verse_key
+            },
+            numberInSurah: parseInt(r.verse_key.split(':')[1])
+          })));
         } else {
           setResults([]);
         }
 
-        if (surahData.status === "OK") {
-          const filteredSurahs = surahData.data.filter((s: { name: string; englishName: string; number: number }) => {
-            const normalizedSurahName = normalizeArabic(s.name || "");
-            const sName = s.name || "";
-            const eName = s.englishName || "";
+        if (surahData && surahData.chapters) {
+          const filteredSurahs = surahData.chapters.filter((s: any) => {
+            const normalizedSurahName = normalizeArabic(s.name_arabic || "");
+            const eName = s.name_simple || "";
             return normalizedSurahName.includes(normalizedQuery) || 
-                   eName.toLowerCase().includes(query.toLowerCase()) ||
-                   normalizedQuery.includes(normalizedSurahName);
-          });
+                   eName.toLowerCase().includes(query.toLowerCase());
+          }).map((s: any) => ({
+            number: s.id,
+            name: s.name_arabic,
+            englishName: s.name_simple
+          }));
           setSurahResults(filteredSurahs);
         }
 

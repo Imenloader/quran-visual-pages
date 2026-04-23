@@ -91,8 +91,9 @@ const DuaManager = () => {
       await Promise.all(batchPromises);
       toast.success("تم نسخ الأدعية بنجاح");
       fetchDuas();
-    } catch (err) {
-      toast.error("فشل النسخ");
+    } catch (err: any) {
+      console.error("Seed Error Details:", err);
+      toast.error(`فشل النسخ: ${err.message || 'خطأ غير معروف'}`);
     } finally {
       setLoading(false);
     }

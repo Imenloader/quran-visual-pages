@@ -26,19 +26,30 @@ export interface Reciter {
 }
 
 export const fetchAudioEditions = async (): Promise<Edition[]> => {
-  const data = await fetchWithCache("https://api.quran.g0v.id/v1/edition?format=audio&type=versebyverse", {});
-  if (data.code === 200) {
-    return data.data;
+  try {
+    const data = await fetchWithCache("https://api.quran.com/api/v4/resources/recitations", {});
+    if (data && data.recitations) {
+      return data.recitations.map((r: any) => ({
+        identifier: r.id.toString(),
+        name: r.reciter_name,
+        englishName: r.reciter_name,
+        format: "audio",
+        type: "versebyverse"
+      }));
+    }
+  } catch (e) {
+    console.error("Quran.com API error:", e);
   }
   return [];
 };
 
 export const fetchSurahAudio = async (surahId: number, edition: string) => {
-  return await fetchWithCache(`https://api.quran.g0v.id/v1/surah/${surahId}/${edition}?audio=1`, {});
+  return await fetchWithCache(`https://api.quran.com/api/v4/chapter_recitations/${edition}/${surahId}`, {});
 };
 
 export const fetchSurahText = async (surahId: number) => {
-  return await fetchWithCache(`https://api.quran.g0v.id/v1/surah/${surahId}`, {});
+  const data = await fetchWithCache(`https://api.quran.com/api/v4/quran/verses/uthmani?chapter_number=${surahId}`, {});
+  return { code: 200, data: { ayahs: data.verses.map((v: any) => ({ text: v.text_uthmani, numberInSurah: v.verse_number })) } };
 };
 
 interface RecitersApiResponse {
@@ -58,11 +69,11 @@ export const fetchReciters = async (language = "ar"): Promise<Reciter[]> => {
 };
 
 export const fetchPageVerses = async (pageNumber: number) => {
-  const data = await fetchWithCache(`https://api.quran.g0v.id/v1/page/${pageNumber}/quran-simple`, {
+  const data = await fetchWithCache(`https://api.quran.com/api/v4/quran/verses/uthmani?page_number=${pageNumber}`, {
     expiry: 30 * 24 * 60 * 60 * 1000 // Cache for 30 days
   });
-  if (data && data.code === 200 && data.data) {
-    return data.data.ayahs;
+  if (data && data.verses) {
+    return data.verses.map((v: any) => ({ text: v.text_uthmani, numberInSurah: v.verse_number }));
   }
   return [];
 };

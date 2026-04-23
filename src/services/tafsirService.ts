@@ -8,18 +8,7 @@ export interface TafsirResponse {
 export async function fetchTafsir(surah: number, ayah: number, signal?: AbortSignal): Promise<TafsirResponse> {
   const verseKey = `${surah}:${ayah}`;
   
-  // Source 1: AlQuran.cloud (Primary)
-  try {
-    const data = await fetchWithCache(`https://api.quran.g0v.id/v1/ayah/${verseKey}/ar.muyassar`, { signal, timeout: 8000 });
-    if (data && data.code === 200 && data.data && data.data.text) {
-      return { text: data.data.text, source: "Quran Mirror" };
-    }
-  } catch (e) {
-    if (e instanceof Error && e.message === "Request aborted") throw e;
-    console.warn("AlQuran.cloud Tafsir fetch failed, trying fallback...", e);
-  }
-
-  // Source 2: Quran.com API (Fallback 1)
+  // Source 1: Quran.com API (Primary)
   try {
     const data = await fetchWithCache(`https://api.quran.com/api/v4/tafsirs/169/by_ayah/${verseKey}`, { signal, timeout: 8000 });
     if (data && data.tafsir && data.tafsir.text) {
@@ -27,10 +16,10 @@ export async function fetchTafsir(surah: number, ayah: number, signal?: AbortSig
     }
   } catch (e) {
     if (e instanceof Error && e.message === "Request aborted") throw e;
-    console.warn("Quran.com Tafsir fetch failed, trying next fallback...", e);
+    console.warn("Quran.com Tafsir fetch failed, trying fallback...", e);
   }
 
-  // Source 3: QuranEnc.com (Fallback 2)
+  // Source 2: QuranEnc.com (Fallback 1)
   try {
     const data = await fetchWithCache(`https://quranenc.com/api/v1/translation/ayah/arabic_moyassar/${surah}/${ayah}`, { signal, timeout: 8000 });
     if (data && data.result && data.result.translation) {
@@ -41,6 +30,16 @@ export async function fetchTafsir(surah: number, ayah: number, signal?: AbortSig
     console.warn("QuranEnc Tafsir fetch failed", e);
   }
 
+  // Source 3: AlQuran.cloud (Final Fallback - HTTP for reliability if cert fails)
+  try {
+    const data = await fetchWithCache(`http://api.alquran.cloud/v1/ayah/${verseKey}/ar.muyassar`, { signal, timeout: 8000 });
+    if (data && data.code === 200 && data.data && data.data.text) {
+      return { text: data.data.text, source: "AlQuran.cloud (Legacy)" };
+    }
+  } catch (e) {
+    console.warn("Legacy fallback failed", e);
+  }
+
   throw new Error("Failed to fetch tafsir from all available sources");
 }
 
@@ -48,23 +47,22 @@ export async function fetchAyahText(surah: number, ayah: number, signal?: AbortS
   const verseKey = `${surah}:${ayah}`;
   
   try {
-    const data = await fetchWithCache(`https://api.quran.g0v.id/v1/ayah/${verseKey}/ar.quran-simple`, { signal, timeout: 8000 });
-    if (data && data.code === 200 && data.data && data.data.text) {
-      return data.data.text;
-    }
-  } catch (e) {
-    if (e instanceof Error && e.message === "Request aborted") throw e;
-    console.warn("AlQuran.cloud Ayah text fetch failed, trying fallback...", e);
-  }
-
-  try {
     const data = await fetchWithCache(`https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${verseKey}`, { signal, timeout: 8000 });
     if (data && data.verses && data.verses.length > 0) {
       return data.verses[0].text_uthmani;
     }
   } catch (e) {
     if (e instanceof Error && e.message === "Request aborted") throw e;
-    console.warn("Quran.com Ayah text fetch failed", e);
+    console.warn("Quran.com Ayah text fetch failed, trying fallback...", e);
+  }
+
+  try {
+    const data = await fetchWithCache(`https://quranenc.com/api/v1/translation/ayah/arabic_moyassar/${surah}/${ayah}`, { signal, timeout: 8000 });
+    if (data && data.result && data.result.translation) {
+      return data.result.translation;
+    }
+  } catch (e) {
+    console.warn("QuranEnc fallback failed", e);
   }
 
   return "";
