@@ -362,6 +362,22 @@ const Profile = () => {
       </header>
 
       <main className="container max-w-3xl mx-auto px-4 md:px-6 -mt-12 relative z-20 space-y-8">
+        {isAdmin && (
+          <ScrollReveal>
+            <button
+              onClick={() => navigate("/admin")}
+              className="w-full py-5 bg-accent/10 backdrop-blur-2xl text-accent rounded-[2rem] border-2 border-accent/30 flex items-center justify-center gap-4 group hover:bg-accent/20 transition-all shadow-xl shadow-accent/10"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-accent text-accent-foreground flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <ShieldCheck className="w-7 h-7" />
+              </div>
+              <div className="text-right">
+                <h3 className="text-xl font-bold font-naskh">{isAr ? "لوحة التحكم الإدارية" : "Admin Control Panel"}</h3>
+                <p className="text-[10px] opacity-70 font-naskh">{isAr ? "إدارة المحتوى والإعدادات المتقدمة" : "Manage content and advanced settings"}</p>
+              </div>
+            </button>
+          </ScrollReveal>
+        )}
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <ScrollReveal index={0}>

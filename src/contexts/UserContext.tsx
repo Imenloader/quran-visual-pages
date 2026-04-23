@@ -172,7 +172,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         snapshotUnsubscribeRef.current = onSnapshot(userRef, (snap) => {
-          if (snap.exists()) setProfile(snap.data() as UserProfile);
+          if (snap.exists()) {
+            const data = snap.data() as UserProfile;
+            console.log("Profile updated from Firestore. Role:", data.role);
+            setProfile(data);
+          }
         }, (error) => console.warn("Profile Sync Error:", error));
       } else {
         // Fallback to local storage if no user is signed in
