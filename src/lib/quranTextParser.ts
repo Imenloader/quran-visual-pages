@@ -17,12 +17,13 @@ export const parseJuzTextToVerses = (localText: string | null, currentJuz: numbe
   if (!juzInfo) return [];
 
   const surahNames = juzInfo.surahs;
-  // Defensive normalization: in some environments/fonts, tanween glyphs may be copied
-  // or persisted as percent signs. Convert Arabic-context %/٪ back to dammatan (ٌ).
-  const normalizedText = localText.replace(
-    /(?<=[\u0600-\u06FF])[%٪](?=[\u0600-\u06FF])/gu,
-    "\u064C"
-  );
+  // Defensive normalization: in some environments/fonts, a few Quran diacritics
+  // are accidentally persisted as visually-similar but incorrect glyphs.
+  // 1) Convert Arabic-context %/٪ back to standard dammatan (ٌ).
+  // 2) Convert accidental U+0657 (ٗ) usage back to standard fathatan (ً).
+  const normalizedText = localText
+    .replace(/(?<=[\u0600-\u06FF])[%٪](?=[\u0600-\u06FF])/gu, "\u064C")
+    .replace(/\u0657/gu, "\u064B");
   const lines = normalizedText.split("\n").filter(line => line.trim().length > 0);
   const result: ParsedVerseData[] = [];
   let currentSurahIdx = 0;
