@@ -945,7 +945,7 @@ function JuzViewer() {
                               title={isPageHidden(currentPage) ? "إظهار الصفحة" : "إخفاء الصفحة"}
                               className={`p-2 rounded-xl transition-all ${isPageHidden(currentPage) ? "bg-primary text-primary-foreground" : "hover:bg-accent/10 text-primary"}`}
                             >
-                              <GraduationCap size={16} />
+                              {isPageHidden(currentPage) ? <Eye size={16} /> : <EyeOff size={16} />}
                             </button>
                             <button
                               onClick={(e) => {
@@ -955,7 +955,7 @@ function JuzViewer() {
                               title="إخفاء الأسطر"
                               className="p-2 rounded-xl hover:bg-accent/10 text-primary transition-all"
                             >
-                              <Minimize size={16} />
+                              <Square size={16} />
                             </button>
                             <button
                               onClick={(e) => {
@@ -965,7 +965,7 @@ function JuzViewer() {
                               title="إظهار الأسطر"
                               className="p-2 rounded-xl hover:bg-accent/10 text-primary transition-all"
                             >
-                              <Maximize size={16} />
+                              <LayoutList size={16} />
                             </button>
                           </div>
                         </div>
