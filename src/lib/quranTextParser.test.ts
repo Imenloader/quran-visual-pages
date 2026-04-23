@@ -28,4 +28,11 @@ describe("parseJuzTextToVerses", () => {
     const verses = parseJuzTextToVerses(sample, 1);
     expect(verses[0].text).toContain("غِشَٰوَةٌۖ وَلَهُمۡ");
   });
+
+  it("normalizes accidental U+0657 to standard fathatan in Quran text", () => {
+    const sample = "سُورَةُ البَقَرَةِ\nأُوْلَـٰٓئِكَ عَلَىٰ هُدٗى مِّن رَّبِّهِمۡۖ (5)";
+    const verses = parseJuzTextToVerses(sample, 1);
+    expect(verses[0].text).toContain("هُدًى");
+    expect(verses[0].text).not.toContain("هُدٗى");
+  });
 });
