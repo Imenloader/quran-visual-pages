@@ -99,6 +99,13 @@ const ProphetStoriesManager = lazyWithRetry(() => import("./pages/admin/ProphetS
 const KhatmaModeration = lazyWithRetry(() => import("./pages/admin/KhatmaModeration"));
 const GlobalDhikrManager = lazyWithRetry(() => import("./pages/admin/GlobalDhikrManager"));
 const RamadanManager = lazyWithRetry(() => import("./pages/admin/RamadanManager"));
+const ZakatSettingsManager = lazyWithRetry(() => import("./pages/admin/ZakatSettingsManager"));
+const FridaySunanManager = lazyWithRetry(() => import("./pages/admin/FridaySunanManager"));
+const HadithManager = lazyWithRetry(() => import("./pages/admin/HadithManager"));
+const SeerahManager = lazyWithRetry(() => import("./pages/admin/SeerahManager"));
+const UserManagement = lazyWithRetry(() => import("./pages/admin/UserManagement"));
+const RoutineManager = lazyWithRetry(() => import("./pages/admin/RoutineManager"));
+const LibraryManager = lazyWithRetry(() => import("./pages/admin/LibraryManager"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -280,6 +287,13 @@ const App = () => {
                           <Route path="/admin/khatmas" element={<KhatmaModeration />} />
                           <Route path="/admin/dhikr" element={<GlobalDhikrManager />} />
                           <Route path="/admin/ramadan" element={<RamadanManager />} />
+                          <Route path="/admin/zakat" element={<ZakatSettingsManager />} />
+                          <Route path="/admin/sunan" element={<FridaySunanManager />} />
+                          <Route path="/admin/hadith" element={<HadithManager />} />
+                          <Route path="/admin/seerah" element={<SeerahManager />} />
+                          <Route path="/admin/users" element={<UserManagement />} />
+                          <Route path="/admin/routine" element={<RoutineManager />} />
+                          <Route path="/admin/library" element={<LibraryManager />} />
                           {/* Future admin modules will be added here */}
                         </Route>
 

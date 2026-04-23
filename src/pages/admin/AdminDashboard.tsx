@@ -16,7 +16,17 @@ import {
   Brain,
   Bell,
   Trash2,
-  Plus
+  Plus,
+  Heart,
+  Moon,
+  Book,
+  Sparkles,
+  Banknote,
+  CheckCircle,
+  Scroll,
+  History,
+  Zap,
+  Library
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -62,6 +72,12 @@ const AdminDashboard = () => {
     { id: 'khatmas', title: "إدارة الختمات", icon: <Book />, path: "/admin/khatmas", color: "bg-emerald-500/10 text-emerald-500" },
     { id: 'dhikr', title: "إدارة الذكر العالمي", icon: <Sparkles />, path: "/admin/dhikr", color: "bg-amber-500/10 text-amber-500" },
     { id: 'ramadan', title: "إدارة رمضان", icon: <Moon />, path: "/admin/ramadan", color: "bg-indigo-500/10 text-indigo-500" },
+    { id: 'zakat', title: "إعدادات الزكاة", icon: <Banknote />, path: "/admin/zakat", color: "bg-emerald-500/10 text-emerald-500" },
+    { id: 'sunan', title: "سنن الجمعة", icon: <CheckCircle />, path: "/admin/sunan", color: "bg-blue-500/10 text-blue-500" },
+    { id: 'hadith', title: "الأحاديث النبوية", icon: <Scroll />, path: "/admin/hadith", color: "bg-amber-500/10 text-amber-500" },
+    { id: 'seerah', title: "السيرة النبوية", icon: <History />, path: "/admin/seerah", color: "bg-primary/10 text-primary" },
+    { id: 'routine', title: "الروتين الروحاني", icon: <Zap />, path: "/admin/routine", color: "bg-amber-500/10 text-amber-500" },
+    { id: 'library', title: "المكتبة الإسلامية", icon: <Library />, path: "/admin/library", color: "bg-emerald-500/10 text-emerald-500" },
     { id: 'users', title: "المستخدمين", icon: <Users />, path: "/admin/users", color: "bg-green-500/10 text-green-500" },
     { id: 'settings', title: "إعدادات النظام", icon: <Settings />, path: "/admin/settings", color: "bg-purple-500/10 text-purple-500" },
     { id: 'analytics', title: "الإحصائيات", icon: <BarChart3 />, path: "/admin/analytics", color: "bg-amber-500/10 text-amber-500" },
