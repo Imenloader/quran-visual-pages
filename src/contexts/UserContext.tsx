@@ -35,6 +35,7 @@ interface UserContextType {
   levelProgress: number;
   levelName: string;
   isAuthReady: boolean;
+  isAdmin: boolean;
   completeQuest: (questId: string, points: number) => void;
 }
 
@@ -226,7 +227,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       profile, updateProfile, addPoints, addAyahRead, addPageRead,
       addJuzCompleted, addAthkarRecited, level: currentLevel,
       nextLevelPoints: nextLevelThreshold, prevLevelPoints: prevLevelThreshold,
-      levelProgress: progress, levelName, isAuthReady, completeQuest
+      levelProgress: progress, levelName, isAuthReady, completeQuest,
+      isAdmin: profile.role === 'admin'
     }}>
       {children}
     </UserContext.Provider>

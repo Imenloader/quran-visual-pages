@@ -26,6 +26,7 @@ import { AudioUnlockBanner } from "./components/AudioUnlockBanner";
 import SplashScreen from "./components/SplashScreen";
 import ScrollRestoration from "./components/ScrollRestoration";
 import CommandPalette from "./components/CommandPalette";
+import AdminRoute from "./components/AdminRoute";
 import { lazyWithRetry } from "./lib/lazyRetry";
 import { checkNetworkReliability } from "./lib/networkCheck";
 
@@ -87,6 +88,12 @@ const ZakatAlFitr = lazyWithRetry(() => import("./pages/ramadan/ZakatAlFitr"));
 const HowToUse = lazyWithRetry(() => import("./pages/HowToUse"));
 const Tajweed = lazyWithRetry(() => import("./pages/Tajweed"));
 const HifzTester = lazyWithRetry(() => import("./pages/tools/HifzTester"));
+const AdminDashboard = lazyWithRetry(() => import("./pages/admin/AdminDashboard"));
+const SettingsManager = lazyWithRetry(() => import("./pages/admin/SettingsManager"));
+const DuaManager = lazyWithRetry(() => import("./pages/admin/DuaManager"));
+const AthkarManager = lazyWithRetry(() => import("./pages/admin/AthkarManager"));
+const HubManager = lazyWithRetry(() => import("./pages/admin/HubManager"));
+const QuizManager = lazyWithRetry(() => import("./pages/admin/QuizManager"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -254,6 +261,18 @@ const App = () => {
                         <Route path="/tajweed" element={<Tajweed />} />
                         <Route path="/tools/hifz-tester" element={<HifzTester />} />
                         <Route path="/embed/:siteId" element={<EmbedView />} />
+                        
+                        {/* Admin Routes */}
+                        <Route element={<AdminRoute />}>
+                          <Route path="/admin" element={<AdminDashboard />} />
+                          <Route path="/admin/settings" element={<SettingsManager />} />
+                          <Route path="/admin/content" element={<DuaManager />} />
+                          <Route path="/admin/athkar" element={<AthkarManager />} />
+                          <Route path="/admin/hub" element={<HubManager />} />
+                          <Route path="/admin/quiz" element={<QuizManager />} />
+                          {/* Future admin modules will be added here */}
+                        </Route>
+
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </Suspense>

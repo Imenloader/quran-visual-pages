@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff, Clock, Send, ChevronLeft, X, BookOpen, Wand2, LayoutGrid, DownloadCloud, Sparkles, User, Trophy, Calendar, RefreshCw, Check, Shield, Flame, GraduationCap, Heart, Upload, Image as ImageIcon, Music, type LucideIcon } from "lucide-react";
+import { Sun, Moon, Palette, Type, RotateCcw, HelpCircle, Trash2, Bell, BellOff, Clock, Send, ChevronLeft, X, BookOpen, Wand2, LayoutGrid, DownloadCloud, Sparkles, User, Trophy, Calendar, RefreshCw, Check, Shield, ShieldCheck, Flame, GraduationCap, Heart, Upload, Image as ImageIcon, Music, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useNotifications } from "@/hooks/useNotifications";
 import { usePeriodicReminders } from "@/hooks/usePeriodicReminders";
@@ -33,7 +33,7 @@ const Profile = () => {
   const isAr = i18n.language === "ar";
   const navigate = useNavigate();
   const { theme, setTheme, dimming, setDimming, tajweedMode, setTajweedMode } = useTheme();
-  const { profile, updateProfile, level, levelName, levelProgress, nextLevelPoints, prevLevelPoints, completeQuest } = useUser();
+  const { profile, updateProfile, level, levelName, levelProgress, nextLevelPoints, prevLevelPoints, completeQuest, isAdmin } = useUser();
   const { testPrayerNotification, unlockAudio } = usePrayerTimes();
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -1104,6 +1104,15 @@ const Profile = () => {
                                   <p className="text-[10px] text-primary/60 font-serif">{auth.currentUser.email}</p>
                                 </div>
                               </div>
+                              {isAdmin && (
+                                <button
+                                  onClick={() => navigate("/admin")}
+                                  className="w-full py-2 bg-accent/10 text-accent rounded-xl text-xs font-bold font-serif hover:bg-accent/20 transition-all flex items-center justify-center gap-2"
+                                >
+                                  <ShieldCheck size={14} />
+                                  {isAr ? "لوحة التحكم" : "Admin Panel"}
+                                </button>
+                              )}
                               <button
                                 onClick={() => signOut(auth)}
                                 className="w-full py-2 bg-red-500/10 text-red-500 rounded-xl text-xs font-bold font-serif hover:bg-red-500/20 transition-all"

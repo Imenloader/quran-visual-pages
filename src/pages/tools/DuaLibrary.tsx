@@ -10,8 +10,9 @@ import { LayoutGrid, type LucideIcon } from "lucide-react";
 import * as Icons from "lucide-react";
 import { allDuas, duaCategories } from "@/data/duaData";
 import { syncService } from "@/services/syncService";
-import { auth } from "@/firebase";
+import { auth, db } from "@/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { useEffect } from "react";
 
 interface CustomDua {
@@ -34,11 +35,21 @@ const DuaLibrary = () => {
   const [newArabic, setNewArabic] = useState("");
   const [newNote, setNewNote] = useState("");
   const [customDuas, setCustomDuas] = useState<CustomDua[]>([]);
+  const [globalDuas, setGlobalDuas] = useState<any[]>([]);
 
   useEffect(() => {
     const loadInitialData = async () => {
       const saved = await syncService.loadCollection<CustomDua>("custom-duas");
       setCustomDuas(saved);
+      
+      // Fetch Admin-managed Global Duas
+      try {
+        const q = query(collection(db, "content_duas"), orderBy("titleAr"));
+        const snap = await getDocs(q);
+        setGlobalDuas(snap.docs.map(d => ({ id: d.id, ...d.data(), isGlobal: true })));
+      } catch (error) {
+        console.error("Global Duas Error:", error);
+      }
     };
 
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -51,7 +62,9 @@ const DuaLibrary = () => {
     return () => unsubscribe();
   }, []);
 
-  const filteredDuas = allDuas.filter(dua => {
+  const combinedDuas = [...globalDuas, ...allDuas];
+
+  const filteredDuas = combinedDuas.filter(dua => {
     const matchesSearch =
       (dua.titleEn && dua.titleEn.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (dua.titleAr && dua.titleAr.includes(searchQuery)) ||
@@ -239,9 +252,17 @@ const DuaLibrary = () => {
               >
                 <div className="flex justify-between items-start">
                   <div className="space-y-1">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-3 py-1 rounded-full">
-                      {isAr ? dua.categoryAr : dua.category}
-                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-3 py-1 rounded-full">
+                        {isAr ? (dua.categoryAr || dua.category) : dua.category}
+                      </span>
+                      {dua.isGlobal && (
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-gold bg-gold/10 px-3 py-1 rounded-full border border-gold/20 flex items-center gap-1">
+                          <Check className="w-2.5 h-2.5" />
+                          {isAr ? "رسمي" : "Official"}
+                        </span>
+                      )}
+                    </div>
                     <h3 className="text-xl font-bold font-naskh pt-2">{isAr ? dua.titleAr : dua.titleEn}</h3>
                   </div>
                   <div className="flex gap-2">

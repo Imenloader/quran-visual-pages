@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { Trophy, Timer, RotateCcw, CheckCircle2, XCircle, Brain, Book, Users, Star } from "lucide-react";
 import QuranHeader from "@/components/QuranHeader";
 import { Button } from "@/components/ui/button";
+import { db } from "@/firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 interface Question {
   id: number;
@@ -306,11 +308,26 @@ const IslamicQuiz = () => {
   const [isAnswered, setIsAnswered] = useState(false);
   const [timer, setTimer] = useState(30);
   const [category, setCategory] = useState<Question["category"] | "all">("all");
-  const [userAnswers, setUserAnswers] = useState<{ questionId: number; selectedIndex: number; isCorrect: boolean }[]>([]);
+  const [userAnswers, setUserAnswers] = useState<{ questionId: number | string; selectedIndex: number; isCorrect: boolean }[]>([]);
+  const [remoteQuestions, setRemoteQuestions] = useState<Question[]>([]);
+
+  useEffect(() => {
+    const fetchRemoteQuestions = async () => {
+      try {
+        const snap = await getDocs(collection(db, "content_quiz"));
+        setRemoteQuestions(snap.docs.map(d => ({ id: d.id, ...d.data() } as Question)));
+      } catch (err) {
+        console.error("Quiz fetch error:", err);
+      }
+    };
+    fetchRemoteQuestions();
+  }, []);
+
+  const allQuestions = [...remoteQuestions, ...quizQuestions];
 
   const filteredQuestions = category === "all" 
-    ? quizQuestions 
-    : quizQuestions.filter(q => q.category === category);
+    ? allQuestions 
+    : allQuestions.filter(q => q.category === category);
 
   const currentQuestion = filteredQuestions[currentQuestionIndex];
 

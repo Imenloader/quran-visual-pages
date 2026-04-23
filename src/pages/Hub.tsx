@@ -40,6 +40,8 @@ import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import QuranHeader from "@/components/QuranHeader";
 import { offlineOrchestrator } from "@/services/offlineOrchestrator";
 import { toast } from "sonner";
+import { db } from "@/firebase";
+import { doc, onSnapshot } from "firebase/firestore";
 
 const ReadingProgress = lazy(() => import("@/components/ReadingProgress"));
 
@@ -53,6 +55,7 @@ const Hub = () => {
   const [downloadAllState, setDownloadAllState] = useState<"idle" | "downloading" | "paused" | "done">("idle");
   const [downloadAllProgress, setDownloadAllProgress] = useState(0);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [hubSettings, setHubSettings] = useState<any>(null);
 
   const totalPages = 604;
 
@@ -67,6 +70,12 @@ const Hub = () => {
     const index = Math.abs(hash) % dailyVerses.length;
     const verse = dailyVerses[index];
     setVerseOfDay({ text: verse.text, surah: verse.surah, number: verse.number });
+
+    // Fetch Hub Settings
+    const unsub = onSnapshot(doc(db, "settings", "hub"), (snap) => {
+      if (snap.exists()) setHubSettings(snap.data().sections);
+    });
+    return () => unsub();
   }, []);
 
   useEffect(() => {
@@ -137,77 +146,100 @@ const Hub = () => {
     }
   }, []);
 
-  const categories = [
-    {
-      title: t("hub.spiritual"),
-      icon: <Heart className="w-5 h-5 text-rose-500" />,
-      tools: [
-        { name: t("nav.recitations"), icon: <Headphones className="w-5 h-5" />, path: "/recitations" },
-        { name: t("hub.prayerTimes"), icon: <Zap className="w-5 h-5" />, path: "/prayer-times" },
-        { name: t("hub.qibla"), icon: <Compass className="w-5 h-5" />, path: "/qibla" },
-        { name: t("hub.tasbih"), icon: <Fingerprint className="w-5 h-5" />, path: "/tasbih" },
-        { name: t("hub.globalDhikr"), icon: <Globe className="w-5 h-5" />, path: "/global-dhikr" },
-        { name: t("hub.zakat"), icon: <Calculator className="w-5 h-5" />, path: "/zakat" },
-        { name: t("hub.sadaqahLogger"), icon: <Heart className="w-5 h-5" />, path: "/sadaqah-logger" },
-        { name: t("hub.duaLibrary"), icon: <Sparkles className="w-5 h-5" />, path: "/dua-library" },
-        { name: t("hub.namesOfAllah"), icon: <Heart className="w-5 h-5" />, path: "/names-of-allah" },
-      ]
-    },
-    {
-      title: t("hub.planning"),
-      icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />,
-      tools: [
-        { name: t("hub.khatma"), icon: <BookOpen className="w-5 h-5" />, path: "/khatma" },
-        { name: t("hub.collaborativeKhatma"), icon: <Users className="w-5 h-5" />, path: "/khatma-jamaaiya" },
-        { name: t("hub.hifzTester"), icon: <GradIcon className="w-5 h-5" />, path: "/tools/hifz-tester" },
-        { name: t("hub.routineBuilder"), icon: <Zap className="w-5 h-5" />, path: "/routine-builder" },
-        { name: t("hub.fastingTracker"), icon: <Moon className="w-5 h-5" />, path: "/fasting-tracker" },
-        { name: t("hub.fridaySunan"), icon: <Sparkles className="w-5 h-5" />, path: "/friday-sunan" },
-        { name: t("hub.prayerTracker"), icon: <CheckCircle2 className="w-5 h-5" />, path: "/prayer-tracker" },
-        { name: t("hub.qiyam"), icon: <Moon className="w-5 h-5" />, path: "/embed/qiyam" },
-        { name: t("hub.khatma_external"), icon: <BookOpen className="w-5 h-5" />, path: "/embed/khatma" },
-      ]
-    },
-    {
-      title: t("hub.location"),
-      icon: <MapPin className="w-5 h-5 text-blue-500" />,
-      tools: [
-        { name: t("hub.mosqueFinder"), icon: <MapPin className="w-5 h-5" />, path: "/mosque-finder" },
-        { name: t("hub.halalPlaces"), icon: <MapPin className="w-5 h-5" />, path: "/halal-places" },
-        { name: t("hub.moonTracker"), icon: <Moon className="w-5 h-5" />, path: "/moon-tracker" },
-      ]
-    },
-    {
-      title: t("hub.knowledge"),
-      icon: <BookOpen className="w-5 h-5 text-amber-500" />,
-      tools: [
-        { name: t("ramadan.title"), icon: <Moon className="w-5 h-5" />, path: "/ramadan" },
-        { name: t("hub.library"), icon: <BookOpen className="w-5 h-5" />, path: "/library" },
-        { name: t("hub.seerahTimeline"), icon: <Calendar className="w-5 h-5" />, path: "/seerah-timeline" },
-        { name: t("hub.islamicQuiz"), icon: <Brain className="w-5 h-5" />, path: "/islamic-quiz" },
-        { name: t("hub.inheritanceCalculator"), icon: <Calculator className="w-5 h-5" />, path: "/inheritance-calculator" },
-        { name: t("hub.hajjUmrahGuide"), icon: <MapPin className="w-5 h-5" />, path: "/hajj-guide" },
-        { name: t("hub.prophetStories"), icon: <BookOpen className="w-5 h-5" />, path: "/prophet-stories" },
-        { name: t("hub.namesDirectory"), icon: <Fingerprint className="w-5 h-5" />, path: "/names-directory" },
-        { name: t("hub.propheticSunnan"), icon: <Sparkles className="w-5 h-5" />, path: "/daily-adhkar" },
-        { name: t("hub.hadith"), icon: <Book className="w-5 h-5" />, path: "/hadith" },
-        { name: t("hub.hijri"), icon: <Calendar className="w-5 h-5" />, path: "/hijri" },
-        { name: t("hub.dailyVerse"), icon: <BookOpen className="w-5 h-5" />, path: "/daily-verse" },
-        { name: t("hub.tafsir"), icon: <BookOpen className="w-5 h-5" />, path: "/tafsir" },
-        { name: t("hub.search"), icon: <Search className="w-5 h-5" />, path: "/search" },
-        { name: t("hub.tajweed"), icon: <Sparkles className="w-5 h-5" />, path: "/tajweed" },
-        { name: t("hub.guide"), icon: <BookOpen className="w-5 h-5" />, path: "/how-to-use" },
-      ]
-    },
-    {
-      title: t("hub.technical"),
-      icon: <Download className="w-5 h-5 text-indigo-500" />,
-      tools: [
-        { name: t("hub.offline.title"), icon: <Download className="w-5 h-5" />, path: "/offline" },
-        { name: t("hub.install"), icon: <Shield className="w-5 h-5" />, path: "/install" },
-      ]
-    }
-  ];
+  const categories = useMemo(() => {
+    const base = [
+      {
+        id: 'spiritual',
+        title: t("hub.spiritual"),
+        icon: <Heart className="w-5 h-5 text-rose-500" />,
+        tools: [
+          { id: 'recitations', name: t("nav.recitations"), icon: <Headphones className="w-5 h-5" />, path: "/recitations" },
+          { id: 'prayer-times', name: t("hub.prayerTimes"), icon: <Zap className="w-5 h-5" />, path: "/prayer-times" },
+          { id: 'qibla', name: t("hub.qibla"), icon: <Compass className="w-5 h-5" />, path: "/qibla" },
+          { id: 'tasbih', name: t("hub.tasbih"), icon: <Fingerprint className="w-5 h-5" />, path: "/tasbih" },
+          { id: 'global-dhikr', name: t("hub.globalDhikr"), icon: <Globe className="w-5 h-5" />, path: "/global-dhikr" },
+          { id: 'zakat', name: t("hub.zakat"), icon: <Calculator className="w-5 h-5" />, path: "/zakat" },
+          { id: 'sadaqah', name: t("hub.sadaqahLogger"), icon: <Heart className="w-5 h-5" />, path: "/sadaqah-logger" },
+          { id: 'dua', name: t("hub.duaLibrary"), icon: <Sparkles className="w-5 h-5" />, path: "/dua-library" },
+          { id: 'names', name: t("hub.namesOfAllah"), icon: <Heart className="w-5 h-5" />, path: "/names-of-allah" },
+        ]
+      },
+      {
+        id: 'planning',
+        title: t("hub.planning"),
+        icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />,
+        tools: [
+          { id: 'khatma', name: t("hub.khatma"), icon: <BookOpen className="w-5 h-5" />, path: "/khatma" },
+          { id: 'collab-khatma', name: t("hub.collaborativeKhatma"), icon: <Users className="w-5 h-5" />, path: "/khatma-jamaaiya" },
+          { id: 'hifz', name: t("hub.hifzTester"), icon: <GradIcon className="w-5 h-5" />, path: "/tools/hifz-tester" },
+          { id: 'routine', name: t("hub.routineBuilder"), icon: <Zap className="w-5 h-5" />, path: "/routine-builder" },
+          { id: 'fasting', name: t("hub.fastingTracker"), icon: <Moon className="w-5 h-5" />, path: "/fasting-tracker" },
+          { id: 'friday', name: t("hub.fridaySunan"), icon: <Sparkles className="w-5 h-5" />, path: "/friday-sunan" },
+          { id: 'prayer-tracker', name: t("hub.prayerTracker"), icon: <CheckCircle2 className="w-5 h-5" />, path: "/prayer-tracker" },
+          { id: 'qiyam', name: t("hub.qiyam"), icon: <Moon className="w-5 h-5" />, path: "/embed/qiyam" },
+          { id: 'khatma-ext', name: t("hub.khatma_external"), icon: <BookOpen className="w-5 h-5" />, path: "/embed/khatma" },
+        ]
+      },
+      {
+        id: 'location',
+        title: t("hub.location"),
+        icon: <MapPin className="w-5 h-5 text-blue-500" />,
+        tools: [
+          { id: 'mosque', name: t("hub.mosqueFinder"), icon: <MapPin className="w-5 h-5" />, path: "/mosque-finder" },
+          { id: 'halal', name: t("hub.halalPlaces"), icon: <MapPin className="w-5 h-5" />, path: "/halal-places" },
+          { id: 'moon', name: t("hub.moonTracker"), icon: <Moon className="w-5 h-5" />, path: "/moon-tracker" },
+        ]
+      },
+      {
+        id: 'knowledge',
+        title: t("hub.knowledge"),
+        icon: <BookOpen className="w-5 h-5 text-amber-500" />,
+        tools: [
+          { id: 'ramadan', name: t("ramadan.title"), icon: <Moon className="w-5 h-5" />, path: "/ramadan" },
+          { id: 'library', name: t("hub.library"), icon: <BookOpen className="w-5 h-5" />, path: "/library" },
+          { id: 'seerah', name: t("hub.seerahTimeline"), icon: <Calendar className="w-5 h-5" />, path: "/seerah-timeline" },
+          { id: 'quiz', name: t("hub.islamicQuiz"), icon: <Brain className="w-5 h-5" />, path: "/islamic-quiz" },
+          { id: 'inheritance', name: t("hub.inheritanceCalculator"), icon: <Calculator className="w-5 h-5" />, path: "/inheritance-calculator" },
+          { id: 'hajj', name: t("hub.hajjUmrahGuide"), icon: <MapPin className="w-5 h-5" />, path: "/hajj-guide" },
+          { id: 'stories', name: t("hub.prophetStories"), icon: <BookOpen className="w-5 h-5" />, path: "/prophet-stories" },
+          { id: 'names-dir', name: t("hub.namesDirectory"), icon: <Fingerprint className="w-5 h-5" />, path: "/names-directory" },
+          { id: 'sunan', name: t("hub.propheticSunnan"), icon: <Sparkles className="w-5 h-5" />, path: "/daily-adhkar" },
+          { id: 'hadith', name: t("hub.hadith"), icon: <Book className="w-5 h-5" />, path: "/hadith" },
+          { id: 'hijri', name: t("hub.hijri"), icon: <Calendar className="w-5 h-5" />, path: "/hijri" },
+          { id: 'daily-verse', name: t("hub.dailyVerse"), icon: <BookOpen className="w-5 h-5" />, path: "/daily-verse" },
+          { id: 'tafsir', name: t("hub.tafsir"), icon: <BookOpen className="w-5 h-5" />, path: "/tafsir" },
+          { id: 'search', name: t("hub.search"), icon: <Search className="w-5 h-5" />, path: "/search" },
+          { id: 'tajweed', name: t("hub.tajweed"), icon: <Sparkles className="w-5 h-5" />, path: "/tajweed" },
+          { id: 'guide', name: t("hub.guide"), icon: <BookOpen className="w-5 h-5" />, path: "/how-to-use" },
+        ]
+      },
+      {
+        id: 'technical',
+        title: t("hub.technical"),
+        icon: <Download className="w-5 h-5 text-indigo-500" />,
+        tools: [
+          { id: 'offline', name: t("hub.offline.title"), icon: <Download className="w-5 h-5" />, path: "/offline" },
+          { id: 'install', name: t("hub.install"), icon: <Shield className="w-5 h-5" />, path: "/install" },
+        ]
+      }
+    ];
+
+    if (!hubSettings) return base;
+
+    return base.map(section => {
+      const remoteSection = hubSettings.find((s: any) => s.id === section.id);
+      if (!remoteSection) return section;
+
+      return {
+        ...section,
+        tools: section.tools.map(tool => {
+          const remoteTool = remoteSection.tools.find((t: any) => t.id === tool.id);
+          if (!remoteTool) return tool;
+          return { ...tool, name: remoteTool.name || tool.name, visible: remoteTool.visible !== false };
+        }).filter(t => t.visible !== false)
+      };
+    });
+  }, [t, hubSettings]);
 
   return (
     <div className="relative min-h-screen bg-background pb-24 overflow-x-hidden">

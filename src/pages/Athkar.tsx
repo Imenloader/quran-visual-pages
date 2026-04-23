@@ -8,6 +8,9 @@ import ScrollReveal from "@/components/ScrollReveal";
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 import BackButton from "@/components/BackButton";
+import { useEffect } from "react";
+import { db } from "@/firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 import { useTheme } from "@/contexts/ThemeContext";
 import { applyTajweedColors, rules } from "@/lib/tajweedParser";
@@ -75,14 +78,40 @@ const Athkar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { toggleFavorite, isFavorite } = useFavorites();
   const { addAthkarRecited } = useUser();
+  const [categories, setCategories] = useState<AthkarCategory[]>(ATHKAR_DATA);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRemoteAthkar = async () => {
+      try {
+        const snap = await getDocs(collection(db, "content_athkar"));
+        const firestoreData = snap.docs.map(d => d.data() as AthkarCategory);
+        
+        // Merge strategy: Firestore overrides local if ID matches
+        const localData = ATHKAR_DATA;
+        const combined = [...firestoreData];
+        localData.forEach(local => {
+          if (!combined.find(c => c.id === local.id)) {
+            combined.push(local);
+          }
+        });
+        setCategories(combined);
+      } catch (err) {
+        console.error("Athkar fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRemoteAthkar();
+  }, []);
 
   // Strip Arabic diacritics for search
   const stripDiacritics = (s: string) => s.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED]/g, "");
 
   const filteredData = useMemo(() => {
     const q = stripDiacritics(searchQuery.trim());
-    if (!q) return ATHKAR_DATA;
-    return ATHKAR_DATA.map(cat => {
+    if (!q) return categories;
+    return categories.map(cat => {
       const matchingAthkar = cat.athkar.filter(
         d => (d.text && stripDiacritics(d.text).includes(q)) || 
              (d.reference && d.reference.includes(q)) || 
@@ -93,7 +122,7 @@ const Athkar = () => {
       if (matchingAthkar.length === 0) return null;
       return { ...cat, athkar: matchingAthkar };
     }).filter(Boolean) as AthkarCategory[];
-  }, [searchQuery]);
+  }, [searchQuery, categories]);
 
   const isSearching = searchQuery.trim().length > 0;
 
