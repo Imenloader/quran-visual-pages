@@ -206,6 +206,24 @@ const resources = {
         "showMenu": "Show Menu",
         "hideMenu": "Hide Menu"
       },
+      "juzViewer": {
+        "clickToReview": "Click to review",
+        "pageOf": "Page {{current}} of {{total}}",
+        "prevJuz": "Previous Juz",
+        "nextJuz": "Next Juz",
+        "prepareOffline": "Prepare this Juz for offline",
+        "downloadSuccess": "All Surahs downloaded successfully",
+        "linesHidden": "Lines hidden for page {{page}}",
+        "linesShown": "Lines shown for page {{page}}",
+        "hifzModeActive": "Hifz mode activated",
+        "hifzModeDesc": "Click on lines to hide or show them",
+        "hifzInstructions": "Hifz Instructions",
+        "pageBadge": {
+          "new": "New",
+          "review": "Review",
+          "mastered": "Mastered"
+        }
+      },
       "profile": {
         "title": "My Profile",
         "settings": "Settings",
@@ -251,7 +269,6 @@ const resources = {
         "periodicRemindersDesc": "Remind me of Athkar and Quran reading periodically",
         "reminderInterval": "Reminder Interval (minutes)",
         "notifNotSupported": "Notifications are not supported in your browser",
-        "accountManagement": "Account Management",
         "editAccountDesc": "Edit your personal data or reset",
         "athkarMorning": "Morning Athkar",
         "athkarEvening": "Evening Athkar",
@@ -709,6 +726,7 @@ const resources = {
         "linesShown": "تم إظهار أسطر الصفحة {{page}}",
         "hifzModeActive": "تم تفعيل وضع التحفيظ والمراجعة",
         "hifzModeDesc": "انقر على الأسطر لإخفائها أو إظهارها",
+        "hifzInstructions": "تعليمات الحفظ والمراجعة",
         "pageBadge": {
           "new": "حفظ جديد",
           "review": "مراجعة",
@@ -760,7 +778,6 @@ const resources = {
         "periodicRemindersDesc": "تذكيري بالأذكار وقراءة القرآن بشكل دوري",
         "reminderInterval": "فترة التذكير (بالدقائق)",
         "notifNotSupported": "التنبيهات غير مدعومة في متصفحك",
-        "accountManagement": "إدارة الحساب",
         "editAccountDesc": "تعديل بياناتك الشخصية أو إعادة الضبط",
         "athkarMorning": "أذكار الصباح",
         "athkarEvening": "أذكار المساء",
