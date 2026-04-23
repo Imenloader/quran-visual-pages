@@ -16,14 +16,48 @@ import {
 import QuranHeader from "@/components/QuranHeader";
 import ScrollReveal from "@/components/ScrollReveal";
 import BackButton from "@/components/BackButton";
-import { prophetStories, ProphetStory } from "@/data/prophetStoriesData";
+import { prophetStories, ProphetStory as LocalProphetStory } from "@/data/prophetStoriesData";
 import { useWakeLock } from "@/hooks/useWakeLock";
+import { db } from "@/firebase";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 
 const ProphetStories = () => {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
-  const [selectedStory, setSelectedStory] = useState<ProphetStory | null>(null);
+  const [selectedStory, setSelectedStory] = useState<any | null>(null);
   const { requestWakeLock, releaseWakeLock, isActive } = useWakeLock();
+  const [remoteStories, setRemoteStories] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchRemote = async () => {
+      try {
+        const q = query(collection(db, "content_prophet_stories"), orderBy("nameAr"));
+        const snap = await getDocs(q);
+        setRemoteStories(snap.docs.map(d => ({
+          ...d.data(),
+          docId: d.id,
+          // Map remote fields to local format if they differ
+          name: d.data().nameAr,
+          nameEn: d.data().nameEn,
+          title: d.data().era,
+          titleEn: d.data().eraEn,
+          summary: (d.data().descriptionAr || "").slice(0, 100) + "...",
+          summaryEn: (d.data().descriptionEn || "").slice(0, 100) + "...",
+          content: d.data().descriptionAr,
+          contentEn: d.data().descriptionEn,
+          period: d.data().era,
+          lessons: [],
+          lessonsEn: [],
+          quranVerses: []
+        })));
+      } catch (err) {
+        console.error("ProphetStories fetch error:", err);
+      }
+    };
+    fetchRemote();
+  }, []);
+
+  const allStories = [...remoteStories, ...prophetStories];
 
   useEffect(() => {
     if (selectedStory) {
@@ -55,7 +89,7 @@ const ProphetStories = () => {
             <ScrollReveal>
               <div className="relative flex items-center gap-4 overflow-x-auto pb-8 no-scrollbar">
                 <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-border -translate-y-1/2 z-0" />
-                {prophetStories.map((story, idx) => (
+                {allStories.map((story, idx) => (
                   <div key={story.id} className="relative z-10 flex flex-col items-center min-w-[150px] group">
                     <div className="w-4 h-4 rounded-full bg-primary border-4 border-background mb-4 group-hover:scale-150 transition-transform" />
                     <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-2">{story.period}</span>
@@ -72,7 +106,7 @@ const ProphetStories = () => {
 
             {/* Grid View */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {prophetStories.map((story, idx) => (
+              {allStories.map((story, idx) => (
                 <ScrollReveal key={story.id} delay={idx * 0.1}>
                   <div 
                     onClick={() => setSelectedStory(story)}

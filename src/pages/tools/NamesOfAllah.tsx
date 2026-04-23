@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { NAMES_OF_ALLAH, type NameOfAllah } from "@/data/namesOfAllahData";
 import BackButton from "@/components/BackButton";
+import { useEffect } from "react";
+import { db } from "@/firebase";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 
 const NamesOfAllah = () => {
   const { t, i18n } = useTranslation();
@@ -13,14 +16,33 @@ const NamesOfAllah = () => {
   const [selectedName, setSelectedName] = useState<NameOfAllah | null>(null);
   const isAr = i18n.language === "ar";
 
+  const [remoteNames, setRemoteNames] = useState<NameOfAllah[]>([]);
+
+  useEffect(() => {
+    const fetchRemote = async () => {
+      try {
+        const q = query(collection(db, "content_names_of_allah"), orderBy("id", "asc"));
+        const snap = await getDocs(q);
+        setRemoteNames(snap.docs.map(d => d.data() as NameOfAllah));
+      } catch (err) {
+        console.error("NamesOfAllah fetch error:", err);
+      }
+    };
+    fetchRemote();
+  }, []);
+
+  const combinedNames = useMemo(() => {
+    return [...remoteNames, ...NAMES_OF_ALLAH];
+  }, [remoteNames]);
+
   const filteredNames = useMemo(() => {
-    return NAMES_OF_ALLAH.filter(n => 
+    return combinedNames.filter(n => 
       n.name.includes(searchQuery) || 
       n.transliteration.toLowerCase().includes(searchQuery.toLowerCase()) ||
       n.meaning.en.toLowerCase().includes(searchQuery.toLowerCase()) ||
       n.meaning.ar.includes(searchQuery)
     );
-  }, [searchQuery]);
+  }, [searchQuery, combinedNames]);
 
   return (
     <div className="min-h-screen bg-background pb-24 pt-6 px-4">

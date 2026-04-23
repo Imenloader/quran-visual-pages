@@ -57,6 +57,8 @@ const AdminDashboard = () => {
     { id: 'athkar', title: "إدارة الأذكار", icon: <MessageSquare />, path: "/admin/athkar", color: "bg-rose-500/10 text-rose-500" },
     { id: 'hub', title: "إدارة المركز (Hub)", icon: <Layout />, path: "/admin/hub", color: "bg-indigo-500/10 text-indigo-500" },
     { id: 'quiz', title: "إدارة المسابقات", icon: <Brain />, path: "/admin/quiz", color: "bg-orange-500/10 text-orange-500" },
+    { id: 'names', title: "إدارة الأسماء الحسنى", icon: <Heart />, path: "/admin/names", color: "bg-rose-500/10 text-rose-500" },
+    { id: 'stories', title: "إدارة قصص الأنبياء", icon: <BookOpen />, path: "/admin/stories", color: "bg-amber-500/10 text-amber-500" },
     { id: 'users', title: "المستخدمين", icon: <Users />, path: "/admin/users", color: "bg-green-500/10 text-green-500" },
     { id: 'settings', title: "إعدادات النظام", icon: <Settings />, path: "/admin/settings", color: "bg-purple-500/10 text-purple-500" },
     { id: 'analytics', title: "الإحصائيات", icon: <BarChart3 />, path: "/admin/analytics", color: "bg-amber-500/10 text-amber-500" },
