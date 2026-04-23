@@ -2,10 +2,9 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ===============================================================
-    // Helper Functions
-    // ===============================================================
-
+    // ----------------------------------------------------------------------
+    // HELPER FUNCTIONS
+    // ----------------------------------------------------------------------
     function isAuthenticated() {
       return request.auth != null;
     }
@@ -23,60 +22,37 @@ service cloud.firestore {
         );
     }
 
-    // ===============================================================
-    // Collection Rules
-    // ===============================================================
-
-    // Global Dhikr counter — public read, anyone can contribute
+    // ----------------------------------------------------------------------
+    // GLOBAL STATS
+    // ----------------------------------------------------------------------
     match /stats/dhikr {
       allow read: if true;
       allow write: if true;
     }
 
-    match /users/{userId} {
-      // Allow any authenticated user to read profiles (needed for leaderboards)
-      allow read: if isAuthenticated();
-      
-      // Allow only the owner to create/update their own profile
-      // Hardened: Prevent users from changing their own 'role' to 'admin'
-      allow create: if isOwner(userId) && request.resource.data.role == 'user';
-      allow update: if (isOwner(userId) && request.resource.data.role == resource.data.role) || isAdmin();
+    // ----------------------------------------------------------------------
+    // APP CONTENT (CMS)
+    // ----------------------------------------------------------------------
+    
+    // List of all content collections managed by the Admin Panel
+    match /content_quiz/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /content_athkar/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /content_dua/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /content_hadiths/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /content_seerah/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /content_library/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /content_ramadan/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /content_prophet_stories/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /content_names_allah/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /content_sunan_friday/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /content_routine/{id} { allow read: if true; allow write: if isAdmin(); }
 
-      // RECURSIVE RULE: Allow owners full access to their personal sub-collections
-      // This covers 'quran-favorites', 'quran-favorite-collections', 'data' (bookmarks), etc.
-      match /{allPaths=**} {
-        allow read, write: if isOwner(userId);
-      }
-    }
+    // ----------------------------------------------------------------------
+    // SETTINGS & SERVICES
+    // ----------------------------------------------------------------------
 
-    match /khatmas/{khatmaId} {
-      allow read: if isAuthenticated();
-      
-      // Allow creation by any authenticated user
-      allow create: if isAuthenticated();
-      
-      // Allow update by any authenticated user (for claiming portions)
-      // Hardened: Prevent changing the original creator or creation date
-      allow update: if isAuthenticated() && 
-                    request.resource.data.createdBy == resource.data.createdBy &&
-                    request.resource.data.createdAt == resource.data.createdAt;
-                    
-      // Only the creator or an admin can delete a khatma
-      allow delete: if isAuthenticated() && (resource.data.createdBy == request.auth.uid || isAdmin());
-    }
-
-    // ===============================================================
-    // CMS & Global Content Management
-    // ===============================================================
-
-    // All content library collections (quiz, duas, hadiths, etc.)
-    match /content_{collectionId}/{document=**} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    // Global App Settings (Maintenance mode, feature flags, etc.)
-    match /settings_{collectionId}/{document=**} {
+    // Global App Settings (Maintenance, Maintenance mode, etc.)
+    match /settings_global/{id} {
       allow read: if true;
       allow write: if isAdmin();
     }
@@ -85,6 +61,38 @@ service cloud.firestore {
     match /services/{docId} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    // ----------------------------------------------------------------------
+    // USERS
+    // ----------------------------------------------------------------------
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      
+      // Prevent users from changing their own 'role' during creation
+      allow create: if isOwner(userId) && (!request.resource.data.keys().contains('role') || request.resource.data.role == 'user');
+      
+      // Prevent users from changing their own 'role' during update
+      allow update: if (isOwner(userId) && (!request.resource.data.keys().contains('role') || request.resource.data.role == resource.data.role)) || isAdmin();
+
+      // Recursive rule for personal sync data (e.g., quran-favorites, data/bookmarks)
+      match /{allPaths=**} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // ----------------------------------------------------------------------
+    // KHATMAS
+    // ----------------------------------------------------------------------
+    match /khatmas/{khatmaId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      
+      allow update: if isAuthenticated() && 
+                    request.resource.data.createdBy == resource.data.createdBy &&
+                    request.resource.data.createdAt == resource.data.createdAt;
+                    
+      allow delete: if isAuthenticated() && (resource.data.createdBy == request.auth.uid || isAdmin());
     }
   }
 }
