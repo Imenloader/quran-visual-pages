@@ -18,9 +18,8 @@ import BackButton from "@/components/BackButton";
 
 import { useUser } from "@/contexts/UserContext";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
-import { auth, storage } from "@/firebase";
+import { auth } from "@/firebase";
 import { signOut } from "firebase/auth";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import AuthModal from "@/components/AuthModal";
 
 type ThemeMode = "light" | "dark" | "sepia";
@@ -77,25 +76,27 @@ const Profile = () => {
     }
 
     setIsUploadingAvatar(true);
-    console.log("Starting avatar upload for file:", file.name);
+    console.log("Starting avatar conversion to Base64...");
 
     try {
-      const storageRef = ref(storage, `avatars/${auth.currentUser.uid}/${Date.now()}_${file.name}`);
-      console.log("Storage ref created:", storageRef.fullPath);
+      const reader = new FileReader();
       
-      const snapshot = await uploadBytes(storageRef, file);
-      console.log("Upload bytes completed, getting download URL...");
-      
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      console.log("Download URL obtained:", downloadURL);
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(file);
+      });
 
-      updateProfile({ avatar: downloadURL });
-      toast.success(t("profile.avatarUploaded") || "Profile picture uploaded successfully!");
+      const base64String = await base64Promise;
+      console.log("Conversion complete, saving to profile...");
+
+      await updateProfile({ avatar: base64String });
+      toast.success(t("profile.avatarUploaded") || "Profile picture updated successfully!");
     } catch (error) {
-      console.error("Avatar upload error details:", error);
-      toast.error(t("profile.uploadFailed") || "Failed to upload profile picture");
+      console.error("Avatar processing error:", error);
+      toast.error(t("profile.uploadFailed") || "Failed to process profile picture");
     } finally {
-      console.log("Avatar upload process finished.");
+      console.log("Avatar process finished.");
       setIsUploadingAvatar(false);
     }
   };
