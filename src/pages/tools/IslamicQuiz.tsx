@@ -12,8 +12,6 @@ import { QUIZ_QUESTIONS, Question } from "@/data/quizData";
 const quizQuestions = QUIZ_QUESTIONS;
 
 const IslamicQuiz = () => {
-
-const IslamicQuiz = () => {
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
   
