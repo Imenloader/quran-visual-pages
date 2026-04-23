@@ -131,21 +131,27 @@ const SadaqahLogger = () => {
         {/* Stats & Form Column */}
         <div className="lg:col-span-5 space-y-8">
           {/* Total Stats */}
-          <div className="bento-card !p-8 bg-rose-500 text-white overflow-hidden relative group">
-            <div className="absolute inset-0 pattern-islamic opacity-10 group-hover:scale-110 transition-transform duration-1000" />
-            <div className="relative z-10 space-y-4">
+          <div className="bento-card !p-8 bg-gradient-to-br from-emerald-600 to-teal-700 text-white overflow-hidden relative group shadow-xl shadow-emerald-500/20">
+            <div className="absolute inset-0 pattern-islamic opacity-20 group-hover:scale-110 transition-transform duration-1000" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl" />
+            <div className="relative z-10 space-y-6">
               <div className="flex justify-between items-start">
-                <div className="p-3 rounded-2xl bg-white/20 backdrop-blur-md">
-                  <TrendingUp className="w-6 h-6" />
+                <div className="p-3.5 rounded-2xl bg-white/20 backdrop-blur-md shadow-lg border border-white/20">
+                  <HandHeart className="w-7 h-7 text-white" />
                 </div>
                 <div className="text-end">
-                  <p className="text-xs font-bold uppercase tracking-widest opacity-80">{isAr ? "إجمالي العطاء" : "Total Giving"}</p>
-                  <p className="text-4xl font-bold">{totalAmount.toLocaleString()} <span className="text-sm font-normal">{isAr ? "ج.م" : "EGP"}</span></p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 mb-1">{isAr ? "إجمالي العطاء" : "Total Giving"}</p>
+                  <div className="flex items-baseline justify-end gap-2">
+                    <p className="text-5xl font-black tracking-tighter">{totalAmount.toLocaleString()}</p>
+                    <span className="text-sm font-bold opacity-90">{isAr ? "ج.م" : "EGP"}</span>
+                  </div>
                 </div>
               </div>
-              <div className="pt-4 border-t border-white/20 flex justify-between text-sm">
-                <span>{isAr ? "عدد المرات" : "Total Entries"}</span>
-                <span className="font-bold">{entries.length}</span>
+              <div className="pt-5 border-t border-white/20 flex justify-between items-center text-xs">
+                <span className="font-bold opacity-90">{isAr ? "عدد المرات المسجلة" : "Total Entries"}</span>
+                <div className="px-3 py-1 rounded-full bg-white/20 font-black text-sm">
+                  {entries.length}
+                </div>
               </div>
             </div>
           </div>
