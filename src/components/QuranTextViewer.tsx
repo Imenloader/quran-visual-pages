@@ -37,17 +37,17 @@ interface QuranTextViewerProps {
   readOnly?: boolean;
 }
 
-const QuranTextViewer: React.FC<QuranTextViewerProps> = ({ 
-  pageNumber, 
-  juzNumber, 
+const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
+  pageNumber,
+  juzNumber,
   hifzMode = false,
   initialVerseKey,
   onVerseInView,
   readOnly = false
 }) => {
   const { theme, tajweedMode, fontSizes } = useTheme();
-  const { 
-    currentVerseKey, syncMode, setSyncMode, 
+  const {
+    currentVerseKey, syncMode, setSyncMode,
     isPlaying, togglePlay, skipNextAyah, skipPrevAyah,
     playAyah, selectedEdition, setSelectedEdition, editions,
     audioLoading, currentAyahs, currentAyahIndex, currentSurah
@@ -57,7 +57,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
   const [localText, setLocalText] = useState<string | null>(null);
   const [currentJuz, setCurrentJuz] = useState<number | null>(null);
   const [hiddenVerses, setHiddenVerses] = useState<Set<number>>(new Set());
-  
+
   // Tafsir State
   const [selectedVerse, setSelectedVerse] = useState<VerseData | null>(null);
   const [tafsirContent, setTafsirContent] = useState<string | null>(null);
@@ -120,9 +120,9 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
   useEffect(() => {
     const loadText = () => {
       setLoading(true);
-      
+
       let targetJuz = juzNumber;
-      
+
       if (!targetJuz && pageNumber) {
         // Find which Juz this page belongs to
         const juz = juzData.find(j => pageNumber >= j.startPage && pageNumber <= j.endPage);
@@ -133,7 +133,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
         setCurrentJuz(targetJuz);
         setLocalText(juzTextData[targetJuz as number] || null);
       }
-      
+
       setLoading(false);
     };
 
@@ -171,7 +171,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
     if (currentJuz && !readOnly) {
       const today = new Date().toISOString().split('T')[0];
       const history = JSON.parse(localStorage.getItem("quran-reading-history-daily") || "[]");
-      
+
       const dayIndex = history.findIndex((h: { date: string; pages: number }) => h.date === today);
       if (dayIndex >= 0) {
         // We only increment if it's a new "session" or just once per page view
@@ -245,7 +245,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
             يرجى استخدام "المستورد السحري" في الإعدادات لإضافة نص هذا الجزء يدوياً.
           </p>
         </div>
-        <Link 
+        <Link
           to="/settings"
           className="px-6 py-3 rounded-xl bg-accent/10 text-accent font-serif font-bold hover:bg-accent/20 transition-all"
         >
@@ -256,7 +256,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
   }
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="w-full max-w-5xl mx-auto px-4 md:px-8 py-16 font-quran text-center relative"
@@ -307,11 +307,11 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
         </div>
       )}
 
-      <div 
+      <div
         className="text-primary text-center whitespace-pre-wrap break-words selection:bg-accent/30"
-        style={{ 
+        style={{
           fontSize: `${fontSizes.reading || 32}px`,
-          lineHeight: "2.2", 
+          lineHeight: "2.2",
           wordSpacing: "-0.05em",
           paddingBottom: "4rem",
           fontFeatureSettings: '"kern" 1, "liga" 1, "calt" 1'
@@ -321,8 +321,8 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
           const verseMeta = verse as VerseDataWithBasmalah;
           const isHidden = hifzMode && hiddenVerses.has(index);
           const isPlaying = currentVerseKey === verse.fullKey;
-          const isNewSurah = index === 0 || versesData[index-1].surahNumber !== verse.surahNumber;
-          
+          const isNewSurah = index === 0 || versesData[index - 1].surahNumber !== verse.surahNumber;
+
           return (
             <React.Fragment key={index}>
               {isNewSurah && (
@@ -334,7 +334,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
                     </div>
                     <div className="flex-1 h-px bg-gradient-to-r from-transparent to-accent/30" />
                   </div>
-                  
+
                   {verseMeta.showBasmalah && (
                     <div className="text-4xl md:text-5xl font-quran text-primary/80 py-4">
                       بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
@@ -348,8 +348,8 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
                 data-verse-key={verse.fullKey}
                 onClick={() => handleVerseClick(verse, index)}
                 className={`inline-block transition-all duration-500 cursor-pointer rounded-lg px-1 ${
-                  isHidden 
-                    ? "blur-2xl opacity-5 grayscale scale-95 bg-muted/20" 
+                  isHidden
+                    ? "blur-2xl opacity-5 grayscale scale-95 bg-muted/20"
                     : isPlaying
                       ? "bg-accent/20 ring-2 ring-accent/30 scale-105 shadow-lg shadow-accent/10"
                       : "blur-0 opacity-100 scale-100 hover:bg-accent/5"
@@ -365,7 +365,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
           );
         })}
       </div>
-      
+
       <div className="mt-16 flex flex-col items-center gap-4 border-t border-border/40 pt-12">
         <div className="w-12 h-12 rounded-full border-2 border-accent/20 flex items-center justify-center text-accent font-serif text-lg">
           {toArabicNumber(currentJuz)}
@@ -379,7 +379,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
           <SheetHeader className="text-right pb-6 border-b border-border/40">
             <div className="flex items-center justify-between">
               <div className="flex gap-2">
-                <button 
+                <button
                   onClick={() => {
                     if (selectedVerse) {
                       playAyah(selectedVerse.surahNumber, selectedVerse.ayahNumber);
@@ -389,28 +389,28 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
                 >
                   <Play size={18} />
                 </button>
-                <button 
+                <button
                   onClick={() => setShowShareCard(true)}
                   className="p-2 rounded-full hover:bg-accent/10 text-accent transition-colors"
                 >
                   <Share2 size={18} />
                 </button>
                 <div className="relative">
-                  <button 
+                  <button
                     onClick={() => setShowCollections(!showCollections)}
                     className={cn(
                       "p-2 rounded-full transition-all",
-                      selectedVerse && isFavorite("verse", selectedVerse.fullKey) 
-                        ? "bg-red-500/10 text-red-500" 
+                      selectedVerse && isFavorite("verse", selectedVerse.fullKey)
+                        ? "bg-red-500/10 text-red-500"
                         : "hover:bg-accent/10 text-accent"
                     )}
                   >
                     <Heart size={18} fill={selectedVerse && isFavorite("verse", selectedVerse.fullKey) ? "currentColor" : "none"} />
                   </button>
-                  
+
                   <AnimatePresence>
                     {showCollections && (
-                      <motion.div 
+                      <motion.div
                         initial={{ opacity: 0, y: 10, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.9 }}
@@ -420,13 +420,13 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
                           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{t("favorites.addToCollection") || "أضف إلى مجموعة"}</p>
                         </div>
                         <div className="max-h-48 overflow-y-auto">
-                          <button 
+                          <button
                             onClick={() => {
                               if (selectedVerse) {
-                                toggleFavorite({ 
-                                  type: "verse", id: selectedVerse.fullKey, 
-                                  surahNumber: selectedVerse.surahNumber, 
-                                  verseNumber: selectedVerse.ayahNumber, 
+                                toggleFavorite({
+                                  type: "verse", id: selectedVerse.fullKey,
+                                  surahNumber: selectedVerse.surahNumber,
+                                  verseNumber: selectedVerse.ayahNumber,
                                   surahName: selectedVerse.surahName,
                                   text: selectedVerse.text
                                 });
@@ -439,14 +439,14 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
                             {!selectedVerse?.collectionId && <Check size={12} />}
                           </button>
                           {collections.map(col => (
-                            <button 
+                            <button
                               key={col.id}
                               onClick={() => {
                                 if (selectedVerse) {
-                                  toggleFavorite({ 
-                                    type: "verse", id: selectedVerse.fullKey, 
-                                    surahNumber: selectedVerse.surahNumber, 
-                                    verseNumber: selectedVerse.ayahNumber, 
+                                  toggleFavorite({
+                                    type: "verse", id: selectedVerse.fullKey,
+                                    surahNumber: selectedVerse.surahNumber,
+                                    verseNumber: selectedVerse.ayahNumber,
                                     surahName: selectedVerse.surahName,
                                     text: selectedVerse.text,
                                     collectionId: col.id
@@ -481,7 +481,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
               </SheetDescription>
             </SheetHeader>
           </SheetHeader>
-          
+
           <div className="mt-8 overflow-y-auto max-h-[calc(60vh-150px)] px-2 custom-scrollbar" dir="rtl">
             {tafsirLoading ? (
               <div className="flex flex-col items-center justify-center py-12 gap-4">
@@ -516,10 +516,10 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
 
       <AnimatePresence>
         {showShareCard && selectedVerse && (
-          <VerseShareCard 
-            verse={selectedVerse} 
+          <VerseShareCard
+            verse={selectedVerse}
             translation={tafsirContent || undefined}
-            onClose={() => setShowShareCard(false)} 
+            onClose={() => setShowShareCard(false)}
           />
         )}
       </AnimatePresence>
