@@ -39,6 +39,14 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
+      - name: Fix Android Build Tools
+        run: |
+          BUILD_TOOLS_PATH="$ANDROID_HOME/build-tools"
+          LATEST_VERSION=$(ls $BUILD_TOOLS_PATH | sort -V | tail -n 1)
+          echo "Linking $LATEST_VERSION to 29.0.3"
+          sudo mkdir -p /usr/local/lib/android/sdk/build-tools
+          sudo ln -s $BUILD_TOOLS_PATH/$LATEST_VERSION /usr/local/lib/android/sdk/build-tools/29.0.3
+
       - name: Build Unsigned Release (APK & AAB)
         run: |
           cd android
@@ -54,7 +62,6 @@ jobs:
           alias: ${{ secrets.ANDROID_KEY_ALIAS }}
           keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
-          buildToolsVersion: "34.0.0"
 
       - name: Sign Android AAB
         uses: r0adkll/sign-android-release@v1
@@ -65,7 +72,6 @@ jobs:
           alias: ${{ secrets.ANDROID_KEY_ALIAS }}
           keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
-          buildToolsVersion: "34.0.0"
 
       - name: Get Digital Fingerprints (SHA)
         run: |
