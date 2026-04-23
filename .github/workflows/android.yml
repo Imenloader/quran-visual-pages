@@ -34,25 +34,39 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Build Unsigned Release APK
+      - name: Build Unsigned Release (APK & AAB)
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew assembleRelease bundleRelease
 
-      - name: Sign Android Release
+      - name: Sign Android APK
         uses: r0adkll/sign-android-release@v1
-        id: sign_app
+        id: sign_apk
         with:
           releaseDirectory: android/app/build/outputs/apk/release
           signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           alias: ${{ secrets.ANDROID_KEY_ALIAS }}
           keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          buildToolsVersion: "34.0.0"
 
-      - name: Upload Signed APK
+      - name: Sign Android AAB
+        uses: r0adkll/sign-android-release@v1
+        id: sign_aab
+        with:
+          releaseDirectory: android/app/build/outputs/bundle/release
+          signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          alias: ${{ secrets.ANDROID_KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          buildToolsVersion: "34.0.0"
+
+      - name: Upload Signed Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: quraaniat-signed-release-apk
-          path: ${{ steps.sign_app.outputs.signedReleaseFile }}
+          name: quraaniat-release-files
+          path: |
+            ${{ steps.sign_apk.outputs.signedReleaseFile }}
+            ${{ steps.sign_aab.outputs.signedReleaseFile }}
           retention-days: 30
