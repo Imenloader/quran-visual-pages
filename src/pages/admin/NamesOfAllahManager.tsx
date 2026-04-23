@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import BackButton from "@/components/BackButton";
 import { NAMES_OF_ALLAH, type NameOfAllah } from "@/data/namesOfAllahData";
 
 const NamesOfAllahManager = () => {
