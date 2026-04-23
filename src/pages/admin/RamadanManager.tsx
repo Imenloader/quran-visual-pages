@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
+import BackButton from "@/components/BackButton";
+
 const RamadanManager = () => {
   const [content, setContent] = useState({
     virtues: [] as string[],
@@ -61,12 +63,15 @@ const RamadanManager = () => {
   return (
     <div className="p-6 space-y-8 max-w-5xl mx-auto pb-24">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Moon className="text-indigo-400" />
-            إدارة محتوى رمضان
-          </h1>
-          <p className="text-muted-foreground mt-1">تحديث الفضائل، الأحكام، والمهام اليومية</p>
+        <div className="flex items-center gap-4">
+          <BackButton />
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-3">
+              <Moon className="text-indigo-400" />
+              إدارة محتوى رمضان
+            </h1>
+            <p className="text-muted-foreground mt-1">تحديث الفضائل، الأحكام، والمهام اليومية</p>
+          </div>
         </div>
         <Button onClick={handleSave} disabled={saving} className="rounded-xl gap-2 px-8">
           <Save size={18} />

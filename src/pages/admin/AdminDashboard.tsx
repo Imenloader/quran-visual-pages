@@ -43,23 +43,51 @@ const AdminDashboard = () => {
     totalPoints: 0
   });
   const [loading, setLoading] = useState(true);
+  const [activities, setActivities] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchAdminData = async () => {
       try {
         const usersSnap = await getDocs(collection(db, "users"));
+        const khatmasSnap = await getDocs(collection(db, "khatmas"));
+        
         setStats({
           totalUsers: usersSnap.size,
-          activeQuests: 12, // Mock for now
+          activeQuests: khatmasSnap.size,
           totalPoints: usersSnap.docs.reduce((acc, doc) => acc + (doc.data().points || 0), 0)
         });
+
+        const activityList: any[] = [];
+        usersSnap.docs
+          .sort((a, b) => (b.data().joinedDate || 0) - (a.data().joinedDate || 0))
+          .slice(0, 3)
+          .forEach(d => activityList.push({
+            id: d.id,
+            user: d.data().displayName || "مستخدم جديد",
+            action: "انضم إلى المنصة",
+            time: "جديد",
+            icon: <Users className="w-4 h-4 text-green-500" />
+          }));
+
+        khatmasSnap.docs
+          .sort((a, b) => (b.data().createdAt?.seconds || 0) - (a.data().createdAt?.seconds || 0))
+          .slice(0, 3)
+          .forEach(d => activityList.push({
+            id: d.id,
+            user: d.data().createdBy?.slice(0, 5) || "مجهول",
+            action: `أنشأ ختمة: ${d.data().title || "بدون عنوان"}`,
+            time: "مؤخراً",
+            icon: <LucideBook className="w-4 h-4 text-blue-500" />
+          }));
+
+        setActivities(activityList.slice(0, 5));
       } catch (error) {
         console.error("Admin Stats Error:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchStats();
+    fetchAdminData();
   }, []);
 
   const menuItems = [
@@ -151,18 +179,17 @@ const AdminDashboard = () => {
         <div className="mt-8">
           <h2 className="text-lg font-bold font-naskh mb-4 px-2">آخر النشاطات</h2>
           <div className="bg-card border border-border rounded-3xl p-4 space-y-4">
-            <ActivityItem 
-              user="أحمد" 
-              action="أكمل ختمة جماعية" 
-              time="منذ 5 دقائق" 
-              icon={<MessageSquare className="w-4 h-4 text-blue-500" />}
-            />
-            <ActivityItem 
-              user="سارة" 
-              action="حصلت على وسام جديد" 
-              time="منذ 12 دقيقة" 
-              icon={<TrendingUp className="w-4 h-4 text-green-500" />}
-            />
+            {activities.length > 0 ? activities.map(act => (
+              <ActivityItem 
+                key={act.id}
+                user={act.user} 
+                action={act.action} 
+                time={act.time} 
+                icon={act.icon}
+              />
+            )) : (
+              <p className="text-center py-8 text-muted-foreground text-xs font-naskh">لا توجد نشاطات حديثة</p>
+            )}
           </div>
         </div>
       </div>

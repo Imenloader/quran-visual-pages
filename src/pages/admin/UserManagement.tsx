@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 
+import BackButton from "@/components/BackButton";
+
 interface UserProfile {
   id: string;
   name: string;
@@ -62,12 +64,15 @@ const UserManagement = () => {
 
   return (
     <div className="p-6 space-y-8 max-w-6xl mx-auto pb-24">
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-3">
-          <Users className="text-emerald-500" />
-          إدارة المستخدمين
-        </h1>
-        <p className="text-muted-foreground mt-1">مراقبة الأعضاء وتعيين المشرفين</p>
+      <div className="flex items-center gap-4 mb-8">
+        <BackButton />
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-3">
+            <Users className="text-emerald-500" />
+            إدارة المستخدمين
+          </h1>
+          <p className="text-muted-foreground mt-1">مراقبة الأعضاء وتعيين المشرفين</p>
+        </div>
       </div>
 
       <div className="relative max-w-md">

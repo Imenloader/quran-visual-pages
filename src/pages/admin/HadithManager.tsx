@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
+import BackButton from "@/components/BackButton";
+
 interface Hadith {
   docId?: string;
   text: string;
@@ -93,12 +95,15 @@ const HadithManager = () => {
   return (
     <div className="p-6 space-y-8 max-w-6xl mx-auto pb-24">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Scroll className="text-amber-500" />
-            إدارة الأحاديث النبوية
-          </h1>
-          <p className="text-muted-foreground mt-1">إضافة وتوثيق الأحاديث النبوية في المكتبة</p>
+        <div className="flex items-center gap-4">
+          <BackButton />
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-3">
+              <Scroll className="text-amber-500" />
+              إدارة الأحاديث النبوية
+            </h1>
+            <p className="text-muted-foreground mt-1">إضافة وتوثيق الأحاديث النبوية في المكتبة</p>
+          </div>
         </div>
         <Button onClick={() => setIsAdding(true)} className="rounded-2xl gap-2 shadow-lg shadow-primary/20">
           <Plus size={18} />

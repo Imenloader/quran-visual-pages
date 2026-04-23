@@ -51,22 +51,30 @@ const AthkarManager = () => {
     try {
       const snap = await getDocs(collection(db, "content_athkar"));
       const firestoreData = snap.docs.map(d => d.data() as AthkarCategory);
-      
-      // Combine with local data (Hybrid Approach)
-      // Firestore data takes priority for the same ID
-      const localData = ATHKAR_DATA;
-      const combined = [...firestoreData];
-      
-      localData.forEach(local => {
-        if (!combined.find(c => c.id === local.id)) {
-          combined.push(local);
-        }
-      });
-
-      setCategories(combined);
+      setCategories(firestoreData);
     } catch (error) {
       console.error("Fetch Athkar Error:", error);
-      setCategories(ATHKAR_DATA); // Fallback to local
+      toast.error("فشل تحميل الأذكار");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSeed = async () => {
+    if (!window.confirm("هل تريد نسخ الأذكار الافتراضية من التطبيق إلى قاعدة البيانات؟")) return;
+    setLoading(true);
+    try {
+      const batchPromises = ATHKAR_DATA.map(cat => 
+        setDoc(doc(db, "content_athkar", cat.id), {
+          ...cat,
+          createdAt: Date.now()
+        })
+      );
+      await Promise.all(batchPromises);
+      toast.success("تم نسخ الأذكار بنجاح");
+      fetchCategories();
+    } catch (err) {
+      toast.error("فشل النسخ");
     } finally {
       setLoading(false);
     }
@@ -161,6 +169,18 @@ const AthkarManager = () => {
                 </button>
               </div>
             ))}
+
+            {categories.length === 0 && (
+              <div className="col-span-full text-center py-24 bg-card border border-border rounded-[2.5rem] space-y-4">
+                <p className="text-muted-foreground font-naskh text-sm">لا توجد أذكار في قاعدة البيانات</p>
+                <button 
+                  onClick={handleSeed}
+                  className="px-8 py-3 bg-primary text-white rounded-2xl text-sm font-bold shadow-xl"
+                >
+                  نسخ الأذكار الافتراضية لقاعدة البيانات
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

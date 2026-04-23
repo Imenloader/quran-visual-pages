@@ -106,6 +106,7 @@ const SeerahManager = lazyWithRetry(() => import("./pages/admin/SeerahManager"))
 const UserManagement = lazyWithRetry(() => import("./pages/admin/UserManagement"));
 const RoutineManager = lazyWithRetry(() => import("./pages/admin/RoutineManager"));
 const LibraryManager = lazyWithRetry(() => import("./pages/admin/LibraryManager"));
+const AnalyticsPage = lazyWithRetry(() => import("./pages/admin/AnalyticsPage"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -294,6 +295,7 @@ const App = () => {
                           <Route path="/admin/users" element={<UserManagement />} />
                           <Route path="/admin/routine" element={<RoutineManager />} />
                           <Route path="/admin/library" element={<LibraryManager />} />
+              <Route path="/admin/analytics" element={<AnalyticsPage />} />
                           {/* Future admin modules will be added here */}
                         </Route>
 

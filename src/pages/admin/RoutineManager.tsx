@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
+import BackButton from "@/components/BackButton";
+
 interface RoutineTask {
   id: string;
   titleAr: string;
@@ -62,12 +64,15 @@ const RoutineManager = () => {
   return (
     <div className="p-6 space-y-8 max-w-5xl mx-auto pb-24">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Zap className="text-amber-500" />
-            إدارة الروتين الروحاني
-          </h1>
-          <p className="text-muted-foreground mt-1">تحديد المهام اليومية الصباحية والمسائية</p>
+        <div className="flex items-center gap-4">
+          <BackButton />
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-3">
+              <Zap className="text-amber-500" />
+              إدارة الروتين الروحاني
+            </h1>
+            <p className="text-muted-foreground mt-1">تحديد المهام اليومية الصباحية والمسائية</p>
+          </div>
         </div>
         <Button onClick={handleSave} disabled={saving} className="rounded-xl gap-2 px-8">
           <Save size={18} />
