@@ -1,7 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const API_KEY = (import.meta as any).env?.VITE_GEMINI_API_KEY || (process as any).env?.GEMINI_API_KEY || "";
-const genAI = new GoogleGenerativeAI(API_KEY);
 
 export interface Place {
   name: string;
@@ -14,52 +11,45 @@ export interface Place {
 
 export async function searchPlaces(query: string, lat?: number, lng?: number): Promise<Place[]> {
   try {
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-pro",
-    });
+    // If no location is provided, we can't reliably use Overpass API
+    // Fallback to a generic Google Maps search link if we can't get coordinates
+    if (lat === undefined || lng === undefined) {
+      console.warn("Location not provided for searchPlaces, returning empty results");
+      return [];
+    }
 
-    const locationStr = lat !== undefined && lng !== undefined 
-      ? `lat=${lat}, lng=${lng}` 
-      : "my current location";
+    const radius = 10000; // 10km radius
+    let overpassQuery = "";
 
-    const prompt = `Find ${query} near ${locationStr}. Please provide a list of places with their names and Google Maps links.`;
+    if (query.includes("مسجد") || query.includes("mosque")) {
+      overpassQuery = `[out:json];node(around:${radius},${lat},${lng})[amenity=place_of_worship][religion=muslim];out;`;
+    } else if (query.includes("حلال") || query.includes("halal")) {
+      overpassQuery = `[out:json];(node(around:${radius},${lat},${lng})["diet:halal"=yes];node(around:${radius},${lat},${lng})[cuisine=halal];node(around:${radius},${lat},${lng})[shop=halal];);out;`;
+    } else {
+      // Generic search fallback using text
+      overpassQuery = `[out:json];node(around:${radius},${lat},${lng})["name"~"${query}",i];out;`;
+    }
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const response = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`);
+    
+    if (!response.ok) throw new Error("Overpass API failed");
 
-    const places: Place[] = [];
-    const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
-    let match;
-    while ((match = markdownLinkRegex.exec(text)) !== null) {
-      places.push({
-        name: match[1].trim(),
-        address: "",
-        url: match[2],
+    const data = await response.json();
+    
+    if (!data.elements || data.elements.length === 0) return [];
+
+    return data.elements.map((el: any) => {
+      const name = el.tags.name || el.tags.name_en || (query.includes("مسجد") ? "مسجد" : "مكان حلال");
+      const address = el.tags["addr:street"] ? `${el.tags["addr:street"]} ${el.tags["addr:housenumber"] || ""}` : "العنوان متاح على الخريطة";
+      
+      return {
+        name,
+        address,
+        url: `https://www.google.com/maps/search/?api=1&query=${el.lat},${el.lon}`,
         type: query.includes("مسجد") ? "مسجد" : "مكان حلال"
-      });
-    }
+      };
+    }).slice(0, 20); // Limit to top 20 results
 
-    if (places.length === 0) {
-      const lines = text.split("\n");
-      lines.forEach(line => {
-        const urlMatch = line.match(/https?:\/\/[\w\-.]+\.\w+\/\S+/);
-        if (urlMatch) {
-          const url = urlMatch[0];
-          const name = line.replace(url, "").replace(/^[*\-\s]+/, "").replace(/[:-]\s*$/, "").trim();
-          if (name) {
-            places.push({
-              name,
-              address: "",
-              url,
-              type: query.includes("مسجد") ? "مسجد" : "مكان حلال"
-            });
-          }
-        }
-      });
-    }
-
-    return Array.from(new Map(places.map(p => [p.url, p])).values());
   } catch (error) {
     console.error("Error searching places:", error);
     return [];
