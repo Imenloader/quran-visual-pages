@@ -109,12 +109,22 @@ export const OfflineProvider = ({ children }: { children: ReactNode }) => {
 
     for (const url of candidates) {
       try {
-        const response = await fetch(url, { mode: "cors" });
+        // Primary attempt: Direct CORS
+        let response = await fetch(url, { mode: "cors" });
+        
+        // Secondary attempt: Proxy if direct fails
+        if (!response.ok) {
+          console.warn(`Direct fetch failed for ${url}, trying proxy fallback...`);
+          const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+          response = await fetch(proxyUrl);
+        }
+
         if (response.ok) {
           await cache.put(url, response.clone());
           return true;
         }
-      } catch {
+      } catch (err) {
+        console.warn(`Failed to fetch ${url} even with proxy:`, err);
         // keep trying deterministic fallback list
       }
     }
