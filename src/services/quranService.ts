@@ -1,5 +1,4 @@
 import { fetchWithCache } from "@/lib/apiClient";
-
 export interface Edition {
   identifier: string;
   language: string;
@@ -9,7 +8,6 @@ export interface Edition {
   type: string;
   direction: string | null;
 }
-
 export interface Moshaf {
   id: number;
   name: string;
@@ -17,14 +15,12 @@ export interface Moshaf {
   surah_total: number;
   surah_list: string;
 }
-
 export interface Reciter {
   id: number;
   name: string;
   letter: string;
   moshaf: Moshaf[];
 }
-
 export const fetchAudioEditions = async (): Promise<Edition[]> => {
   try {
     const data = await fetchWithCache("https://api.quran.com/api/v4/resources/recitations", {});
@@ -42,20 +38,19 @@ export const fetchAudioEditions = async (): Promise<Edition[]> => {
   }
   return [];
 };
-
 export const fetchSurahAudio = async (surahId: number, edition: string) => {
   return await fetchWithCache(`https://api.quran.com/api/v4/chapter_recitations/${edition}/${surahId}`, {});
 };
-
+export const fetchChapterAudio = async (chapterId: number, recitationId: string) => {
+  return await fetchWithCache(`https://api.quran.com/api/v4/recitations/${recitationId}/by_chapter/${chapterId}`, {});
+};
 export const fetchSurahText = async (surahId: number) => {
   const data = await fetchWithCache(`https://api.quran.com/api/v4/quran/verses/uthmani?chapter_number=${surahId}`, {});
   return { code: 200, data: { ayahs: data.verses.map((v: any) => ({ text: v.text_uthmani, numberInSurah: v.verse_number })) } };
 };
-
 interface RecitersApiResponse {
   reciters?: Reciter[];
 }
-
 export const fetchReciters = async (language = "ar"): Promise<Reciter[]> => {
   try {
     const data = await fetchWithCache(`https://mp3quran.net/api/v3/reciters?language=${language}`, {
@@ -67,7 +62,6 @@ export const fetchReciters = async (language = "ar"): Promise<Reciter[]> => {
     return [];
   }
 };
-
 export const fetchPageVerses = async (pageNumber: number) => {
   const data = await fetchWithCache(`https://api.quran.com/api/v4/quran/verses/uthmani?page_number=${pageNumber}`, {
     expiry: 30 * 24 * 60 * 60 * 1000 // Cache for 30 days
