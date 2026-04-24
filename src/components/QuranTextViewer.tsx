@@ -336,8 +336,11 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
                   </div>
 
                   {verseMeta.showBasmalah && (
-                    <div className="text-4xl md:text-5xl font-quran text-primary/80 py-4">
-                      بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+                    <div className="w-full flex flex-col items-center py-6 md:py-8 space-y-4">
+                      <div className="text-4xl md:text-6xl font-quran text-primary/90 drop-shadow-sm">
+                        بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+                      </div>
+                      <div className="w-24 h-0.5 bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
                     </div>
                   )}
                 </div>
