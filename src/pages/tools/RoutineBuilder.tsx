@@ -40,6 +40,17 @@ const defaultHabits: Habit[] = [
 
 const RoutineBuilder = () => {
   const { t, i18n } = useTranslation();
+  
+  // Safe translation wrapper to prevent ReferenceError in minified builds
+  const safeT = (key: string, options?: any) => {
+    try {
+      return t(key, options);
+    } catch (e) {
+      console.warn("Translation error for key:", key, e);
+      return key;
+    }
+  };
+
   const isAr = i18n.language === "ar";
   const todayKey = format(new Date(), 'yyyy-MM-dd');
 
@@ -119,8 +130,8 @@ const RoutineBuilder = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <QuranHeader 
-        title={t("routine.title")} 
-        subtitle={t("routine.subtitle")}
+        title={safeT("routine.title")} 
+        subtitle={safeT("routine.subtitle")}
         variant="compact"
       />
 
@@ -133,17 +144,17 @@ const RoutineBuilder = () => {
               <div className="w-16 h-16 rounded-3xl bg-orange-500/20 flex items-center justify-center mx-auto mb-4 backdrop-blur-md">
                 <Flame className="w-10 h-10 fill-current" />
               </div>
-              <p className="text-sm font-bold uppercase tracking-widest text-orange-700 dark:text-orange-300">{t("routine.streak")}</p>
-              <p className="text-5xl font-bold">{isAr ? toArabicNumber(streak.toString()) : streak} <span className="text-2xl font-normal">{t("routine.days")}</span></p>
+              <p className="text-sm font-bold uppercase tracking-widest text-orange-700 dark:text-orange-300">{safeT("routine.streak")}</p>
+              <p className="text-5xl font-bold">{isAr ? toArabicNumber(streak.toString()) : streak} <span className="text-2xl font-normal">{safeT("routine.days")}</span></p>
             </div>
           </div>
 
           <div className="md:col-span-8 bento-card !p-8 flex flex-col justify-center space-y-6">
             <div className="flex justify-between items-end">
               <div className="space-y-1">
-                <h3 className="text-2xl font-bold font-naskh">{t("routine.progress")}</h3>
+                <h3 className="text-2xl font-bold font-naskh">{safeT("routine.progress")}</h3>
                 <p className="text-muted-foreground text-sm">
-                  {t("routine.progressDesc", { 
+                  {safeT("routine.progressDesc", { 
                     completed: isAr ? toArabicNumber(habits.filter(h => h.isCompleted).length.toString()) : habits.filter(h => h.isCompleted).length,
                     total: isAr ? toArabicNumber(habits.length.toString()) : habits.length
                   })}
@@ -164,7 +175,7 @@ const RoutineBuilder = () => {
         {/* Add Habit Section */}
         <div className="flex gap-4">
           <Input 
-            placeholder={t("routine.newHabit")} 
+            placeholder={safeT("routine.newHabit")} 
             className="h-14 rounded-2xl px-6 text-lg border-border/60 focus-visible:ring-primary"
             value={newHabitName}
             onChange={(e) => setNewHabitName(e.target.value)}
@@ -196,7 +207,7 @@ const RoutineBuilder = () => {
                       {isAr ? habit.nameAr : habit.nameEn}
                     </h4>
                     <p className="text-xs text-muted-foreground">
-                      {t("routine.dailyHabit")}
+                      {safeT("routine.dailyHabit")}
                     </p>
                   </div>
                 </div>
@@ -227,7 +238,7 @@ const RoutineBuilder = () => {
         <div className="text-center p-12 space-y-4">
           <Sparkles className="w-12 h-12 text-primary/20 mx-auto" />
           <p className="text-xl font-naskh text-muted-foreground italic leading-relaxed max-w-2xl mx-auto">
-            {t("routine.quote")}
+            {safeT("routine.quote")}
           </p>
         </div>
       </div>
