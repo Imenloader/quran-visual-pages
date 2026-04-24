@@ -1,5 +1,5 @@
 import React from "react";
-import { Play, Pause, SkipBack, SkipForward, Music, Loader2, Sparkles, ChevronUp, Search, ChevronDown, Maximize2, Settings, Volume2, ListMusic, X } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Music, Loader2, Sparkles, ChevronUp, Search, ChevronDown, Maximize2, Settings, Volume2, ListMusic, X, Repeat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
@@ -24,7 +24,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
     selectedEdition, setSelectedEdition, editions,
     audioLoading, currentAyahs, currentAyahIndex, currentSurah,
     syncMode, setSyncMode, reciters, playSurah, playAyah,
-    selectedReciterName
+    selectedReciterName, repeatMode, setRepeatMode
   } = useAudioPlayer();
 
   const [isExpanded, setIsExpanded] = React.useState(false);
@@ -63,11 +63,24 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
         )}
       >
         <motion.div 
+          onClick={() => !isExpanded && setIsExpanded(true)}
           className={cn(
-            "relative flex items-center gap-0.5 sm:gap-2 p-1 rounded-full bg-primary/40 backdrop-blur-2xl border border-primary/10 shadow-[0_12px_40px_rgba(0,0,0,0.4)] transition-all duration-700 ease-[0.16, 1, 0.3, 1] max-w-[98vw] sm:max-w-none overflow-hidden",
-            isExpanded ? "px-2 sm:px-5 py-2.5 rounded-[3rem]" : "p-1"
+            "relative flex items-center gap-0.5 sm:gap-2 p-1 rounded-full bg-primary/40 backdrop-blur-2xl border border-primary/10 shadow-[0_12px_40px_rgba(0,0,0,0.4)] transition-all duration-700 ease-[0.16, 1, 0.3, 1] max-w-[98vw] sm:max-w-none overflow-hidden cursor-pointer",
+            isExpanded ? "px-2 sm:px-5 py-2.5 rounded-[3rem] cursor-default" : "p-1 hover:scale-105 active:scale-95"
           )}
         >
+          {/* Expand Hint (Floating Handle when collapsed) */}
+          {!isExpanded && (
+            <motion.div
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute -top-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-0.5"
+            >
+              <div className="w-8 h-1 rounded-full bg-white/20" />
+              <ChevronUp size={14} className="text-white/40 animate-bounce" />
+            </motion.div>
+          )}
+
           {/* Progress Ring (Collapsed Mode) */}
           {!isExpanded && isPlaying && (
             <svg className="absolute inset-0 -rotate-90 w-full h-full pointer-events-none">
@@ -186,26 +199,48 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                 >
                   <Sparkles size={16} className="sm:size-[18px]" />
                 </Button>
+
+                <div className="hidden sm:block h-6 w-px bg-primary/10 mx-1" />
+
+                <Button 
+                  variant={repeatMode !== 'none' ? "default" : "ghost"} 
+                  size="icon" 
+                  className={cn(
+                    "h-8 w-8 sm:h-9 sm:w-9 rounded-full transition-all",
+                    repeatMode !== 'none' ? "bg-gold text-primary" : "hover:bg-primary/10 text-white/80"
+                  )}
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    if (repeatMode === 'none') setRepeatMode('all');
+                    else if (repeatMode === 'all') setRepeatMode('one');
+                    else setRepeatMode('none');
+                  }}
+                >
+                  <div className="relative">
+                    <Repeat size={16} className="sm:size-[18px]" />
+                    {repeatMode === 'one' && (
+                      <span className="absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full bg-primary text-[8px] font-bold text-gold">1</span>
+                    )}
+                  </div>
+                </Button>
               </motion.div>
             )}
           </AnimatePresence>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn(
-              "h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-primary/20 hover:bg-primary/30 text-white shadow-inner transition-all duration-500",
-              !isExpanded && "absolute -top-1 -right-1 bg-primary/90 backdrop-blur-md border border-primary/20 text-gold scale-75 shadow-xl"
-            )}
-            onClick={(e) => { e.stopPropagation(); setIsExpanded(!isExpanded); }}
-          >
-            <motion.div
-              animate={{ rotate: isExpanded ? 180 : 0 }}
-              transition={{ duration: 0.7, type: "spring", bounce: 0.3 }}
+          {isExpanded && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-primary/20 hover:bg-primary/30 text-white shadow-inner transition-all duration-500"
+              onClick={(e) => { e.stopPropagation(); setIsExpanded(false); }}
             >
-              <ChevronUp size={12} className="sm:size-[14px]" />
-            </motion.div>
-          </Button>
+              <motion.div
+                animate={{ rotate: 180 }}
+              >
+                <ChevronUp size={12} className="sm:size-[14px]" />
+              </motion.div>
+            </Button>
+          )}
         </motion.div>
 
         {/* Progress Info (Integrated when expanded) */}

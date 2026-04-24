@@ -476,6 +476,15 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
       }
     }
 
+    // Clear any active sync mode listeners and state when switching to full surah playback
+    if (ayahEndedListenerRef.current) {
+      audioRef.current.removeEventListener("ended", ayahEndedListenerRef.current);
+      ayahEndedListenerRef.current = null;
+    }
+    setCurrentAyahs([]);
+    setCurrentAyahIndex(-1);
+    setCurrentVerseKey(null);
+
     const url = getAudioUrl(server, surah.id);
     audioRef.current.src = url;
     audioRef.current.removeAttribute("data-retried");
@@ -722,11 +731,21 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
   }, [volume]);
 
   const stopPlayer = useCallback(() => {
-    if (audioRef.current) { safePause(); }
+    if (audioRef.current) { 
+      safePause(); 
+      // Clean up sync mode listeners
+      if (ayahEndedListenerRef.current) {
+        audioRef.current.removeEventListener("ended", ayahEndedListenerRef.current);
+        ayahEndedListenerRef.current = null;
+      }
+    }
     setCurrentSurah(null);
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
+    setCurrentAyahs([]);
+    setCurrentAyahIndex(-1);
+    setCurrentVerseKey(null);
   }, [safePause]);
 
   return (
