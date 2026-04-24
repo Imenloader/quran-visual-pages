@@ -10,11 +10,14 @@ interface ReadingDay {
   pages: number;
 }
 
+import { useUser } from '@/contexts/UserContext';
+
 const ReadingProgress: React.FC = () => {
   const { t, i18n } = useTranslation();
+  const { profile } = useUser();
   
   const data = useMemo(() => {
-    const history = JSON.parse(localStorage.getItem("quran-reading-history-daily") || "[]");
+    const history = profile.dailyReadingHistory || [];
     
     // Get last 7 days
     const last7Days: ReadingDay[] = [];
@@ -30,7 +33,7 @@ const ReadingProgress: React.FC = () => {
       });
     }
     return last7Days;
-  }, []);
+  }, [profile.dailyReadingHistory]);
 
   const totalPagesThisWeek = data.reduce((acc, d) => acc + d.pages, 0);
   const averagePages = Math.round(totalPagesThisWeek / 7);

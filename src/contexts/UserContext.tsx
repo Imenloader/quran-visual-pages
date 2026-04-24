@@ -19,6 +19,7 @@ interface UserProfile {
   role: 'user' | 'admin';
   completedQuests?: string[];
   lastQuestDate?: string;
+  dailyReadingHistory?: { date: string; pages: number }[];
 }
 
 interface UserContextType {
@@ -60,6 +61,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     role: 'user' as const,
     completedQuests: [],
     lastQuestDate: new Date().toISOString().split("T")[0],
+    dailyReadingHistory: [],
   }), [t, i18n.language]);
 
   const [profile, setProfile] = useState<UserProfile>(DEFAULT_PROFILE);
@@ -96,13 +98,28 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [addPoints, updateProfile]);
 
   const addPageRead = useCallback(() => {
-    addPoints(150);
+    const today = new Date().toISOString().split("T")[0];
     setProfile(prev => {
-      const updates = { totalPagesRead: prev.totalPagesRead + 1 };
+      const currentHistory = prev.dailyReadingHistory || [];
+      const dayIndex = currentHistory.findIndex(h => h.date === today);
+      
+      let newHistory;
+      if (dayIndex >= 0) {
+        newHistory = [...currentHistory];
+        newHistory[dayIndex] = { ...newHistory[dayIndex], pages: newHistory[dayIndex].pages + 1 };
+      } else {
+        newHistory = [...currentHistory, { date: today, pages: 1 }];
+      }
+      
+      const updates = { 
+        totalPagesRead: prev.totalPagesRead + 1, 
+        points: prev.points + 150,
+        dailyReadingHistory: newHistory
+      };
       updateProfile(updates);
       return { ...prev, ...updates };
     });
-  }, [addPoints, updateProfile]);
+  }, [updateProfile]);
 
   const addJuzCompleted = useCallback(() => {
     addPoints(3000);
@@ -113,14 +130,30 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   }, [addPoints, updateProfile]);
 
+  const athkarBufferRef = React.useRef(0);
+  const athkarTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+
   const addAthkarRecited = useCallback((count: number = 1) => {
-    addPoints(count * 2);
-    setProfile(prev => {
-      const updates = { totalAthkarRecited: prev.totalAthkarRecited + count };
-      updateProfile(updates);
-      return { ...prev, ...updates };
-    });
-  }, [addPoints, updateProfile]);
+    athkarBufferRef.current += count;
+    
+    if (athkarTimerRef.current) clearTimeout(athkarTimerRef.current);
+    
+    athkarTimerRef.current = setTimeout(() => {
+      const totalToAdd = athkarBufferRef.current;
+      if (totalToAdd === 0) return;
+      athkarBufferRef.current = 0;
+      
+      setProfile(prev => {
+        const pointsToAdd = totalToAdd * 2;
+        const updates = { 
+          totalAthkarRecited: prev.totalAthkarRecited + totalToAdd,
+          points: prev.points + pointsToAdd
+        };
+        updateProfile(updates);
+        return { ...prev, ...updates };
+      });
+    }, 2000);
+  }, [updateProfile]);
   
   const completeQuest = useCallback((questId: string, points: number) => {
     const today = new Date().toISOString().split("T")[0];
@@ -197,8 +230,40 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       unsubscribeAuth();
       if (snapshotUnsubscribeRef.current) snapshotUnsubscribeRef.current();
+      if (athkarTimerRef.current) clearTimeout(athkarTimerRef.current);
     };
   }, [DEFAULT_PROFILE]);
+
+  // Handle Daily Streak
+  useEffect(() => {
+    if (isAuthReady && profile.lastActiveDate) {
+      const today = new Date().toISOString().split("T")[0];
+      if (profile.lastActiveDate !== today) {
+        const lastDate = new Date(profile.lastActiveDate);
+        const todayDate = new Date(today);
+        const diffTime = Math.abs(todayDate.getTime() - lastDate.getTime());
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        
+        let newStreak = profile.daysActive || 1;
+        
+        if (diffDays === 1) {
+          // Continuous day
+          newStreak += 1;
+        } else if (diffDays > 1) {
+          // Streak broken? 
+          // For a religious app, let's be encouraging and not reset to 1 immediately, 
+          // but we follow the standard streak logic: if more than 1 day gap, reset to 1.
+          newStreak = 1;
+        }
+        
+        updateProfile({ 
+          daysActive: newStreak, 
+          lastActiveDate: today,
+          points: profile.points + 100 // Bonus for daily login
+        });
+      }
+    }
+  }, [isAuthReady, profile.lastActiveDate]);
 
   useEffect(() => {
     localStorage.setItem("user-profile", JSON.stringify(profile));

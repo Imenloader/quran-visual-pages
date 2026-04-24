@@ -81,7 +81,11 @@ export const fetchPageVerses = async (pageNumber: number) => {
     expiry: 30 * 24 * 60 * 60 * 1000 // Cache for 30 days
   });
   if (data && data.verses) {
-    return data.verses.map((v: any) => ({ text: v.text_uthmani, numberInSurah: v.verse_number }));
+    return data.verses.map((v: any) => ({ 
+      text: v.text_uthmani, 
+      numberInSurah: v.verse_number,
+      verseKey: v.verse_key 
+    }));
   }
   return [];
 };

@@ -56,7 +56,7 @@ export const generatePageQuiz = async (pageNumber: number, difficulty: "beginner
       question: `ما هي الكلمة التالية بعد: "${start} ..."؟`,
       answer: nextWord,
       options: shuffle([nextWord, "الله", "الذين", "كذلك", "هم", "كانوا", "من"].filter(w => w !== nextWord).slice(0, 3).concat(nextWord)),
-      verseKey: `${verse.surah.number}:${verse.numberInSurah}`
+      verseKey: verse.verseKey
     });
   } else if (verseWords.length > 3) {
     // Fill in the blank for advanced
@@ -70,7 +70,7 @@ export const generatePageQuiz = async (pageNumber: number, difficulty: "beginner
       type: "completion",
       question: `أكمل الفراغ في الآية: "${partialVerse.slice(Math.max(0, targetIdx - 2), targetIdx + 3).join(" ")}"`,
       answer: missingWord,
-      verseKey: `${verse.surah.number}:${verse.numberInSurah}`
+      verseKey: verse.verseKey
     });
   }
 

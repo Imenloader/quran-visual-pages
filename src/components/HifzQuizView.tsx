@@ -34,10 +34,16 @@ const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, onComplete, onC
   const startQuiz = async (diff: "beginner" | "advanced") => {
     setDifficulty(diff);
     setLoading(true);
-    const generated = await generatePageQuiz(pageNumber, diff);
-    setQuestions(generated);
-    setLoading(false);
-    setHasStarted(true);
+    try {
+      const generated = await generatePageQuiz(pageNumber, diff);
+      setQuestions(generated);
+      setLoading(false);
+      setHasStarted(true);
+    } catch (error) {
+      console.error("Quiz generation error:", error);
+      setLoading(false);
+      toast.error(isAr ? "تعذر إنشاء الاختبار لهذه الصفحة" : "Could not generate quiz for this page");
+    }
   };
 
   const handleCheck = (answerOverride?: string) => {

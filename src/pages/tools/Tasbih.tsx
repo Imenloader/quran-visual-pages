@@ -6,9 +6,12 @@ import { useTranslation } from "react-i18next";
 import BackButton from "@/components/BackButton";
 import { storage } from "@/lib/storage";
 
+import { useUser } from "@/contexts/UserContext";
+
 const Tasbih = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { addAthkarRecited } = useUser();
   const [count, setCount] = useState(0);
   const [target, setTarget] = useState(33);
   const [total, setTotal] = useState(0);
@@ -53,6 +56,7 @@ const Tasbih = () => {
       return next;
     });
     setTotal(prev => prev + 1);
+    addAthkarRecited(1);
     triggerHaptic(30);
   };
 
