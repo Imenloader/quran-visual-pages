@@ -23,7 +23,8 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
     isPlaying, togglePlay, skipNextAyah, skipPrevAyah,
     selectedEdition, setSelectedEdition, editions,
     audioLoading, currentAyahs, currentAyahIndex, currentSurah,
-    syncMode, setSyncMode, reciters, playSurah, playAyah
+    syncMode, setSyncMode, reciters, playSurah, playAyah,
+    selectedReciterName
   } = useAudioPlayer();
 
   const [isExpanded, setIsExpanded] = React.useState(false);

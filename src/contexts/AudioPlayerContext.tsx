@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useRef, useCallback, useEffect, ty
 import { fetchWithCache } from "@/lib/apiClient";
 import { fetchAudioEditions, fetchChapterAudio, fetchReciters, type Edition, type Reciter } from "@/services/quranService";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { SURAHS, type Surah, type ReciterInfo, type MoshafInfo, type PlaylistTrackGlobal } from "@/data/audioData";
 
 export type { Surah, ReciterInfo, MoshafInfo, PlaylistTrackGlobal };
@@ -104,6 +105,7 @@ export const useAudioPlayer = () => {
 };
 
 export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
+  const { t } = useTranslation();
   const [currentSurah, setCurrentSurah] = useState<Surah | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -176,7 +178,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
         // Ignore errors from play promise
       }
     }
-    audioRef.current.pause();
+    if (audioRef.current) audioRef.current.pause();
   }, []);
 
   useEffect(() => {
