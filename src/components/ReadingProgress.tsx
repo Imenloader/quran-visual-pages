@@ -35,10 +35,12 @@ const ReadingProgress: React.FC = () => {
   const totalPagesThisWeek = data.reduce((acc, d) => acc + d.pages, 0);
   const averagePages = Math.round(totalPagesThisWeek / 7);
 
-  const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: unknown[]; label?: string }) => {
+  const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: any[]; label?: string }) => {
+    const { t: tt, i18n: ii } = useTranslation();
+    
     if (active && payload && payload.length) {
-      const date = new Date(label);
-      const formattedDate = date.toLocaleDateString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', { 
+      const date = new Date(label || "");
+      const formattedDate = date.toLocaleDateString(ii.language === 'ar' ? 'ar-EG' : 'en-US', { 
         weekday: 'long', 
         month: 'short', 
         day: 'numeric' 
@@ -48,7 +50,7 @@ const ReadingProgress: React.FC = () => {
         <div className="bg-card/90 backdrop-blur-md border border-border/40 p-3 rounded-xl shadow-xl text-right">
           <p className="text-[10px] font-bold text-accent uppercase tracking-wider mb-1">{formattedDate}</p>
           <p className="text-sm font-serif text-primary">
-            {i18n.language === "ar" ? toArabicNumber(payload[0].value) : payload[0].value} {t("hub.readingActivity.read")}
+            {ii.language === "ar" ? toArabicNumber(payload[0].value) : payload[0].value} {tt("hub.readingActivity.read")}
           </p>
         </div>
       );
