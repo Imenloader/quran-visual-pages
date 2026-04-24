@@ -101,13 +101,37 @@ function JuzViewer() {
   });
 
   const { isFullscreen, setIsFullscreen } = useTheme();
-  const { playAyah, togglePlay, currentSurah } = useAudioPlayer();
+  const { playAyah, togglePlay, currentSurah, stopPlayer, syncMode } = useAudioPlayer();
   const [showControls, setShowControls] = useState(true);
   const [isScrollingDown, setIsScrollingDown] = useState(false);
   const [showPageNav, setShowPageNav] = useState(false);
   const [showJuzIndex, setShowJuzIndex] = useState(false);
   const [showSourceSelector, setShowSourceSelector] = useState(false);
   const [showKhatmaCelebration, setShowKhatmaCelebration] = useState(false);
+
+  // Auto-stop JuzViewer player when leaving the page or switching tabs
+  useEffect(() => {
+    const handleUnmount = () => {
+      if (syncMode) {
+        stopPlayer();
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden' && syncMode) {
+        // User switched to another browser tab
+        // Note: We only stop if syncMode is active, meaning it was started from the JuzViewer
+        stopPlayer();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      handleUnmount();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [syncMode, stopPlayer]);
   const [isDownloadingAudio, setIsDownloadingAudio] = useState(false);
   const [savedBookmark, setSavedBookmark] = useState<BookmarkData | null>(null);
   const [currentVerseKey, setCurrentVerseKey] = useState<string | undefined>(() => getBookmark()?.verseKey);
