@@ -136,43 +136,51 @@ const ReadingToolbar = ({
             <Server className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
           </button>
 
+          {/* Memorization & Hifz Tools Group */}
+          <div className="flex items-center gap-1.5 p-1 bg-accent/5 rounded-2xl border border-accent/10">
+            <Button
+              variant={hifzMode ? "default" : "ghost"}
+              size="icon"
+              onClick={onToggleHifzMode}
+              className={cn(
+                "h-8 w-8 md:h-10 md:w-10 rounded-xl transition-all",
+                hifzMode ? "bg-accent text-white shadow-lg shadow-accent/20" : "text-primary hover:bg-accent/10"
+              )}
+              title={hifzMode ? "إيقاف وضع الحفظ" : "بدء وضع الحفظ (إخفاء الأسطر)"}
+            >
+              {hifzMode ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+            </Button>
 
-          <button
-            onClick={(e) => { e.stopPropagation(); onToggleHifzMode(); }}
-            className={`toolbar-btn !p-1.5 md:!p-2.5 ${hifzMode ? "text-accent bg-accent/10" : ""}`}
-            title="وضع الحفظ (إخفاء الأسطر)"
-          >
-            <EyeOff className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
-          </button>
-
-          <button
-            onClick={(e) => { e.stopPropagation(); setShowQuiz(true); }}
-            className="toolbar-btn !p-1.5 md:!p-2.5"
-            title="اختبر حفظك لهذه الصفحة"
-          >
-            <GraduationCap className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
-          </button>
-
-          <Sheet open={showQuiz} onOpenChange={setShowQuiz}>
-            <SheetContent side="bottom" className="h-[auto] max-h-[90vh] rounded-t-[2.5rem] border-t-accent/20 bg-card/95 backdrop-blur-xl p-0 overflow-hidden">
-              <SheetHeader className="p-6 border-b border-border/40">
-                <SheetTitle className="text-right font-serif flex items-center gap-2">
-                  <GraduationCap className="text-accent" />
-                  اختبار الحفظ الذكي
-                </SheetTitle>
-              </SheetHeader>
-              <div className="overflow-y-auto pb-12">
-                <HifzQuizView 
-                  pageNumber={currentPage} 
-                  onClose={() => setShowQuiz(false)}
-                  onComplete={() => {
-                    setShowQuiz(false);
-                    toast.success("تم تحديث مستوى إتقان الصفحة");
-                  }}
-                />
-              </div>
-            </SheetContent>
-          </Sheet>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 md:h-10 md:w-10 rounded-xl text-primary hover:bg-accent/10 transition-all"
+                  title="اختبار الحفظ الذكي"
+                >
+                  <GraduationCap className="w-5 h-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-[auto] max-h-[90vh] rounded-t-[2.5rem] border-t-accent/20 bg-card/95 backdrop-blur-xl p-0 overflow-hidden">
+                <SheetHeader className="p-6 border-b border-border/40">
+                  <SheetTitle className="text-right font-serif flex items-center gap-2">
+                    <GraduationCap className="text-accent" />
+                    اختبار الحفظ الذكي
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="overflow-y-auto pb-12">
+                  <HifzQuizView 
+                    pageNumber={currentPage} 
+                    onClose={() => {}}
+                    onComplete={() => {
+                      toast.success("تم تحديث مستوى إتقان الصفحة");
+                    }}
+                  />
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
 
           <button
             onClick={(e) => { e.stopPropagation(); setAtmosphericBackground(!atmosphericBackground); }}
