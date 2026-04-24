@@ -78,9 +78,10 @@ interface AudioPlayerContextType {
   setSyncMode: (v: boolean) => void;
   setSelectedEdition: (e: Edition | null) => void;
   playSurah: (surah: Surah, reciter: ReciterInfo, moshaf: MoshafInfo, resumeTime?: number) => void;
-  playAyah: (surahId: number, ayahNumber: number) => void;
+  playAyah: (surahId: number, ayahNumber: number, juzId?: number) => void;
   skipNextAyah: () => void;
   skipPrevAyah: () => void;
+  playJuz: (juzId: number) => void;
   playPlaylistQueue: (tracks: PlaylistTrackGlobal[], name: string, startIndex?: number) => void;
   togglePlay: () => void;
   playNextSurah: () => void;
@@ -126,6 +127,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
   const [editions, setEditions] = useState<Edition[]>([]);
   const [currentAyahs, setCurrentAyahs] = useState<AyahAudio[]>([]);
   const [currentAyahIndex, setCurrentAyahIndex] = useState(-1);
+  const [currentJuzId, setCurrentJuzId] = useState<number | null>(null);
   const [reciters, setReciters] = useState<Reciter[]>([]);
 
   // Store current moshaf info for next/prev
@@ -412,8 +414,17 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
       }
       if (isRepeatRef.current) {
         playAyahInternalRef.current?.(surahId, ayahIdx, ayahs);
-      } else {
+      } else if (ayahIdx < ayahs.length - 1) {
         playAyahInternalRef.current?.(surahId, ayahIdx + 1, ayahs);
+      } else {
+        // End of current list (surah or juz)
+        if (currentJuzId) {
+          // If we were playing a Juz, move to the next Juz?
+          // For now, let's just use the next surah logic which is safer
+          playNextSurahInternalRef.current?.();
+        } else {
+          playNextSurahInternalRef.current?.();
+        }
       }
     };
     
@@ -566,23 +577,68 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     if (surah) playSurahInternalRef.current?.(surah, track.moshafServer);
   }, []);
 
-  const playAyah = useCallback(async (surahId: number, ayahNumber: number) => {
+  const playAyah = useCallback(async (surahId: number, ayahNumber: number, juzId?: number) => {
     if (!selectedEdition) {
-      // If no edition selected, pick the default one
       const defaultEdition = { identifier: "7", name: "العفاسي", englishName: "Alafasy", language: "ar", format: "audio", type: "versebyverse", direction: null };
       setSelectedEdition(defaultEdition);
     }
     
-    // Stop any existing playback first
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
+    if (audioRef.current) audioRef.current.pause();
     
     setSyncMode(true);
     setAudioLoading(true);
+    setCurrentJuzId(juzId || null);
     
     try {
-      const data = await fetchChapterAudio(surahId, selectedEdition.identifier);
+      // Import fetchJuzAudio from service if needed (already in quranService)
+      const { fetchChapterAudio, fetchJuzAudio } = await import("@/services/quranService");
+      
+      const data = juzId 
+        ? await fetchJuzAudio(juzId, selectedEdition.identifier)
+        : await fetchChapterAudio(surahId, selectedEdition.identifier);
+
+      if (data && data.audio_files) {
+        const ayahs = data.audio_files.map((v: any) => ({
+          number: v.verse_key,
+          numberInSurah: parseInt(v.verse_key.split(':')[1]),
+          text: "",
+          audio: v.url.startsWith('http') ? v.url : `https://verses.quran.com/${v.url}`
+        })) as AyahAudio[];
+        
+        setCurrentAyahs(ayahs);
+        const surah = SURAHS.find(s => s.id === surahId);
+        if (surah) setCurrentSurah(surah);
+        
+        // If we have a juzId, we need to find the correct ayah in the entire juz list
+        const idx = ayahs.findIndex((a: AyahAudio) => {
+          if (juzId) {
+            const [sId, aNum] = a.number.toString().split(':').map(Number);
+            return sId === surahId && aNum === ayahNumber;
+          }
+          return a.numberInSurah === ayahNumber;
+        });
+
+        if (idx !== -1) {
+          playAyahInternalRef.current?.(surahId, idx, ayahs);
+        } else {
+          playAyahInternalRef.current?.(surahId, 0, ayahs);
+        }
+      }
+    } catch (error) {
+      console.error("Play ayah error:", error);
+    } finally {
+      setAudioLoading(false);
+    }
+  }, [selectedEdition]);
+
+  const playJuz = useCallback(async (juzId: number) => {
+    if (!selectedEdition) return;
+    setSyncMode(true);
+    setAudioLoading(true);
+    setCurrentJuzId(juzId);
+    try {
+      const { fetchJuzAudio } = await import("@/services/quranService");
+      const data = await fetchJuzAudio(juzId, selectedEdition.identifier);
       if (data && data.audio_files) {
         const ayahs = data.audio_files.map((v: any) => ({
           number: v.verse_key,
@@ -591,19 +647,15 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
           audio: v.url.startsWith('http') ? v.url : `https://verses.quran.com/${v.url}`
         })) as AyahAudio[];
         setCurrentAyahs(ayahs);
-        const surah = SURAHS.find(s => s.id === surahId);
+        // Start from the first ayah of the Juz
+        const firstVerseKey = ayahs[0].number.toString();
+        const firstSurahId = parseInt(firstVerseKey.split(':')[0]);
+        const surah = SURAHS.find(s => s.id === firstSurahId);
         if (surah) setCurrentSurah(surah);
-        
-        const idx = ayahs.findIndex((a: AyahAudio) => a.numberInSurah === ayahNumber);
-        if (idx !== -1) {
-          playAyahInternalRef.current?.(surahId, idx, ayahs);
-        } else {
-          // If not found, play first
-          playAyahInternalRef.current?.(surahId, 0, ayahs);
-        }
+        playAyahInternalRef.current?.(firstSurahId, 0, ayahs);
       }
     } catch (error) {
-      console.error("Play ayah error:", error);
+      console.error("Play Juz error:", error);
     } finally {
       setAudioLoading(false);
     }
@@ -666,7 +718,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
       playSurah, playPlaylistQueue, togglePlay, playNextSurah: playNextSurahInternal,
       playPrevSurah: playPrevSurahInternal, handleSeek, handleVolume, toggleMute,
       setIsRepeat, setIsShuffle, setPlayerMinimized, stopPlayer,
-      playAyah, skipNextAyah, skipPrevAyah,
+      playAyah, skipNextAyah, skipPrevAyah, playJuz
     }}>
       {children}
     </AudioPlayerContext.Provider>

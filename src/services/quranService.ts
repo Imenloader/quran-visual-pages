@@ -44,15 +44,19 @@ export const fetchAudioEditions = async (): Promise<Edition[]> => {
 };
 
 export const fetchSurahAudio = async (surahId: number, edition: string) => {
-  return await fetchWithCache(`https://api.quran.com/api/v4/chapter_recitations/${edition}/${surahId}`, {});
+  return await fetchWithCache(`https://api.quran.com/api/v4/chapter_recitations/${edition}/${surahId}?per_page=300`, {});
 };
 
 export const fetchChapterAudio = async (chapterId: number, recitationId: string) => {
-  return await fetchWithCache(`https://api.quran.com/api/v4/recitations/${recitationId}/by_chapter/${chapterId}`, {});
+  return await fetchWithCache(`https://api.quran.com/api/v4/recitations/${recitationId}/by_chapter/${chapterId}?per_page=300`, {});
+};
+
+export const fetchJuzAudio = async (juzId: number, recitationId: string) => {
+  return await fetchWithCache(`https://api.quran.com/api/v4/recitations/${recitationId}/by_juz/${juzId}?per_page=300`, {});
 };
 
 export const fetchSurahText = async (surahId: number) => {
-  const data = await fetchWithCache(`https://api.quran.com/api/v4/quran/verses/uthmani?chapter_number=${surahId}`, {});
+  const data = await fetchWithCache(`https://api.quran.com/api/v4/quran/verses/uthmani?chapter_number=${surahId}&per_page=300`, {});
   return { code: 200, data: { ayahs: data.verses.map((v: any) => ({ text: v.text_uthmani, numberInSurah: v.verse_number })) } };
 };
 

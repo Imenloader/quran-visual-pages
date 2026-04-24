@@ -54,7 +54,6 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
   return (
     <>
       <motion.div 
-        layout
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         className={cn(
@@ -63,7 +62,6 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
         )}
       >
         <motion.div 
-          layout
           className={cn(
             "relative flex items-center gap-0.5 sm:gap-2 p-1.5 rounded-full bg-primary/40 backdrop-blur-2xl border border-primary/10 shadow-[0_12px_40px_rgba(0,0,0,0.4)] transition-all duration-700 ease-[0.16, 1, 0.3, 1] max-w-[98vw] sm:max-w-none overflow-hidden",
             isExpanded ? "px-2 sm:px-5 py-2.5 rounded-[3rem]" : "p-1.5"
@@ -260,7 +258,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                 
                 <div className="text-center">
                   <h2 className="text-gold font-serif text-[10px] font-bold tracking-[0.3em] uppercase mb-1 opacity-50">الآن يتلى</h2>
-                  <p className="text-lg font-serif font-medium text-primary">
+                  <p className="text-lg font-serif font-bold text-gold">
                     {currentSurah ? currentSurah.name : "لم يتم اختيار سورة"}
                   </p>
                 </div>
@@ -268,7 +266,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-12 w-12 rounded-full hover:bg-destructive/10 text-destructive/40 hover:text-destructive"
+                  className="h-12 w-12 rounded-full hover:bg-red-400/10 text-red-400/40 hover:text-red-400 transition-all"
                   onClick={() => setIsFullView(false)}
                 >
                   <X className="size-6" />
@@ -297,7 +295,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                     <h1 className="text-3xl sm:text-4xl font-serif font-bold text-foreground leading-tight tracking-tight">
                       {currentSurah?.name || "اختر سورة"}
                     </h1>
-                    <p className="text-lg text-primary font-medium font-serif">
+                    <p className="text-lg text-gold/90 font-medium font-serif">
                       {selectedEdition?.name || "تلاوة آية بآية"}
                     </p>
                   </div>

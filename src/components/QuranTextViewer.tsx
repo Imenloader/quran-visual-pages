@@ -200,7 +200,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
     }
 
     if (syncMode) {
-      playAyah(verse.surahNumber, verse.ayahNumber);
+      playAyah(verse.surahNumber, verse.ayahNumber, currentJuz || undefined);
     }
 
     setSelectedVerse(verse);
@@ -392,7 +392,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
                 <button
                   onClick={() => {
                     if (selectedVerse) {
-                      playAyah(selectedVerse.surahNumber, selectedVerse.ayahNumber);
+                      playAyah(selectedVerse.surahNumber, selectedVerse.ayahNumber, currentJuz || undefined);
                     }
                   }}
                   className="p-2 rounded-full hover:bg-accent/10 text-accent transition-colors"

@@ -72,7 +72,7 @@ const GlobalAudioPlayer = () => {
                 <TooltipContent>{t("player.collapse")}</TooltipContent>
               </Tooltip>
               
-              <span className="font-serif text-lg font-medium text-primary">
+              <span className="font-serif text-lg font-bold text-gold tracking-tight">
                 {activePlaylistName || t("player.nowPlaying")}
               </span>
               
@@ -101,7 +101,7 @@ const GlobalAudioPlayer = () => {
                 <h2 className="text-3xl sm:text-4xl font-serif font-bold text-foreground leading-tight tracking-tight">
                   {currentSurah.name}
                 </h2>
-                <p className="text-lg text-primary font-medium">
+                <p className="text-lg text-gold/90 font-medium">
                   {selectedReciterName}
                 </p>
               </div>
@@ -306,7 +306,7 @@ const GlobalAudioPlayer = () => {
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsShuffle(!isShuffle)}
-                    className={cn("size-8 rounded-full", isShuffle ? "text-accent" : "text-muted-foreground/40")}
+                    className={cn("size-8 rounded-full transition-all", isShuffle ? "bg-gold/20 text-gold shadow-[0_0_10px_rgba(212,175,55,0.3)]" : "text-white/40 hover:text-white hover:bg-white/5")}
                   >
                     <Shuffle size={14} />
                   </Button>
@@ -320,7 +320,7 @@ const GlobalAudioPlayer = () => {
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsRepeat(!isRepeat)}
-                    className={cn("size-8 rounded-full", isRepeat ? "text-accent" : "text-muted-foreground/40")}
+                    className={cn("size-8 rounded-full transition-all", isRepeat ? "bg-gold/20 text-gold shadow-[0_0_10px_rgba(212,175,55,0.3)]" : "text-white/40 hover:text-white hover:bg-white/5")}
                   >
                     <Repeat size={14} />
                   </Button>
@@ -347,19 +347,19 @@ const GlobalAudioPlayer = () => {
                   <TooltipTrigger asChild>
                     <button
                       onClick={() => setIsExpanded(false)}
-                      className="p-1 text-muted-foreground/40 hover:text-primary transition-colors"
+                      className="p-1 text-white/40 hover:text-white hover:bg-white/5 transition-all rounded-full"
                     >
                       <ChevronDown size={14} />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent>{t("player.collapse")}</TooltipContent>
+                  <TooltipContent>{t("player.minimize")}</TooltipContent>
                 </Tooltip>
 
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
                       onClick={stopPlayer}
-                      className="p-1 text-destructive/40 hover:text-destructive transition-colors"
+                      className="p-1 text-red-400/40 hover:text-red-400 hover:bg-red-400/10 transition-all rounded-full"
                     >
                       <X size={14} />
                     </button>

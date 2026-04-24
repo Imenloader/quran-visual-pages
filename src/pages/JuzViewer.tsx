@@ -395,7 +395,7 @@ function JuzViewer() {
       
       const surahInfo = surahIndex.find(s => s.name === startSurahName);
       if (surahInfo) {
-        playAyah(surahInfo.number, startAyahNumber);
+        playAyah(surahInfo.number, startAyahNumber, num);
       }
     } else {
       togglePlay();
@@ -1144,6 +1144,10 @@ function JuzViewer() {
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {showJuzIndex && <JuzIndex onClose={() => setShowJuzIndex(false)} currentJuz={num} />}
+      </AnimatePresence>
+
       <div className={cn(
         "fixed left-0 right-0 z-[130] px-4 pointer-events-none flex justify-center transition-all duration-700 ease-[0.16, 1, 0.3, 1]",
         isFullscreen ? "bottom-8" : "bottom-28",
@@ -1155,8 +1159,6 @@ function JuzViewer() {
           <QuranPlayerBar onPlayFirst={handleMainPlayToggle} isScrollingDown={isScrollingDown} isFullscreen={isFullscreen} />
         </div>
       </div>
-
-      {showJuzIndex && <JuzIndex onClose={() => setShowJuzIndex(false)} currentJuz={num} />}
     </div>
   );
 };
