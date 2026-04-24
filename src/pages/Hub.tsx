@@ -44,6 +44,7 @@ import { db } from "@/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 
 const ReadingProgress = lazy(() => import("@/components/ReadingProgress"));
+import AppPromoBanner from "@/components/AppPromoBanner";
 
 const Hub = () => {
   const { t, i18n } = useTranslation();
@@ -243,6 +244,7 @@ const Hub = () => {
 
   return (
     <div className="relative min-h-screen bg-background pb-24 overflow-x-hidden">
+      <AppPromoBanner />
       <QuranHeader title={t("hub.title")} subtitle={t("hub.subtitle")} variant="compact" />
       <div className="max-w-7xl mx-auto px-4 mt-12">
 

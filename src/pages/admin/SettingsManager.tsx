@@ -27,7 +27,9 @@ const SettingsManager = () => {
     registrationEnabled: true,
     globalNotifications: true,
     apiVersion: "1.2.0",
-    supportEmail: "support@quraaniat.com"
+    supportEmail: "support@quraaniat.com",
+    appDirectDownloadUrl: "",
+    appPlayStoreUrl: ""
   });
 
   useEffect(() => {
@@ -154,31 +156,35 @@ const SettingsManager = () => {
 
           <section className="bg-card border border-border rounded-[2.5rem] p-8 space-y-6">
             <h2 className="text-lg font-bold font-naskh flex items-center gap-2">
-              <Globe className="w-5 h-5 text-accent" />
-              معلومات الاتصال والإصدار
+              <Download className="w-5 h-5 text-accent" />
+              روابط تحميل التطبيق
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-muted-foreground uppercase">بريد الدعم الفني</label>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase">رابط التحميل المباشر (APK)</label>
                 <input 
-                  type="email" 
-                  value={config.supportEmail}
-                  onChange={e => setConfig({...config, supportEmail: e.target.value})}
+                  type="url" 
+                  value={config.appDirectDownloadUrl}
+                  onChange={e => setConfig({...config, appDirectDownloadUrl: e.target.value})}
                   className="w-full bg-muted/50 border border-border rounded-xl p-3 text-sm"
+                  placeholder="https://example.com/app.apk"
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-muted-foreground uppercase">إصدار النظام</label>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase">رابط متجر Google Play</label>
                 <input 
-                  type="text" 
-                  value={config.apiVersion}
-                  readOnly
-                  className="w-full bg-muted/30 border border-border rounded-xl p-3 text-sm opacity-50 cursor-not-allowed"
+                  type="url" 
+                  value={config.appPlayStoreUrl}
+                  onChange={e => setConfig({...config, appPlayStoreUrl: e.target.value})}
+                  className="w-full bg-muted/50 border border-border rounded-xl p-3 text-sm"
+                  placeholder="https://play.google.com/store/apps/details?id=..."
                 />
               </div>
             </div>
           </section>
+
+          <section className="bg-card border border-border rounded-[2.5rem] p-8 space-y-6">
         </div>
       </div>
     </div>
