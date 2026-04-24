@@ -75,7 +75,15 @@ export const parseJuzTextToVerses = (localText: string | null, currentJuz: numbe
 
         let hasBasmalah = false;
         
-        // Exclude Al-Fatihah (1) and At-Tawbah (9) from basmalah stripping
+        // 1. Remove Surah header if present at the start of the text
+        if (ayahNumber === 1) {
+          const surahHeaderRegex = /^\s*سُ?ورَةُ?\s+[^\n(]*/u;
+          if (surahHeaderRegex.test(text)) {
+            text = text.replace(surahHeaderRegex, "").trim();
+          }
+        }
+
+        // 2. Exclude Al-Fatihah (1) and At-Tawbah (9) from basmalah stripping
         if (ayahNumber === 1 && surahNumber !== 1 && surahNumber !== 9) {
           const normalizedBasmalah = "بسم الله الرحمن الرحيم";
           const normalizedAyah = normalizeArabic(text);
