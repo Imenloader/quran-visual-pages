@@ -3,7 +3,9 @@ import { fetchWithCache } from "@/lib/apiClient";
 import { fetchAudioEditions, fetchChapterAudio, fetchReciters, type Edition, type Reciter } from "@/services/quranService";
 import { toast } from "sonner";
 import { SURAHS, type Surah, type ReciterInfo, type MoshafInfo, type PlaylistTrackGlobal } from "@/data/audioData";
+
 export type { Surah, ReciterInfo, MoshafInfo, PlaylistTrackGlobal };
+
 interface AyahAudio {
   number: number;
   audio: string;
@@ -17,6 +19,7 @@ interface AyahAudio {
   hizbQuarter: number;
   sajda: boolean;
 }
+
 interface LastPlayed {
   reciterId: number;
   reciterName: string;
@@ -28,7 +31,9 @@ interface LastPlayed {
   currentTime: number;
   surahList: string;
 }
+
 const LAST_PLAYED_KEY = "quran-last-played";
+
 export const getAudioUrl = (server: string, surahId: number | string | undefined | null): string => {
   if (!server) return "";
   const padded = String(surahId ?? "").padStart(3, "0");
@@ -47,6 +52,7 @@ export const getAudioUrl = (server: string, surahId: number | string | undefined
   }
   return `${httpsServer}${padded}.mp3`;
 };
+
 interface AudioPlayerContextType {
   currentSurah: Surah | null;
   isPlaying: boolean;
@@ -87,12 +93,15 @@ interface AudioPlayerContextType {
   setPlayerMinimized: (v: boolean) => void;
   stopPlayer: () => void;
 }
+
 const AudioPlayerContext = createContext<AudioPlayerContextType | null>(null);
+
 export const useAudioPlayer = () => {
   const ctx = useContext(AudioPlayerContext);
   if (!ctx) throw new Error("useAudioPlayer must be used within AudioPlayerProvider");
   return ctx;
 };
+
 export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
   const [currentSurah, setCurrentSurah] = useState<Surah | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -112,12 +121,13 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
   const [syncMode, setSyncMode] = useState(() => localStorage.getItem("quran-sync-mode") === "true");
   const [selectedEdition, setSelectedEdition] = useState<Edition | null>(() => {
     const saved = localStorage.getItem("quran-selected-edition");
-    return saved ? JSON.parse(saved) : { identifier: "ar.alafasy", name: "العفاسي", englishName: "Alafasy", language: "ar", format: "audio", type: "versebyverse", direction: null };
+    return saved ? JSON.parse(saved) : { identifier: "7", name: "العفاسي", englishName: "Alafasy", language: "ar", format: "audio", type: "versebyverse", direction: null };
   });
   const [editions, setEditions] = useState<Edition[]>([]);
   const [currentAyahs, setCurrentAyahs] = useState<AyahAudio[]>([]);
   const [currentAyahIndex, setCurrentAyahIndex] = useState(-1);
   const [reciters, setReciters] = useState<Reciter[]>([]);
+
   // Store current moshaf info for next/prev
   const currentMoshafRef = useRef<MoshafInfo | null>(null);
   const currentReciterRef = useRef<ReciterInfo | null>(null);
@@ -135,6 +145,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
   const playAyahInternalRef = useRef<((surahId: number, ayahIdx: number, ayahs: AyahAudio[]) => Promise<void>) | null>(null);
   const handleEndedRef = useRef<(() => void) | null>(null);
   const playPromiseRef = useRef<Promise<void> | null>(null);
+
   const safePlay = useCallback(async () => {
     if (!audioRef.current) return;
     try {
@@ -151,6 +162,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
       playPromiseRef.current = null;
     }
   }, []);
+
   const safePause = useCallback(async () => {
     if (!audioRef.current) return;
     // If a play is pending, we wait for it to resolve before pausing
@@ -164,25 +176,30 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     }
     audioRef.current.pause();
   }, []);
+
   useEffect(() => {
     localStorage.setItem("quran-is-repeat", isRepeat.toString());
     isRepeatRef.current = isRepeat;
   }, [isRepeat]);
+
   useEffect(() => {
     localStorage.setItem("quran-is-shuffle", isShuffle.toString());
     isShuffleRef.current = isShuffle;
   }, [isShuffle]);
+
   useEffect(() => { playlistQueueRef.current = playlistQueue; }, [playlistQueue]);
   useEffect(() => { playlistQueueIndexRef.current = playlistQueueIndex; }, [playlistQueueIndex]);
   useEffect(() => { syncModeRef.current = syncMode; }, [syncMode]);
   useEffect(() => { volumeRef.current = volume; }, [volume]);
   useEffect(() => { isMutedRef.current = isMuted; }, [isMuted]);
+
   // Initialize audio object once
   useEffect(() => {
     const audio = new Audio();
     // Remove crossOrigin = "anonymous" as it can cause issues with some servers
     // that don't support CORS correctly, and we don't need it for simple playback.
     audioRef.current = audio;
+
     const onLoadedMetadata = () => setDuration(audio.duration);
     const onTimeUpdate = () => setCurrentTime(audio.currentTime);
     const onEnded = () => {
@@ -206,6 +223,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
         const errorMessage = audio.error.message;
         
         console.error(`Audio Error [${errorCode}]: ${errorMessage} | URL: ${failingUrl}`);
+
         // One-time retry for format errors or network errors
         if ((errorCode === 4 || errorCode === 2) && !audio.getAttribute("data-retried")) {
           console.log(`Attempting one-time recovery for error ${errorCode}...`);
@@ -225,6 +243,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
           }, 500);
           return;
         }
+
         let message = "خطأ في تشغيل الصوت";
         switch (errorCode) {
           case 1: return; // Aborted
@@ -251,6 +270,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     const onPause = () => setIsPlaying(false);
     const onLoadStart = () => setAudioLoading(true);
     const onCanPlay = () => setAudioLoading(false);
+
     audio.addEventListener("loadedmetadata", onLoadedMetadata);
     audio.addEventListener("timeupdate", onTimeUpdate);
     audio.addEventListener("ended", onEnded);
@@ -259,6 +279,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     audio.addEventListener("pause", onPause);
     audio.addEventListener("loadstart", onLoadStart);
     audio.addEventListener("canplay", onCanPlay);
+
     return () => {
       safePause();
       audio.removeEventListener("loadedmetadata", onLoadedMetadata);
@@ -272,14 +293,17 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
       audioRef.current = null;
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const getAvailableSurahs = useCallback((): Surah[] => {
     if (!currentMoshafRef.current) return [];
     const ids = currentMoshafRef.current.surah_list.split(",").map(Number);
     return SURAHS.filter(s => ids.includes(s.id));
   }, []);
+
   useEffect(() => {
     localStorage.setItem("quran-sync-mode", syncMode.toString());
   }, [syncMode]);
+
   const handleEnded = useCallback(() => {
     if (isRepeatRef.current && audioRef.current) {
       audioRef.current.currentTime = 0;
@@ -288,6 +312,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     }
     playNextSurahInternalRef.current?.();
   }, [safePlay]);
+
   const playNextSurahInternal = useCallback(() => {
     const queue = playlistQueueRef.current;
     const qIdx = playlistQueueIndexRef.current;
@@ -316,6 +341,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     const idx = available.findIndex(s => s.id === cur.id);
     if (idx < available.length - 1) playSurahInternalRef.current?.(available[idx + 1], currentMoshafRef.current!.server);
   }, [currentSurah, getAvailableSurahs]);
+
   const playPrevSurahInternal = useCallback(() => {
     const queue = playlistQueueRef.current;
     const qIdx = playlistQueueIndexRef.current;
@@ -339,16 +365,20 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     const idx = available.findIndex(s => s.id === cur.id);
     if (idx > 0) playSurahInternalRef.current?.(available[idx - 1], currentMoshafRef.current!.server);
   }, [currentSurah, getAvailableSurahs]);
+
   useEffect(() => {
     fetchAudioEditions().then(setEditions).catch(console.error);
     fetchReciters().then(setReciters).catch(console.error);
   }, []);
+
   useEffect(() => {
     if (selectedEdition) {
       localStorage.setItem("quran-selected-edition", JSON.stringify(selectedEdition));
     }
   }, [selectedEdition]);
+
   const ayahEndedListenerRef = useRef<(() => void) | null>(null);
+
   const playAyahInternal = useCallback(async (surahId: number, ayahIdx: number, ayahs: AyahAudio[]) => {
     if (!audioRef.current || ayahIdx < 0 || ayahIdx >= ayahs.length) return;
     
@@ -356,6 +386,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     if (ayahEndedListenerRef.current) {
       audioRef.current.removeEventListener("ended", ayahEndedListenerRef.current);
     }
+
     const ayah = ayahs[ayahIdx];
     setCurrentAyahIndex(ayahIdx);
     setCurrentVerseKey(`${surahId}:${ayah.numberInSurah}`);
@@ -365,6 +396,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
       toast.error("رابط الصوت غير متوفر لهذه الآية");
       return;
     }
+
     if (url.startsWith("//")) {
       url = "https:" + url;
     }
@@ -388,6 +420,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     ayahEndedListenerRef.current = onAyahEnd;
     audioRef.current.addEventListener("ended", onAyahEnd);
   }, [safePlay]);
+
   const playSurahInternal = useCallback(async (surah: Surah, server: string, resumeTime?: number) => {
     if (!audioRef.current) return;
     
@@ -412,6 +445,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
         console.error("Sync mode error:", error);
       }
     }
+
     const url = getAudioUrl(server, surah.id);
     audioRef.current.src = url;
     audioRef.current.removeAttribute("data-retried");
@@ -427,11 +461,13 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     }
     safePlay();
   }, [safePlay, selectedEdition]);
+
   playSurahInternalRef.current = playSurahInternal;
   playNextSurahInternalRef.current = playNextSurahInternal;
   playPrevSurahInternalRef.current = playPrevSurahInternal;
   playAyahInternalRef.current = playAyahInternal;
   handleEndedRef.current = handleEnded;
+
   // Save last played periodically
   useEffect(() => {
     const timer = setInterval(() => {
@@ -452,19 +488,24 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     }, 3000);
     return () => clearInterval(timer);
   }, [currentSurah]);
+
   // Effect to handle switching edition or sync mode while playing
   useEffect(() => {
     if (isPlaying && currentSurah) {
       // If we are playing, and the mode or edition changes, we should restart the current surah/ayah in the new mode
       if (syncMode) {
-        // If switching to sync mode, start from the current time or first ayah
-        playAyah(currentSurah.id, currentAyahIndex >= 0 ? currentAyahs[currentAyahIndex].numberInSurah : 1);
-      } else if (currentMoshafRef.current && currentReciterRef.current) {
-        // If switching to full surah mode
+        // If switching to sync mode, start from the current ayah index if possible
+        const targetAyah = currentAyahIndex >= 0 && currentAyahs[currentAyahIndex] 
+          ? currentAyahs[currentAyahIndex].numberInSurah 
+          : 1;
+        playAyah(currentSurah.id, targetAyah);
+      } else if (currentMoshafRef.current) {
+        // If switching to full surah mode, resume from current time
         playSurahInternalRef.current?.(currentSurah, currentMoshafRef.current.server, currentTime);
       }
     }
   }, [selectedEdition?.identifier, syncMode]);
+
   // MediaSession API for lock screen controls
   useEffect(() => {
     if (!currentSurah || !('mediaSession' in navigator)) return;
@@ -474,6 +515,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
       artist: selectedReciterName,
       album: "القرآن الكريم",
     });
+
     const playHandler = () => {
       safePlay();
       setIsPlaying(true);
@@ -484,10 +526,12 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     };
     const prevHandler = () => playPrevSurahInternalRef.current?.();
     const nextHandler = () => playNextSurahInternalRef.current?.();
+
     navigator.mediaSession.setActionHandler('play', playHandler);
     navigator.mediaSession.setActionHandler('pause', pauseHandler);
     navigator.mediaSession.setActionHandler('previoustrack', prevHandler);
     navigator.mediaSession.setActionHandler('nexttrack', nextHandler);
+
     return () => {
       navigator.mediaSession.setActionHandler('play', null);
       navigator.mediaSession.setActionHandler('pause', null);
@@ -495,6 +539,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
       navigator.mediaSession.setActionHandler('nexttrack', null);
     };
   }, [currentSurah, selectedReciterName, safePause, safePlay]);
+
   const playSurah = useCallback((surah: Surah, reciter: ReciterInfo, moshaf: MoshafInfo, resumeTime?: number) => {
     currentReciterRef.current = reciter;
     currentMoshafRef.current = moshaf;
@@ -507,6 +552,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     setSyncMode(false);
     playSurahInternalRef.current?.(surah, moshaf.server, resumeTime);
   }, []);
+
   const playPlaylistQueue = useCallback((tracks: PlaylistTrackGlobal[], name: string, startIndex = 0) => {
     if (tracks.length === 0) return;
     setPlaylistQueue(tracks);
@@ -519,8 +565,18 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     const surah = SURAHS.find(s => s.id === track.surahId);
     if (surah) playSurahInternalRef.current?.(surah, track.moshafServer);
   }, []);
+
   const playAyah = useCallback(async (surahId: number, ayahNumber: number) => {
-    if (!selectedEdition) return;
+    if (!selectedEdition) {
+      // If no edition selected, pick the default one
+      const defaultEdition = { identifier: "7", name: "العفاسي", englishName: "Alafasy", language: "ar", format: "audio", type: "versebyverse", direction: null };
+      setSelectedEdition(defaultEdition);
+    }
+    
+    // Stop any existing playback first
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
     
     setSyncMode(true);
     setAudioLoading(true);
@@ -552,6 +608,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
       setAudioLoading(false);
     }
   }, [selectedEdition]);
+
   const skipNextAyah = useCallback(() => {
     if (currentSurah && currentAyahs.length > 0 && currentAyahIndex < currentAyahs.length - 1) {
       playAyahInternalRef.current?.(currentSurah.id, currentAyahIndex + 1, currentAyahs);
@@ -559,6 +616,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
       playNextSurahInternalRef.current?.();
     }
   }, [currentSurah, currentAyahs, currentAyahIndex]);
+
   const skipPrevAyah = useCallback(() => {
     if (currentSurah && currentAyahs.length > 0 && currentAyahIndex > 0) {
       playAyahInternalRef.current?.(currentSurah.id, currentAyahIndex - 1, currentAyahs);
@@ -566,25 +624,30 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
       playPrevSurahInternalRef.current?.();
     }
   }, [currentSurah, currentAyahs, currentAyahIndex]);
+
   const togglePlay = useCallback(() => {
     if (!audioRef.current) return;
     if (isPlaying) { safePause(); setIsPlaying(false); }
     else { safePlay(); setIsPlaying(true); }
   }, [isPlaying, safePlay, safePause]);
+
   const handleSeek = useCallback((val: number[]) => {
     if (audioRef.current) { audioRef.current.currentTime = val[0]; setCurrentTime(val[0]); }
   }, []);
+
   const handleVolume = useCallback((val: number[]) => {
     setVolume(val[0]);
     setIsMuted(false);
     if (audioRef.current) audioRef.current.volume = val[0] / 100;
   }, []);
+
   const toggleMute = useCallback(() => {
     setIsMuted(m => {
       if (audioRef.current) audioRef.current.volume = m ? volume / 100 : 0;
       return !m;
     });
   }, [volume]);
+
   const stopPlayer = useCallback(() => {
     if (audioRef.current) { safePause(); }
     setCurrentSurah(null);
@@ -592,6 +655,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     setCurrentTime(0);
     setDuration(0);
   }, [safePause]);
+
   return (
     <AudioPlayerContext.Provider value={{
       currentSurah, isPlaying, currentTime, duration, volume, isMuted,
