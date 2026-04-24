@@ -29,6 +29,13 @@ describe("parseJuzTextToVerses", () => {
     expect(verses[0].text).toContain("غِشَٰوَةٌۖ وَلَهُمۡ");
   });
 
+  it("normalizes accidental U+065E to standard dammatan in Quran text", () => {
+    const sample = "سُورَةُ البَقَرَةِ\nغِشَٰوَةٞۖ وَلَهُمۡ (7)\nعَظِيمٞ (8)";
+    const verses = parseJuzTextToVerses(sample, 1);
+    expect(verses[0].text).toContain("غِشَٰوَةٌۖ وَلَهُمۡ");
+    expect(verses[1].text).toContain("عَظِيمٌ");
+  });
+
   it("normalizes accidental U+0657 to standard fathatan in Quran text", () => {
     const sample = "سُورَةُ البَقَرَةِ\nأُوْلَـٰٓئِكَ عَلَىٰ هُدٗى مِّن رَّبِّهِمۡۖ (5)";
     const verses = parseJuzTextToVerses(sample, 1);
