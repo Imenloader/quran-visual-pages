@@ -245,39 +245,36 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
               animate={{ y: 0, opacity: 1, scale: 1 }}
               exit={{ y: "100%", opacity: 0, scale: 0.9 }}
               transition={{ type: "spring", damping: 30, stiffness: 200 }}
-              className="w-full h-full max-h-[100dvh] sm:max-w-4xl sm:h-[85vh] sm:rounded-[3.5rem] bg-gradient-to-br from-emerald-deep via-primary to-primary-foreground/10 flex flex-col relative overflow-hidden shadow-[0_0_120px_rgba(0,0,0,0.6)] border border-white/5"
+              className="w-full h-full max-h-[100dvh] sm:max-w-md sm:h-[90vh] sm:rounded-[3rem] bg-gradient-to-b from-emerald-deep to-primary flex flex-col relative overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.8)] border border-white/10"
             >
               {/* Animated Background Pattern */}
               <div className="absolute inset-0 opacity-[0.03] pointer-events-none pattern-islamic scale-150 rotate-12" />
               
               {/* Header */}
-              <div className="relative z-10 px-6 pt-12 pb-8 flex items-center justify-between">
+              <div className="relative z-10 px-6 pt-10 pb-4 flex items-center justify-between">
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-12 w-12 rounded-2xl bg-white/5 hover:bg-white/10 text-white/80"
+                  className="h-10 w-10 rounded-xl bg-white/5 hover:bg-white/10 text-white/60"
                   onClick={() => setIsFullView(false)}
                 >
-                  <ChevronDown size={28} />
+                  <ChevronDown size={24} />
                 </Button>
                 <div className="text-center">
-                  <h2 className="text-gold font-serif text-[10px] font-bold tracking-[0.4em] uppercase mb-1 opacity-60">الآن يتلى</h2>
-                  <div className="flex flex-col items-center">
-                    <p className="text-2xl font-serif font-bold text-white tracking-tight">
-                      {currentSurah ? currentSurah.name : "لم يتم اختيار سورة"}
-                    </p>
-                    <div className="h-0.5 w-8 bg-gold/30 rounded-full mt-1" />
-                  </div>
+                  <h2 className="text-gold font-serif text-[9px] font-bold tracking-[0.3em] uppercase mb-1 opacity-50">الآن يتلى</h2>
+                  <p className="text-xl font-serif font-bold text-white tracking-tight">
+                    {currentSurah ? currentSurah.name : "لم يتم اختيار سورة"}
+                  </p>
                 </div>
-                <Button variant="ghost" size="icon" className="h-12 w-12 rounded-2xl bg-white/5 text-white/60">
-                  <Settings size={22} />
+                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl bg-white/5 text-white/40">
+                  <Settings size={18} />
                 </Button>
               </div>
 
               {/* Main Content Area */}
               <div className="relative z-10 flex-1 flex flex-col items-center justify-around px-8 text-center py-4 min-h-0 overflow-y-auto custom-scrollbar">
                 {/* Centerpiece - Shamsa (Islamic Star) */}
-                <div className="relative w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 flex-shrink-0 flex items-center justify-center my-4">
+                <div className="relative w-40 h-40 sm:w-56 sm:h-56 flex-shrink-0 flex items-center justify-center my-6">
                   {/* Outer Rings */}
                   <motion.div 
                     animate={{ rotate: 360 }}
@@ -293,13 +290,13 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                     <div className="absolute inset-12 bg-gold/5 shamsa flex items-center justify-center">
                        <div className="w-full h-full flex flex-col items-center justify-center p-4">
                          {audioLoading ? (
-                           <Loader2 size={64} className="text-gold animate-spin opacity-40" />
+                           <Loader2 size={48} className="text-gold animate-spin opacity-40" />
                          ) : (
                            <motion.div
                              animate={isPlaying ? { scale: [1, 1.05, 1] } : {}}
                              transition={{ duration: 2, repeat: Infinity }}
                            >
-                             <Music size={80} strokeWidth={1} className="text-gold/80" />
+                             <Music size={56} strokeWidth={1} className="text-gold/80" />
                            </motion.div>
                          )}
                        </div>
@@ -309,14 +306,14 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
 
                 {/* Info & Metadata */}
                 <div className="w-full max-w-md space-y-4 sm:space-y-6">
-                  <div className="space-y-1 sm:space-y-2">
+                  <div className="space-y-1">
                     <motion.h1 
                       layout
-                      className="text-3xl sm:text-4xl md:text-6xl font-serif font-bold text-white drop-shadow-2xl"
+                      className="text-3xl sm:text-4xl font-serif font-bold text-white drop-shadow-2xl"
                     >
-                      {currentSurah?.name || "اختر سورة للبدء"}
+                      {currentSurah?.name || "اختر سورة"}
                     </motion.h1>
-                    <p className="text-xl md:text-2xl text-gold/80 font-naskh font-medium">
+                    <p className="text-lg text-gold/80 font-naskh font-medium">
                       {selectedEdition?.name || "القارئ التلقائي"}
                     </p>
                   </div>
@@ -347,60 +344,62 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                 </div>
 
                 {/* Playback Controls */}
-                <div className="flex items-center gap-6 sm:gap-10 md:gap-16 my-4">
+                <div className="flex items-center gap-6 my-6">
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-white/5 hover:bg-white/10 text-white active:scale-90 transition-all"
+                    className="h-14 w-14 rounded-full bg-white/5 hover:bg-white/10 text-white active:scale-90 transition-all"
                     onClick={skipPrevAyah}
                   >
-                    <SkipBack size={28} className="sm:size-[32px]" />
+                    <SkipBack size={24} />
                   </Button>
                   
                   <Button 
                     variant="default" 
                     size="icon" 
-                    className="h-20 w-20 sm:h-24 sm:w-24 md:h-32 md:w-32 rounded-full bg-gold text-primary shadow-[0_0_50px_rgba(212,175,55,0.3)] hover:scale-105 hover:shadow-gold/40 active:scale-95 transition-all"
+                    className="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-gold text-primary shadow-[0_15px_40px_rgba(212,175,55,0.4)] hover:scale-105 active:scale-95 transition-all"
                     onClick={handlePlayToggle}
                   >
                     {audioLoading ? (
-                      <Loader2 size={32} className="animate-spin sm:size-[40px]" />
+                      <Loader2 size={32} className="animate-spin" />
                     ) : isPlaying ? (
-                      <Pause size={36} fill="currentColor" className="sm:size-[48px]" />
+                      <Pause size={36} fill="currentColor" />
                     ) : (
-                      <Play size={36} fill="currentColor" className="ml-1 sm:size-[48px] sm:ml-2" />
+                      <Play size={36} fill="currentColor" className="ml-1" />
                     )}
                   </Button>
 
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-white/5 hover:bg-white/10 text-white active:scale-90 transition-all"
+                    className="h-14 w-14 rounded-full bg-white/5 hover:bg-white/10 text-white active:scale-90 transition-all"
                     onClick={skipNextAyah}
                   >
-                    <SkipForward size={28} className="sm:size-[32px]" />
+                    <SkipForward size={24} />
                   </Button>
                 </div>
               </div>
 
-              {/* Bottom Quick-Switch Area */}
-              <div className="relative z-10 bg-primary/20 backdrop-blur-3xl rounded-t-[3.5rem] border-t border-white/10 px-6 pt-10 pb-8 h-[35vh]">
+              {/* Bottom Settings Tabs Area */}
+              <div className="relative z-10 bg-black/30 backdrop-blur-3xl rounded-t-[2.5rem] border-t border-white/10 px-6 pt-8 pb-4 h-[40vh]">
                 <Tabs defaultValue={syncMode ? "editions" : "reciters"} dir="rtl" className="h-full flex flex-col">
-                  <TabsList className="grid w-full grid-cols-3 bg-white/5 p-1.5 rounded-[2.5rem] border border-white/10 mb-6 shadow-inner">
-                    <TabsTrigger value="surahs" className="rounded-[2rem] py-3.5 data-[state=active]:bg-gold data-[state=active]:text-primary data-[state=active]:shadow-xl transition-all duration-500 font-bold text-sm tracking-wide">السور</TabsTrigger>
-                    <TabsTrigger value="editions" className="rounded-[2rem] py-3.5 data-[state=active]:bg-gold data-[state=active]:text-primary data-[state=active]:shadow-xl transition-all duration-500 font-bold text-sm tracking-wide">آية بآية</TabsTrigger>
-                    <TabsTrigger value="reciters" className="rounded-[2rem] py-3.5 data-[state=active]:bg-gold data-[state=active]:text-primary data-[state=active]:shadow-xl transition-all duration-500 font-bold text-sm tracking-wide">تلاوة كاملة</TabsTrigger>
-                  </TabsList>
+                  <div className="max-w-md mx-auto w-full">
+                    <TabsList className="grid w-full grid-cols-3 bg-white/5 p-1 rounded-[1.5rem] border border-white/5 mb-4 shadow-inner">
+                      <TabsTrigger value="surahs" className="rounded-[1.2rem] py-2 data-[state=active]:bg-gold data-[state=active]:text-primary font-bold text-xs">السور</TabsTrigger>
+                      <TabsTrigger value="editions" className="rounded-[1.2rem] py-2 data-[state=active]:bg-gold data-[state=active]:text-primary font-bold text-xs">آية بآية</TabsTrigger>
+                      <TabsTrigger value="reciters" className="rounded-[1.2rem] py-2 data-[state=active]:bg-gold data-[state=active]:text-primary font-bold text-xs">تلاوة كاملة</TabsTrigger>
+                    </TabsList>
 
-                  <div className="relative mb-5 group">
-                    <Search className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gold/40 group-focus-within:text-gold transition-colors" />
-                    <input 
-                      type="text"
-                      placeholder="بحث..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full bg-white/[0.03] border border-white/10 rounded-[1.5rem] py-4 pr-14 pl-6 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30 focus:bg-white/[0.05] transition-all"
-                    />
+                    <div className="relative mb-4 group">
+                      <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gold/40 group-focus-within:text-gold transition-colors" />
+                      <input 
+                        type="text"
+                        placeholder="بحث..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full bg-white/[0.03] border border-white/5 rounded-[1rem] py-3 pr-10 pl-4 text-xs focus:outline-none focus:ring-1 focus:ring-gold/30 focus:bg-white/[0.05] transition-all"
+                      />
+                    </div>
                   </div>
 
                   <div className="flex-1 min-h-0">
