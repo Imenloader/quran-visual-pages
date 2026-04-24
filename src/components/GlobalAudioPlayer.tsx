@@ -65,8 +65,8 @@ const GlobalAudioPlayer = () => {
             <div className="flex justify-between items-center mb-8">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" onClick={() => setIsFullScreen(false)} className="text-foreground">
-                    <ChevronDown className="size-6" />
+                  <Button variant="ghost" size="icon" onClick={() => setIsFullScreen(false)} className="text-foreground h-12 w-12 rounded-full hover:bg-white/5">
+                    <ChevronDown className="size-8" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>{t("player.collapse")}</TooltipContent>
@@ -87,7 +87,7 @@ const GlobalAudioPlayer = () => {
             </div>
 
             <div className="flex-1 flex flex-col items-center justify-center gap-8">
-              <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-3xl bg-muted/30 flex items-center justify-center shadow-2xl overflow-hidden group border border-border/40">
+              <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-[3rem] bg-muted/30 flex items-center justify-center shadow-2xl overflow-hidden group border border-border/40">
                 <div className="absolute inset-0 pattern-islamic opacity-5 group-hover:opacity-10 transition-opacity" />
                 <Music className="size-32 text-primary/20" />
                 <div className="absolute bottom-4 left-4 right-4 text-center">
@@ -98,7 +98,7 @@ const GlobalAudioPlayer = () => {
               </div>
 
               <div className="text-center space-y-2 max-w-md">
-                <h2 className="text-3xl font-serif font-bold text-foreground leading-tight">
+                <h2 className="text-3xl sm:text-4xl font-serif font-bold text-foreground leading-tight tracking-tight">
                   {currentSurah.name}
                 </h2>
                 <p className="text-lg text-primary font-medium">
@@ -139,8 +139,8 @@ const GlobalAudioPlayer = () => {
                   <div className="flex items-center gap-6">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={playPrevSurah} className="text-foreground">
-                          <SkipBack className="size-8 fill-current" />
+                        <Button variant="ghost" size="icon" onClick={playPrevSurah} className="text-foreground h-14 w-14 rounded-full hover:bg-primary/5">
+                          <SkipForward className="size-8 fill-current" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>{t("player.previous")}</TooltipContent>
@@ -150,9 +150,9 @@ const GlobalAudioPlayer = () => {
                       <TooltipTrigger asChild>
                         <Button
                           onClick={togglePlay}
-                          className="size-16 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/20 transition-transform active:scale-95"
+                          className="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xl shadow-primary/20 transition-transform active:scale-95"
                         >
-                          {isPlaying ? <Pause className="size-8" /> : <Play className="size-8 ml-1" />}
+                          {isPlaying ? <Pause className="size-10" /> : <Play className="size-10 ml-1.5" />}
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>{isPlaying ? t("player.pause") : t("player.play")}</TooltipContent>
@@ -160,8 +160,8 @@ const GlobalAudioPlayer = () => {
 
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={playNextSurah} className="text-foreground">
-                          <SkipForward className="size-8 fill-current" />
+                        <Button variant="ghost" size="icon" onClick={playNextSurah} className="text-foreground h-14 w-14 rounded-full hover:bg-primary/5">
+                          <SkipBack className="size-8 fill-current" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>{t("player.next")}</TooltipContent>

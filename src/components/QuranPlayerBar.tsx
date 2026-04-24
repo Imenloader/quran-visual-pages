@@ -133,7 +133,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                   className="h-8 w-8 sm:h-9 sm:w-9 rounded-full hover:bg-primary/10 text-white/80"
                   onClick={(e) => { e.stopPropagation(); skipPrevAyah(); }}
                 >
-                  <SkipBack size={16} className="sm:size-[18px]" />
+                  <SkipForward size={16} className="sm:size-[18px]" />
                 </Button>
               </motion.div>
             )}
@@ -171,7 +171,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                   className="h-8 w-8 sm:h-9 sm:w-9 rounded-full hover:bg-primary/10 text-white/80"
                   onClick={(e) => { e.stopPropagation(); skipNextAyah(); }}
                 >
-                  <SkipForward size={16} className="sm:size-[18px]" />
+                  <SkipBack size={16} className="sm:size-[18px]" />
                 </Button>
 
                 <div className="hidden sm:block h-6 w-px bg-primary/10 mx-1" />
@@ -332,7 +332,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                     className="h-14 w-14 rounded-full hover:bg-primary/5 text-foreground active:scale-90 transition-all"
                     onClick={skipPrevAyah}
                   >
-                    <SkipBack size={32} fill="currentColor" />
+                    <SkipForward size={32} fill="currentColor" />
                   </Button>
                   
                   <Button 
@@ -356,7 +356,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                     className="h-14 w-14 rounded-full hover:bg-primary/5 text-foreground active:scale-90 transition-all"
                     onClick={skipNextAyah}
                   >
-                    <SkipForward size={32} fill="currentColor" />
+                    <SkipBack size={32} fill="currentColor" />
                   </Button>
                 </div>
               </div>
