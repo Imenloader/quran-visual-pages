@@ -223,7 +223,7 @@ const GlobalAudioPlayer = () => {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.8, opacity: 0, y: 20 }}
             onClick={() => setIsExpanded(true)}
-            className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-primary rounded-full shadow-lg hover:bg-primary/90 transition-all group pointer-events-auto"
+            className="relative flex items-center justify-center w-12 h-12 bg-primary/40 backdrop-blur-2xl border border-primary/10 shadow-[0_12px_40px_rgba(0,0,0,0.4)] rounded-full hover:scale-105 active:scale-95 transition-all group pointer-events-auto overflow-hidden"
           >
             <svg className="absolute inset-0 w-full h-full -rotate-90">
               <circle
@@ -233,7 +233,7 @@ const GlobalAudioPlayer = () => {
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2.5"
-                className="text-primary-foreground/20"
+                className="text-white/5"
               />
               <motion.circle
                 cx="50%"
@@ -246,13 +246,13 @@ const GlobalAudioPlayer = () => {
                 initial={{ strokeDashoffset: circumference }}
                 animate={{ strokeDashoffset }}
                 transition={{ type: "spring", damping: 20, stiffness: 100 }}
-                className="text-primary-foreground"
+                className="text-gold shadow-[0_0_8px_rgba(212,175,55,0.8)]"
               />
             </svg>
             {isPlaying ? (
-              <Pause className="text-primary-foreground relative z-10" size={18} />
+              <Pause className="text-white relative z-10" size={20} />
             ) : (
-              <Play className="text-primary-foreground relative z-10 ml-0.5" size={18} />
+              <Play className="text-white relative z-10 ml-0.5" size={20} />
             )}
           </motion.button>
         ) : (
@@ -261,7 +261,7 @@ const GlobalAudioPlayer = () => {
             initial={{ width: 48, height: 48, opacity: 0, y: 20 }}
             animate={{ width: "auto", height: "auto", opacity: 1, y: 0 }}
             exit={{ width: 48, height: 48, opacity: 0, y: 20 }}
-            className="bg-card/95 backdrop-blur-xl border border-border/40 rounded-2xl shadow-2xl p-3 flex items-center gap-4 min-w-[280px] max-w-[400px] pointer-events-auto"
+            className="bg-primary/40 backdrop-blur-2xl border border-primary/10 rounded-[3rem] shadow-[0_12px_40px_rgba(0,0,0,0.4)] p-2.5 flex items-center gap-4 min-w-[280px] max-w-[420px] pointer-events-auto"
           >
             <Tooltip>
               <TooltipTrigger asChild>
@@ -280,14 +280,14 @@ const GlobalAudioPlayer = () => {
 
             <div className="flex flex-col min-w-0 flex-1">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-bold text-foreground truncate leading-tight">
+                <span className="text-xs font-bold text-white truncate leading-tight">
                   {currentSurah.name}
                 </span>
-                <span className="text-[10px] font-mono text-muted-foreground">
+                <span className="text-[10px] font-mono text-white/40">
                   {formatTime(currentTime)}
                 </span>
               </div>
-              <span className="text-[10px] text-primary truncate leading-tight mb-2">
+              <span className="text-[10px] text-gold/80 truncate leading-tight mb-2">
                 {selectedReciterName}
               </span>
               <Slider
@@ -334,9 +334,9 @@ const GlobalAudioPlayer = () => {
                     variant="ghost"
                     size="icon"
                     onClick={togglePlay}
-                    className="size-8 rounded-full bg-primary/10 text-primary hover:bg-primary/20"
+                    className="size-10 rounded-full bg-gold text-primary hover:scale-105 active:scale-95 shadow-lg shadow-gold/20"
                   >
-                    {isPlaying ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
+                    {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>{isPlaying ? t("player.pause") : t("player.play")}</TooltipContent>
