@@ -1150,7 +1150,7 @@ function JuzViewer() {
 
       <div className={cn(
         "fixed left-0 right-0 z-[130] px-4 pointer-events-none flex justify-center transition-all duration-700 ease-[0.16, 1, 0.3, 1]",
-        isFullscreen ? "bottom-8" : "bottom-28",
+        isFullscreen ? "bottom-8" : "bottom-[104px]",
         (isFullscreen && !showControls) || isScrollingDown 
           ? "opacity-0 translate-y-20 scale-90" 
           : "opacity-100 translate-y-0 scale-100"

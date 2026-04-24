@@ -74,14 +74,14 @@ const BottomNav = () => {
             setIsHidden(!isHidden);
             triggerHaptic();
           }}
-          className="w-12 h-7 rounded-t-2xl bg-card/95 backdrop-blur-xl border border-border/60 border-b-0 flex items-center justify-center text-primary hover:text-accent transition-all shadow-xl shadow-black/10 group"
+          className="w-10 h-6 rounded-t-xl bg-card/95 backdrop-blur-xl border border-border/60 border-b-0 flex items-center justify-center text-primary hover:text-accent transition-all shadow-xl shadow-black/10 group"
           aria-label={isHidden ? t("nav.showMenu") : t("nav.hideMenu")}
         >
           <motion.div
             animate={{ rotate: isHidden ? 0 : 180 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
-            <ChevronUp size={18} className="group-hover:scale-110 transition-transform drop-shadow-sm" />
+            <ChevronUp size={16} className="group-hover:scale-110 transition-transform drop-shadow-sm" />
           </motion.div>
         </motion.button>
       </div>

@@ -112,7 +112,12 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(80);
   const [isMuted, setIsMuted] = useState(false);
-  const [isRepeat, setIsRepeat] = useState(() => localStorage.getItem("quran-is-repeat") === "true");
+  const [repeatMode, setRepeatMode] = useState<'none' | 'all' | 'one'>(() => {
+    const saved = localStorage.getItem("quran-repeat-mode");
+    if (saved === 'all' || saved === 'one') return saved;
+    // Backward compatibility
+    return localStorage.getItem("quran-is-repeat") === "true" ? 'one' : 'none';
+  });
   const [isShuffle, setIsShuffle] = useState(() => localStorage.getItem("quran-is-shuffle") === "true");
   const [audioLoading, setAudioLoading] = useState(false);
   const [playerMinimized, setPlayerMinimized] = useState(true);
@@ -136,7 +141,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
   const currentMoshafRef = useRef<MoshafInfo | null>(null);
   const currentReciterRef = useRef<ReciterInfo | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const isRepeatRef = useRef(isRepeat);
+  const repeatModeRef = useRef(repeatMode);
   const isShuffleRef = useRef(isShuffle);
   const playlistQueueRef = useRef(playlistQueue);
   const playlistQueueIndexRef = useRef(playlistQueueIndex);
@@ -182,9 +187,9 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("quran-is-repeat", isRepeat.toString());
-    isRepeatRef.current = isRepeat;
-  }, [isRepeat]);
+    localStorage.setItem("quran-repeat-mode", repeatMode);
+    repeatModeRef.current = repeatMode;
+  }, [repeatMode]);
 
   useEffect(() => {
     localStorage.setItem("quran-is-shuffle", isShuffle.toString());
@@ -212,7 +217,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
       
-      if (isRepeatRef.current) {
+      if (repeatModeRef.current === 'one') {
         audio.currentTime = 0;
         safePlay();
       } else {
@@ -309,7 +314,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
   }, [syncMode]);
 
   const handleEnded = useCallback(() => {
-    if (isRepeatRef.current && audioRef.current) {
+    if (repeatModeRef.current === 'one' && audioRef.current) {
       audioRef.current.currentTime = 0;
       safePlay();
       return;
@@ -343,7 +348,12 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     const idx = available.findIndex(s => s.id === cur.id);
-    if (idx < available.length - 1) playSurahInternalRef.current?.(available[idx + 1], currentMoshafRef.current!.server);
+    if (idx < available.length - 1) {
+      playSurahInternalRef.current?.(available[idx + 1], currentMoshafRef.current!.server);
+    } else if (repeatModeRef.current === 'all' && available.length > 0) {
+      // Loop back to start
+      playSurahInternalRef.current?.(available[0], currentMoshafRef.current!.server);
+    }
   }, [currentSurah, getAvailableSurahs]);
 
   const playPrevSurahInternal = useCallback(() => {
@@ -424,19 +434,16 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
       if (audioRef.current) {
         audioRef.current.removeEventListener("ended", onAyahEnd);
       }
-      if (isRepeatRef.current) {
+      if (repeatModeRef.current === 'one') {
         playAyahInternalRef.current?.(surahId, ayahIdx, ayahs);
       } else if (ayahIdx < ayahs.length - 1) {
         playAyahInternalRef.current?.(surahId, ayahIdx + 1, ayahs);
+      } else if (repeatModeRef.current === 'all' && ayahs.length > 0) {
+        // Loop back to start of ayah list (surah or juz)
+        playAyahInternalRef.current?.(surahId, 0, ayahs);
       } else {
-        // End of current list (surah or juz)
-        if (currentJuzId) {
-          // If we were playing a Juz, move to the next Juz?
-          // For now, let's just use the next surah logic which is safer
-          playNextSurahInternalRef.current?.();
-        } else {
-          playNextSurahInternalRef.current?.();
-        }
+        // End of current list
+        playNextSurahInternalRef.current?.();
       }
     };
     
@@ -725,13 +732,13 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AudioPlayerContext.Provider value={{
       currentSurah, isPlaying, currentTime, duration, volume, isMuted,
-      isRepeat, isShuffle, audioLoading, playerMinimized, selectedReciterName,
+      repeatMode, isShuffle, audioLoading, playerMinimized, selectedReciterName,
       playlistQueue, playlistQueueIndex, activePlaylistName, currentVerseKey,
       syncMode, setSyncMode, selectedEdition, setSelectedEdition, editions,
       currentAyahs, currentAyahIndex, reciters,
       playSurah, playPlaylistQueue, togglePlay, playNextSurah: playNextSurahInternal,
       playPrevSurah: playPrevSurahInternal, handleSeek, handleVolume, toggleMute,
-      setIsRepeat, setIsShuffle, setPlayerMinimized, stopPlayer,
+      setRepeatMode, setIsShuffle, setPlayerMinimized, stopPlayer,
       playAyah, skipNextAyah, skipPrevAyah, playJuz
     }}>
       {children}

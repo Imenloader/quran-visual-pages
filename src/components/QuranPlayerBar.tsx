@@ -64,8 +64,8 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
       >
         <motion.div 
           className={cn(
-            "relative flex items-center gap-0.5 sm:gap-2 p-1.5 rounded-full bg-primary/40 backdrop-blur-2xl border border-primary/10 shadow-[0_12px_40px_rgba(0,0,0,0.4)] transition-all duration-700 ease-[0.16, 1, 0.3, 1] max-w-[98vw] sm:max-w-none overflow-hidden",
-            isExpanded ? "px-2 sm:px-5 py-2.5 rounded-[3rem]" : "p-1.5"
+            "relative flex items-center gap-0.5 sm:gap-2 p-1 rounded-full bg-primary/40 backdrop-blur-2xl border border-primary/10 shadow-[0_12px_40px_rgba(0,0,0,0.4)] transition-all duration-700 ease-[0.16, 1, 0.3, 1] max-w-[98vw] sm:max-w-none overflow-hidden",
+            isExpanded ? "px-2 sm:px-5 py-2.5 rounded-[3rem]" : "p-1"
           )}
         >
           {/* Progress Ring (Collapsed Mode) */}
@@ -194,8 +194,8 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
             variant="ghost"
             size="icon"
             className={cn(
-              "h-8 w-8 sm:h-9 sm:w-9 rounded-full hover:bg-primary/10 transition-all duration-500",
-              isExpanded ? "text-white/40 ml-0.5 sm:ml-1" : "absolute -top-1 -right-1 bg-primary/90 backdrop-blur-md border border-primary/20 text-gold scale-75 shadow-xl"
+              "h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-primary/20 hover:bg-primary/30 text-white shadow-inner transition-all duration-500",
+              !isExpanded && "absolute -top-1 -right-1 bg-primary/90 backdrop-blur-md border border-primary/20 text-gold scale-75 shadow-xl"
             )}
             onClick={(e) => { e.stopPropagation(); setIsExpanded(!isExpanded); }}
           >

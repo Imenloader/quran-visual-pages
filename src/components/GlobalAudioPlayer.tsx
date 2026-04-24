@@ -22,9 +22,9 @@ const GlobalAudioPlayer = () => {
   const {
     currentSurah, isPlaying, currentTime, duration, audioLoading,
     playerMinimized, selectedReciterName, playlistQueue, playlistQueueIndex,
-    activePlaylistName, isShuffle, isRepeat, volume, isMuted, syncMode,
+    activePlaylistName, isShuffle, repeatMode, volume, isMuted, syncMode,
     togglePlay, playNextSurah, playPrevSurah, handleSeek, handleVolume,
-    toggleMute, setIsRepeat, setIsShuffle, setPlayerMinimized, setSyncMode,
+    toggleMute, setRepeatMode, setIsShuffle, setPlayerMinimized, setSyncMode,
     stopPlayer
   } = useAudioPlayer();
 
@@ -65,7 +65,7 @@ const GlobalAudioPlayer = () => {
             <div className="flex justify-between items-center mb-8">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" onClick={() => setIsFullScreen(false)} className="text-foreground h-12 w-12 rounded-full hover:bg-white/5">
+                  <Button variant="ghost" size="icon" onClick={() => setIsFullScreen(false)} className="text-white h-12 w-12 rounded-full hover:bg-white/10 transition-colors">
                     <ChevronDown className="size-8" />
                   </Button>
                 </TooltipTrigger>
@@ -173,13 +173,24 @@ const GlobalAudioPlayer = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => setIsRepeat(!isRepeat)}
-                        className={cn(isRepeat ? "text-accent" : "text-muted-foreground")}
+                        onClick={() => {
+                          if (repeatMode === 'none') setRepeatMode('all');
+                          else if (repeatMode === 'all') setRepeatMode('one');
+                          else setRepeatMode('none');
+                        }}
+                        className={cn(repeatMode !== 'none' ? "text-accent" : "text-muted-foreground")}
                       >
-                        <Repeat className="size-5" />
+                        <div className="relative">
+                          <Repeat className="size-5" />
+                          {repeatMode === 'one' && (
+                            <span className="absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full bg-accent text-[8px] font-bold text-accent-foreground">1</span>
+                          )}
+                        </div>
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>{t("player.repeat")}</TooltipContent>
+                    <TooltipContent>
+                      {repeatMode === 'none' ? t("player.repeatOff") : repeatMode === 'all' ? t("player.repeatAll") : t("player.repeatOne")}
+                    </TooltipContent>
                   </Tooltip>
                 </div>
 
@@ -319,13 +330,24 @@ const GlobalAudioPlayer = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => setIsRepeat(!isRepeat)}
-                    className={cn("size-8 rounded-full transition-all", isRepeat ? "bg-gold/20 text-gold shadow-[0_0_10px_rgba(212,175,55,0.3)]" : "text-white/40 hover:text-white hover:bg-white/5")}
+                    onClick={() => {
+                      if (repeatMode === 'none') setRepeatMode('all');
+                      else if (repeatMode === 'all') setRepeatMode('one');
+                      else setRepeatMode('none');
+                    }}
+                    className={cn("size-8 rounded-full transition-all", repeatMode !== 'none' ? "bg-gold/20 text-gold shadow-[0_0_10px_rgba(212,175,55,0.3)]" : "text-white/40 hover:text-white hover:bg-white/5")}
                   >
-                    <Repeat size={14} />
+                    <div className="relative">
+                      <Repeat size={14} />
+                      {repeatMode === 'one' && (
+                        <span className="absolute -top-1 -right-1 flex h-2 w-2 items-center justify-center rounded-full bg-gold text-[6px] font-bold text-primary">1</span>
+                      )}
+                    </div>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>{t("player.repeat")}</TooltipContent>
+                <TooltipContent>
+                  {repeatMode === 'none' ? t("player.repeatOff") : repeatMode === 'all' ? t("player.repeatAll") : t("player.repeatOne")}
+                </TooltipContent>
               </Tooltip>
 
               <Tooltip>
