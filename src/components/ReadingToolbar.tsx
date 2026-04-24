@@ -1,12 +1,14 @@
-import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen, List, Moon, Sun, Info, MessageSquareText, Type, FileImage, ArrowDown, ArrowRightLeft, Palette, GraduationCap, Sparkles, Server, Wand2, DownloadCloud, EyeOff } from "lucide-react";
+import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen, List, Moon, Sun, Info, MessageSquareText, Type, FileImage, ArrowDown, ArrowRightLeft, Palette, GraduationCap, Sparkles, Server, Wand2, DownloadCloud, EyeOff, Eye } from "lucide-react";
 import { toArabicNumber } from "@/data/quranData";
 import ShareButton from "./ShareButton";
 import { useTheme } from "@/contexts/ThemeContext";
 import { motion } from "motion/react";
 import { toast } from "sonner";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
-import HifzQuizView from "./HifzQuizView";
 import { useState } from "react";
+import { Button } from "./ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
+import { cn } from "@/lib/utils";
+import HifzQuizView from "./HifzQuizView";
 
 interface ReadingToolbarProps {
   zoom: number;
