@@ -73,15 +73,29 @@ export async function fetchWithCache(
         // SSL/Network Fallback for Quran APIs
         if (url.includes("api.quran.g0v.id") || url.includes("api.quran.com")) {
           console.warn("Primary API call failed, trying proxy fallback...", fetchError);
-          // Using allorigins as a more reliable fallback
-          const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-          const proxyResponse = await fetch(proxyUrl, { signal: controller.signal });
-          if (proxyResponse.ok) {
-            const proxyData = await proxyResponse.json();
-            // AllOrigins wraps the response in a 'contents' field
-            // api.quran.com might return a string or object depending on what allorigins thinks
-            return typeof proxyData.contents === 'string' ? JSON.parse(proxyData.contents) : proxyData.contents;
+          // Using allorigins as a primary fallback
+          try {
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+            const proxyResponse = await fetch(proxyUrl, { signal: controller.signal });
+            if (proxyResponse.ok) {
+              const proxyData = await proxyResponse.json();
+              return typeof proxyData.contents === 'string' ? JSON.parse(proxyData.contents) : proxyData.contents;
+            }
+          } catch (proxyError) {
+            console.warn("AllOrigins fallback failed, trying CORSProxy.io...", proxyError);
           }
+
+          // Secondary fallback
+          try {
+            const proxyUrl2 = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+            const proxyResponse2 = await fetch(proxyUrl2, { signal: controller.signal });
+            if (proxyResponse2.ok) {
+              return await proxyResponse2.json();
+            }
+          } catch (proxyError2) {
+            console.error("All proxies failed", proxyError2);
+          }
+          
           throw fetchError;
         } else {
           throw fetchError;
