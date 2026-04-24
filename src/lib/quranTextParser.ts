@@ -17,15 +17,21 @@ export const parseJuzTextToVerses = (localText: string | null, currentJuz: numbe
   if (!juzInfo) return [];
 
   const surahNames = juzInfo.surahs;
+  
   // Defensive normalization: in some environments/fonts, a few Quran diacritics
   // are accidentally persisted as visually-similar but incorrect glyphs.
   // 1) Convert Arabic-context %/٪ back to standard dammatan (ٌ).
   // 2) Convert accidental U+065E (ٞ) back to standard dammatan (ٌ).
   // 3) Convert accidental U+0657 (ٗ) usage back to standard fathatan (ً).
+  // 4) Convert accidental U+0656 (ٖ) usage back to standard kasratan (ٍ).
   const normalizedText = localText
-    .replace(/(?<=[\u0600-\u06FF])[%٪](?=[\u0600-\u06FF])/gu, "\u064C")
+    .replace(/[%٪]/gu, "\u064C")
     .replace(/\u065E/gu, "\u064C")
-    .replace(/\u0657/gu, "\u064B");
+    .replace(/\u0657/gu, "\u064B")
+    .replace(/\u0656/gu, "\u064D")
+    // Remove Surah headers completely to avoid leakage
+    .replace(/^سُ?ورَةُ?.*$/gm, "");
+
   const lines = normalizedText.split("\n").filter(line => line.trim().length > 0);
   const result: ParsedVerseData[] = [];
   let currentSurahIdx = 0;
@@ -67,6 +73,8 @@ export const parseJuzTextToVerses = (localText: string | null, currentJuz: numbe
         const surahNumber = surahInfo ? surahInfo.number : 0;
 
         let hasBasmalah = false;
+        
+        // Exclude Al-Fatihah (1) and At-Tawbah (9) from basmalah stripping
         if (ayahNumber === 1 && surahNumber !== 1 && surahNumber !== 9) {
           if (BASMALAH_REGEX.test(text)) {
             text = text.replace(BASMALAH_REGEX, "").trim();
