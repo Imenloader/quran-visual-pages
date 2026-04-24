@@ -30,8 +30,8 @@ export const parseJuzTextToVerses = (localText: string | null, currentJuz: numbe
     .replace(/\u065E/gu, "\u064C")
     .replace(/\u0657/gu, "\u064B")
     .replace(/\u0656/gu, "\u064D")
-    // Remove Surah headers completely to avoid leakage
-    .replace(/^\s*سُ?ورَ[ةه]ُ?.*$/gmu, "");
+    // Remove Surah headers without removing following text on the same line
+    .replace(/^\s*سُ?ورَ[ةه]ُ?\s+[^\n(]*/gmu, "");
 
   const lines = normalizedText.split("\n").filter(line => line.trim().length > 0);
   const result: ParsedVerseData[] = [];
