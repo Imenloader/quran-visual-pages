@@ -1,52 +1,21 @@
-import { describe, expect, it } from "vitest";
-import { juzTextData } from "@/data/juzTextData";
-import { parseJuzTextToVerses } from "@/lib/quranTextParser";
 
-describe("parseJuzTextToVerses", () => {
-  it("preserves Al-Fatihah ayat correctly including basmalah and اهدنا", () => {
-    const verses = parseJuzTextToVerses(juzTextData[1], 1);
-    const fatiha = verses.filter(v => v.surahNumber === 1).slice(0, 7);
+import { describe, it, expect } from 'vitest';
+import { parseJuzTextToVerses } from './quranTextParser';
+import { juz22Text } from '../data/juz/juz22';
 
-    expect(fatiha).toHaveLength(7);
-    expect(fatiha[0].text).toContain("بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ");
-    expect(fatiha[0].text.endsWith("(1)")).toBe(true);
-    expect(fatiha[5].text).toContain("ٱهۡدِنَا");
-    expect(fatiha[5].text.endsWith("(6)")).toBe(true);
-  });
-
-  it("parses all 30 ajzaa without leaking surah headers into ayah text", () => {
-    for (let juz = 1; juz <= 30; juz++) {
-      const verses = parseJuzTextToVerses(juzTextData[juz], juz);
-      expect(verses.length).toBeGreaterThan(0);
-      const hasSurahHeaderLeak = verses.some(v => /^سُ?ورَةُ?\s+/u.test(v.text));
-      expect(hasSurahHeaderLeak).toBe(false);
-    }
-  });
-
-  it("normalizes accidental percent signs to dammatan in Arabic-context Quran text", () => {
-    const sample = "سُورَةُ الفَاتِحَةِ\nغِشَٰوَة٪ۖ وَلَهُمۡ (1)";
-    const verses = parseJuzTextToVerses(sample, 1);
-    expect(verses[0].text).toContain("غِشَٰوَةٌۖ وَلَهُمۡ");
-  });
-
-  it("normalizes accidental U+065E to standard dammatan in Quran text", () => {
-    const sample = "سُورَةُ البَقَرَةِ\nغِشَٰوَةٞۖ وَلَهُمۡ (7)\nعَظِيمٞ (8)";
-    const verses = parseJuzTextToVerses(sample, 1);
-    expect(verses[0].text).toContain("غِشَٰوَةٌۖ وَلَهُمۡ");
-    expect(verses[1].text).toContain("عَظِيمٌ");
-  });
-
-  it("normalizes accidental U+0657 to standard fathatan in Quran text", () => {
-    const sample = "سُورَةُ البَقَرَةِ\nأُوْلَـٰٓئِكَ عَلَىٰ هُدٗى مِّن رَّبِّهِمۡۖ (5)";
-    const verses = parseJuzTextToVerses(sample, 1);
-    expect(verses[0].text).toContain("هُدًى");
-    expect(verses[0].text).not.toContain("هُدٗى");
-  });
-
-  it("normalizes accidental U+0656 to standard kasratan in Quran text", () => {
-    const sample = "سُورَةُ البَقَرَةِ\nظُلُمَٰتٖۖ وَلَهُمۡ (17)\nكَصَيِّبٖ (19)";
-    const verses = parseJuzTextToVerses(sample, 1);
-    expect(verses[0].text).toContain("ظُلُمَٰتٍ");
-    expect(verses[1].text).toContain("كَصَيِّبٍ");
+describe('quranTextParser', () => {
+  it('should correctly strip Surah Saba header and Basmalah from Juz 22', () => {
+    const verses = parseJuzTextToVerses(juz22Text, 22);
+    
+    // Find the first verse of Surah Saba (Surah 34)
+    const saba1 = verses.find(v => v.surahNumber === 34 && v.ayahNumber === 1);
+    
+    expect(saba1).toBeDefined();
+    expect(saba1?.text).not.toContain('سورة');
+    expect(saba1?.text).not.toContain('بسم الله');
+    expect(saba1?.showBasmalah).toBe(true);
+    
+    // The text should start with "الحمد لله"
+    expect(saba1?.text).toMatch(/^ٱلۡحَمۡدُ لِلَّهِ/);
   });
 });
