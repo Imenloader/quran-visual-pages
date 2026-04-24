@@ -1,5 +1,5 @@
 import React from "react";
-import { Play, Pause, SkipBack, SkipForward, Music, Loader2, Sparkles, ChevronUp } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Music, Loader2, Sparkles, ChevronUp, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -9,12 +9,14 @@ import { cn } from "@/lib/utils";
 import { toArabicNumber } from "@/data/quranData";
 import { SURAHS } from "@/data/audioData";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 interface QuranPlayerBarProps {
   onPlayFirst?: () => void;
   className?: string;
   isScrollingDown?: boolean;
   isFullscreen?: boolean;
 }
+
 const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className, isScrollingDown, isFullscreen }) => {
   const { 
     isPlaying, togglePlay, skipNextAyah, skipPrevAyah,
@@ -22,13 +24,17 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
     audioLoading, currentAyahs, currentAyahIndex, currentSurah,
     syncMode, setSyncMode, reciters, playSurah, playAyah
   } = useAudioPlayer();
+
   const [isExpanded, setIsExpanded] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState("");
+
   // Auto-collapse when scrolling down
   React.useEffect(() => {
     if (isScrollingDown && isExpanded) {
       setIsExpanded(false);
     }
   }, [isScrollingDown, isExpanded]);
+
   const handlePlayToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!currentSurah && onPlayFirst) {
@@ -37,10 +43,12 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
       togglePlay();
     }
   };
+
   const progress = currentAyahs.length > 0 ? ((currentAyahIndex + 1) / currentAyahs.length) * 100 : 0;
   const radius = 22;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
+
   return (
     <motion.div 
       layout
@@ -84,6 +92,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
             />
           </svg>
         )}
+
         {/* Top Progress Line (Expanded Mode) */}
         {isExpanded && isPlaying && (
           <div className="absolute top-0 left-6 right-6 h-[1.5px] overflow-hidden rounded-full">
@@ -95,6 +104,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
             />
           </div>
         )}
+
         <AnimatePresence mode="popLayout">
           {isExpanded && (
             <motion.div 
@@ -127,11 +137,24 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                       <TabsTrigger value="reciters" className="rounded-xl data-[state=active]:bg-gold data-[state=active]:text-primary">تلاوة كاملة</TabsTrigger>
                     </TabsList>
                     
-                    <div className="flex-1 min-h-0 mt-4 overflow-hidden">
+                    <div className="px-1 mt-4 sticky top-0 z-10 bg-primary/95 backdrop-blur-md pb-2">
+                      <div className="relative">
+                        <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                        <input 
+                          type="text"
+                          placeholder="بحث..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pr-10 pl-4 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="flex-1 min-h-0 mt-2 overflow-hidden">
                       <ScrollArea className="h-full pb-32" dir="rtl">
                         <TabsContent value="surahs" className="mt-0">
                           <div className="grid grid-cols-2 gap-2 p-1">
-                            {SURAHS.map((surah) => (
+                            {SURAHS.filter(s => s.name.includes(searchQuery) || s.id.toString().includes(searchQuery)).map((surah) => (
                               <Button
                                 key={surah.id}
                                 variant={currentSurah?.id === surah.id ? "default" : "ghost"}
@@ -156,7 +179,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                         
                         <TabsContent value="editions" className="mt-0">
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-1">
-                            {editions.map((edition) => (
+                            {editions.filter(e => e.name.includes(searchQuery) || e.englishName.toLowerCase().includes(searchQuery.toLowerCase())).map((edition) => (
                               <Button
                                 key={edition.identifier}
                                 variant={selectedEdition?.identifier === edition.identifier ? "default" : "ghost"}
@@ -180,7 +203,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                         
                         <TabsContent value="reciters" className="mt-0">
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-1">
-                            {reciters.slice(0, 50).map((reciter) => (
+                            {reciters.filter(r => r.name.includes(searchQuery)).slice(0, 50).map((reciter) => (
                               <Button
                                 key={reciter.id}
                                 variant={!syncMode && currentSurah && reciter.name.includes(currentSurah.name) ? "default" : "ghost"} // Approximate check
@@ -211,7 +234,9 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                   </Tabs>
                 </SheetContent>
               </Sheet>
+
               <div className="hidden sm:block h-6 w-px bg-primary/10 mx-1" />
+
               <Button 
                 variant="ghost" 
                 size="icon" 
@@ -223,6 +248,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
             </motion.div>
           )}
         </AnimatePresence>
+
         <Button 
           variant="default" 
           size="icon" 
@@ -240,6 +266,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
             <Play size={22} fill="currentColor" className="ml-1 sm:size-[26px]" />
           )}
         </Button>
+
         <AnimatePresence mode="popLayout">
           {isExpanded && (
             <motion.div 
@@ -256,7 +283,9 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
               >
                 <SkipForward size={16} className="sm:size-[18px]" />
               </Button>
+
               <div className="hidden sm:block h-6 w-px bg-primary/10 mx-1" />
+
               <Button 
                 variant={syncMode ? "default" : "ghost"} 
                 size="icon" 
@@ -271,6 +300,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
             </motion.div>
           )}
         </AnimatePresence>
+
         <Button
           variant="ghost"
           size="icon"
@@ -288,6 +318,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
           </motion.div>
         </Button>
       </motion.div>
+
       {/* Progress Info (Integrated when expanded) */}
       <AnimatePresence>
         {isExpanded && isPlaying && currentAyahs.length > 0 && (
@@ -312,4 +343,5 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
     </motion.div>
   );
 };
+
 export default QuranPlayerBar;
