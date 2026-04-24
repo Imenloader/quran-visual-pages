@@ -1145,13 +1145,15 @@ function JuzViewer() {
       </AnimatePresence>
 
       <div className={cn(
-        "fixed left-1/2 -translate-x-1/2 z-[130] transition-all duration-700 ease-[0.16, 1, 0.3, 1]",
-        isFullscreen ? "bottom-8" : "bottom-28 md:bottom-32",
+        "fixed left-0 right-0 z-[130] px-4 pointer-events-none flex justify-center transition-all duration-700 ease-[0.16, 1, 0.3, 1]",
+        isFullscreen ? "bottom-8" : "bottom-28",
         (isFullscreen && !showControls) || isScrollingDown 
-          ? "opacity-0 pointer-events-none translate-y-20 scale-90" 
+          ? "opacity-0 translate-y-20 scale-90" 
           : "opacity-100 translate-y-0 scale-100"
       )}>
-        <QuranPlayerBar onPlayFirst={handleMainPlayToggle} isScrollingDown={isScrollingDown} isFullscreen={isFullscreen} />
+        <div className="pointer-events-auto">
+          <QuranPlayerBar onPlayFirst={handleMainPlayToggle} isScrollingDown={isScrollingDown} isFullscreen={isFullscreen} />
+        </div>
       </div>
 
       {showJuzIndex && <JuzIndex onClose={() => setShowJuzIndex(false)} currentJuz={num} />}
