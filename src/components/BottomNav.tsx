@@ -217,7 +217,8 @@ const BottomNav = () => {
           <GlobalAudioPlayer
             isVisible={isAudioVisible && !isHidden}
             // Keep center-x aligned with collapse/expand arrow center across breakpoints.
-            containerClassName="left-1/2 right-auto -translate-x-1/2 px-0 bottom-[5.75rem] md:bottom-[6.2rem]"
+            // Bottom offset tuned so compact player stacks immediately above the chevron toggle.
+            containerClassName="left-1/2 right-auto -translate-x-1/2 px-0 bottom-[4.2rem] md:bottom-[4.85rem]"
           />
         </div>
       )}
