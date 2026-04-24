@@ -230,7 +230,9 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.d      {/* Full Player Overlay via Dialog Portal */}
+      </motion.div>
+
+      {/* Full Player Overlay via Dialog Portal */}
       <Dialog open={isFullView} onOpenChange={setIsFullView}>
         <DialogPortal>
           <DialogOverlay className="bg-background/40 backdrop-blur-3xl z-[500]" />
