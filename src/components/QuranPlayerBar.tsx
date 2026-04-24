@@ -7,31 +7,28 @@ import { motion, AnimatePresence } from "motion/react";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import { cn } from "@/lib/utils";
 import { toArabicNumber } from "@/data/quranData";
-
+import { SURAHS } from "@/data/audioData";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 interface QuranPlayerBarProps {
   onPlayFirst?: () => void;
   className?: string;
   isScrollingDown?: boolean;
   isFullscreen?: boolean;
 }
-
 const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className, isScrollingDown, isFullscreen }) => {
   const { 
     isPlaying, togglePlay, skipNextAyah, skipPrevAyah,
     selectedEdition, setSelectedEdition, editions,
     audioLoading, currentAyahs, currentAyahIndex, currentSurah,
-    syncMode, setSyncMode
+    syncMode, setSyncMode, reciters, playSurah, playAyah
   } = useAudioPlayer();
-
   const [isExpanded, setIsExpanded] = React.useState(false);
-
   // Auto-collapse when scrolling down
   React.useEffect(() => {
     if (isScrollingDown && isExpanded) {
       setIsExpanded(false);
     }
   }, [isScrollingDown, isExpanded]);
-
   const handlePlayToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!currentSurah && onPlayFirst) {
@@ -40,12 +37,10 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
       togglePlay();
     }
   };
-
   const progress = currentAyahs.length > 0 ? ((currentAyahIndex + 1) / currentAyahs.length) * 100 : 0;
   const radius = 22;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
-
   return (
     <motion.div 
       layout
@@ -89,7 +84,6 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
             />
           </svg>
         )}
-
         {/* Top Progress Line (Expanded Mode) */}
         {isExpanded && isPlaying && (
           <div className="absolute top-0 left-6 right-6 h-[1.5px] overflow-hidden rounded-full">
@@ -101,7 +95,6 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
             />
           </div>
         )}
-
         <AnimatePresence mode="popLayout">
           {isExpanded && (
             <motion.div 
@@ -120,40 +113,105 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                   <SheetHeader className="text-right pb-6 border-b border-primary/5">
                     <div className="flex items-center justify-between">
                       <div className="w-10" />
-                      <SheetTitle className="font-serif text-3xl text-gold">اختر القارئ</SheetTitle>
+                      <SheetTitle className="font-serif text-3xl text-gold">إعدادات التلاوة</SheetTitle>
                       <div className="p-2 rounded-full bg-primary/5 text-white/40">
                         <Music size={20} />
                       </div>
                     </div>
-                    <SheetDescription className="font-naskh text-white/40 mt-2">تلاوة مباركة آية بآية</SheetDescription>
                   </SheetHeader>
-                  <ScrollArea className="h-full mt-6 pb-20" dir="rtl">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-2">
-                      {editions.map((edition) => (
-                        <Button
-                          key={edition.identifier}
-                          variant={selectedEdition?.identifier === edition.identifier ? "default" : "ghost"}
-                          className={cn(
-                            "justify-start h-auto py-5 px-6 rounded-[1.5rem] font-naskh text-right transition-all group",
-                            selectedEdition?.identifier === edition.identifier 
-                              ? "bg-gold text-primary shadow-xl scale-[1.02]" 
-                              : "hover:bg-primary/5 text-white/70 hover:text-white"
-                          )}
-                          onClick={() => setSelectedEdition(edition)}
-                        >
-                          <div className="flex flex-col items-start gap-1">
-                            <span className="text-lg group-hover:translate-x-1 transition-transform">{edition.name}</span>
-                            <span className="text-[10px] opacity-40 font-sans uppercase tracking-widest">{edition.englishName}</span>
+                  
+                  <Tabs defaultValue={syncMode ? "editions" : "reciters"} dir="rtl" className="mt-6 flex flex-col h-full">
+                    <TabsList className="grid w-full grid-cols-3 bg-primary/20 p-1 rounded-2xl">
+                      <TabsTrigger value="surahs" className="rounded-xl data-[state=active]:bg-gold data-[state=active]:text-primary">السور</TabsTrigger>
+                      <TabsTrigger value="editions" className="rounded-xl data-[state=active]:bg-gold data-[state=active]:text-primary">آية بآية</TabsTrigger>
+                      <TabsTrigger value="reciters" className="rounded-xl data-[state=active]:bg-gold data-[state=active]:text-primary">تلاوة كاملة</TabsTrigger>
+                    </TabsList>
+                    
+                    <div className="flex-1 min-h-0 mt-4 overflow-hidden">
+                      <ScrollArea className="h-full pb-32" dir="rtl">
+                        <TabsContent value="surahs" className="mt-0">
+                          <div className="grid grid-cols-2 gap-2 p-1">
+                            {SURAHS.map((surah) => (
+                              <Button
+                                key={surah.id}
+                                variant={currentSurah?.id === surah.id ? "default" : "ghost"}
+                                className={cn(
+                                  "justify-start h-auto py-3 px-4 rounded-xl font-naskh text-right",
+                                  currentSurah?.id === surah.id ? "bg-gold text-primary shadow-lg" : "text-white/70 hover:bg-primary/10"
+                                )}
+                                onClick={() => {
+                                  if (syncMode) playAyah(surah.id, 1);
+                                  else if (reciters.length > 0) {
+                                    const reciter = reciters[0];
+                                    const moshaf = reciter.moshaf[0];
+                                    playSurah(surah, { id: reciter.id, name: reciter.name }, { id: moshaf.id, name: moshaf.name, server: moshaf.server, surah_list: moshaf.surah_list });
+                                  }
+                                }}
+                              >
+                                <span className="text-sm">{surah.id}. {surah.name}</span>
+                              </Button>
+                            ))}
                           </div>
-                        </Button>
-                      ))}
+                        </TabsContent>
+                        
+                        <TabsContent value="editions" className="mt-0">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-1">
+                            {editions.map((edition) => (
+                              <Button
+                                key={edition.identifier}
+                                variant={selectedEdition?.identifier === edition.identifier ? "default" : "ghost"}
+                                className={cn(
+                                  "justify-start h-auto py-4 px-5 rounded-xl font-naskh text-right",
+                                  selectedEdition?.identifier === edition.identifier ? "bg-gold text-primary shadow-lg" : "text-white/70 hover:bg-primary/10"
+                                )}
+                                onClick={() => {
+                                  setSyncMode(true);
+                                  setSelectedEdition(edition);
+                                }}
+                              >
+                                <div className="flex flex-col items-start text-right">
+                                  <span className="text-md">{edition.name}</span>
+                                  <span className="text-[10px] opacity-40 uppercase">{edition.englishName}</span>
+                                </div>
+                              </Button>
+                            ))}
+                          </div>
+                        </TabsContent>
+                        
+                        <TabsContent value="reciters" className="mt-0">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-1">
+                            {reciters.slice(0, 50).map((reciter) => (
+                              <Button
+                                key={reciter.id}
+                                variant={!syncMode && currentSurah && reciter.name.includes(currentSurah.name) ? "default" : "ghost"} // Approximate check
+                                className={cn(
+                                  "justify-start h-auto py-4 px-5 rounded-xl font-naskh text-right",
+                                  !syncMode && currentSurah && reciter.name.includes(currentSurah.name) ? "bg-gold text-primary shadow-lg" : "text-white/70 hover:bg-primary/10"
+                                )}
+                                onClick={() => {
+                                  setSyncMode(false);
+                                  const moshaf = reciter.moshaf[0];
+                                  if (currentSurah) {
+                                    playSurah(currentSurah, { id: reciter.id, name: reciter.name }, { id: moshaf.id, name: moshaf.name, server: moshaf.server, surah_list: moshaf.surah_list });
+                                  } else {
+                                    playSurah(SURAHS[0], { id: reciter.id, name: reciter.name }, { id: moshaf.id, name: moshaf.name, server: moshaf.server, surah_list: moshaf.surah_list });
+                                  }
+                                }}
+                              >
+                                <div className="flex flex-col items-start text-right">
+                                  <span className="text-md">{reciter.name}</span>
+                                  <span className="text-[10px] opacity-40 uppercase">{reciter.moshaf[0]?.name || "رواية حفص"}</span>
+                                </div>
+                              </Button>
+                            ))}
+                          </div>
+                        </TabsContent>
+                      </ScrollArea>
                     </div>
-                  </ScrollArea>
+                  </Tabs>
                 </SheetContent>
               </Sheet>
-
               <div className="hidden sm:block h-6 w-px bg-primary/10 mx-1" />
-
               <Button 
                 variant="ghost" 
                 size="icon" 
@@ -165,7 +223,6 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
             </motion.div>
           )}
         </AnimatePresence>
-
         <Button 
           variant="default" 
           size="icon" 
@@ -183,7 +240,6 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
             <Play size={22} fill="currentColor" className="ml-1 sm:size-[26px]" />
           )}
         </Button>
-
         <AnimatePresence mode="popLayout">
           {isExpanded && (
             <motion.div 
@@ -200,9 +256,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
               >
                 <SkipForward size={16} className="sm:size-[18px]" />
               </Button>
-
               <div className="hidden sm:block h-6 w-px bg-primary/10 mx-1" />
-
               <Button 
                 variant={syncMode ? "default" : "ghost"} 
                 size="icon" 
@@ -217,7 +271,6 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
             </motion.div>
           )}
         </AnimatePresence>
-
         <Button
           variant="ghost"
           size="icon"
@@ -235,7 +288,6 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
           </motion.div>
         </Button>
       </motion.div>
-
       {/* Progress Info (Integrated when expanded) */}
       <AnimatePresence>
         {isExpanded && isPlaying && currentAyahs.length > 0 && (
@@ -260,5 +312,4 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
     </motion.div>
   );
 };
-
 export default QuranPlayerBar;
