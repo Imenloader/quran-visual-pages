@@ -196,8 +196,15 @@ export interface QuranImageSource {
 
 export const QURAN_IMAGE_SOURCES: QuranImageSource[] = [
   {
+    id: "madinah-alt",
+    nameAr: "مصحف المدينة (مصدر بديل - GitHub)",
+    nameEn: "Madinah (GitHub)",
+    isTajweed: false,
+    getUrl: (p) => `https://raw.githubusercontent.com/zeyadetman/quran-pages-images/master/images/${p}.jpg`
+  },
+  {
     id: "tajweed",
-    nameAr: "مصحف التجويد",
+    nameAr: "مصحف التجويد (GitHub)",
     nameEn: "Tajweed Quran",
     isTajweed: true,
     getUrl: (p) => `https://jahedev.github.io/tajweed-quran-pages/hafs/tajweed-${p}.jpg`
@@ -215,13 +222,6 @@ export const QURAN_IMAGE_SOURCES: QuranImageSource[] = [
     nameEn: "Madinah (Classic)",
     isTajweed: false,
     getUrl: (p) => `https://madinah-quran.com/pages/${p}.png`
-  },
-  {
-    id: "madinah-alt",
-    nameAr: "مصحف المدينة (مصدر بديل)",
-    nameEn: "Madinah (Alt)",
-    isTajweed: false,
-    getUrl: (p) => `https://raw.githubusercontent.com/zeyadetman/quran-pages-images/master/images/${p}.jpg`
   },
   {
     id: "mushaf-standard",
