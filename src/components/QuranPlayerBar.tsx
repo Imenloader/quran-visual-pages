@@ -237,15 +237,15 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
         <DialogPortal>
           <DialogOverlay className="bg-background/40 backdrop-blur-3xl z-[500]" />
           <DialogContent 
-            className="fixed inset-0 z-[501] max-w-none w-full h-full border-none p-0 bg-transparent flex flex-col focus:outline-none"
+            className="fixed inset-0 z-[501] flex items-center justify-center p-0 sm:p-4 md:p-8 bg-transparent border-none focus:outline-none"
             onPointerDownOutside={(e) => e.preventDefault()}
           >
             <motion.div
-              initial={{ y: "100%", opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: "100%", opacity: 0 }}
+              initial={{ y: "100%", opacity: 0, scale: 0.95 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: "100%", opacity: 0, scale: 0.95 }}
               transition={{ type: "spring", damping: 28, stiffness: 220 }}
-              className="w-full h-full bg-gradient-to-b from-primary-foreground/5 to-primary/95 flex flex-col relative overflow-hidden"
+              className="w-full h-full max-h-[100dvh] sm:max-w-3xl sm:h-[90vh] sm:rounded-[3.5rem] bg-gradient-to-b from-primary-foreground/5 to-primary/95 flex flex-col relative overflow-hidden shadow-2xl"
             >
               {/* Animated Background Pattern */}
               <div className="absolute inset-0 opacity-5 pointer-events-none pattern-islamic scale-150 rotate-12" />
@@ -275,9 +275,9 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
               </div>
 
               {/* Main Content Area */}
-              <div className="relative z-10 flex-1 flex flex-col items-center justify-around px-8 text-center pb-8">
+              <div className="relative z-10 flex-1 flex flex-col items-center justify-around px-8 text-center py-4 min-h-0 overflow-y-auto custom-scrollbar">
                 {/* Centerpiece - Shamsa (Islamic Star) */}
-                <div className="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center">
+                <div className="relative w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 flex-shrink-0 flex items-center justify-center my-4">
                   {/* Outer Rings */}
                   <motion.div 
                     animate={{ rotate: 360 }}
@@ -308,11 +308,11 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                 </div>
 
                 {/* Info & Metadata */}
-                <div className="w-full max-w-md space-y-6">
-                  <div className="space-y-2">
+                <div className="w-full max-w-md space-y-4 sm:space-y-6">
+                  <div className="space-y-1 sm:space-y-2">
                     <motion.h1 
                       layout
-                      className="text-4xl md:text-6xl font-serif font-bold text-white drop-shadow-2xl"
+                      className="text-3xl sm:text-4xl md:text-6xl font-serif font-bold text-white drop-shadow-2xl"
                     >
                       {currentSurah?.name || "اختر سورة للبدء"}
                     </motion.h1>
@@ -347,38 +347,38 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                 </div>
 
                 {/* Playback Controls */}
-                <div className="flex items-center gap-10 md:gap-16">
+                <div className="flex items-center gap-6 sm:gap-10 md:gap-16 my-4">
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="h-16 w-16 rounded-full bg-white/5 hover:bg-white/10 text-white active:scale-90 transition-all"
+                    className="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-white/5 hover:bg-white/10 text-white active:scale-90 transition-all"
                     onClick={skipPrevAyah}
                   >
-                    <SkipBack size={32} />
+                    <SkipBack size={28} className="sm:size-[32px]" />
                   </Button>
                   
                   <Button 
                     variant="default" 
                     size="icon" 
-                    className="h-24 w-24 md:h-32 md:w-32 rounded-full bg-gold text-primary shadow-[0_0_50px_rgba(212,175,55,0.3)] hover:scale-105 hover:shadow-gold/40 active:scale-95 transition-all"
+                    className="h-20 w-20 sm:h-24 sm:w-24 md:h-32 md:w-32 rounded-full bg-gold text-primary shadow-[0_0_50px_rgba(212,175,55,0.3)] hover:scale-105 hover:shadow-gold/40 active:scale-95 transition-all"
                     onClick={handlePlayToggle}
                   >
                     {audioLoading ? (
-                      <Loader2 size={40} className="animate-spin" />
+                      <Loader2 size={32} className="animate-spin sm:size-[40px]" />
                     ) : isPlaying ? (
-                      <Pause size={48} fill="currentColor" />
+                      <Pause size={36} fill="currentColor" className="sm:size-[48px]" />
                     ) : (
-                      <Play size={48} fill="currentColor" className="ml-2" />
+                      <Play size={36} fill="currentColor" className="ml-1 sm:size-[48px] sm:ml-2" />
                     )}
                   </Button>
 
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="h-16 w-16 rounded-full bg-white/5 hover:bg-white/10 text-white active:scale-90 transition-all"
+                    className="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-white/5 hover:bg-white/10 text-white active:scale-90 transition-all"
                     onClick={skipNextAyah}
                   >
-                    <SkipForward size={32} />
+                    <SkipForward size={28} className="sm:size-[32px]" />
                   </Button>
                 </div>
               </div>
