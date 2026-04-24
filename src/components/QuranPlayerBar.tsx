@@ -2,7 +2,7 @@ import React from "react";
 import { Play, Pause, SkipBack, SkipForward, Music, Loader2, Sparkles, ChevronUp, Search, ChevronDown, Maximize2, Settings, Volume2, ListMusic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
-import { Dialog, DialogContent, DialogPortal, DialogOverlay } from "@/components/ui/dialog";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion, AnimatePresence } from "motion/react";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
@@ -232,23 +232,23 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
         </AnimatePresence>
       </motion.div>
 
-      {/* Full Player Overlay via Dialog Portal */}
-      <Dialog open={isFullView} onOpenChange={setIsFullView}>
-        <DialogPortal>
-          <DialogOverlay className="bg-background/40 backdrop-blur-3xl z-[500]" />
-          <DialogContent 
-            className="fixed inset-0 z-[501] flex items-center justify-center p-0 sm:p-4 md:p-8 bg-transparent border-none focus:outline-none"
+      {/* Full Player Overlay via raw Radix Portal to bypass UI kit constraints */}
+      <DialogPrimitive.Root open={isFullView} onOpenChange={setIsFullView}>
+        <DialogPrimitive.Portal>
+          <DialogPrimitive.Overlay className="fixed inset-0 z-[500] bg-background/60 backdrop-blur-3xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+          <DialogPrimitive.Content 
+            className="fixed inset-0 z-[501] flex items-center justify-center p-0 sm:p-4 md:p-8 focus:outline-none"
             onPointerDownOutside={(e) => e.preventDefault()}
           >
             <motion.div
-              initial={{ y: "100%", opacity: 0, scale: 0.95 }}
+              initial={{ y: "100%", opacity: 0, scale: 0.9 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ y: "100%", opacity: 0, scale: 0.95 }}
-              transition={{ type: "spring", damping: 28, stiffness: 220 }}
-              className="w-full h-full max-h-[100dvh] sm:max-w-3xl sm:h-[90vh] sm:rounded-[3.5rem] bg-gradient-to-b from-primary-foreground/5 to-primary/95 flex flex-col relative overflow-hidden shadow-2xl"
+              exit={{ y: "100%", opacity: 0, scale: 0.9 }}
+              transition={{ type: "spring", damping: 30, stiffness: 200 }}
+              className="w-full h-full max-h-[100dvh] sm:max-w-4xl sm:h-[85vh] sm:rounded-[3.5rem] bg-gradient-to-br from-emerald-deep via-primary to-primary-foreground/10 flex flex-col relative overflow-hidden shadow-[0_0_120px_rgba(0,0,0,0.6)] border border-white/5"
             >
               {/* Animated Background Pattern */}
-              <div className="absolute inset-0 opacity-5 pointer-events-none pattern-islamic scale-150 rotate-12" />
+              <div className="absolute inset-0 opacity-[0.03] pointer-events-none pattern-islamic scale-150 rotate-12" />
               
               {/* Header */}
               <div className="relative z-10 px-6 pt-12 pb-8 flex items-center justify-between">
@@ -386,20 +386,20 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
               {/* Bottom Quick-Switch Area */}
               <div className="relative z-10 bg-primary/20 backdrop-blur-3xl rounded-t-[3.5rem] border-t border-white/10 px-6 pt-10 pb-8 h-[35vh]">
                 <Tabs defaultValue={syncMode ? "editions" : "reciters"} dir="rtl" className="h-full flex flex-col">
-                  <TabsList className="grid w-full grid-cols-3 bg-white/5 p-1.5 rounded-[2rem] border border-white/5 mb-6">
-                    <TabsTrigger value="surahs" className="rounded-2xl py-3 data-[state=active]:bg-gold data-[state=active]:text-primary font-bold">السور</TabsTrigger>
-                    <TabsTrigger value="editions" className="rounded-2xl py-3 data-[state=active]:bg-gold data-[state=active]:text-primary font-bold">آية بآية</TabsTrigger>
-                    <TabsTrigger value="reciters" className="rounded-2xl py-3 data-[state=active]:bg-gold data-[state=active]:text-primary font-bold">تلاوة كاملة</TabsTrigger>
+                  <TabsList className="grid w-full grid-cols-3 bg-white/5 p-1.5 rounded-[2.5rem] border border-white/10 mb-6 shadow-inner">
+                    <TabsTrigger value="surahs" className="rounded-[2rem] py-3.5 data-[state=active]:bg-gold data-[state=active]:text-primary data-[state=active]:shadow-xl transition-all duration-500 font-bold text-sm tracking-wide">السور</TabsTrigger>
+                    <TabsTrigger value="editions" className="rounded-[2rem] py-3.5 data-[state=active]:bg-gold data-[state=active]:text-primary data-[state=active]:shadow-xl transition-all duration-500 font-bold text-sm tracking-wide">آية بآية</TabsTrigger>
+                    <TabsTrigger value="reciters" className="rounded-[2rem] py-3.5 data-[state=active]:bg-gold data-[state=active]:text-primary data-[state=active]:shadow-xl transition-all duration-500 font-bold text-sm tracking-wide">تلاوة كاملة</TabsTrigger>
                   </TabsList>
 
-                  <div className="relative mb-4">
-                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                  <div className="relative mb-5 group">
+                    <Search className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gold/40 group-focus-within:text-gold transition-colors" />
                     <input 
                       type="text"
                       placeholder="بحث..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pr-12 pl-6 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50"
+                      className="w-full bg-white/[0.03] border border-white/10 rounded-[1.5rem] py-4 pr-14 pl-6 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30 focus:bg-white/[0.05] transition-all"
                     />
                   </div>
 
@@ -491,9 +491,9 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                 </Tabs>
               </div>
             </motion.div>
-          </DialogContent>
-        </DialogPortal>
-      </Dialog>
+          </DialogPrimitive.Content>
+        </DialogPrimitive.Portal>
+      </DialogPrimitive.Root>
     </>
   );
 };
