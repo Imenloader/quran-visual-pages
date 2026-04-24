@@ -77,33 +77,23 @@ export const parseJuzTextToVerses = (localText: string | null, currentJuz: numbe
         
         // Exclude Al-Fatihah (1) and At-Tawbah (9) from basmalah stripping
         if (ayahNumber === 1 && surahNumber !== 1 && surahNumber !== 9) {
-          // Robust check for Basmalah at the start of Ayah 1
-          const normalizedBasmalah = "باسم الله الرحمن الرحيم";
-          const normalizedAyahText = normalizeArabic(text);
+          const normalizedBasmalah = "بسم الله الرحمن الرحيم";
+          const words = text.split(/\s+/);
           
-          if (BASMALAH_REGEX.test(text)) {
+          // Try to find if the first 4 words normalize to Basmalah
+          // We check 4 words because "بسم الله الرحمن الرحيم" is exactly 4 words
+          if (words.length >= 4) {
+            const firstFour = words.slice(0, 4).join(" ");
+            if (normalizeArabic(firstFour) === normalizedBasmalah) {
+              text = words.slice(4).join(" ").trim();
+              hasBasmalah = true;
+            }
+          }
+          
+          // Fallback to regex if word check didn't catch it
+          if (!hasBasmalah && BASMALAH_REGEX.test(text)) {
             text = text.replace(BASMALAH_REGEX, "").trim();
             hasBasmalah = true;
-          } else if (normalizedAyahText.startsWith(normalizedBasmalah)) {
-            // Fallback for cases where diacritics might be different
-            // We'll try to find where the Basmalah ends by looking for the normalized version
-            // This is a bit tricky with diacritics, so we'll use a more aggressive regex or just clear common prefixes
-            const aggressiveBasmalahRegex = /^\s*بِسْمِ?\s*اللَّهِ?\s*الرَّحْمَـٰنِ?\s*الرَّحِيمِ?\s*/u;
-            if (aggressiveBasmalahRegex.test(text)) {
-              text = text.replace(aggressiveBasmalahRegex, "").trim();
-              hasBasmalah = true;
-            } else {
-              // Last resort: if it's too different, we might have to manually strip a fixed amount or pattern
-              // But usually the above covers it. Let's try to strip up to the first 4-5 words if they normalize to Basmalah
-              const words = text.split(/\s+/);
-              if (words.length >= 4) {
-                const firstFour = normalizeArabic(words.slice(0, 4).join(" "));
-                if (firstFour === normalizedBasmalah) {
-                  text = words.slice(4).join(" ").trim();
-                  hasBasmalah = true;
-                }
-              }
-            }
           }
         }
 
