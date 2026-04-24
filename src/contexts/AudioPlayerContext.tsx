@@ -148,7 +148,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
   const syncModeRef = useRef(syncMode);
   const volumeRef = useRef(volume);
   const isMutedRef = useRef(isMuted);
-  const playSurahInternalRef = useRef<((surah: Surah, server: string, resumeTime?: number) => Promise<void>) | null>(null);
+  const playSurahInternalRef = useRef<((surah: Surah, server: string, resumeTime?: number, forceRegularMode?: boolean) => Promise<void>) | null>(null);
   const playNextSurahInternalRef = useRef<(() => void) | null>(null);
   const playPrevSurahInternalRef = useRef<(() => void) | null>(null);
   const playAyahInternalRef = useRef<((surahId: number, ayahIdx: number, ayahs: AyahAudio[]) => Promise<void>) | null>(null);
@@ -451,13 +451,13 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     audioRef.current.addEventListener("ended", onAyahEnd);
   }, [safePlay, currentSurah]);
 
-  const playSurahInternal = useCallback(async (surah: Surah, server: string, resumeTime?: number) => {
+  const playSurahInternal = useCallback(async (surah: Surah, server: string, resumeTime?: number, forceRegularMode = false) => {
     if (!audioRef.current) return;
     
     setCurrentSurah(surah);
     setAudioLoading(true);
     
-    if (syncModeRef.current && selectedEdition) {
+    if (!forceRegularMode && syncModeRef.current && selectedEdition) {
       try {
         const data = await fetchChapterAudio(surah.id, selectedEdition.identifier);
         if (data && data.audio_files) {
@@ -532,13 +532,14 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (isPlaying && currentSurah) {
       // If we are playing, and the mode or edition changes, we should restart the current surah/ayah in the new mode
-      if (syncMode) {
+      // Only switch if the internal state (currentAyahs) doesn't match the new syncMode
+      if (syncMode && currentAyahs.length === 0) {
         // If switching to sync mode, start from the current ayah index if possible
         const targetAyah = currentAyahIndex >= 0 && currentAyahs[currentAyahIndex] 
           ? currentAyahs[currentAyahIndex].numberInSurah 
           : 1;
         playAyah(currentSurah.id, targetAyah);
-      } else if (currentMoshafRef.current) {
+      } else if (!syncMode && currentAyahs.length > 0 && currentMoshafRef.current) {
         // If switching to full surah mode, resume from current time
         playSurahInternalRef.current?.(currentSurah, currentMoshafRef.current.server, currentTime);
       }
@@ -594,7 +595,9 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     // When playing a full surah from a specific reciter, we should disable sync mode
     // unless the user explicitly wants it. This ensures we use the selected reciter's server.
     setSyncMode(false);
-    playSurahInternalRef.current?.(surah, moshaf.server, resumeTime);
+    syncModeRef.current = false; // Update Ref immediately to avoid race conditions in playSurahInternal
+    if (!resumeTime) setCurrentTime(0); // Reset time if not resuming
+    playSurahInternalRef.current?.(surah, moshaf.server, resumeTime, true);
   }, []);
 
   const playPlaylistQueue = useCallback((tracks: PlaylistTrackGlobal[], name: string, startIndex = 0) => {
