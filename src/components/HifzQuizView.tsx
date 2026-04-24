@@ -274,14 +274,23 @@ const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, onComplete, onC
               <motion.div 
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className={`flex items-center justify-center gap-2 p-4 rounded-2xl ${isCorrect ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600"}`}
+                className="space-y-4"
               >
-                {isCorrect ? <CheckCircle2 /> : <XCircle />}
-                <span className="font-bold font-serif">
-                  {isCorrect 
-                    ? (isAr ? "إجابة صحيحة! أحسنت." : "Correct answer! Well done.") 
-                    : (isAr ? `خطأ، الإجابة هي: ${current.answer}` : `Incorrect, the answer is: ${current.answer}`)}
-                </span>
+                <div className={`flex items-center justify-center gap-2 p-4 rounded-2xl ${isCorrect ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600"}`}>
+                  {isCorrect ? <CheckCircle2 /> : <XCircle />}
+                  <span className="font-bold font-serif">
+                    {isCorrect 
+                      ? (isAr ? "إجابة صحيحة! أحسنت." : "Correct answer! Well done.") 
+                      : (isAr ? `خطأ، الإجابة هي: ${current.answer}` : `Incorrect, the answer is: ${current.answer}`)}
+                  </span>
+                </div>
+                
+                {current.explanation && (
+                  <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-700 text-sm text-center font-serif leading-relaxed italic">
+                    <Sparkles className="w-4 h-4 inline-block ml-2 opacity-70" />
+                    {current.explanation}
+                  </div>
+                )}
               </motion.div>
             )}
           </div>

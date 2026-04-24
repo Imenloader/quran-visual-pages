@@ -1,13 +1,15 @@
 import { fetchPageVerses } from "@/services/quranService";
 import { normalizeArabic } from "./arabicUtils";
+import { COMMON_ENDINGS, COMMON_STARTERS, CONFUSING_WORDS } from "./hifzDistractors";
 
 export interface HifzQuestion {
   id: string;
-  type: "positional" | "completion" | "transitional" | "statistical" | "mutashabihat";
+  type: "positional" | "completion" | "transitional" | "statistical" | "mutashabihat" | "bridge" | "ending";
   question: string;
   answer: string;
   options?: string[];
   hint?: string;
+  explanation?: string;
   verseKey?: string;
 }
 
@@ -17,65 +19,109 @@ export const generatePageQuiz = async (pageNumber: number, difficulty: "beginner
 
   const questions: HifzQuestion[] = [];
 
-  // 1. Positional: First word of the page (Good for everyone)
+  // 1. Boundary: First word of the page
   const firstAyahText = ayahs[0].text;
-  const firstWord = firstAyahText.split(/\s+/).filter(w => w.length > 0)[0];
+  const words = firstAyahText.split(/\s+/).filter(w => w.length > 0);
   
-  if (difficulty === "beginner") {
-    // MCQ for beginners
-    questions.push({
-      id: `pos-first-${pageNumber}`,
-      type: "positional",
-      question: "ما هي الكلمة التي تبدأ بها هذه الصفحة؟",
-      answer: firstWord,
-      options: shuffle([firstWord, "الحمد", "يا أيها", "إن الذين", "قل", "إذا", "سبح"].filter(w => w !== firstWord).slice(0, 3).concat(firstWord)),
-      hint: "انظر إلى بداية أول آية"
-    });
-  } else {
-    questions.push({
-      id: `pos-first-${pageNumber}`,
-      type: "positional",
-      question: "ما هي الكلمة الأولى في هذه الصفحة؟",
-      answer: firstWord,
-      hint: `تبدأ بحرف: ${firstWord ? firstWord[0] : ""}`
-    });
-  }
+  // Helper to skip signs/symbols (find first word with Arabic letters)
+  const isRealWord = (w: string) => /[\u0600-\u06FF]/.test(w);
+  const firstWordRaw = words.find(isRealWord) || words[0];
+  
+  // Clean decorative signs for display (e.g. remove Sajdah/Juz signs)
+  const cleanWord = (w: string) => w.replace(/[\u06DE\u06E9\u06D6-\u06ED]/g, "").trim();
+  const firstWord = cleanWord(firstWordRaw);
+  
+  questions.push({
+    id: `pos-first-${pageNumber}`,
+    type: "positional",
+    question: "ما هي الكلمة التي تبدأ بها هذه الصفحة؟",
+    answer: firstWord,
+    options: difficulty === "beginner" ? shuffle([firstWord, "الحمد", "يا أيها", "إن الذين", "قل", "إذا", "سبح"].filter(w => w !== firstWord).slice(0, 3).concat(firstWord)) : undefined,
+    hint: "انظر إلى بداية أول آية"
+  });
 
-  // 2. Completion: Verse Start (Good for newcomers)
-  const filteredAyahs = ayahs.filter(a => a.text.split(/\s+/).length > 4);
-  const randomIdx = Math.floor(Math.random() * (filteredAyahs.length || ayahs.length));
-  const verse = filteredAyahs[randomIdx] || ayahs[randomIdx];
-  const verseWords = verse.text.split(/\s+/).filter(w => w.length > 0);
-  
-  if (difficulty === "beginner" && verseWords.length > 3) {
-    const start = verseWords.slice(0, 3).join(" ");
-    const nextWord = verseWords[3];
-    questions.push({
-      id: `comp-start-${pageNumber}`,
-      type: "completion",
-      question: `ما هي الكلمة التالية بعد: "${start} ..."؟`,
-      answer: nextWord,
-      options: shuffle([nextWord, "الله", "الذين", "كذلك", "هم", "كانوا", "من"].filter(w => w !== nextWord).slice(0, 3).concat(nextWord)),
-      verseKey: verse.verseKey
-    });
-  } else if (verseWords.length > 3) {
-    // Fill in the blank for advanced
-    const targetIdx = Math.floor(Math.random() * (verseWords.length - 2)) + 1;
-    const missingWord = verseWords[targetIdx];
-    const partialVerse = [...verseWords];
-    partialVerse[targetIdx] = "..........";
+  // 2. Bridge Question: Transition between verses
+  if (ayahs.length > 1) {
+    const randomIdx = Math.floor(Math.random() * (ayahs.length - 1));
+    const verseA = ayahs[randomIdx];
+    const verseB = ayahs[randomIdx + 1];
+    
+    const wordsA = verseA.text.split(/\s+/).filter(w => w.length > 0);
+    const wordsB = verseB.text.split(/\s+/).filter(w => w.length > 0);
+    
+    const endingA = wordsA.slice(-3).map(cleanWord).join(" ");
+    const starterB = wordsB.slice(0, 3).map(cleanWord).join(" ");
     
     questions.push({
-      id: `comp-${pageNumber}-${randomIdx}`,
-      type: "completion",
-      question: `أكمل الفراغ في الآية: "${partialVerse.slice(Math.max(0, targetIdx - 2), targetIdx + 3).join(" ")}"`,
-      answer: missingWord,
-      verseKey: verse.verseKey
+      id: `bridge-${pageNumber}-${randomIdx}`,
+      type: "bridge",
+      question: `تنتهي الآية بـ: "... ${endingA}". كيف تبدأ الآية التالية؟`,
+      answer: starterB,
+      options: difficulty === "beginner" ? shuffle([starterB, ...COMMON_STARTERS.filter(s => s !== starterB).slice(0, 3)]) : undefined,
+      hint: "هذا اختبار للربط بين الآيات",
+      explanation: "الربط بين رؤوس الآيات من أهم مهارات الحفظ."
     });
   }
 
-  // 3. Positional: Last word (Advanced/Reviewer)
-  if (difficulty === "advanced") {
+  // 3. Ending Question: Mutashabihat focus
+  const ayahsWithEndings = ayahs.filter(a => {
+    const words = a.text.split(/\s+/).filter(w => w.length > 0).map(cleanWord);
+    const ending = words.slice(-2).join(" ");
+    return COMMON_ENDINGS.some(ce => ce.includes(ending) || CE_SIMILAR(ce, ending));
+  });
+
+  if (ayahsWithEndings.length > 0) {
+    const verse = ayahsWithEndings[Math.floor(Math.random() * ayahsWithEndings.length)];
+    const words = verse.text.split(/\s+/).filter(w => w.length > 0).map(cleanWord);
+    const actualEnding = words.slice(-2).join(" ");
+    const startOfVerse = words.slice(0, -2).join(" ");
+
+    questions.push({
+      id: `ending-${pageNumber}-${verse.verseKey}`,
+      type: "ending",
+      question: `أكمل ختام الآية: "${startOfVerse.split(" ").slice(-5).join(" ")} ..."`,
+      answer: actualEnding,
+      options: shuffle([actualEnding, ...COMMON_ENDINGS.filter(ce => ce !== actualEnding).slice(0, 3)]),
+      verseKey: verse.verseKey,
+      explanation: "تنبيه: هذا الموضع من المتشابهات التي يكثر فيها الخطأ."
+    });
+  }
+
+  // 4. Word Accuracy: Tiny words (إن/أن/قل/قالوا)
+  const accuracyAyahs = ayahs.filter(a => Object.keys(CONFUSING_WORDS).some(word => a.text.includes(word)));
+  if (accuracyAyahs.length > 0) {
+    const verse = accuracyAyahs[Math.floor(Math.random() * accuracyAyahs.length)];
+    const words = verse.text.split(/\s+/).filter(w => w.length > 0);
+    
+    // Find a confusing word in this verse
+    let targetIdx = -1;
+    let targetWord = "";
+    for (let i = 0; i < words.length; i++) {
+      if (CONFUSING_WORDS[words[i]]) {
+        targetIdx = i;
+        targetWord = words[i];
+        break;
+      }
+    }
+
+    if (targetIdx !== -1) {
+      const partial = [...words];
+      partial[targetIdx] = "__________";
+      
+      questions.push({
+        id: `acc-${pageNumber}-${verse.verseKey}`,
+        type: "mutashabihat",
+        question: `اختر الكلمة الصحيحة: "... ${partial.slice(Math.max(0, targetIdx - 2), targetIdx + 3).join(" ")} ..."`,
+        answer: targetWord,
+        options: shuffle([targetWord, ...CONFUSING_WORDS[targetWord]]),
+        verseKey: verse.verseKey,
+        explanation: `دقة اللفظ تميز الحافظ المتقن. الكلمة الصحيحة هي ${targetWord}.`
+      });
+    }
+  }
+
+  // 5. Boundary: Last word
+  if (difficulty === "advanced" || questions.length < 3) {
     const lastAyahText = ayahs[ayahs.length - 1].text;
     const words = lastAyahText.split(/\s+/).filter(w => w.length > 0);
     const lastWord = words[words.length - 1];
@@ -88,24 +134,13 @@ export const generatePageQuiz = async (pageNumber: number, difficulty: "beginner
     });
   }
 
-  // 4. Transitional: First verse of next page (Reviewer)
-  if (pageNumber < 604) {
-    const nextAyahs = await fetchPageVerses(pageNumber + 1);
-    if (nextAyahs && nextAyahs.length > 0) {
-      const nextFirstVerse = nextAyahs[0].text;
-      const nextWords = nextFirstVerse.split(/\s+/).slice(0, 3).join(" ");
-      questions.push({
-        id: `trans-${pageNumber}`,
-        type: "transitional",
-        question: difficulty === "beginner" ? "كيف تبدأ الصفحة التالية؟" : "اذكر أول كلمات الصفحة التالية",
-        answer: nextWords,
-        options: difficulty === "beginner" ? shuffle([nextWords, "يا أيها الناس", "الم", "تبارك الذي", "قد أفلح", "سبح لله", "إنما"].filter(w => w !== nextWords).slice(0, 3).concat(nextWords)) : undefined,
-      });
-    }
-  }
-
-  return questions;
+  return questions.slice(0, 5); // Return up to 5 varied questions
 };
+
+// Helper for finding similar endings even if not exact match (partial overlap)
+function CE_SIMILAR(ce: string, ending: string): boolean {
+  return ce.includes(ending) || ending.includes(ce);
+}
 
 function shuffle<T>(array: T[]): T[] {
   return [...array].sort(() => Math.random() - 0.5);
