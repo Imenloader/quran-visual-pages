@@ -60,10 +60,10 @@ const BottomNav = () => {
   if (settings.maintenanceMode && !isAdmin && !systemLoading) return null;
 
   return (
-    <div className="fixed left-0 right-0 bottom-0 z-50 flex flex-col-reverse items-center pointer-events-none pb-4 md:pb-6">
+    <div className="fixed left-0 right-0 bottom-0 z-50 flex flex-col items-center pointer-events-none pb-4 md:pb-6">
       <div className="relative w-full max-w-xl flex flex-col items-center">
         {/* Collapsing Toggle Button */}
-        <div className="pointer-events-auto mb-[-1px] relative z-50">
+        <div className="pointer-events-auto mb-1 relative z-[120]">
           <motion.button
           initial={false}
           animate={{ 
@@ -74,14 +74,14 @@ const BottomNav = () => {
             setIsHidden(!isHidden);
             triggerHaptic();
           }}
-          className="w-12 h-7 rounded-t-2xl bg-card/95 backdrop-blur-xl border border-border/40 border-b-0 flex items-center justify-center text-muted-foreground hover:text-accent transition-all shadow-lg group"
+          className="w-12 h-7 rounded-t-2xl bg-card/95 backdrop-blur-xl border border-border/60 border-b-0 flex items-center justify-center text-primary hover:text-accent transition-all shadow-xl shadow-black/10 group"
           aria-label={isHidden ? t("nav.showMenu") : t("nav.hideMenu")}
         >
           <motion.div
             animate={{ rotate: isHidden ? 0 : 180 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
-            <ChevronUp size={18} className="group-hover:scale-110 transition-transform" />
+            <ChevronUp size={18} className="group-hover:scale-110 transition-transform drop-shadow-sm" />
           </motion.div>
         </motion.button>
       </div>
@@ -93,7 +93,7 @@ const BottomNav = () => {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="w-full max-w-xl px-4 md:px-6 pb-4 md:pb-6 pointer-events-auto"
+            className="w-full max-w-xl px-4 md:px-6 pb-4 md:pb-6 pointer-events-auto relative z-[100]"
           >
             <div className="bg-card/95 backdrop-blur-2xl border border-border/40 rounded-[2rem] md:rounded-[2.5rem] shadow-2xl p-1.5 md:p-2 flex items-center justify-around relative overflow-hidden">
               <div className="absolute inset-0 pattern-islamic opacity-[0.03] rounded-[2rem] md:rounded-[2.5rem] overflow-hidden pointer-events-none" />
@@ -171,7 +171,7 @@ const BottomNav = () => {
 
       {/* Global Audio Player integrated with Nav Bar */}
       {!location.pathname.startsWith("/juz/") && (
-        <div className="pointer-events-auto z-[60] mb-6 md:mb-8">
+        <div className="pointer-events-auto z-[130] mb-2">
           <GlobalAudioPlayer />
         </div>
       )}
