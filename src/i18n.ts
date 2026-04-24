@@ -176,6 +176,7 @@ const resources = {
       "common": {
         "all": "All",
         "back": "Back",
+        "backToTop": "Back to top",
         "close": "Close",
         "confirm": "Confirm"
       },
@@ -685,6 +686,7 @@ const resources = {
       "common": {
         "all": "الكل",
         "back": "رجوع",
+        "backToTop": "العودة إلى الأعلى",
         "close": "إغلاق",
         "confirm": "تأكيد"
       },

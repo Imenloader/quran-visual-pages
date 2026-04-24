@@ -9,6 +9,11 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
+interface GlobalAudioPlayerProps {
+  containerClassName?: string;
+  isVisible?: boolean;
+}
+
 const formatTime = (seconds: number): string => {
   if (isNaN(seconds) || !isFinite(seconds)) return "00:00";
   const mins = Math.floor(seconds / 60);
@@ -16,7 +21,7 @@ const formatTime = (seconds: number): string => {
   return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
 };
 
-const GlobalAudioPlayer = () => {
+const GlobalAudioPlayer = ({ containerClassName, isVisible = true }: GlobalAudioPlayerProps) => {
   const { t } = useTranslation();
   const location = useLocation();
   const {
@@ -50,9 +55,19 @@ const GlobalAudioPlayer = () => {
   const handleVolumeChange = (val: number[]) => {
     handleVolume(val);
   };
+  // Only hide the compact floating button on scroll; keep expanded/fullscreen usable.
+  const shouldHideByScroll = !isVisible && !isExpanded && !isFullScreen;
 
   return (
-    <div className="fixed bottom-20 left-0 right-0 z-[100] px-4 pointer-events-none flex justify-center">
+    <div
+      className={cn(
+        // High z-index keeps player above the bottom-nav stack.
+        "fixed left-0 right-0 bottom-28 z-[180] px-4 pointer-events-none flex justify-center transition-all duration-300 ease-in-out",
+        // Use transform-based animation for smooth performant hide/reveal.
+        shouldHideByScroll ? "opacity-0 translate-y-20 pointer-events-none" : "opacity-100 translate-y-0",
+        containerClassName
+      )}
+    >
       <AnimatePresence mode="wait">
         {isFullScreen ? (
           <motion.div

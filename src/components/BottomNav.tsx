@@ -1,4 +1,4 @@
-import { useState, useCallback, memo } from "react";
+import { useState, useCallback, memo, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Clock, Shield, User, Home, ChevronUp, LayoutGrid } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -27,6 +27,12 @@ const BottomNav = () => {
   const { profile, isAdmin } = useUser();
   const { settings, loading: systemLoading } = useSystem();
   const [isHidden, setIsHidden] = useState(false);
+  const [isAudioVisible, setIsAudioVisible] = useState(true);
+  const lastScrollY = useRef(0);
+  // Ignore very small scroll changes to prevent flicker/jitter.
+  const SCROLL_DELTA_TOLERANCE = 8;
+  // Wait until user has moved away from top content before auto-hiding player.
+  const SCROLL_HIDE_START = 80;
 
   const NAV_ITEMS = [
     { 
@@ -54,16 +60,52 @@ const BottomNav = () => {
     }
   };
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    lastScrollY.current = window.scrollY;
+    setIsAudioVisible(true);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      const delta = currentY - lastScrollY.current;
+
+      if (Math.abs(delta) < SCROLL_DELTA_TOLERANCE) {
+        lastScrollY.current = currentY;
+        return;
+      }
+
+      // Keep the player visible near top so header/intro remains uncluttered.
+      if (currentY < SCROLL_HIDE_START) {
+        setIsAudioVisible(true);
+      } else if (delta > 0) {
+        // Scrolling down: slide player out of view.
+        setIsAudioVisible(false);
+      } else {
+        // Scrolling up: bring player back into view.
+        setIsAudioVisible(true);
+      }
+
+      lastScrollY.current = currentY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   if (isFullscreen) return null;
   
   // Hide in maintenance mode for non-admins
   if (settings.maintenanceMode && !isAdmin && !systemLoading) return null;
 
   return (
-    <div className="fixed left-0 right-0 bottom-0 z-50 flex flex-col-reverse items-center pointer-events-none pb-4 md:pb-6">
+    <div className="fixed left-0 right-0 bottom-0 z-50 flex flex-col items-center pointer-events-none pb-4 md:pb-6">
       <div className="relative w-full max-w-xl flex flex-col items-center">
         {/* Collapsing Toggle Button */}
-        <div className="pointer-events-auto mb-[-1px] relative z-50">
+        <div className="pointer-events-auto mb-1 relative z-[120]">
           <motion.button
           initial={false}
           animate={{ 
@@ -74,14 +116,14 @@ const BottomNav = () => {
             setIsHidden(!isHidden);
             triggerHaptic();
           }}
-          className="w-12 h-7 rounded-t-2xl bg-card/95 backdrop-blur-xl border border-border/40 border-b-0 flex items-center justify-center text-muted-foreground hover:text-accent transition-all shadow-lg group"
+          className="w-12 h-7 rounded-t-2xl bg-card/95 backdrop-blur-xl border border-border/60 border-b-0 flex items-center justify-center text-primary hover:text-accent transition-all shadow-xl shadow-black/10 group"
           aria-label={isHidden ? t("nav.showMenu") : t("nav.hideMenu")}
         >
           <motion.div
             animate={{ rotate: isHidden ? 0 : 180 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
-            <ChevronUp size={18} className="group-hover:scale-110 transition-transform" />
+            <ChevronUp size={18} className="group-hover:scale-110 transition-transform drop-shadow-sm" />
           </motion.div>
         </motion.button>
       </div>
@@ -93,7 +135,7 @@ const BottomNav = () => {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="w-full max-w-xl px-4 md:px-6 pb-4 md:pb-6 pointer-events-auto"
+            className="w-full max-w-xl px-4 md:px-6 pb-4 md:pb-6 pointer-events-auto relative z-[100]"
           >
             <div className="bg-card/95 backdrop-blur-2xl border border-border/40 rounded-[2rem] md:rounded-[2.5rem] shadow-2xl p-1.5 md:p-2 flex items-center justify-around relative overflow-hidden">
               <div className="absolute inset-0 pattern-islamic opacity-[0.03] rounded-[2rem] md:rounded-[2.5rem] overflow-hidden pointer-events-none" />
@@ -171,8 +213,12 @@ const BottomNav = () => {
 
       {/* Global Audio Player integrated with Nav Bar */}
       {!location.pathname.startsWith("/juz/") && (
-        <div className="pointer-events-auto z-[60] mb-6 md:mb-8">
-          <GlobalAudioPlayer />
+        <div className="pointer-events-auto z-[150]">
+          <GlobalAudioPlayer
+            isVisible={isAudioVisible && !isHidden}
+            // Keep center-x aligned with collapse/expand arrow center across breakpoints.
+            containerClassName="left-1/2 right-auto -translate-x-1/2 px-0 bottom-[5.75rem] md:bottom-[6.2rem]"
+          />
         </div>
       )}
     </div>
