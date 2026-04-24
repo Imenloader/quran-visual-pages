@@ -31,7 +31,7 @@ export const parseJuzTextToVerses = (localText: string | null, currentJuz: numbe
     .replace(/\u0657/gu, "\u064B")
     .replace(/\u0656/gu, "\u064D")
     // Remove Surah headers completely to avoid leakage
-    .replace(/^سُ?ورَةُ?.*$/gm, "");
+    .replace(/^\s*سُ?ورَ[ةه]ُ?.*$/gmu, "");
 
   const lines = normalizedText.split("\n").filter(line => line.trim().length > 0);
   const result: ParsedVerseData[] = [];
@@ -77,7 +77,7 @@ export const parseJuzTextToVerses = (localText: string | null, currentJuz: numbe
         
         // 1. Remove Surah header if present at the start of the text
         if (ayahNumber === 1) {
-          const surahHeaderRegex = /^\s*سُ?ورَةُ?\s+[^\n(]*/u;
+          const surahHeaderRegex = /^\s*سُ?ورَ[ةه]ُ?\s+[^\n(]*/u;
           if (surahHeaderRegex.test(text)) {
             text = text.replace(surahHeaderRegex, "").trim();
           }
@@ -118,7 +118,7 @@ export const parseJuzTextToVerses = (localText: string | null, currentJuz: numbe
           showBasmalah: hasBasmalah
         });
       } else if (text) {
-        if (/^سُ?ورَةُ?\s+/u.test(text)) {
+        if (/^سُ?ورَ[ةه]ُ?\s+/u.test(text)) {
           continue;
         }
         carryOverText = `${carryOverText} ${text}`.trim();
