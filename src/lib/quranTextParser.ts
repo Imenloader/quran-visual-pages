@@ -78,15 +78,18 @@ export const parseJuzTextToVerses = (localText: string | null, currentJuz: numbe
         // Exclude Al-Fatihah (1) and At-Tawbah (9) from basmalah stripping
         if (ayahNumber === 1 && surahNumber !== 1 && surahNumber !== 9) {
           const normalizedBasmalah = "بسم الله الرحمن الرحيم";
-          const words = text.split(/\s+/);
+          const normalizedAyah = normalizeArabic(text);
           
-          // Try to find if the first 4 words normalize to Basmalah
-          // We check 4 words because "بسم الله الرحمن الرحيم" is exactly 4 words
-          if (words.length >= 4) {
-            const firstFour = words.slice(0, 4).join(" ");
-            if (normalizeArabic(firstFour) === normalizedBasmalah) {
-              text = words.slice(4).join(" ").trim();
-              hasBasmalah = true;
+          if (normalizedAyah.startsWith(normalizedBasmalah)) {
+            const words = text.split(/\s+/);
+            // Try to find the exact word boundary where the Basmalah ends
+            for (let i = 1; i <= Math.min(words.length, 6); i++) {
+              const prefix = words.slice(0, i).join(" ");
+              if (normalizeArabic(prefix) === normalizedBasmalah) {
+                text = words.slice(i).join(" ").trim();
+                hasBasmalah = true;
+                break;
+              }
             }
           }
           
