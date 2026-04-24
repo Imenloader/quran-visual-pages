@@ -52,7 +52,7 @@ const GlobalAudioPlayer = () => {
   };
 
   return (
-    <div className="fixed bottom-20 left-0 right-0 z-[100] px-4 pointer-events-none flex justify-center">
+    <div className="fixed bottom-28 left-0 right-0 z-[110] px-4 pointer-events-none flex justify-center">
       <AnimatePresence mode="wait">
         {isFullScreen ? (
           <motion.div
