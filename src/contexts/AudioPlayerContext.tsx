@@ -523,8 +523,13 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     
     navigator.mediaSession.metadata = new MediaMetadata({
       title: `سورة ${currentSurah.name}`,
-      artist: selectedReciterName,
-      album: "القرآن الكريم",
+      artist: selectedReciterName || t("player.reciter") || "القارئ",
+      album: t("common.quran") || "القرآن الكريم",
+      artwork: [
+        { src: "/pwa-192x192.png", sizes: "192x192", type: "image/png" },
+        { src: "/pwa-512x512.png", sizes: "512x512", type: "image/png" },
+        { src: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
+      ]
     });
 
     const playHandler = () => {
@@ -578,24 +583,22 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const playAyah = useCallback(async (surahId: number, ayahNumber: number, juzId?: number) => {
-    if (!selectedEdition) {
-      const defaultEdition = { identifier: "7", name: "العفاسي", englishName: "Alafasy", language: "ar", format: "audio", type: "versebyverse", direction: null };
-      setSelectedEdition(defaultEdition);
-    }
-    
+    const edition = selectedEdition || { identifier: "7", name: "العفاسي", englishName: "Alafasy", language: "ar", format: "audio", type: "versebyverse", direction: null };
+    if (!selectedEdition) setSelectedEdition(edition);
+    setSelectedReciterName(edition.name);
+
     if (audioRef.current) audioRef.current.pause();
     
     setSyncMode(true);
     setAudioLoading(true);
     setCurrentJuzId(juzId || null);
-    
+
     try {
-      // Import fetchJuzAudio from service if needed (already in quranService)
       const { fetchChapterAudio, fetchJuzAudio } = await import("@/services/quranService");
       
       const data = juzId 
-        ? await fetchJuzAudio(juzId, selectedEdition.identifier)
-        : await fetchChapterAudio(surahId, selectedEdition.identifier);
+        ? await fetchJuzAudio(juzId, edition.identifier)
+        : await fetchChapterAudio(surahId, edition.identifier);
 
       if (data && data.audio_files) {
         const ayahs = data.audio_files.map((v: any) => ({
@@ -609,7 +612,6 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
         const surah = SURAHS.find(s => s.id === surahId);
         if (surah) setCurrentSurah(surah);
         
-        // If we have a juzId, we need to find the correct ayah in the entire juz list
         const idx = ayahs.findIndex((a: AyahAudio) => {
           if (juzId) {
             const [sId, aNum] = a.number.toString().split(':').map(Number);

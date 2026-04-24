@@ -68,9 +68,10 @@ const getNextPrayer = (
 const syncToNativeWidget = async (name: string, time: string, city: string) => {
   if (Capacitor.getPlatform() !== "android") return;
   try {
-    await Preferences.set({ key: "next_prayer_name", value: PRAYER_NAMES[name as keyof PrayerTimesData] || name });
-    await Preferences.set({ key: "next_prayer_time", value: time });
-    await Preferences.set({ key: "city_name", value: city });
+    const prayerName = PRAYER_NAMES[name as keyof PrayerTimesData] || name;
+    await Preferences.set({ key: "next_prayer_name", value: prayerName || "..." });
+    await Preferences.set({ key: "next_prayer_time", value: time || "" });
+    await Preferences.set({ key: "city_name", value: city || "Quraaniat" });
   } catch (err) {
     console.error("Failed to sync to widget:", err);
   }
