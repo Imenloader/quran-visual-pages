@@ -42,4 +42,11 @@ describe("parseJuzTextToVerses", () => {
     expect(verses[0].text).toContain("هُدًى");
     expect(verses[0].text).not.toContain("هُدٗى");
   });
+
+  it("normalizes accidental U+0656 to standard kasratan in Quran text", () => {
+    const sample = "سُورَةُ البَقَرَةِ\nظُلُمَٰتٖۖ وَلَهُمۡ (17)\nكَصَيِّبٖ (19)";
+    const verses = parseJuzTextToVerses(sample, 1);
+    expect(verses[0].text).toContain("ظُلُمَٰتٍ");
+    expect(verses[1].text).toContain("كَصَيِّبٍ");
+  });
 });
