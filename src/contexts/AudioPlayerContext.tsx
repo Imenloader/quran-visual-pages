@@ -393,7 +393,17 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
 
     const ayah = ayahs[ayahIdx];
     setCurrentAyahIndex(ayahIdx);
-    setCurrentVerseKey(`${surahId}:${ayah.numberInSurah}`);
+    
+    // Extract actual surahId from verse key if playing across surahs (e.g. in a Juz)
+    const verseKey = ayah.number.toString();
+    const actualSurahId = parseInt(verseKey.split(':')[0]);
+    
+    if (currentSurah?.id !== actualSurahId) {
+      const newSurah = SURAHS.find(s => s.id === actualSurahId);
+      if (newSurah) setCurrentSurah(newSurah);
+    }
+    
+    setCurrentVerseKey(verseKey);
     
     let url = ayah.audio;
     if (!url) {
@@ -432,7 +442,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     
     ayahEndedListenerRef.current = onAyahEnd;
     audioRef.current.addEventListener("ended", onAyahEnd);
-  }, [safePlay]);
+  }, [safePlay, currentSurah]);
 
   const playSurahInternal = useCallback(async (surah: Surah, server: string, resumeTime?: number) => {
     if (!audioRef.current) return;

@@ -104,11 +104,16 @@ export const parseJuzTextToVerses = (localText: string | null, currentJuz: numbe
         const westernNum = numMatch[0].replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d).toString());
         const ayahNumber = parseInt(westernNum);
 
-        if (ayahNumber === 1 && result.length > 0) {
-          currentSurahIdx++;
+        // More robust surah transition: ayah 1 OR ayah number decreased
+        const lastAyah = result.length > 0 ? result[result.length - 1].ayahNumber : 0;
+        if (result.length > 0 && (ayahNumber === 1 || ayahNumber < lastAyah) && currentSurahIdx < surahNames.length - 1) {
+          // Verify it's not just a duplicate marker for the same surah
+          if (ayahNumber !== lastAyah) {
+            currentSurahIdx++;
+          }
         }
 
-        const surahName = surahNames[currentSurahIdx] || surahNames[surahNames.length - 1];
+        const surahName = surahNames[currentSurahIdx];
         const surahInfo = surahIndex.find(s => s.name === surahName);
         const surahNumber = surahInfo ? surahInfo.number : 0;
 
