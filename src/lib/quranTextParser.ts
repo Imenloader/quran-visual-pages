@@ -30,8 +30,10 @@ export const parseJuzTextToVerses = (localText: string | null, currentJuz: numbe
     .replace(/\u065E/gu, "\u064C")
     .replace(/\u0657/gu, "\u064B")
     .replace(/\u0656/gu, "\u064D")
-    // Remove Surah headers without removing following text on the same line
-    .replace(/^\s*سُ?ورَ[ةه]ُ?\s+[^\n(]*/gmu, "");
+    // Remove standalone Surah header lines (handling potential \r and trailing spaces)
+    .replace(/^\s*سُ?ورَ[ةه]ُ?.*$/gm, "")
+    // Remove Surah headers that are on the same line as the Basmalah or verse
+    .replace(/سُ?ورَ[ةه]ُ?\s+[^\n(]{1,40}?(?=\s+ب[ِـِّ]*سۡمِ|\s+ب[ِـِّ]*سم|\s*بِسۡمِ|\s*بِّسۡمِ|[\(\[﴿])/gu, "");
 
   const lines = normalizedText.split("\n").filter(line => line.trim().length > 0);
   const result: ParsedVerseData[] = [];
@@ -46,6 +48,43 @@ export const parseJuzTextToVerses = (localText: string | null, currentJuz: numbe
     const marker = markerMatch[0];
     const base = verseText.slice(0, -marker.length).trim();
     return `${base} ${fragment}${marker}`.trim();
+  };
+
+  const cleanHeaderAndBasmalah = (text: string, surahNum: number, ayahNum: number): { cleaned: string, hasBasmalah: boolean } => {
+    let cleaned = text.trim();
+    let hasBasmalah = false;
+
+    // 1. Remove Surah header if present anywhere in the start of the text for ayah 1
+    if (ayahNum === 1) {
+      cleaned = cleaned.replace(/^\s*سُ?ورَ[ةه]ُ?\s+[^\n(]{1,40}?(?=\s+ب[ِـِّ]*سۡمِ|\s+ب[ِـِّ]*سم|\s*بِسۡمِ|\s*بِّسۡمِ|[\(\[﴿]|$)/u, "").trim();
+    }
+
+    // 2. Remove Basmalah if present (except for Al-Fatihah and At-Tawbah)
+    if (ayahNum === 1 && surahNum !== 1 && surahNum !== 9) {
+      const normalizedBasmalah = "بسم الله الرحمن الرحيم";
+      const normalizedContent = normalizeArabic(cleaned);
+      
+      if (normalizedContent.startsWith(normalizedBasmalah)) {
+        const words = cleaned.split(/\s+/);
+        // Try to find the exact word boundary where the Basmalah ends
+        for (let i = 1; i <= Math.min(words.length, 6); i++) {
+          const prefix = words.slice(0, i).join(" ");
+          if (normalizeArabic(prefix) === normalizedBasmalah) {
+            cleaned = words.slice(i).join(" ").trim();
+            hasBasmalah = true;
+            break;
+          }
+        }
+      }
+      
+      // Fallback to regex if word check didn't catch it
+      if (!hasBasmalah && BASMALAH_REGEX.test(cleaned)) {
+        cleaned = cleaned.replace(BASMALAH_REGEX, "").trim();
+        hasBasmalah = true;
+      }
+    }
+
+    return { cleaned, hasBasmalah };
   };
 
   let carryOverText = "";
@@ -73,43 +112,10 @@ export const parseJuzTextToVerses = (localText: string | null, currentJuz: numbe
         const surahInfo = surahIndex.find(s => s.name === surahName);
         const surahNumber = surahInfo ? surahInfo.number : 0;
 
-        let hasBasmalah = false;
-        
-        // 1. Remove Surah header if present at the start of the text
-        if (ayahNumber === 1) {
-          const surahHeaderRegex = /^\s*سُ?ورَ[ةه]ُ?\s+[^\n(]*/u;
-          if (surahHeaderRegex.test(text)) {
-            text = text.replace(surahHeaderRegex, "").trim();
-          }
-        }
-
-        // 2. Exclude Al-Fatihah (1) and At-Tawbah (9) from basmalah stripping
-        if (ayahNumber === 1 && surahNumber !== 1 && surahNumber !== 9) {
-          const normalizedBasmalah = "بسم الله الرحمن الرحيم";
-          const normalizedAyah = normalizeArabic(text);
-          
-          if (normalizedAyah.startsWith(normalizedBasmalah)) {
-            const words = text.split(/\s+/);
-            // Try to find the exact word boundary where the Basmalah ends
-            for (let i = 1; i <= Math.min(words.length, 6); i++) {
-              const prefix = words.slice(0, i).join(" ");
-              if (normalizeArabic(prefix) === normalizedBasmalah) {
-                text = words.slice(i).join(" ").trim();
-                hasBasmalah = true;
-                break;
-              }
-            }
-          }
-          
-          // Fallback to regex if word check didn't catch it
-          if (!hasBasmalah && BASMALAH_REGEX.test(text)) {
-            text = text.replace(BASMALAH_REGEX, "").trim();
-            hasBasmalah = true;
-          }
-        }
+        const { cleaned, hasBasmalah } = cleanHeaderAndBasmalah(text, surahNumber, ayahNumber);
 
         result.push({
-          text: `${text} (${ayahNumber})`,
+          text: `${cleaned} (${ayahNumber})`,
           surahNumber,
           ayahNumber,
           surahName,
@@ -118,7 +124,8 @@ export const parseJuzTextToVerses = (localText: string | null, currentJuz: numbe
           showBasmalah: hasBasmalah
         });
       } else if (text) {
-        if (/^سُ?ورَ[ةه]ُ?\s+/u.test(text)) {
+        // If it looks like a surah header, skip it
+        if (/^\s*سُ?ورَ[ةه]ُ?\s+[^\n(]{1,40}$/u.test(text)) {
           continue;
         }
         carryOverText = `${carryOverText} ${text}`.trim();
