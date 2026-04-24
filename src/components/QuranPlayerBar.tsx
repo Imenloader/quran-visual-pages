@@ -437,7 +437,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                       
                       <TabsContent value="reciters" className="mt-0 focus-visible:ring-0 outline-none">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-4">
-                          {reciters.filter(r => r.name.includes(searchQuery)).slice(0, 50).map((reciter) => (
+                          {reciters.filter(r => r.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 200).map((reciter) => (
                             <button
                               key={reciter.id}
                               onClick={() => {
@@ -449,15 +449,15 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                                   playSurah(SURAHS[0], { id: reciter.id, name: reciter.name }, { id: moshaf.id, name: moshaf.name, server: moshaf.server, surah_list: moshaf.surah_list });
                                 }
                               }}
-                              className={cn(
-                                "flex flex-col p-4 rounded-2xl border transition-all text-right",
-                                !syncMode && currentSurah && reciter.name.includes(currentSurah.name) // Approximate
-                                  ? "bg-primary border-primary text-primary-foreground font-bold shadow-lg shadow-primary/20" 
-                                  : "bg-muted/20 border-border/10 hover:bg-muted/40 text-foreground/70"
-                              )}
+                                className={cn(
+                                  "flex flex-col p-4 rounded-2xl border transition-all text-right",
+                                  !syncMode && selectedReciterName === reciter.name
+                                    ? "bg-primary border-primary text-primary-foreground font-bold shadow-lg shadow-primary/20" 
+                                    : "bg-muted/20 border-border/10 hover:bg-muted/40 text-foreground/70"
+                                )}
                             >
                               <span className="text-base font-serif">{reciter.name}</span>
-                              <span className={cn("text-[10px] uppercase tracking-widest", !syncMode && currentSurah && reciter.name.includes(currentSurah.name) ? "text-primary-foreground/60" : "text-muted-foreground/40")}>
+                              <span className={cn("text-[10px] uppercase tracking-widest", !syncMode && selectedReciterName === reciter.name ? "text-primary-foreground/60" : "text-muted-foreground/40")}>
                                 {reciter.moshaf[0]?.name || "رواية حفص عن عاصم"}
                               </span>
                             </button>

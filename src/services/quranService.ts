@@ -31,7 +31,7 @@ export const fetchAudioEditions = async (): Promise<Edition[]> => {
     if (data && data.recitations) {
       return data.recitations.map((r: any) => ({
         identifier: r.id.toString(),
-        name: r.reciter_name,
+        name: r.translated_name?.name || r.reciter_name,
         englishName: r.reciter_name,
         format: "audio",
         type: "versebyverse"
