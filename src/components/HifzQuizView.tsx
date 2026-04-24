@@ -8,6 +8,7 @@ import { Input } from "./ui/input";
 import { useHifzMastery } from "@/hooks/useHifzMastery";
 import { toArabicNumber } from "@/data/quranData";
 import { normalizeArabic } from "@/lib/arabicUtils";
+import { toast } from "sonner";
 
 interface HifzQuizViewProps {
   pageNumber: number;
@@ -32,17 +33,27 @@ const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, onComplete, onC
   const [hasStarted, setHasStarted] = useState(false);
 
   const startQuiz = async (diff: "beginner" | "advanced") => {
+    if (!pageNumber || pageNumber < 1) {
+      toast.error(isAr ? "رقم الصفحة غير صالح" : "Invalid page number");
+      return;
+    }
+    
     setDifficulty(diff);
     setLoading(true);
     try {
       const generated = await generatePageQuiz(pageNumber, diff);
+      if (!generated || generated.length === 0) {
+        toast.error(isAr ? "لم نتمكن من إنشاء أسئلة لهذه الصفحة حالياً" : "Could not generate questions for this page at this time");
+        setLoading(false);
+        return;
+      }
       setQuestions(generated);
       setLoading(false);
       setHasStarted(true);
     } catch (error) {
       console.error("Quiz generation error:", error);
       setLoading(false);
-      toast.error(isAr ? "تعذر إنشاء الاختبار لهذه الصفحة" : "Could not generate quiz for this page");
+      toast.error(isAr ? "تعذر إنشاء الاختبار لهذه الصفحة. يرجى التحقق من الاتصال." : "Could not generate quiz for this page. Please check connection.");
     }
   };
 
@@ -95,23 +106,23 @@ const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, onComplete, onC
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 gap-4 w-full">
           <Button 
             variant="outline" 
-            className="h-20 rounded-2xl flex flex-col items-center justify-center gap-1 border-emerald-500/20 hover:bg-emerald-500/5 hover:border-emerald-500/40"
+            className="w-full h-24 rounded-[2rem] flex flex-col items-center justify-center gap-1 border-emerald-500/20 hover:bg-emerald-500/5 hover:border-emerald-500/40 cursor-pointer transition-all active:scale-95"
             onClick={() => startQuiz("beginner")}
           >
-            <span className="font-bold text-emerald-600">{isAr ? "مبتدئ / حفظ جديد" : "Beginner / New Hifz"}</span>
-            <span className="text-[10px] text-muted-foreground">{isAr ? "خيارات متعددة وأسئلة سهلة" : "Multiple choice & easy questions"}</span>
+            <span className="font-bold text-emerald-600 text-lg">{isAr ? "مبتدئ / حفظ جديد" : "Beginner / New Hifz"}</span>
+            <span className="text-xs text-muted-foreground">{isAr ? "خيارات متعددة وأسئلة سهلة" : "Multiple choice & easy questions"}</span>
           </Button>
 
           <Button 
             variant="outline" 
-            className="h-20 rounded-2xl flex flex-col items-center justify-center gap-1 border-accent/20 hover:bg-accent/5 hover:border-accent/40"
+            className="w-full h-24 rounded-[2rem] flex flex-col items-center justify-center gap-1 border-accent/20 hover:bg-accent/5 hover:border-accent/40 cursor-pointer transition-all active:scale-95"
             onClick={() => startQuiz("advanced")}
           >
-            <span className="font-bold text-accent">{isAr ? "متقدم / مراجعة" : "Advanced / Review"}</span>
-            <span className="text-[10px] text-muted-foreground">{isAr ? "كتابة يدوية وأسئلة دقيقة" : "Text input & detailed questions"}</span>
+            <span className="font-bold text-accent text-lg">{isAr ? "متقدم / مراجعة" : "Advanced / Review"}</span>
+            <span className="text-xs text-muted-foreground">{isAr ? "كتابة يدوية وأسئلة دقيقة" : "Text input & detailed questions"}</span>
           </Button>
         </div>
       </div>
