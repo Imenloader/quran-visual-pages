@@ -27,7 +27,6 @@ import { useKhatmaNotifications } from "./hooks/useKhatmaNotifications";
 import { usePeriodicReminders } from "./hooks/usePeriodicReminders";
 import { usePrayerNotifications } from "./hooks/usePrayerNotifications";
 import { useGoalNotifications } from "./hooks/useGoalNotifications";
-import { AudioUnlockBanner } from "./components/AudioUnlockBanner";
 import SplashScreen from "./components/SplashScreen";
 import ScrollRestoration from "./components/ScrollRestoration";
 import CommandPalette from "./components/CommandPalette";
@@ -236,7 +235,6 @@ const AppContent = () => {
           <ServiceWorkerRegistration />
           <LanguageHandler />
           <NetworkStatus />
-          <AudioUnlockBanner />
           <CommandPalette />
           <div className="page-dimming-overlay" />
           <Toaster />
