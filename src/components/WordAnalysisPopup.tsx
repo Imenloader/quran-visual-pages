@@ -27,48 +27,76 @@ interface VerseByKeyResponse {
   };
 }
 
-interface QuraniTag {
-  code?: string;
-  meaning?: string;
-  user_meaning?: string;
-}
+const normalizeSpaces = (value: string) => value.replace(/\s+/g, " ").trim();
 
-interface QuraniMorphologyResponse {
-  code?: number;
-  data?: {
-    morphology?: {
-      tags_by_category?: {
-        Root?: QuraniTag[];
-        Irab?: QuraniTag[];
-        Sarf?: QuraniTag[];
-      };
-    };
-  };
-}
-
-const pickTagText = (tags: QuraniTag[] = []) =>
-  tags
-    .map((tag) => tag.user_meaning || tag.meaning || tag.code || "")
-    .map((text) => text.trim())
-    .filter(Boolean);
-
-const fetchQuraniMorphology = async (location: string) => {
-  const url = `https://api.qurani.ai/gw/qh/v1/morphology/word/${location}?include_meaning=true`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error("Failed to load Qurani morphology");
-  const json: QuraniMorphologyResponse = await res.json();
-  const tags = json?.data?.morphology?.tags_by_category;
-  const rootCandidates = pickTagText(tags?.Root || []);
-  const grammarCandidates = [
-    ...pickTagText(tags?.Irab || []),
-    ...pickTagText(tags?.Sarf || []),
+const toArabicGrammarLabel = (value: string) => {
+  const replacements: Array<[RegExp, string]> = [
+    [/noun/gi, "اسم"],
+    [/verb/gi, "فعل"],
+    [/particle/gi, "حرف"],
+    [/preposition/gi, "حرف جر"],
+    [/pronoun/gi, "ضمير"],
+    [/imperative/gi, "أمر"],
+    [/perfect/gi, "ماضٍ"],
+    [/imperfect/gi, "مضارع"],
+    [/genitive/gi, "مجرور"],
+    [/accusative/gi, "منصوب"],
+    [/nominative/gi, "مرفوع"],
+    [/masculine/gi, "مذكر"],
+    [/feminine/gi, "مؤنث"],
+    [/singular/gi, "مفرد"],
+    [/plural/gi, "جمع"],
+    [/dual/gi, "مثنى"],
+    [/active participle/gi, "اسم فاعل"],
+    [/passive participle/gi, "اسم مفعول"],
   ];
 
-  return {
-    rootText: rootCandidates[0] || null,
-    grammarText: grammarCandidates.length ? grammarCandidates.join(" • ") : null,
-    sourceUrl: `https://qurani.ai/en/morphology/${location}`,
-  };
+  return replacements.reduce((text, [pattern, ar]) => text.replace(pattern, ar), value);
+};
+
+const parseCorpusMorphology = (content: string) => {
+  const rootMatch =
+    content.match(/(?:الجذر|Root)\s*[:：]\s*([^\n\r]+)/i) ||
+    content.match(/root is[^()]*\(([^)]+)\)/i);
+
+  const rootTextRaw = rootMatch?.[1] || "";
+  const rootText = normalizeSpaces(rootTextRaw.replace(/[^\u0621-\u063A\u0641-\u064A\s]/g, "")) || null;
+
+  const grammarMatch =
+    content.match(/(?:الإعراب|Grammar|Morphology)\s*[:：]\s*([^\n\r]+)/i) ||
+    content.match(/(noun|verb|particle|preposition|pronoun|imperative|perfect|imperfect)[^.\n\r]{0,120}/i);
+
+  const grammarTextRaw = grammarMatch?.[1] || grammarMatch?.[0] || "";
+  const grammarText = grammarTextRaw ? normalizeSpaces(toArabicGrammarLabel(grammarTextRaw)) : null;
+
+  return { rootText, grammarText };
+};
+
+const fetchArabicCorpusMorphology = async (location: string) => {
+  const baseUrl = `http://corpus.quran.com/wordmorphology.jsp?location=(${location})`;
+  const proxies = [
+    `https://r.jina.ai/http://corpus.quran.com/wordmorphology.jsp?location=(${location})`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(baseUrl)}`,
+  ];
+
+  for (const url of proxies) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const text = await res.text();
+      const parsed = parseCorpusMorphology(text);
+      if (parsed.rootText || parsed.grammarText) {
+        return {
+          ...parsed,
+          sourceUrl: `https://corpus.quran.com/wordmorphology.jsp?location=(${location})`,
+        };
+      }
+    } catch {
+      // try next proxy
+    }
+  }
+
+  throw new Error("Failed to load Arabic corpus morphology");
 };
 
 const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({ word, surahNumber, ayahNumber, wordIndex, onClose }) => {
@@ -137,7 +165,7 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({ word, surahNumber
         const missingGrammar = !wordData?.grammar?.text && !wordData?.grammar?.type;
         if ((missingRoot || missingGrammar) && wordData.location) {
           try {
-            const morphology = await fetchQuraniMorphology(wordData.location);
+            const morphology = await fetchArabicCorpusMorphology(wordData.location);
             wordData = {
               ...wordData,
               root: wordData.root?.text ? wordData.root : { text: morphology.rootText || "غير متوفر" },
@@ -147,7 +175,7 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({ word, surahNumber
               corpusUrl: morphology.sourceUrl,
             };
           } catch {
-            // Keep Quran.com data as-is if Qurani API fallback is unavailable.
+            // Keep Quran.com data as-is if Arabic corpus fallback is unavailable.
           }
         }
 
