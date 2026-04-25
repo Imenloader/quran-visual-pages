@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, lazy, Suspense } from 
 import {
   MapPin, Clock, Bell, BellOff, Volume2, VolumeX,
   Settings, Loader2, RefreshCw, Edit3, Check, X,
-  ChevronDown, ChevronUp,
+  ChevronDown, ChevronUp, Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
