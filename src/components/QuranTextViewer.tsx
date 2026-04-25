@@ -172,21 +172,35 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
   const renderVerseWords = (verse: VerseData, isHidden: boolean) => {
     if (isHidden) return verse.text;
     
-    // Split by spaces, but keep the word for word index consistent
     const words = verse.text.split(/\s+/).filter(w => w.length > 0);
-    return words.map((word, i) => (
-      <span
-        key={i}
-        onClick={(e) => {
-          if (hifzMode) return;
-          e.stopPropagation();
-          setSelectedWord({ word, index: i, verse });
-        }}
-        className="hover:text-accent hover:underline decoration-accent/30 decoration-wavy underline-offset-4 transition-all duration-300"
-      >
-        {tajweedMode ? applyTajweedColors(word) : word}{" "}
-      </span>
-    ));
+    return words.map((word, i) => {
+      const isAyahNumber = i === words.length - 1 && word.includes('(') && word.includes(')');
+      
+      if (isAyahNumber) {
+        return (
+          <span 
+            key={i} 
+            className="text-accent font-serif font-bold hover:scale-110 inline-block transition-transform ml-1"
+          >
+            {word}{" "}
+          </span>
+        );
+      }
+
+      return (
+        <span
+          key={i}
+          onClick={(e) => {
+            if (hifzMode) return;
+            e.stopPropagation();
+            setSelectedWord({ word, index: i, verse });
+          }}
+          className="hover:text-accent hover:underline decoration-accent/30 decoration-wavy underline-offset-4 transition-all duration-300"
+        >
+          {tajweedMode ? applyTajweedColors(word) : word}{" "}
+        </span>
+      );
+    });
   };
 
   useEffect(() => {
