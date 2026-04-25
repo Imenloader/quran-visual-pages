@@ -8,7 +8,10 @@ import { Input } from "./ui/input";
 import { useHifzMastery } from "@/hooks/useHifzMastery";
 import { toArabicNumber } from "@/data/quranData";
 import { normalizeArabic, areArabicWordsSimilar } from "@/lib/arabicUtils";
+import { Haptics, ImpactStyle, NotificationType } from "@capacitor/haptics";
+import { Capacitor } from "@capacitor/core";
 import { toast } from "sonner";
+import HifzMasteryMap from "./HifzMasteryMap";
 
 interface HifzQuizViewProps {
   pageNumber: number;
@@ -63,8 +66,16 @@ const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, onComplete, onC
     const correct = areArabicWordsSimilar(actualAnswer, current.answer);
     
     setIsCorrect(correct);
+    
     if (correct) {
       setScore(s => s + 1);
+      if (Capacitor.isNativePlatform()) {
+        Haptics.notification({ type: NotificationType.Success });
+      }
+    } else {
+      if (Capacitor.isNativePlatform()) {
+        Haptics.notification({ type: NotificationType.Error });
+      }
     }
     if (answerOverride) setUserAnswer(answerOverride);
     else setUserAnswer(actualAnswer); // Sync state for non-override calls too if needed
@@ -117,6 +128,15 @@ const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, onComplete, onC
             <span className="font-bold text-accent text-lg">{isAr ? "متقدم / مراجعة" : "Advanced / Review"}</span>
             <span className="text-xs text-muted-foreground">{isAr ? "كتابة يدوية وأسئلة دقيقة" : "Text input & detailed questions"}</span>
           </Button>
+        </div>
+
+        {/* Mastery Map Section */}
+        <div className="pt-4 border-t border-primary/10">
+          <h3 className="text-sm font-serif font-bold text-primary mb-4 flex items-center gap-2 justify-center">
+            <Sparkles size={16} className="text-accent" />
+            {isAr ? "خريطة إتقان الحفظ" : "Hifz Mastery Map"}
+          </h3>
+          <HifzMasteryMap />
         </div>
       </div>
     );
