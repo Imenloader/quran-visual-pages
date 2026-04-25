@@ -167,6 +167,19 @@
     .safe-area-top {
       padding-top: env(safe-area-inset-top);
     }
+
+    /* Performance optimization for mobile: reduce blur intensity */
+    .backdrop-blur-xl, .backdrop-blur-2xl, .backdrop-blur-3xl {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    
+    /* Hardware acceleration for common animated elements */
+    .motion-safe-gpu {
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      perspective: 1000px;
+    }
   }
 
   /* Prevent text selection on UI elements for a more app-like feel */

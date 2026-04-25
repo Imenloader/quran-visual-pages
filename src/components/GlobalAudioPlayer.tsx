@@ -234,7 +234,7 @@ const GlobalAudioPlayer = () => {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.8, opacity: 0, y: 20 }}
             onClick={() => setIsExpanded(true)}
-            className="relative flex items-center justify-center w-12 h-12 bg-primary/40 backdrop-blur-2xl border border-primary/10 shadow-[0_12px_40px_rgba(0,0,0,0.4)] rounded-full hover:scale-105 active:scale-95 transition-all group pointer-events-auto overflow-hidden"
+            className="relative flex items-center justify-center w-12 h-12 bg-primary/90 md:bg-primary/40 backdrop-blur-md md:backdrop-blur-2xl border border-primary/10 shadow-[0_12px_40px_rgba(0,0,0,0.4)] rounded-full hover:scale-105 active:scale-95 transition-all group pointer-events-auto overflow-hidden transform-gpu"
           >
             <svg className="absolute inset-0 w-full h-full -rotate-90">
               <circle
@@ -272,7 +272,7 @@ const GlobalAudioPlayer = () => {
             initial={{ width: 48, height: 48, opacity: 0, y: 20 }}
             animate={{ width: "auto", height: "auto", opacity: 1, y: 0 }}
             exit={{ width: 48, height: 48, opacity: 0, y: 20 }}
-            className="bg-primary/40 backdrop-blur-2xl border border-primary/10 rounded-[3rem] shadow-[0_12px_40px_rgba(0,0,0,0.4)] p-2.5 flex items-center gap-4 min-w-[280px] max-w-[420px] pointer-events-auto"
+            className="bg-primary/95 md:bg-primary/40 backdrop-blur-md md:backdrop-blur-2xl border border-primary/10 rounded-[3rem] shadow-[0_12px_40px_rgba(0,0,0,0.4)] p-2.5 flex items-center gap-4 min-w-[280px] max-w-[420px] pointer-events-auto transform-gpu"
           >
             <Tooltip>
               <TooltipTrigger asChild>

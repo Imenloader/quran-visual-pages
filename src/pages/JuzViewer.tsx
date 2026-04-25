@@ -715,7 +715,7 @@ function JuzViewer() {
         )}
       </div>
 
-      <div className={`transition-all duration-700 ease-[0.16, 1, 0.3, 1] ${isFullscreen && !showControls ? "opacity-0 pointer-events-none -translate-y-full fixed top-0 left-0 right-0 z-[150]" : isFullscreen ? "fixed top-0 left-0 right-0 z-[150] opacity-100 pointer-events-auto" : "relative z-20"}`}>
+      <div className={`transition-[opacity,transform] duration-700 ease-[0.16, 1, 0.3, 1] transform-gpu ${isFullscreen && !showControls ? "opacity-0 pointer-events-none -translate-y-full fixed top-0 left-0 right-0 z-[150]" : isFullscreen ? "fixed top-0 left-0 right-0 z-[150] opacity-100 pointer-events-auto" : "relative z-20"}`}>
         {!isFullscreen && <QuranHeader title={juz.nameAr} showBack />}
         {isFullscreen && (
           <div className="bg-emerald-deep/95 backdrop-blur-md border-b border-border/40 px-4 py-3 flex items-center justify-between">

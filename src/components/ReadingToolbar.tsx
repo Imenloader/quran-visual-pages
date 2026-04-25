@@ -86,7 +86,7 @@ const ReadingToolbar = ({
   };
 
   return (
-    <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border/40 shadow-soft">
+    <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md md:backdrop-blur-xl border-b border-border/40 shadow-soft transform-gpu">
       <div className="container max-w-5xl mx-auto px-2 md:px-4 py-1.5 md:py-3 flex items-center justify-between gap-1.5 md:gap-4">
         
         {/* Left: Navigation & Index */}

@@ -74,7 +74,7 @@ const BottomNav = () => {
             setIsHidden(!isHidden);
             triggerHaptic();
           }}
-          className="w-10 h-6 rounded-t-xl bg-card/95 backdrop-blur-xl border border-border/60 border-b-0 flex items-center justify-center text-primary hover:text-accent transition-all shadow-xl shadow-black/10 group"
+          className="w-10 h-6 rounded-t-xl bg-card/98 backdrop-blur-md md:backdrop-blur-xl border border-border/60 border-b-0 flex items-center justify-center text-primary hover:text-accent transition-all shadow-xl shadow-black/10 group transform-gpu"
           aria-label={isHidden ? t("nav.showMenu") : t("nav.hideMenu")}
         >
           <motion.div
@@ -93,9 +93,9 @@ const BottomNav = () => {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="w-full max-w-xl px-4 md:px-6 pb-4 md:pb-6 pointer-events-auto relative z-[100]"
+            className="w-full max-w-xl px-4 md:px-6 pb-4 md:pb-6 pointer-events-auto relative z-[100] transform-gpu"
           >
-            <div className="bg-card/95 backdrop-blur-2xl border border-border/40 rounded-[2rem] md:rounded-[2.5rem] shadow-2xl p-1.5 md:p-2 flex items-center justify-around relative overflow-hidden">
+            <div className="bg-card/98 backdrop-blur-md md:backdrop-blur-2xl border border-border/40 rounded-[2rem] md:rounded-[2.5rem] shadow-2xl p-1.5 md:p-2 flex items-center justify-around relative overflow-hidden">
               <div className="absolute inset-0 pattern-islamic opacity-[0.03] rounded-[2rem] md:rounded-[2.5rem] overflow-hidden pointer-events-none" />
               
               {NAV_ITEMS.map((item, idx) => {
