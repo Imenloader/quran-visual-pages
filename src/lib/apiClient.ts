@@ -71,9 +71,26 @@ export async function fetchWithCache(
         }
       } catch (fetchError) {
         // SSL/Network Fallback for Quran APIs
-        if (url.includes("api.quran.g0v.id") || url.includes("api.quran.com")) {
-          console.warn("Primary API call failed, trying proxy fallback...", fetchError);
-          // Using allorigins as a primary fallback
+        if (url.includes("api.quran.com") || url.includes("api.quran.g0v.id")) {
+          console.warn("Primary API call failed, trying mirror or proxy...", fetchError);
+          
+          const isQuranCom = url.includes("api.quran.com");
+          const mirrorUrl = isQuranCom 
+            ? url.replace("api.quran.com", "api.quran.g0v.id")
+            : url.replace("api.quran.g0v.id", "api.quran.com");
+
+          // Try mirror first (it's faster than proxy)
+          try {
+            console.log(`Trying mirror fallback: ${mirrorUrl}`);
+            const mirrorResponse = await fetch(mirrorUrl, { signal: controller.signal });
+            if (mirrorResponse.ok) {
+              return await mirrorResponse.json();
+            }
+          } catch (mirrorError) {
+            console.warn("Mirror fallback failed, trying proxies...", mirrorError);
+          }
+
+          // Using allorigins as a proxy fallback
           try {
             const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
             const proxyResponse = await fetch(proxyUrl, { signal: controller.signal });
@@ -85,7 +102,7 @@ export async function fetchWithCache(
             console.warn("AllOrigins fallback failed, trying CORSProxy.io...", proxyError);
           }
 
-          // Secondary fallback
+          // Secondary proxy fallback
           try {
             const proxyUrl2 = `https://corsproxy.io/?${encodeURIComponent(url)}`;
             const proxyResponse2 = await fetch(proxyUrl2, { signal: controller.signal });
@@ -93,7 +110,7 @@ export async function fetchWithCache(
               return await proxyResponse2.json();
             }
           } catch (proxyError2) {
-            console.error("All proxies failed", proxyError2);
+            console.error("All fallbacks and proxies failed", proxyError2);
           }
           
           throw fetchError;
