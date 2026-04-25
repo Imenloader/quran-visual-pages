@@ -71,13 +71,13 @@ export async function fetchWithCache(
         }
       } catch (fetchError) {
         // SSL/Network Fallback for Quran APIs
-        if (url.includes("api.quran.com") || url.includes("api.quran.g0v.id")) {
+        if (url.includes("api.quran.com") || url.includes("api.qurancdn.com")) {
           console.warn("Primary API call failed, trying mirror or proxy...", fetchError);
           
-          const isQuranCom = url.includes("api.quran.com");
-          const mirrorUrl = isQuranCom 
-            ? url.replace("api.quran.com", "api.quran.g0v.id")
-            : url.replace("api.quran.g0v.id", "api.quran.com");
+          const isMain = url.includes("api.quran.com");
+          const mirrorUrl = isMain 
+            ? url.replace("api.quran.com", "api.qurancdn.com")
+            : url.replace("api.qurancdn.com", "api.quran.com");
 
           // Try mirror first (it's faster than proxy)
           try {

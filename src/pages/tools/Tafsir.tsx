@@ -32,10 +32,15 @@ const Tafsir = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchWithCache("https://api.quran.g0v.id/v1/surah", { expiry: CACHE_EXPIRY })
+    fetchWithCache("https://api.quran.com/api/v4/chapters", { expiry: CACHE_EXPIRY })
       .then(data => {
-        if (data.status === "OK") {
-          setSurahs(data.data);
+        if (data.chapters) {
+          const mappedSurahs = data.chapters.map((c: any) => ({
+            number: c.id,
+            name: c.name_arabic,
+            numberOfAyahs: c.verses_count
+          }));
+          setSurahs(mappedSurahs);
         }
       })
       .catch(err => console.error("Error fetching surahs:", err));
@@ -92,16 +97,17 @@ const Tafsir = () => {
   const handleSearch = () => {
     if (!searchQuery.trim()) return;
     setLoading(true);
-    const normalizedQuery = normalizeArabic(searchQuery);
     const encodedQuery = encodeURIComponent(searchQuery);
     
-    fetchWithCache(`https://api.quran.g0v.id/v1/search/${encodedQuery}/all/ar.quran-simple`, { expiry: CACHE_EXPIRY })
+    // Using Quran.com v4 search API
+    fetchWithCache(`https://api.quran.com/api/v4/search?q=${encodedQuery}&size=1&language=ar`, { expiry: CACHE_EXPIRY })
       .then(data => {
-        if (data.status === "OK" && data.data.count > 0) {
-          const firstResult = data.data.matches[0];
-          setSelectedSurah(firstResult.surah.number);
-          setSelectedAyah(firstResult.numberInSurah);
-          toast.success(t("search.ayahMatches") + `: ${data.data.count}`);
+        if (data.search && data.search.total_results > 0) {
+          const firstResult = data.search.results[0];
+          const [sNum, aNum] = firstResult.verse_key.split(':').map(Number);
+          setSelectedSurah(sNum);
+          setSelectedAyah(aNum);
+          toast.success(t("search.ayahMatches") + `: ${data.search.total_results}`);
         } else {
           toast.error(t("search.noResults", { query: searchQuery }));
         }

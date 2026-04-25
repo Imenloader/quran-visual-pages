@@ -222,8 +222,8 @@ function registerTafsirRoutes() {
              url.pathname.includes('/chapter_recitations');
     }
 
-    if (url.hostname === 'api.quran.g0v.id') {
-      return url.pathname.startsWith('/v1/ayah/') || url.pathname.includes('/tafsir');
+    if (url.hostname === 'api.qurancdn.com') {
+      return url.pathname.startsWith('/api/v4/') || url.pathname.includes('/tafsir');
     }
 
     return false;
@@ -234,7 +234,7 @@ function registerTafsirRoutes() {
     new NetworkFirst({
       cacheName: 'quran-tafsir-cache',
       plugins: [
-        metricsPlugin('quran-api-v4', 'api.quran.com|api.quran.g0v.id/*', 'quran-tafsir-cache'),
+        metricsPlugin('quran-api-v4', 'api.quran.com|api.qurancdn.com/*', 'quran-tafsir-cache'),
         new ExpirationPlugin({
           maxEntries: 300,
           maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days

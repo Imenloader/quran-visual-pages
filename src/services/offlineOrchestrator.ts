@@ -282,7 +282,7 @@ class OfflineOrchestrator {
           id: `text-page-${pageNumber}`,
           pageNumber,
           url: `https://api.quran.com/api/v4/quran/verses/uthmani?page_number=${pageNumber}`,
-          fallbackUrl: `https://api.quran.g0v.id/api/v4/quran/verses/uthmani?page_number=${pageNumber}`,
+          fallbackUrl: `https://api.qurancdn.com/api/v4/quran/verses/uthmani?page_number=${pageNumber}`,
           status: "pending",
           attempts: 0,
           maxAttempts: 3,

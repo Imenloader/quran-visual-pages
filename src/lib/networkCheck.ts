@@ -1,7 +1,7 @@
 export const checkNetworkReliability = async (): Promise<{ ok: boolean; reason?: string; details?: string }> => {
   try {
     // Try to fetch a small resource from the problematic API
-    const res = await fetch("https://api.quran.g0v.id/v1/ayah/1:1", { 
+    const res = await fetch("https://api.quran.com/api/v4/chapters/1", { 
       mode: 'cors', // Use cors to actually see if it succeeds
       cache: 'no-cache'
     });
