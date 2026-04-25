@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   X, Book, Info, Loader2, Volume2, Copy, 
   Share2, Sparkles, Hash, AlertCircle, 
-  CheckCircle2, Library
+  CheckCircle2
 } from 'lucide-react';
 import { toArabicNumber } from '@/data/quranData';
 import { useQuery } from '@tanstack/react-query';
@@ -22,18 +22,11 @@ interface QuranWordData {
   location: string;
   audio_url?: string;
   translation?: { text: string };
-  transliteration?: { text: string };
-  root?: { text: string };
 }
 
 interface TafsirData {
   data: {
     text: string;
-    surah: {
-      name: string;
-      number: number;
-    };
-    numberInSurah: number;
   };
 }
 
@@ -67,7 +60,7 @@ const translateEnglishToArabicFallback = (text: string) => {
 const fetchWordAnalysis = async (surah: number, ayah: number, word: string, index: number) => {
   const verseKey = `${surah}:${ayah}`;
   const response = await fetch(
-    `https://api.quran.com/api/v4/verses/by_key/${verseKey}?words=true&word_fields=text_uthmani,location,audio_url,transliteration,root&word_translation_language=en`
+    `https://api.quran.com/api/v4/verses/by_key/${verseKey}?words=true&word_fields=text_uthmani,location,audio_url&word_translation_language=en`
   );
   if (!response.ok) throw new Error("Failed to fetch word data");
   
@@ -75,7 +68,6 @@ const fetchWordAnalysis = async (surah: number, ayah: number, word: string, inde
   const words: QuranWordData[] = data.verse.words;
   const normalizedWord = normalizeArabicWord(word);
 
-  // Match logic: Priority to index, then normalization
   let target = words[index];
   if (!target || normalizeArabicWord(target.text_uthmani) !== normalizedWord) {
     target = words.find(w => normalizeArabicWord(w.text_uthmani) === normalizedWord) || target || words[0];
@@ -105,8 +97,6 @@ const translateText = async (text: string): Promise<string> => {
   }
 };
 
-// --- Components ---
-
 const SectionHeader = ({ icon: Icon, title, colorClass = "text-primary" }: { icon: any, title: string, colorClass?: string }) => (
   <div className="flex items-center gap-2 mb-2">
     <div className={`p-1 rounded-lg bg-current/10 ${colorClass}`}>
@@ -121,14 +111,12 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // 1. Fetch Main Data
   const { data: analysis, isLoading: isMainLoading, error: mainError } = useQuery({
     queryKey: ['word-analysis', surahNumber, ayahNumber, word, wordIndex],
     queryFn: () => fetchWordAnalysis(surahNumber, ayahNumber, word, wordIndex),
-    staleTime: 1000 * 60 * 60, // 1 hour
+    staleTime: 1000 * 60 * 60,
   });
 
-  // 2. Fetch Tafsir (depends on analysis)
   const { data: tafsir, isLoading: isTafsirLoading } = useQuery({
     queryKey: ['tafsir', analysis?.verseKey],
     queryFn: () => fetchTafsir(analysis!.verseKey),
@@ -136,7 +124,6 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
     staleTime: 1000 * 60 * 60,
   });
 
-  // 3. Translate Word (depends on analysis)
   const { data: translatedMeaning, isLoading: isTranslating } = useQuery({
     queryKey: ['translate', analysis?.word?.translation?.text],
     queryFn: () => translateText(analysis!.word!.translation!.text!),
@@ -144,17 +131,10 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
     staleTime: 1000 * 60 * 60,
   });
 
-  const locationText = useMemo(() => {
-    if (!analysis) return "";
-    const [s, a, w] = analysis.word.location.split(":").map(toArabicNumber);
-    return `الجزء ${toArabicNumber(analysis.juz)} • سورة ${s} • آية ${a} • الكلمة ${w}`;
-  }, [analysis]);
-
   const handleAudio = useCallback(() => {
     if (!analysis?.word?.audio_url || isPlaying) return;
     
     let audioUrl = analysis.word.audio_url;
-    // Robust URL building
     if (audioUrl.startsWith('//')) {
       audioUrl = `https:${audioUrl}`;
     } else if (!audioUrl.startsWith('http')) {
@@ -162,27 +142,9 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
     }
 
     const audio = new Audio(audioUrl);
-    
-    const cleanup = () => {
-      setIsPlaying(false);
-      audio.onended = null;
-      audio.onerror = null;
-    };
-
+    const cleanup = () => setIsPlaying(false);
     setIsPlaying(true);
-    
-    audio.play()
-      .then(() => {
-        audio.onended = cleanup;
-      })
-      .catch((err) => {
-        console.error("Audio playback failed:", err);
-        cleanup();
-        toast.error("تعذر تشغيل الملف الصوتي", {
-          position: "top-center"
-        });
-      });
-
+    audio.play().then(() => { audio.onended = cleanup; }).catch(cleanup);
     audio.onerror = cleanup;
   }, [analysis, isPlaying]);
 
@@ -199,7 +161,7 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
     try {
       await navigator.share({
         title: 'تحليل كلمة قرآنية',
-        text: `الكلمة: ${word}\nالمعنى: ${translatedMeaning}\nالموقع: ${locationText}`,
+        text: `الكلمة: ${word}\nالمعنى: ${translatedMeaning}`,
         url: window.location.href,
       });
     } catch (e) {
@@ -210,7 +172,6 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 sm:p-6">
-        {/* Backdrop */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -219,37 +180,26 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
           className="absolute inset-0 bg-black/60 backdrop-blur-md"
         />
 
-        {/* Modal Container */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
           transition={{ type: "spring", damping: 25, stiffness: 350 }}
-          className="relative w-full max-w-sm bg-card/95 backdrop-blur-3xl rounded-[2rem] border border-border/40 shadow-2xl overflow-hidden flex flex-col max-h-[85vh] sm:max-h-[80vh]"
+          className="relative w-full max-w-sm bg-card/95 backdrop-blur-3xl rounded-[2rem] border border-border/40 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
           dir="rtl"
         >
           {/* Header */}
           <div className="p-5 pb-2 flex items-start justify-between bg-gradient-to-b from-primary/10 to-transparent">
-            <div className="flex-1">
-              <div className="flex items-center gap-3">
-                <h3 className="text-3xl font-quran text-primary leading-tight">{word}</h3>
-                <button 
-                  onClick={handleAudio}
-                  disabled={!analysis?.word?.audio_url || isPlaying}
-                  className="p-2 rounded-full bg-primary/15 text-primary hover:bg-primary/25 transition-all disabled:opacity-30 active:scale-90 mt-1"
-                  aria-label="استمع للكلمة"
-                >
-                  {isPlaying ? <Loader2 size={18} className="animate-spin" /> : <Volume2 size={18} />}
-                </button>
-              </div>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground font-bold uppercase">
-                  {analysis?.word?.transliteration?.text || '...'}
-                </span>
-                <p className="text-[10px] text-muted-foreground/70 font-naskh font-medium">
-                  {locationText || "جاري التحميل..."}
-                </p>
-              </div>
+            <div className="flex items-center gap-3">
+              <h3 className="text-3xl font-quran text-primary leading-tight">{word}</h3>
+              <button 
+                onClick={handleAudio}
+                disabled={!analysis?.word?.audio_url || isPlaying}
+                className="p-2 rounded-full bg-primary/15 text-primary hover:bg-primary/25 transition-all disabled:opacity-30 active:scale-90 mt-1"
+                aria-label="استمع"
+              >
+                {isPlaying ? <Loader2 size={18} className="animate-spin" /> : <Volume2 size={18} />}
+              </button>
             </div>
             <button 
               onClick={onClose} 
@@ -262,89 +212,42 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
           {/* Content */}
           <div className="p-5 pt-1 overflow-y-auto custom-scrollbar flex-1">
             {mainError ? (
-              <div className="py-8 px-4 text-center space-y-3">
-                <div className="inline-flex p-3 rounded-full bg-destructive/10 text-destructive">
-                  <AlertCircle size={24} />
-                </div>
+              <div className="py-8 text-center space-y-3">
+                <AlertCircle size={24} className="mx-auto text-destructive" />
                 <h4 className="text-base font-bold font-naskh">تعذر تحميل البيانات</h4>
-                <button 
-                  onClick={() => window.location.reload()}
-                  className="px-5 py-1.5 bg-primary text-primary-foreground rounded-full font-bold text-xs"
-                >
-                  تحديث الصفحة
-                </button>
               </div>
             ) : (
               <div className="space-y-3 pb-4">
                 
-                {/* Meaning Section */}
+                {/* 1. معنى الكلمة */}
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="group relative p-4 bg-primary/[0.04] rounded-2xl border border-primary/10 hover:border-primary/20 transition-all"
+                  className="p-4 bg-primary/[0.04] rounded-2xl border border-primary/10"
                 >
                   <SectionHeader icon={Info} title="معنى الكلمة" />
-                  
-                  <div className="space-y-1">
-                    {isTranslating ? (
-                      <div className="flex items-center gap-2 py-1">
-                        <Loader2 size={14} className="animate-spin text-primary/40" />
-                        <span className="text-[11px] text-muted-foreground font-naskh">جاري الاستخراج...</span>
-                      </div>
-                    ) : (
-                      <>
-                        <p className="text-lg font-naskh font-bold text-foreground leading-relaxed">
-                          {translatedMeaning}
-                        </p>
-                        {analysis?.word?.translation?.text && analysis.word.translation.text !== translatedMeaning && (
-                          <p className="text-[10px] text-muted-foreground font-medium italic opacity-50 ltr text-left">
-                            ({analysis.word.translation.text})
-                          </p>
-                        )}
-                      </>
-                    )}
-                  </div>
+                  {isTranslating ? (
+                    <div className="flex items-center gap-2 py-1">
+                      <Loader2 size={14} className="animate-spin text-primary/40" />
+                    </div>
+                  ) : (
+                    <p className="text-lg font-naskh font-bold text-foreground leading-relaxed">
+                      {translatedMeaning}
+                    </p>
+                  )}
                 </motion.div>
 
-                {/* Root & Grammar Section */}
-                {analysis?.word?.root?.text && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.05 }}
-                    className="p-4 bg-blue-500/[0.04] rounded-2xl border border-blue-500/10 hover:border-blue-500/20 transition-all"
-                  >
-                    <SectionHeader icon={Library} title="التحليل اللغوي" colorClass="text-blue-600 dark:text-blue-400" />
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-[10px] text-muted-foreground font-bold uppercase mb-1">الجذر اللغوي</p>
-                        <p className="text-sm font-quran text-blue-700 dark:text-blue-300 bg-blue-500/10 px-2 py-0.5 rounded-md inline-block">
-                          {analysis.word.root.text}
-                        </p>
-                      </div>
-                      <div className="text-left">
-                        <p className="text-[10px] text-muted-foreground font-bold uppercase mb-1">الأصل</p>
-                        <p className="text-xs font-naskh font-bold opacity-60">
-                          {analysis.word.text_uthmani.replace(/[\u064B-\u065F]/g, '')}
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Tafsir Section */}
+                {/* 2. تفسير الآية (الميسر) */}
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className="p-4 bg-emerald-500/[0.04] rounded-2xl border border-emerald-500/10 hover:border-emerald-500/20 transition-all"
+                  className="p-4 bg-emerald-500/[0.04] rounded-2xl border border-emerald-500/10"
                 >
-                  <SectionHeader icon={Book} title="تفسير الآية" colorClass="text-emerald-600 dark:text-emerald-400" />
-                  
+                  <SectionHeader icon={Book} title="تفسير الآية (الميسر)" colorClass="text-emerald-600 dark:text-emerald-400" />
                   {isTafsirLoading ? (
                     <div className="space-y-2 py-1">
                       <div className="h-3 bg-emerald-500/10 rounded animate-pulse w-full" />
-                      <div className="h-3 bg-emerald-500/10 rounded animate-pulse w-[80%]" />
                     </div>
                   ) : (
                     <p className="text-sm font-naskh text-foreground/80 leading-relaxed text-justify">
@@ -353,7 +256,7 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
                   )}
                 </motion.div>
 
-                {/* Stats */}
+                {/* 3 & 4. الآية والموقع */}
                 <div className="grid grid-cols-2 gap-2">
                   <div className="p-3 rounded-xl bg-muted/20 border border-border/30 flex items-center gap-2">
                     <Hash size={14} className="text-orange-500" />
@@ -365,8 +268,8 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
                   <div className="p-3 rounded-xl bg-muted/20 border border-border/30 flex items-center gap-2">
                     <Sparkles size={14} className="text-blue-500" />
                     <div>
-                      <p className="text-[8px] text-muted-foreground font-bold uppercase">الجزء</p>
-                      <p className="text-xs font-bold font-naskh">{analysis ? toArabicNumber(analysis.juz) : '...'}</p>
+                      <p className="text-[8px] text-muted-foreground font-bold uppercase">الموقع</p>
+                      <p className="text-xs font-bold font-naskh">الجزء {analysis ? toArabicNumber(analysis.juz) : '...'}</p>
                     </div>
                   </div>
                 </div>
@@ -375,12 +278,12 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
             )}
           </div>
 
-          {/* Bottom Actions */}
-          <div className="p-3 bg-muted/40 border-t border-border/30 flex items-center gap-2 shrink-0">
+          {/* Actions */}
+          <div className="p-3 bg-muted/40 border-t border-border/30 flex items-center gap-2">
             <button 
               onClick={handleShare}
               disabled={!analysis}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-xs shadow-md active:scale-95 transition-all disabled:opacity-50"
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-xs active:scale-95 transition-all"
             >
               <Share2 size={16} />
               <span>مشاركة</span>
@@ -388,7 +291,7 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
             <button 
               onClick={() => handleCopy(`${word}: ${translatedMeaning}`, "بيانات الكلمة")}
               disabled={!analysis}
-              className="p-2.5 rounded-xl bg-background border border-border/50 text-foreground hover:bg-muted active:scale-95 transition-all disabled:opacity-50"
+              className="p-2.5 rounded-xl bg-background border border-border/50 text-foreground active:scale-95 transition-all"
             >
               <Copy size={16} />
             </button>
