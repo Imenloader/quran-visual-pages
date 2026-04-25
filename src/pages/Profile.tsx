@@ -847,7 +847,7 @@ const Profile = () => {
                         onClick={() => setActiveCategory(cat.id as "appearance" | "notifications" | "language" | "account" | "offline" | "update")}
                         className={`flex items-center gap-2 px-2 py-2 rounded-xl transition-all whitespace-nowrap md:w-full ${
                           activeCategory === cat.id
-                            ? "bg-emerald-deep text-gold shadow-lg shadow-emerald-deep/20"
+                            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
                             : "text-primary/60 hover:bg-primary/5 hover:text-primary"
                         }`}
                       >
@@ -1248,7 +1248,7 @@ const Profile = () => {
                               </p>
                               <button
                                 onClick={() => setShowAuthModal(true)}
-                                className="w-full py-3 bg-primary text-primary-foreground rounded-xl text-xs font-bold font-serif shadow-lg flex items-center justify-center gap-2"
+                                className="w-full py-3 bg-primary text-primary-foreground rounded-xl text-xs font-bold font-serif shadow-lg shadow-primary/10 flex items-center justify-center gap-2 hover:bg-primary/90 transition-all"
                               >
                                 <Sparkles size={14} />
                                 {isAr ? "تسجيل الدخول / إنشاء حساب" : "Sign In / Register"}
@@ -1276,7 +1276,7 @@ const Profile = () => {
                         </div>
 
                         {/* Character Preview Card */}
-                        <div className="relative p-2.5 rounded-xl bg-emerald-deep text-gold overflow-hidden group">
+                        <div className="relative p-2.5 rounded-xl bg-gradient-to-br from-primary to-emerald-deep text-primary-foreground overflow-hidden group">
                           <div className="absolute inset-0 pattern-islamic opacity-10" />
                           <div className="relative z-10 flex flex-col items-center gap-1.5">
                             <div className="w-12 h-12 rounded-lg bg-primary/10 backdrop-blur-md border border-primary/20 flex items-center justify-center overflow-hidden">
@@ -1292,7 +1292,7 @@ const Profile = () => {
                             </div>
                             <button
                               onClick={() => setIsEditingProfile(true)}
-                              className="px-2.5 py-1 rounded-full bg-gold text-emerald-deep font-bold text-[7px] uppercase tracking-widest hover:scale-105 transition-transform"
+                              className="px-2.5 py-1 rounded-full bg-gold text-primary font-bold text-[7px] uppercase tracking-widest hover:bg-gold/90 transition-all"
                             >
                               {t("profile.editProfile")}
                             </button>
