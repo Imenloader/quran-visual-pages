@@ -186,6 +186,13 @@ export const getJuzAndPageForSurah = (surahNumber: number): { juz: number; page:
   };
 };
 
+/**
+ * Returns the surah that covers a specific page.
+ */
+export const getSurahByPage = (pageNumber: number): SurahInfo | undefined => {
+  return [...surahIndex].reverse().find(s => s.startPage <= pageNumber);
+};
+
 export interface QuranImageSource {
   id: string;
   nameAr: string;

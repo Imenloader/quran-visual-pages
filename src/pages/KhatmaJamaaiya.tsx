@@ -49,7 +49,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useUser } from "@/contexts/UserContext";
 import BackButton from "@/components/BackButton";
 import QuranHeader from "@/components/QuranHeader";
-import { JUZ_DATA, juzData, toArabicNumber } from "@/data/quranData";
+import { juzData, toArabicNumber } from "@/data/quranData";
 import QuranTextViewer from "@/components/QuranTextViewer";
 import QuranPlayerBar from "@/components/QuranPlayerBar";
 import AuthModal from "@/components/AuthModal";

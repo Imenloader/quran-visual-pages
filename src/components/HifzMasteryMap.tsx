@@ -99,7 +99,7 @@ const HifzMasteryMap: React.FC<HifzMasteryMapProps> = ({ onPageClick }) => {
                     </div>
                     <div>
                       <DialogTitle className="text-2xl font-serif font-bold text-primary">
-                        {isAr ? surah?.name : surah?.englishName}
+                        {isAr ? surah?.name : surah?.nameEn}
                       </DialogTitle>
                       <DialogDescription className="text-xs font-serif italic text-muted-foreground">
                         {isAr ? `الصفحة ${selectedPage}` : `Page ${selectedPage}`}
