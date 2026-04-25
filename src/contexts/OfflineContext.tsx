@@ -115,11 +115,16 @@ export const OfflineProvider = ({ children }: { children: ReactNode }) => {
         // Secondary attempt: Proxy if direct fails
         if (!response.ok) {
           console.warn(`Direct fetch failed for ${url}, trying proxy fallback...`);
-          const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-          response = await fetch(proxyUrl);
-        }
-
-        if (response.ok) {
+          // Fallback to AllOrigins
+          const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+          const proxyResponse = await fetch(proxyUrl);
+          if (proxyResponse.ok) {
+            const proxyData = await proxyResponse.json();
+            const content = typeof proxyData.contents === 'string' ? JSON.parse(proxyData.contents) : proxyData.contents;
+            await cache.put(url, new Response(JSON.stringify(content)));
+            return true;
+          }
+        } else {
           await cache.put(url, response.clone());
           return true;
         }

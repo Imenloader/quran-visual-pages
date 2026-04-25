@@ -193,6 +193,11 @@ export const getSurahByPage = (pageNumber: number): SurahInfo | undefined => {
   return [...surahIndex].reverse().find(s => s.startPage <= pageNumber);
 };
 
+export const getJuzByPage = (pageNumber: number): number => {
+  const juz = juzData.find(j => pageNumber >= j.startPage && pageNumber <= j.endPage);
+  return juz ? juz.number : 1;
+};
+
 export interface QuranImageSource {
   id: string;
   nameAr: string;

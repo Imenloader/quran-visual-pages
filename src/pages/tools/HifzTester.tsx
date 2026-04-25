@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
 import { 
@@ -160,6 +160,9 @@ const HifzTester = () => {
               <GraduationCap className="text-accent" />
               {isSmartMode ? (isAr ? "مراجعة ذكية شاملة" : "Complete Smart Review") : (isAr ? "اختبار الحفظ الذكي" : "Smart Hifz Test")}
             </SheetTitle>
+            <SheetDescription className="text-right text-xs">
+              {isAr ? "اختبر إتقانك لهذه الصفحة من خلال أسئلة متنوعة" : "Test your mastery of this page through various questions"}
+            </SheetDescription>
           </SheetHeader>
           <div className="overflow-y-auto pb-12">
             {(selectedPage !== null) && (

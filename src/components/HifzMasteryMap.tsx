@@ -2,11 +2,12 @@ import React from "react";
 import { useHifzMastery } from "@/hooks/useHifzMastery";
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { Trophy, Target, BookOpen, ExternalLink, PlayCircle, Loader2 } from "lucide-react";
+import { Trophy, Target, BookOpen, ExternalLink, PlayCircle, Loader2, GraduationCap } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
-import { getSurahByPage } from "@/data/quranData";
+import { getSurahByPage, toArabicNumber, getJuzByPage } from "@/data/quranData";
+import { SheetTitle, SheetDescription } from "./ui/sheet";
 
 interface HifzMasteryMapProps {
   onPageClick?: (page: number) => void;
@@ -98,11 +99,12 @@ const HifzMasteryMap: React.FC<HifzMasteryMapProps> = ({ onPageClick }) => {
                       {selectedPage}
                     </div>
                     <div>
-                      <DialogTitle className="text-2xl font-serif font-bold text-primary">
+                      <DialogTitle className="text-right font-serif flex items-center gap-2">
+                        <GraduationCap className="text-accent" />
                         {isAr ? surah?.name : surah?.nameEn}
                       </DialogTitle>
-                      <DialogDescription className="text-xs font-serif italic text-muted-foreground">
-                        {isAr ? `الصفحة ${selectedPage}` : `Page ${selectedPage}`}
+                      <DialogDescription className="text-right text-xs">
+                        {isAr ? `الصفحة ${toArabicNumber(selectedPage)}` : `Page ${selectedPage}`}
                       </DialogDescription>
                     </div>
                   </div>
@@ -139,7 +141,10 @@ const HifzMasteryMap: React.FC<HifzMasteryMapProps> = ({ onPageClick }) => {
                     className="h-14 rounded-2xl bg-accent hover:bg-accent/90 text-white gap-3 font-serif font-bold"
                     onClick={() => {
                       if (onPageClick) onPageClick(selectedPage);
-                      else navigate(`/quran/page/${selectedPage}?test=true`);
+                      else {
+                        const juz = getJuzByPage(selectedPage);
+                        navigate(`/juz/${juz}?test=true#page-${selectedPage}`);
+                      }
                       setSelectedPage(null);
                     }}
                   >
@@ -150,7 +155,8 @@ const HifzMasteryMap: React.FC<HifzMasteryMapProps> = ({ onPageClick }) => {
                     variant="outline"
                     className="h-14 rounded-2xl border-primary/10 bg-primary/5 hover:bg-primary/10 text-primary gap-3 font-serif font-bold"
                     onClick={() => {
-                      navigate(`/quran/page/${selectedPage}`);
+                      const juz = getJuzByPage(selectedPage!);
+                      navigate(`/juz/${juz}#page-${selectedPage}`);
                       setSelectedPage(null);
                     }}
                   >

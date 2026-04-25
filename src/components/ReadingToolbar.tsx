@@ -6,7 +6,7 @@ import { motion } from "motion/react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from "./ui/sheet";
 import { cn } from "@/lib/utils";
 import HifzQuizView from "./HifzQuizView";
 
@@ -170,6 +170,9 @@ const ReadingToolbar = ({
                     <GraduationCap className="text-accent" />
                     اختبار الحفظ الذكي
                   </SheetTitle>
+                  <SheetDescription className="text-right text-xs">
+                    اختبر إتقانك لهذه الصفحة من خلال أسئلة متنوعة لتثبيت حفظك
+                  </SheetDescription>
                 </SheetHeader>
                 <div className="overflow-y-auto pb-12">
                   <HifzQuizView 

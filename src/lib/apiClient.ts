@@ -1,4 +1,3 @@
-
 const CACHE_PREFIX = "quran_api_cache_";
 export const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 
@@ -99,18 +98,7 @@ export async function fetchWithCache(
               return typeof proxyData.contents === 'string' ? JSON.parse(proxyData.contents) : proxyData.contents;
             }
           } catch (proxyError) {
-            console.warn("AllOrigins fallback failed, trying CORSProxy.io...", proxyError);
-          }
-
-          // Secondary proxy fallback
-          try {
-            const proxyUrl2 = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-            const proxyResponse2 = await fetch(proxyUrl2, { signal: controller.signal });
-            if (proxyResponse2.ok) {
-              return await proxyResponse2.json();
-            }
-          } catch (proxyError2) {
-            console.error("All fallbacks and proxies failed", proxyError2);
+            console.error("All fallbacks and proxies failed", proxyError);
           }
           
           throw fetchError;
