@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Book, FileText, Activity, Loader2 } from 'lucide-react';
+import { X, Book, Info, Loader2 } from 'lucide-react';
 import { toArabicNumber } from '@/data/quranData';
 
 interface WordAnalysisPopupProps {
@@ -14,78 +14,51 @@ interface WordAnalysisPopupProps {
 interface QuranWordData {
   text_uthmani: string;
   location: string;
-  root?: { text: string };
-  grammar?: { text?: string; type?: string };
-  char_type_name?: string;
+  translation?: { text: string };
 }
 
-// 💡 قاموس ذكي لترجمة التحليل النحوي من الإنجليزية إلى العربية
-const translateGrammarToArabic = (grammarStr: string) => {
-  if (!grammarStr || grammarStr.trim() === '') return "تحليل غير متوفر";
+// 💡 مترجم احتياطي: في حال أعاد السيرفر الكلمة باللغة الإنجليزية
+const translateEnglishToArabicFallback = (text: string) => {
+  if (!text) return "غير متوفر";
   
-  let arText = grammarStr.toLowerCase();
-  
-  const dict: Record<string, string> = {
-    "prefixed preposition": "حرف جر متصل",
-    "relative pronoun": "اسم موصول",
-    "demonstrative pronoun": "اسم إشارة",
-    "personal pronoun": "ضمير منفصل",
-    "attached pronoun": "ضمير متصل",
-    "interrogative pronoun": "اسم استفهام",
-    "vocative particle": "حرف نداء",
-    "negative particle": "حرف نفي",
-    "prohibition particle": "حرف نهي",
-    "restriction particle": "حرف حصر",
-    "conditional particle": "حرف شرط",
-    "coordinating conjunction": "حرف عطف",
-    "subordinating conjunction": "حرف عطف فرعي",
-    "conjunction": "حرف عطف",
-    "preposition": "حرف جر",
-    "active participle": "اسم فاعل",
-    "passive participle": "اسم مفعول",
-    "verbal noun": "اسم فعل",
-    "time adverb": "ظرف زمان",
-    "location adverb": "ظرف مكان",
-    "adjective": "صفة / نعت",
-    "imperative": "فعل أمر",
-    "perfect verb": "فعل ماضٍ",
-    "imperfect verb": "فعل مضارع",
-    "pronoun": "ضمير",
-    "proper noun": "اسم علم",
-    "noun": "اسم",
-    "verb": "فعل",
-    "particle": "حرف",
-    "genitive": "مجرور",
-    "accusative": "منصوب",
-    "nominative": "مرفوع",
-    "masculine": "مذكر",
-    "feminine": "مؤنث",
-    "singular": "مفرد",
-    "plural": "جمع",
-    "dual": "مثنى",
-    "1st person": "للمتكلم",
-    "2nd person": "للمخاطب",
-    "3rd person": "للغائب"
+  // إذا كان النص يحتوي على حروف عربية، فهو مترجم وجاهز
+  if (/[\u0600-\u06FF]/.test(text)) return text;
+
+  // قاموس للكلمات الإنجليزية المتكررة التي يعجز السيرفر أحياناً عن ترجمتها
+  const fallbackDict: Record<string, string> = {
+    "the": "الـ (أداة تعريف)",
+    "and": "حرف عطف (و)",
+    "in": "في (حرف جر)",
+    "of": "من (حرف جر)",
+    "to": "إلى (حرف جر)",
+    "for": "لـ (حرف جر)",
+    "on": "على (حرف جر)",
+    "from": "من (حرف جر)",
+    "with": "مع",
+    "by": "بـ (حرف جر)",
+    "as": "كـ (حرف تشبيه)",
+    "but": "لكن",
+    "or": "أو",
+    "not": "أداة نفي (لا / لم)",
+    "no": "لا",
+    "is": "يكون",
+    "that": "ذلك",
+    "this": "هذا",
+    "he": "هو",
+    "she": "هي",
+    "they": "هم",
+    "we": "نحن",
+    "you": "أنت / أنتم",
+    "i": "أنا",
+    "master": "مالك / سيّد",
+    "allah": "الله",
+    "god": "إله"
   };
 
-  // ترتيب القاموس من الأطول للأقصر لضمان ترجمة الكلمات المركبة أولاً
-  const keys = Object.keys(dict).sort((a, b) => b.length - a.length);
+  const cleanText = text.toLowerCase().trim();
   
-  keys.forEach(engKey => {
-    // استبدال الكلمة الإنجليزية بمقابلها العربي مع فاصلة نقطية لتجميل العرض
-    const regex = new RegExp(`\\b${engKey}\\b`, 'gi');
-    if (regex.test(arText)) {
-      arText = arText.replace(regex, ` ${dict[engKey]} • `);
-    }
-  });
-
-  // تنظيف النص النهائي من الفواصل الزائدة
-  arText = arText.replace(/^[•\s]+|[•\s]+$/g, '').replace(/•\s*•/g, '•').trim();
-
-  // إذا لم يتم ترجمة أي شيء وعاد النص إنجليزياً، نكتب "غير متوفر"
-  if (/[a-z]/i.test(arText)) return "تحليل نحوي غير متوفر لهذه الكلمة";
-  
-  return arText;
+  // إذا كانت الكلمة موجودة في القاموس نعيدها، وإلا نكتب "أداة / حرف" بدلاً من تركها بالإنجليزية
+  return fallbackDict[cleanText] || "كلمة / أداة (لا يوجد ترجمة مستقلة)";
 };
 
 const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({ 
@@ -128,10 +101,10 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
       try {
         const verseKey = `${surahNumber}:${ayahNumber}`;
 
-        // 1. جلب تفاصيل الكلمة (بدون ترجمة إنجليزية لتخفيف الاستهلاك)
-        const quranRes = fetch(`https://api.quran.com/api/v4/verses/by_key/${verseKey}?words=true&word_fields=text_uthmani,location,root,grammar`);
+        // 1. جلب معنى الكلمة (ونجبر الـ API على إرجاع العربية باستخدام word_translation_language=ar)
+        const quranRes = fetch(`https://api.quran.com/api/v4/verses/by_key/${verseKey}?words=true&word_fields=text_uthmani,location&word_translation_language=ar`);
         
-        // 2. جلب التفسير الميسر فقط
+        // 2. جلب التفسير الميسر للآية كاملة
         const tafsirRes = fetch(`https://api.alquran.cloud/v1/ayah/${verseKey}/ar.muyassar`);
 
         const [quranResponse, tafsirResponse] = await Promise.all([quranRes, tafsirRes].map(p => p.catch(() => null)));
@@ -172,12 +145,10 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
     fetchAnalysisData();
   }, [surahNumber, ayahNumber, wordIndex, word]);
 
-  // دمج النصوص النحوية القادمة من السيرفر قبل ترجمتها
-  const rawGrammarString = [wordData?.grammar?.text, wordData?.grammar?.type].filter(Boolean).join(" ");
-  const translatedGrammar = translateGrammarToArabic(rawGrammarString);
-
-  // معالجة الجذر
-  const rootText = typeof wordData?.root === 'string' ? wordData.root : wordData?.root?.text;
+  // معالجة معنى الكلمة لضمان ظهوره باللغة العربية
+  const wordMeaning = wordData?.translation?.text 
+    ? translateEnglishToArabicFallback(wordData.translation.text) 
+    : "غير متوفر";
 
   return (
     <AnimatePresence>
@@ -206,44 +177,21 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
           {loading ? (
             <div className="py-16 flex flex-col items-center justify-center gap-4">
               <Loader2 className="w-10 h-10 text-primary animate-spin" />
-              <p className="text-sm text-muted-foreground font-naskh">جاري التحليل اللغوي...</p>
+              <p className="text-sm text-muted-foreground font-naskh">جاري جلب المعنى والتفسير...</p>
             </div>
           ) : error ? (
             <div className="py-12 text-center text-destructive font-naskh bg-destructive/10 rounded-2xl border border-destructive/20">{error}</div>
           ) : (
             <div className="space-y-4 pb-4">
               
-              {/* قسم الجذر والنوع - مقسم لقسمين متساويين */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex flex-col items-center justify-center text-center min-h-[100px]">
-                  <div className="flex items-center gap-2 mb-2 text-primary">
-                    <Activity size={16} />
-                    <span className="text-xs font-bold font-naskh">نوع الكلمة</span>
-                  </div>
-                  <p className="text-lg font-naskh font-bold text-foreground">
-                    {wordData?.char_type_name === 'word' ? 'كلمة' : 'علامة / أخرى'}
-                  </p>
-                </div>
-
-                <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex flex-col items-center justify-center text-center min-h-[100px]">
-                  <div className="flex items-center gap-2 mb-2 text-primary">
-                    <Book size={16} />
-                    <span className="text-xs font-bold font-naskh">الجذر اللغوي</span>
-                  </div>
-                  <p className="text-xl font-quran text-foreground">
-                    {rootText || "بدون جذر"}
-                  </p>
-                </div>
-              </div>
-
-              {/* قسم التحليل الصرفي والنحوي */}
-              <div className="p-5 bg-amber-500/5 rounded-2xl border border-amber-500/20">
+              {/* قسم معنى الكلمة */}
+              <div className="p-5 bg-primary/5 rounded-2xl border border-primary/20">
                 <div className="flex items-center gap-2 mb-3">
-                  <FileText size={18} className="text-amber-600" />
-                  <span className="text-sm font-bold font-naskh text-amber-700">التحليل النحوي والصرفي</span>
+                  <Info size={18} className="text-primary" />
+                  <span className="text-sm font-bold font-naskh text-primary">معنى الكلمة</span>
                 </div>
-                <p className="text-[15px] font-naskh font-bold text-foreground leading-loose text-right">
-                  {translatedGrammar}
+                <p className="text-[18px] font-naskh font-bold text-foreground leading-loose text-right">
+                  {wordMeaning}
                 </p>
               </div>
 
