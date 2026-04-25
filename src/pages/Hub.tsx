@@ -29,6 +29,7 @@ import {
   Globe,
   Wifi,
   WifiOff,
+  MessageSquare,
   GraduationCap as GradIcon
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
