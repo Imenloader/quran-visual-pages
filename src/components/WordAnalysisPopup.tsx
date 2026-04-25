@@ -45,14 +45,24 @@ const fallbackDict: Record<string, string> = {
   "she": "هي", "they": "هم", "we": "نحن", "you": "أنت / أنتم",
   "i": "أنا", "master": "مالك", "allah": "الله", "god": "إله",
   "lord": "رب", "merciful": "رحيم", "compassionate": "رحمن",
-  "praise": "حمد", "worlds": "عالمين", "king": "ملك", "day": "يوم"
+  "praise": "حمد", "worlds": "عالمين", "king": "ملك", "day": "يوم",
+  "great": "عظيم القدر / جليل", "magnificent": "عظيم", "awesome": "مهيب / جليل",
+  "mighty": "عزيز", "wise": "حكيم", "knowing": "عليم", "hearing": "سميع",
+  "seeing": "بصير", "most": "أكثر / أقصى", "forgiving": "غفور",
+  "servant": "عبد", "messengers": "رسل", "believers": "مؤمنون"
 };
 
 const translateEnglishToArabicFallback = (text: string) => {
   if (!text) return "غير متوفر";
   if (/[\u0600-\u06FF]/.test(text)) return text;
   const cleanText = text.toLowerCase().replace(/[.,!?;:]/g, "").trim();
-  return fallbackDict[cleanText] || text;
+  // Check exact matches first for theological accuracy
+  if (fallbackDict[cleanText]) return fallbackDict[cleanText];
+  
+  // Handle some common combined cases
+  if (cleanText.includes("great")) return "عظيم";
+  
+  return text;
 };
 
 // --- API Functions ---
@@ -61,6 +71,7 @@ const fetchWordAnalysis = async (surah: number, ayah: number, word: string, inde
   const verseKey = `${surah}:${ayah}`;
   
   // Fetch English (for Meaning) and Arabic (for Word Tafsir) in parallel
+  // Using language ID 20 for Arabic (King Fahad Quran Complex) if available, or just 'ar'
   const [enRes, arRes] = await Promise.all([
     fetch(`https://api.quran.com/api/v4/verses/by_key/${verseKey}?words=true&word_fields=text_uthmani,location,audio_url&word_translation_language=en`),
     fetch(`https://api.quran.com/api/v4/verses/by_key/${verseKey}?words=true&word_fields=text_uthmani,location,audio_url&word_translation_language=ar`)
@@ -96,16 +107,33 @@ const fetchWordAnalysis = async (surah: number, ayah: number, word: string, inde
 
 
 const fetchTafsir = async (verseKey: string): Promise<TafsirData> => {
-  // We no longer need the full verse tafsir if we are showing word tafsir
-  // but we can keep it as a fallback or if we need other data.
-  // Actually, I'll fetch it just in case, or replace it with a dummy since we use the word's Arabic translation now.
   return { data: { text: "" } };
 };
 
-const translateText = async (text: string): Promise<string> => {
-  // Since we are now fetching Arabic directly from Quran.com, 
-  // this will be the Arabic explanation.
-  return text || "غير متوفر";
+const translateText = async (text: string, arabicFallback?: string): Promise<string> => {
+  // CRITICAL: If we have an official Arabic meaning from the API, use it!
+  // This prevents bad AI translations like "Awesome" for "Great"
+  if (arabicFallback && /[\u0600-\u06FF]/.test(arabicFallback)) {
+    return arabicFallback;
+  }
+
+  if (!text || /[\u0600-\u06FF]/.test(text)) return text;
+  
+  try {
+    // Only use MyMemory as a last resort for very simple words not in our dictionary
+    const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|ar`);
+    const data = await res.json();
+    const result = data.responseData?.translatedText;
+    
+    // Safety check: if translation is too "slang" or weird, use fallback dictionary
+    if (result && (result.toLowerCase().includes("رائع") || result.toLowerCase().includes("جذاب"))) {
+      return translateEnglishToArabicFallback(text);
+    }
+    
+    return result || translateEnglishToArabicFallback(text);
+  } catch {
+    return translateEnglishToArabicFallback(text);
+  }
 };
 
 
@@ -129,17 +157,17 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
     staleTime: 1000 * 60 * 60,
   });
 
-  const { data: tafsir, isLoading: isTafsirLoading } = useQuery({
+  const { data: tafsir } = useQuery({
     queryKey: ['tafsir', analysis?.verseKey],
     queryFn: () => fetchTafsir(analysis!.verseKey),
     enabled: !!analysis?.verseKey,
     staleTime: 1000 * 60 * 60,
   });
 
-  // 3. Translate English Meaning (depends on analysis)
+  // 3. Translate Meaning with Islamic context priority
   const { data: translatedMeaning, isLoading: isTranslating } = useQuery({
-    queryKey: ['translate', analysis?.englishMeaning],
-    queryFn: () => translateText(analysis!.englishMeaning!),
+    queryKey: ['translate', analysis?.englishMeaning, analysis?.arabicMeaning],
+    queryFn: () => translateText(analysis!.englishMeaning!, analysis?.arabicMeaning),
     enabled: !!analysis?.englishMeaning,
     staleTime: 1000 * 60 * 60,
   });
