@@ -104,7 +104,7 @@ const HubHeroBanner: React.FC = () => {
 
             <div className={`flex flex-wrap items-center justify-center ${isAr ? 'lg:justify-start' : 'lg:justify-end'} gap-4 pt-4`}>
               {/* The "Nano" Buttons */}
-              {links.direct && (
+              {links.direct ? (
                 <motion.a
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
@@ -116,9 +116,14 @@ const HubHeroBanner: React.FC = () => {
                   <Download size={18} />
                   {isAr ? "تحميل مباشر (APK)" : "Direct Download (APK)"}
                 </motion.a>
+              ) : (
+                <div className="flex items-center gap-2.5 px-6 py-3 bg-white/5 border border-white/10 text-white/40 rounded-2xl font-bold text-[10px] font-serif">
+                  <Download size={14} />
+                  {isAr ? "التحميل المباشر يتوفر قريباً" : "Direct APK Coming Soon"}
+                </div>
               )}
 
-              {links.playStore && (
+              {links.playStore ? (
                 <motion.a
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
@@ -130,6 +135,11 @@ const HubHeroBanner: React.FC = () => {
                   <Store size={18} />
                   Google Play
                 </motion.a>
+              ) : (
+                <div className="flex items-center gap-2.5 px-6 py-3 bg-white/5 border border-white/10 text-white/40 rounded-2xl font-bold text-[10px] font-serif">
+                  <Store size={14} />
+                  {isAr ? "قريباً على Google Play" : "Play Store Coming Soon"}
+                </div>
               )}
             </div>
 
