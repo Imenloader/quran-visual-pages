@@ -644,9 +644,10 @@ export default function PrayerTimes() {
                         testPrayerNotification("Dhuhr");
                         toast.success(`تم إرسال تنبيه تجريبي لصلاة الظهر`);
                       }}
-                      className="px-3 py-1 bg-gold/10 border border-gold/20 text-gold text-[10px] font-naskh rounded-lg font-bold hover:bg-gold/20 transition-all"
+                      className="px-3 py-1 bg-gold/10 border border-gold/20 text-gold text-[10px] font-naskh rounded-lg font-bold hover:bg-gold/20 transition-all flex items-center gap-1.5"
                       title="تجربة التنبيه"
                     >
+                      <Sparkles size={12} className="animate-pulse" />
                       تجربة
                     </button>
                   )}
