@@ -17,6 +17,7 @@ interface QuranWordAnalysisData {
   location?: string;
   root?: { text?: string };
   grammar?: { text?: string; type?: string };
+  corpusUrl?: string;
 }
 
 interface VerseByKeyResponse {
@@ -25,6 +26,37 @@ interface VerseByKeyResponse {
     words?: QuranWordAnalysisData[];
   };
 }
+
+const extractCorpusRoot = (html: string): string | null => {
+  const rootMatch = html.match(/root is[^()]*\(([^)]+)\)/i);
+  if (!rootMatch?.[1]) return null;
+  const arabicOnly = rootMatch[1].replace(/[^\u0621-\u063A\u0641-\u064A\s]/g, "").trim();
+  return arabicOnly || rootMatch[1].trim();
+};
+
+const extractCorpusGrammar = (html: string): string | null => {
+  const compactHtml = html.replace(/\s+/g, " ");
+  const englishSummary = compactHtml.match(/The .*?<\/?[^>]*>.*?<\/?[^>]*>.*?\./i);
+  if (englishSummary?.[0]) {
+    return englishSummary[0].replace(/<[^>]+>/g, "").trim();
+  }
+
+  const arabicHint = compactHtml.match(/[\u0600-\u06FF][^<]{3,40}/);
+  return arabicHint?.[0]?.trim() || null;
+};
+
+const fetchCorpusFallback = async (location: string) => {
+  const url = `https://corpus.quran.com/wordmorphology.jsp?location=(${location})`;
+  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+  const res = await fetch(proxyUrl);
+  if (!res.ok) throw new Error("Failed to load corpus fallback");
+  const html = await res.text();
+  return {
+    rootText: extractCorpusRoot(html),
+    grammarText: extractCorpusGrammar(html),
+    corpusUrl: url,
+  };
+};
 
 const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({ word, surahNumber, ayahNumber, wordIndex, onClose }) => {
   const { i18n } = useTranslation();
@@ -86,6 +118,24 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({ word, surahNumber
 
         if (!wordData) {
           throw new Error("No matching word found");
+        }
+
+        const missingRoot = !wordData?.root?.text;
+        const missingGrammar = !wordData?.grammar?.text && !wordData?.grammar?.type;
+        if ((missingRoot || missingGrammar) && wordData.location) {
+          try {
+            const corpus = await fetchCorpusFallback(wordData.location);
+            wordData = {
+              ...wordData,
+              root: wordData.root?.text ? wordData.root : { text: corpus.rootText || "غير متوفر" },
+              grammar: wordData.grammar?.text || wordData.grammar?.type
+                ? wordData.grammar
+                : { text: corpus.grammarText || "تحليل نحوي غير متوفر لهذه الكلمة" },
+              corpusUrl: corpus.corpusUrl,
+            };
+          } catch {
+            // Keep Quran.com data as-is if corpus fallback is unavailable.
+          }
         }
 
         setJuzNumber(Number(json?.verse?.juz_number) || null);
@@ -162,6 +212,16 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({ word, surahNumber
           <p className="text-[10px] text-center text-muted-foreground font-naskh italic">
             تم الاستعانة ببيانات Quran.com للتحليل اللغوي
           </p>
+          {data?.corpusUrl && (
+            <a
+              href={data.corpusUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-center text-[11px] font-naskh text-primary hover:underline"
+            >
+              عرض التحليل الكامل من Quranic Arabic Corpus
+            </a>
+          )}
         </div>
       )}
     </motion.div>
