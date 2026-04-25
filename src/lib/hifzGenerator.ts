@@ -82,7 +82,8 @@ export const generatePageQuiz = async (pageNumber: number, difficulty: "beginner
       type: "bridge",
       question: `تنتهي الآية بـ: "... ${endingA}". كيف تبدأ الآية التالية؟`,
       answer: starterB,
-      options: difficulty === "beginner" ? shuffle([starterB, ...COMMON_STARTERS.filter(s => s !== starterB).slice(0, 3)]) : undefined,
+      options: difficulty === "beginner" ? shuffle([starterB, ...COMMON_STARTERS.filter(s => normalizeArabic(s) !== normalizeArabic(starterB)).slice(0, 3)]) : undefined,
+      verseKey: verseB.verseKey,
       hint: "هذا اختبار للربط بين الآيات",
       explanation: "الربط بين رؤوس الآيات من أهم مهارات الحفظ."
     });
@@ -181,7 +182,7 @@ export const generatePageQuiz = async (pageNumber: number, difficulty: "beginner
     });
   }
 
-  return questions.slice(0, 5); // Return up to 5 varied questions
+  return shuffle(questions).slice(0, 5); // Shuffle and return up to 5 varied questions
 };
 
 // Helper for finding similar endings even if not exact match (partial overlap)
