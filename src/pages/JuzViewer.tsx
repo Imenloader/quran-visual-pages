@@ -1,4 +1,4 @@
-import { useParams, Navigate, Link, useNavigate } from "react-router-dom";
+import { useParams, Navigate, Link, useNavigate, useSearchParams } from "react-router-dom";
 // --- التعديل هنا: إضافة lazy و Suspense ---
 import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from "react";
 import { juzData, getQuranPageFallbackImageUrl, toArabicNumber, surahIndex } from "@/data/quranData";
@@ -67,6 +67,7 @@ function JuzViewer() {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { juzNumber } = useParams();
   const num = parseInt(juzNumber || "0");
   const juz = juzData.find((j) => j.number === num);
@@ -107,6 +108,13 @@ function JuzViewer() {
     }
   }, [currentPage, juz, prefetchNeighborPages]);
 
+
+  // Handle ?test=true from navigation
+  useEffect(() => {
+    if (searchParams.get("test") === "true") {
+      setHifzMode(true);
+    }
+  }, [searchParams, setHifzMode]);
 
   const { isFullscreen, setIsFullscreen } = useTheme();
   const { playAyah, togglePlay, currentSurah, stopPlayer, syncMode } = useAudioPlayer();

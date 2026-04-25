@@ -38,19 +38,49 @@ const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, isSmartReview, 
   const [quizFinished, setQuizFinished] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
+  const audioTimeoutRef = React.useRef<any>(null);
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      if (audioTimeoutRef.current) {
+        clearTimeout(audioTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const playVerseAudio = async (verseKey: string, duration?: number) => {
     if (!verseKey) return;
+    
+    // Stop previous
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    if (audioTimeoutRef.current) {
+      clearTimeout(audioTimeoutRef.current);
+    }
+
     setIsPlayingAudio(true);
     const audio = new Audio(getVerseAudioUrl(verseKey));
-    audio.play();
+    audioRef.current = audio;
+    
+    audio.play().catch(e => console.warn("Audio play failed:", e));
+    
     if (duration) {
-      setTimeout(() => {
+      audioTimeoutRef.current = setTimeout(() => {
         audio.pause();
         setIsPlayingAudio(false);
+        audioTimeoutRef.current = null;
       }, duration);
     } else {
-      audio.onended = () => setIsPlayingAudio(false);
+      audio.onended = () => {
+        setIsPlayingAudio(false);
+        audioRef.current = null;
+      };
     }
   };
 
@@ -125,7 +155,12 @@ const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, isSmartReview, 
   const finishQuiz = async () => {
     const finalScore = score + (isCorrect ? 1 : 0);
     const success = finalScore >= questions.length * 0.7; // 70% to count as success
-    await saveResult(pageNumber, success);
+    
+    // Only save mastery if it's a specific page test
+    if (pageNumber && !isSmartReview) {
+      await saveResult(pageNumber, success);
+    }
+    
     setQuizFinished(true);
   };
 
@@ -134,9 +169,11 @@ const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, isSmartReview, 
       <div className="p-8 text-center space-y-8">
         <div className="space-y-2">
           <GraduationCap className="w-12 h-12 text-accent mx-auto" />
-          <h3 className="text-2xl font-bold font-serif">{isAr ? "اختبار حفظ الصفحة" : "Page Hifz Test"}</h3>
+          <h3 className="text-2xl font-bold font-serif">{isSmartReview ? (isAr ? "مراجعة ذكية شاملة" : "Complete Smart Review") : (isAr ? "اختبار حفظ الصفحة" : "Page Hifz Test")}</h3>
           <p className="text-muted-foreground text-sm">
-            {isAr ? `صفحة رقم ${toArabicNumber(pageNumber)}` : `Page Number ${pageNumber}`}
+            {isSmartReview 
+              ? (isAr ? "أسئلة مخصصة من صفحاتك الضعيفة" : "Custom questions from your weak pages")
+              : (isAr ? `صفحة رقم ${toArabicNumber(pageNumber || 0)}` : `Page Number ${pageNumber}`)}
           </p>
         </div>
 

@@ -35,7 +35,11 @@ export const generatePageQuiz = async (pageNumber: number, difficulty: "beginner
   const firstWordRaw = words.find(isRealWord) || words[0];
   
   // Clean decorative signs for display (e.g. remove Sajdah/Juz signs)
-  const cleanWord = (w: string) => w.replace(/[\u06DE\u06E9\u06D6-\u06ED]/g, "").trim();
+  const cleanWord = (w: any) => {
+    if (!w || typeof w !== "string") return "";
+    return w.replace(/[\u06DE\u06E9\u06D6-\u06ED]/g, "").trim();
+  };
+  
   const firstWord = cleanWord(firstWordRaw);
   
   questions.push({
@@ -115,7 +119,9 @@ export const generatePageQuiz = async (pageNumber: number, difficulty: "beginner
   // 5. Next Page Transition
   if (nextPageAyahs.length > 0) {
     const firstAyahNext = nextPageAyahs[0].text;
-    const firstWordNext = cleanWord(firstAyahNext.split(/\s+/).filter(isRealWord)[0]);
+    const firstWordNextRaw = firstAyahNext.split(/\s+/).filter(isRealWord)[0] || firstAyahNext.split(/\s+/)[0];
+    const firstWordNext = cleanWord(firstWordNextRaw);
+
     const lastAyahThis = ayahs[ayahs.length - 1].text;
     const lastWordsThis = lastAyahThis.split(/\s+/).filter(w => w.length > 0).slice(-3).map(cleanWord).join(" ");
 

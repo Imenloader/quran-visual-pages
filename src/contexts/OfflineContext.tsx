@@ -192,7 +192,7 @@ export const OfflineProvider = ({ children }: { children: ReactNode }) => {
         if (!hasText) {
           try {
             const res = await fetch(textUrl);
-            if (res.ok) await textCache.put(textUrl, res);
+            if (res.ok) await textCache.put(textUrl, res.clone());
           } catch (e) {
             console.warn("Predictive text fetch failed", e);
           }
