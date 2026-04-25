@@ -1221,7 +1221,7 @@ const Profile = () => {
                               <div className="flex items-center gap-3">
                                 <img src={auth.currentUser.photoURL || "/avatar-man-1.svg"} className="w-10 h-10 rounded-full" referrerPolicy="no-referrer" />
                                 <div className={`${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                                  <p className="text-xs font-bold font-serif text-primary">{auth.currentUser.displayName}</p>
+                                  <p className="text-xs font-bold font-serif text-primary/90">{auth.currentUser.displayName}</p>
                                   <p className="text-[10px] text-primary/60 font-serif">{auth.currentUser.email}</p>
                                 </div>
                               </div>
@@ -1276,7 +1276,7 @@ const Profile = () => {
                         </div>
 
                         {/* Character Preview Card */}
-                        <div className="relative p-2.5 rounded-xl bg-gradient-to-br from-primary to-emerald-deep text-primary-foreground overflow-hidden group">
+                        <div className="relative p-2.5 rounded-xl bg-gradient-to-br from-primary to-emerald-deep text-white overflow-hidden group">
                           <div className="absolute inset-0 pattern-islamic opacity-10" />
                           <div className="relative z-10 flex flex-col items-center gap-1.5">
                             <div className="w-12 h-12 rounded-lg bg-primary/10 backdrop-blur-md border border-primary/20 flex items-center justify-center overflow-hidden">
@@ -1287,8 +1287,8 @@ const Profile = () => {
                               )}
                             </div>
                             <div className="text-center">
-                              <h4 className="text-sm font-serif font-bold">{profile.name}</h4>
-                              <p className="text-[7px] opacity-60 uppercase tracking-widest mt-0.5">{levelName}</p>
+                              <h4 className="text-sm font-serif font-bold text-white">{profile.name}</h4>
+                              <p className="text-[7px] text-white/60 uppercase tracking-widest mt-0.5">{levelName}</p>
                             </div>
                             <button
                               onClick={() => setIsEditingProfile(true)}
