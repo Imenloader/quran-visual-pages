@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { toArabicNumber, juzData } from "@/data/quranData";
 import { useHifzMastery } from "@/hooks/useHifzMastery";
 import { useSmartReview } from "@/hooks/useSmartReview";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import HifzQuizView from "@/components/HifzQuizView";
 import MasteryBadge from "@/components/MasteryBadge";
 import { useNavigate, useSearchParams } from "react-router-dom";
