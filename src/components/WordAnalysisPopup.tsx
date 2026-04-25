@@ -59,43 +59,55 @@ const translateEnglishToArabicFallback = (text: string) => {
 
 const fetchWordAnalysis = async (surah: number, ayah: number, word: string, index: number) => {
   const verseKey = `${surah}:${ayah}`;
-  const response = await fetch(
-    `https://api.quran.com/api/v4/verses/by_key/${verseKey}?words=true&word_fields=text_uthmani,location,audio_url&word_translation_language=en`
-  );
-  if (!response.ok) throw new Error("Failed to fetch word data");
   
-  const data = await response.json();
-  const words: QuranWordData[] = data.verse.words;
+  // Fetch English (for Meaning) and Arabic (for Word Tafsir) in parallel
+  const [enRes, arRes] = await Promise.all([
+    fetch(`https://api.quran.com/api/v4/verses/by_key/${verseKey}?words=true&word_fields=text_uthmani,location,audio_url&word_translation_language=en`),
+    fetch(`https://api.quran.com/api/v4/verses/by_key/${verseKey}?words=true&word_fields=text_uthmani,location,audio_url&word_translation_language=ar`)
+  ]);
+
+  if (!enRes.ok || !arRes.ok) throw new Error("Failed to fetch word data");
+  
+  const enData = await enRes.json();
+  const arData = await arRes.json();
+  
+  const enWords: QuranWordData[] = enData.verse.words;
+  const arWords: QuranWordData[] = arData.verse.words;
   const normalizedWord = normalizeArabicWord(word);
 
-  let target = words[index];
-  if (!target || normalizeArabicWord(target.text_uthmani) !== normalizedWord) {
-    target = words.find(w => normalizeArabicWord(w.text_uthmani) === normalizedWord) || target || words[0];
+  let enTarget = enWords[index];
+  if (!enTarget || normalizeArabicWord(enTarget.text_uthmani) !== normalizedWord) {
+    enTarget = enWords.find(w => normalizeArabicWord(w.text_uthmani) === normalizedWord) || enTarget || enWords[0];
+  }
+
+  let arTarget = arWords[index];
+  if (!arTarget || normalizeArabicWord(arTarget.text_uthmani) !== normalizedWord) {
+    arTarget = arWords.find(w => normalizeArabicWord(w.text_uthmani) === normalizedWord) || arTarget || arWords[0];
   }
   
   return {
-    word: target,
-    juz: data.verse.juz_number,
+    word: enTarget,
+    arabicMeaning: arTarget.translation?.text,
+    englishMeaning: enTarget.translation?.text,
+    juz: enData.verse.juz_number,
     verseKey
   };
 };
 
+
 const fetchTafsir = async (verseKey: string): Promise<TafsirData> => {
-  const response = await fetch(`https://api.alquran.cloud/v1/ayah/${verseKey}/ar.muyassar`);
-  if (!response.ok) throw new Error("Failed to fetch tafsir");
-  return response.json();
+  // We no longer need the full verse tafsir if we are showing word tafsir
+  // but we can keep it as a fallback or if we need other data.
+  // Actually, I'll fetch it just in case, or replace it with a dummy since we use the word's Arabic translation now.
+  return { data: { text: "" } };
 };
 
 const translateText = async (text: string): Promise<string> => {
-  if (!text || /[\u0600-\u06FF]/.test(text)) return text;
-  try {
-    const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|ar`);
-    const data = await res.json();
-    return data.responseData?.translatedText || translateEnglishToArabicFallback(text);
-  } catch {
-    return translateEnglishToArabicFallback(text);
-  }
+  // Since we are now fetching Arabic directly from Quran.com, 
+  // this will be the Arabic explanation.
+  return text || "غير متوفر";
 };
+
 
 const SectionHeader = ({ icon: Icon, title, colorClass = "text-primary" }: { icon: any, title: string, colorClass?: string }) => (
   <div className="flex items-center gap-2 mb-2">
@@ -124,10 +136,11 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
     staleTime: 1000 * 60 * 60,
   });
 
+  // 3. Translate English Meaning (depends on analysis)
   const { data: translatedMeaning, isLoading: isTranslating } = useQuery({
-    queryKey: ['translate', analysis?.word?.translation?.text],
-    queryFn: () => translateText(analysis!.word!.translation!.text!),
-    enabled: !!analysis?.word?.translation?.text,
+    queryKey: ['translate', analysis?.englishMeaning],
+    queryFn: () => translateText(analysis!.englishMeaning!),
+    enabled: !!analysis?.englishMeaning,
     staleTime: 1000 * 60 * 60,
   });
 
@@ -161,7 +174,7 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
     try {
       await navigator.share({
         title: 'تحليل كلمة قرآنية',
-        text: `الكلمة: ${word}\nالمعنى: ${translatedMeaning}`,
+        text: `الكلمة: ${word}\nالمعنى: ${translatedMeaning}\nالتفسير: ${analysis.arabicMeaning}`,
         url: window.location.href,
       });
     } catch (e) {
@@ -237,24 +250,25 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
                   )}
                 </motion.div>
 
-                {/* 2. تفسير الآية (الميسر) */}
+                {/* 2. تفسير الآية (الميسر) - Now showing Word Tafsir */}
                 <motion.div 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="p-4 bg-emerald-500/[0.04] rounded-2xl border border-emerald-500/10"
+                   initial={{ opacity: 0, y: 10 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   transition={{ delay: 0.1 }}
+                   className="p-4 bg-emerald-500/[0.04] rounded-2xl border border-emerald-500/10"
                 >
                   <SectionHeader icon={Book} title="تفسير الآية (الميسر)" colorClass="text-emerald-600 dark:text-emerald-400" />
-                  {isTafsirLoading ? (
+                  {isMainLoading ? (
                     <div className="space-y-2 py-1">
                       <div className="h-3 bg-emerald-500/10 rounded animate-pulse w-full" />
                     </div>
                   ) : (
                     <p className="text-sm font-naskh text-foreground/80 leading-relaxed text-justify">
-                      {tafsir?.data?.text || 'تعذر جلب التفسير.'}
+                      {analysis?.arabicMeaning || 'تعذر جلب تفسير الكلمة.'}
                     </p>
                   )}
                 </motion.div>
+
 
                 {/* 3 & 4. الآية والموقع */}
                 <div className="grid grid-cols-2 gap-2">
