@@ -16,7 +16,70 @@ interface QuranWordData {
   location: string;
   translation?: { text: string };
   root?: { text: string };
+  grammar?: { text?: string; type?: string };
 }
+
+// 💡 مترجم التحليل النحوي من الإنجليزية (API) إلى العربية
+const translateGrammarToArabic = (grammarObj?: { text?: string; type?: string }) => {
+  if (!grammarObj || (!grammarObj.text && !grammarObj.type)) return "تحليل نحوي غير متوفر";
+  
+  const rawText = `${grammarObj.text || ''} ${grammarObj.type || ''}`.toLowerCase();
+  let remaining = rawText;
+  const matches: string[] = [];
+
+  // قاموس المصطلحات النحوية
+  const dictionary: [string, string][] = [
+    ["prefixed preposition", "حرف جر متصل"],
+    ["relative pronoun", "اسم موصول"],
+    ["demonstrative pronoun", "اسم إشارة"],
+    ["personal pronoun", "ضمير منفصل"],
+    ["attached pronoun", "ضمير متصل"],
+    ["interrogative pronoun", "اسم استفهام"],
+    ["vocative particle", "حرف نداء"],
+    ["negative particle", "حرف نفي"],
+    ["prohibition particle", "حرف نهي"],
+    ["restriction particle", "حرف حصر"],
+    ["conditional particle", "حرف شرط"],
+    ["coordinating conjunction", "حرف عطف"],
+    ["subordinating conjunction", "حرف عطف فرعي"],
+    ["conjunction", "حرف عطف"],
+    ["preposition", "حرف جر"],
+    ["active participle", "اسم فاعل"],
+    ["passive participle", "اسم مفعول"],
+    ["time adverb", "ظرف زمان"],
+    ["location adverb", "ظرف مكان"],
+    ["adjective", "صفة / نعت"],
+    ["imperative", "فعل أمر"],
+    ["perfect", "فعل ماضٍ"],
+    ["imperfect", "فعل مضارع"],
+    ["pronoun", "ضمير"],
+    ["noun", "اسم"],
+    ["verb", "فعل"],
+    ["particle", "حرف"],
+    ["genitive", "مجرور"],
+    ["accusative", "منصوب"],
+    ["nominative", "مرفوع"],
+    ["masculine", "مذكر"],
+    ["feminine", "مؤنث"],
+    ["singular", "مفرد"],
+    ["plural", "جمع"],
+    ["dual", "مثنى"],
+    ["abbreviation", "حروف مقطعة"]
+  ];
+
+  for (const [eng, ar] of dictionary) {
+    if (remaining.includes(eng)) {
+      matches.push(ar);
+      remaining = remaining.replace(new RegExp(eng, 'g'), ""); 
+    }
+  }
+
+  if (matches.length > 0) {
+    return Array.from(new Set(matches)).join(" • ");
+  }
+
+  return grammarObj.text || grammarObj.type || "تحليل غير متوفر";
+};
 
 const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({ 
   word, 
@@ -26,7 +89,6 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
   onClose 
 }) => {
   const [wordData, setWordData] = useState<QuranWordData | null>(null);
-  const [ayahIrab, setAyahIrab] = useState<string>('');
   const [ayahTafsir, setAyahTafsir] = useState<string>('');
   const [juzNumber, setJuzNumber] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -43,14 +105,12 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
     if (![surah, ayah, wordAtAyah].every((value) => Number.isFinite(value) && value > 0)) {
       return location;
     }
-
     const parts = [
       juz ? `الجزء ${toArabicNumber(juz)}` : null,
       `سورة ${toArabicNumber(surah)}`,
       `آية ${toArabicNumber(ayah)}`,
       `الكلمة ${toArabicNumber(wordAtAyah)}`,
     ].filter(Boolean);
-
     return parts.join(" • ");
   };
 
@@ -61,30 +121,26 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
       try {
         const verseKey = `${surahNumber}:${ayahNumber}`;
 
-        // 1. جلب بيانات الكلمة (الترجمة العربية والجذر) من quran.com
-        const quranRes = fetch(`https://api.quran.com/api/v4/verses/by_key/${verseKey}?words=true&word_fields=text_uthmani,location,root&word_translation_language=ar`);
+        // 1. جلب تفاصيل الكلمة والقواعد من Quran.com
+        const quranRes = fetch(`https://api.quran.com/api/v4/verses/by_key/${verseKey}?words=true&word_fields=text_uthmani,location,root,grammar&word_translation_language=ar`);
         
-        // 2. جلب الإعراب النحوي الموثوق من alquran.cloud
-        const irabRes = fetch(`https://api.alquran.cloud/v1/ayah/${verseKey}/ar.irab`);
-        
-        // 3. جلب التفسير الميسر لإضافة قيمة علمية
+        // 2. جلب التفسير الميسر لإثراء التحليل
         const tafsirRes = fetch(`https://api.alquran.cloud/v1/ayah/${verseKey}/ar.muyassar`);
 
-        const [quranResponse, irabResponse, tafsirResponse] = await Promise.all([quranRes, irabRes, tafsirRes]);
+        // دمج الطلبات مع حماية (catch) لضمان عدم توقف التطبيق إذا فشل أحدهما
+        const [quranResponse, tafsirResponse] = await Promise.all([quranRes, tafsirRes].map(p => p.catch(() => null)));
 
-        if (!quranResponse.ok) throw new Error("فشل في جلب بيانات الكلمة");
+        if (!quranResponse || !quranResponse.ok) throw new Error("فشل في جلب بيانات الكلمة");
 
         const quranJson = await quranResponse.json();
-        const irabJson = irabResponse.ok ? await irabResponse.json() : null;
-        const tafsirJson = tafsirResponse.ok ? await tafsirResponse.json() : null;
+        const tafsirJson = tafsirResponse?.ok ? await tafsirResponse.json() : null;
 
-        // --- معالجة الكلمة ---
         const words: QuranWordData[] = Array.isArray(quranJson?.verse?.words) ? quranJson.verse.words : [];
         const normalizedClickedWord = normalizeArabicWord(word);
 
         let targetWord = words[wordIndex];
 
-        // مطابقة الكلمة في حال اختلاف الـ Index
+        // البحث الدقيق عن الكلمة إذا اختلف ترتيبها (Fallback)
         if (!targetWord || normalizeArabicWord(targetWord.text_uthmani) !== normalizedClickedWord) {
           targetWord = words.find((w) => normalizeArabicWord(w?.text_uthmani) === normalizedClickedWord) || targetWord;
           if (!targetWord) {
@@ -97,7 +153,6 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
 
         setWordData(targetWord || null);
         setJuzNumber(Number(quranJson?.verse?.juz_number) || null);
-        setAyahIrab(irabJson?.data?.text || 'الإعراب غير متوفر لهذه الآية حالياً.');
         setAyahTafsir(tafsirJson?.data?.text || 'التفسير غير متوفر حالياً.');
 
       } catch (err) {
@@ -117,7 +172,7 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
-        className="fixed inset-x-4 bottom-20 z-[1000] max-h-[85vh] flex flex-col max-w-lg mx-auto bg-card/95 backdrop-blur-2xl rounded-[2.5rem] border border-border/40 shadow-2xl overflow-hidden"
+        className="fixed inset-x-4 bottom-24 z-[1000] max-h-[85vh] flex flex-col max-w-lg mx-auto bg-card/95 backdrop-blur-2xl rounded-[2.5rem] border border-border/40 shadow-2xl overflow-hidden"
         dir="rtl"
       >
         {/* Header */}
@@ -138,7 +193,7 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
           {loading ? (
             <div className="py-16 flex flex-col items-center justify-center gap-4">
               <Loader2 className="w-10 h-10 text-primary animate-spin" />
-              <p className="text-sm text-muted-foreground font-naskh">جاري جلب التحليل اللغوي...</p>
+              <p className="text-sm text-muted-foreground font-naskh">جاري التحليل اللغوي...</p>
             </div>
           ) : error ? (
             <div className="py-12 text-center text-destructive font-naskh bg-destructive/10 rounded-2xl border border-destructive/20">{error}</div>
@@ -147,7 +202,7 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
               
               {/* قسم معنى الكلمة والجذر */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex flex-col items-center justify-center text-center">
+                <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex flex-col items-center justify-center text-center min-h-[100px]">
                   <div className="flex items-center gap-2 mb-2 text-primary">
                     <Info size={16} />
                     <span className="text-xs font-bold font-naskh">معنى الكلمة</span>
@@ -159,25 +214,25 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
                   </p>
                 </div>
 
-                <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex flex-col items-center justify-center text-center">
+                <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex flex-col items-center justify-center text-center min-h-[100px]">
                   <div className="flex items-center gap-2 mb-2 text-primary">
                     <Book size={16} />
                     <span className="text-xs font-bold font-naskh">الجذر اللغوي</span>
                   </div>
                   <p className="text-xl font-quran text-foreground">
-                    {wordData?.root?.text || "غير متوفر"}
+                    {wordData?.root?.text || "بدون جذر"}
                   </p>
                 </div>
               </div>
 
-              {/* قسم الإعراب */}
+              {/* قسم التحليل النحوي */}
               <div className="p-5 bg-amber-500/5 rounded-2xl border border-amber-500/20">
                 <div className="flex items-center gap-2 mb-3">
                   <FileText size={18} className="text-amber-600" />
-                  <span className="text-sm font-bold font-naskh text-amber-700">إعراب الآية</span>
+                  <span className="text-sm font-bold font-naskh text-amber-700">التحليل النحوي</span>
                 </div>
-                <p className="text-[15px] font-naskh text-foreground leading-loose text-justify">
-                  {ayahIrab}
+                <p className="text-[15px] font-naskh font-bold text-foreground leading-loose text-right">
+                  {translateGrammarToArabic(wordData?.grammar)}
                 </p>
               </div>
 
@@ -185,7 +240,7 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
               <div className="p-5 bg-emerald-500/5 rounded-2xl border border-emerald-500/20">
                 <div className="flex items-center gap-2 mb-3">
                   <Activity size={18} className="text-emerald-600" />
-                  <span className="text-sm font-bold font-naskh text-emerald-700">التفسير الميسر</span>
+                  <span className="text-sm font-bold font-naskh text-emerald-700">تفسير الآية (الميسر)</span>
                 </div>
                 <p className="text-[15px] font-naskh text-foreground leading-loose text-justify">
                   {ayahTafsir}
@@ -200,4 +255,4 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
   );
 };
 
-export default WordAnalysisPopup;
+export default WordAnalysisPopup;S
