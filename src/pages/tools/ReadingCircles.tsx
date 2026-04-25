@@ -357,7 +357,7 @@ const ReadingCircles = () => {
               <button 
                 onClick={() => {
                   const surah = surahData[currentCircle.surahNumber - 1];
-                  navigate(`/juz/${Math.floor((surah.page - 1) / 20) + 1}?page=${surah.page}`);
+                  navigate(`/juz/${Math.floor((surah.startPage - 1) / 20) + 1}?page=${surah.startPage}`);
                 }}
                 className="w-full py-6 bg-primary text-white rounded-[2rem] font-bold font-naskh shadow-2xl flex items-center justify-center gap-4 active:scale-95 transition-transform"
               >
@@ -390,7 +390,7 @@ const ReadingCircles = () => {
                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">{isAr ? "اختر السورة" : "Select Surah"}</label>
                      <select value={selectedSurah} onChange={e => setSelectedSurah(Number(e.target.value))} className="w-full p-4 bg-muted/50 border border-border rounded-2xl focus:ring-2 ring-primary/20 outline-none font-naskh appearance-none">
                        {surahData.map(s => (
-                         <option key={s.id} value={s.id}>{isAr ? s.name : s.englishName}</option>
+                         <option key={s.number} value={s.number}>{isAr ? s.name : s.englishName}</option>
                        ))}
                      </select>
                    </div>

@@ -74,7 +74,7 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({ word, surahNumber
                 <Book size={16} className="text-primary" />
                 <span className="text-xs font-bold font-naskh text-primary">الجذر اللغوي</span>
               </div>
-              <p className="text-2xl font-quran text-foreground">{data?.root || "غير متوفر"}</p>
+              <p className="text-2xl font-quran text-foreground">{data?.root?.text || "غير متوفر"}</p>
             </div>
 
             {/* Grammar Section */}
@@ -84,7 +84,7 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({ word, surahNumber
                 <span className="text-xs font-bold font-naskh text-amber-700">التحليل النحوي</span>
               </div>
               <p className="text-sm font-naskh text-foreground leading-loose">
-                {data?.grammar || "تحليل نحوي غير متوفر لهذه الكلمة"}
+                {data?.grammar?.text || data?.grammar?.type || "تحليل نحوي غير متوفر لهذه الكلمة"}
               </p>
             </div>
 

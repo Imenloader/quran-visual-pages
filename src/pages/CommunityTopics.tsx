@@ -245,8 +245,10 @@ const CommunityTopics = () => {
                       <div className="flex items-center gap-2 text-[9px] text-muted-foreground">
                         <Clock size={10} />
                         {post.createdAt?.toDate?.().toLocaleDateString(isAr ? 'ar-EG' : 'en-US')}
-                        <span className={`px-2 py-0.5 rounded-full text-white ${CATEGORIES.find(c => c.id === post.category)?.color}`}>
-                          {isAr ? CATEGORIES.find(c => c.id === post.category)?.labelAr : CATEGORIES.find(c => c.id === post.category)?.labelEn}
+                        <span className={`px-2 py-0.5 rounded-full text-white ${CATEGORIES.find(c => c.id === post.category)?.color || "bg-muted"}`}>
+                          {isAr 
+                            ? CATEGORIES.find(c => c.id === post.category)?.labelAr || "عام"
+                            : CATEGORIES.find(c => c.id === post.category)?.labelEn || "General"}
                         </span>
                       </div>
                     </div>

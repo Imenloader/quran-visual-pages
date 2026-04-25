@@ -142,6 +142,8 @@
   
   .dynamic-bg {
     background: linear-gradient(to bottom, var(--dynamic-bg-top), var(--dynamic-bg-bottom)) !important;
+    --primary: var(--dynamic-accent) !important;
+    --accent: var(--dynamic-accent) !important;
   }
 
   .perspective-1000 {
