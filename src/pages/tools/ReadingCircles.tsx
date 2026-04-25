@@ -154,12 +154,12 @@ const ReadingCircles = () => {
       return;
     }
 
-    const surah = surahData.find(s => s.id === selectedSurah);
+    const surah = surahData.find(s => s.number === selectedSurah);
     if (!surah) return;
 
     try {
       const docRef = await addDoc(collection(db, "reading_circles"), {
-        title: newCircleTitle || (isAr ? `حلقة ${surah.name}` : `${surah.englishName} Circle`),
+        title: newCircleTitle || (isAr ? `حلقة سورة ${surah.name}` : `Surah ${surah.englishName} Circle`),
         surahNumber: selectedSurah,
         totalAyahs: surah.ayahs,
         createdBy: user.uid,
