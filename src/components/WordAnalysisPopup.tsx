@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Book, FileText, Activity, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toArabicNumber } from '@/data/quranData';
 
 interface WordAnalysisPopupProps {
   word: string;
@@ -11,26 +12,84 @@ interface WordAnalysisPopupProps {
   onClose: () => void;
 }
 
+interface QuranWordAnalysisData {
+  text_uthmani?: string;
+  location?: string;
+  root?: { text?: string };
+  grammar?: { text?: string; type?: string };
+}
+
+interface VerseByKeyResponse {
+  verse?: {
+    juz_number?: number;
+    words?: QuranWordAnalysisData[];
+  };
+}
+
 const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({ word, surahNumber, ayahNumber, wordIndex, onClose }) => {
   const { i18n } = useTranslation();
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<QuranWordAnalysisData | null>(null);
+  const [juzNumber, setJuzNumber] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const normalizeArabicWord = (value: string = "") =>
+    value
+      .replace(/[\u064B-\u065F\u0670]/g, "")
+      .replace(/[^\u0621-\u063A\u0641-\u064A]/g, "");
+
+  const formatArabicLocation = (location?: string, juz?: number | null) => {
+    if (!location) return "غير متوفر";
+    const [surah, ayah, wordAtAyah] = location.split(":").map((v) => Number(v));
+    if (![surah, ayah, wordAtAyah].every((value) => Number.isFinite(value) && value > 0)) {
+      return location;
+    }
+
+    const parts = [
+      juz ? `الجزء ${toArabicNumber(juz)}` : null,
+      `السورة ${toArabicNumber(surah)}`,
+      `الآية ${toArabicNumber(ayah)}`,
+      `الكلمة ${toArabicNumber(wordAtAyah)}`,
+    ].filter(Boolean);
+
+    return parts.join(" • ");
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
+      setError(null);
       try {
         const verseKey = `${surahNumber}:${ayahNumber}`;
         const res = await fetch(`https://api.quran.com/api/v4/verses/by_key/${verseKey}?words=true&word_fields=text_uthmani,location,root,grammar`);
         if (!res.ok) throw new Error("Failed to fetch word data");
-        const json = await res.json();
-        // Find the word by index first, but verify with text matching as a fallback
-        let wordData = json.verse.words[wordIndex];
-        if (!wordData || !word.includes(wordData.text_uthmani)) {
-          wordData = json.verse.words.find((w: any) => w.text_uthmani && (w.text_uthmani.includes(word) || word.includes(w.text_uthmani)));
+        const json: VerseByKeyResponse = await res.json();
+
+        const words = Array.isArray(json?.verse?.words) ? json.verse.words : [];
+        const normalizedClickedWord = normalizeArabicWord(word);
+
+        // 1) Try exact index first
+        let wordData = words[wordIndex];
+
+        // 2) If index mismatch, try by normalized text match
+        if (!wordData || normalizeArabicWord(wordData.text_uthmani) !== normalizedClickedWord) {
+          wordData = words.find((w) => normalizeArabicWord(w?.text_uthmani) === normalizedClickedWord);
+
+          // 3) Last fallback: partial normalized match
+          if (!wordData) {
+            wordData = words.find((w) => {
+              const normalizedApiWord = normalizeArabicWord(w?.text_uthmani);
+              return normalizedApiWord && (normalizedApiWord.includes(normalizedClickedWord) || normalizedClickedWord.includes(normalizedApiWord));
+            });
+          }
         }
-        setData(wordData || json.verse.words[wordIndex]);
+
+        if (!wordData) {
+          throw new Error("No matching word found");
+        }
+
+        setJuzNumber(Number(json?.verse?.juz_number) || null);
+        setData(wordData);
       } catch (err) {
         setError("تعذر جلب بيانات الكلمة");
       } finally {
@@ -38,7 +97,7 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({ word, surahNumber
       }
     };
     fetchData();
-  }, [surahNumber, ayahNumber, wordIndex]);
+  }, [surahNumber, ayahNumber, wordIndex, word]);
 
   return (
     <motion.div
@@ -94,8 +153,8 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({ word, surahNumber
                 <Activity size={16} className="text-emerald-600" />
                 <span className="text-xs font-bold font-naskh text-emerald-700">الموقع</span>
               </div>
-              <p className="text-xs font-mono text-muted-foreground">
-                Location: {data?.location}
+              <p className="text-sm font-naskh text-muted-foreground leading-relaxed">
+                {formatArabicLocation(data?.location, juzNumber)}
               </p>
             </div>
           </div>
