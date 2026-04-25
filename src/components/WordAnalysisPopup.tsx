@@ -18,6 +18,7 @@ interface QuranWordAnalysisData {
   root?: { text?: string };
   grammar?: { text?: string; type?: string };
   corpusUrl?: string;
+  source?: "quran" | "corpus";
 }
 
 interface VerseByKeyResponse {
@@ -66,8 +67,19 @@ const parseCorpusMorphology = (content: string) => {
     content.match(/(?:الإعراب|Grammar|Morphology)\s*[:：]\s*([^\n\r]+)/i) ||
     content.match(/(noun|verb|particle|preposition|pronoun|imperative|perfect|imperfect)[^.\n\r]{0,120}/i);
 
+  const segmentLines = Array.from(content.matchAll(/\b([A-Z]{1,4})\s+–\s+([^\n\r]+)/g))
+    .map(([, tag, desc]) => {
+      const arabicPart = desc.match(/[\u0600-\u06FF][\u0600-\u06FF\s]*/)?.[0]?.trim() || "";
+      const translated = normalizeSpaces(toArabicGrammarLabel(desc.replace(arabicPart, "")));
+      return normalizeSpaces(`${tag}: ${translated}${arabicPart ? ` ${arabicPart}` : ""}`);
+    })
+    .filter(Boolean)
+    .slice(0, 3);
+
   const grammarTextRaw = grammarMatch?.[1] || grammarMatch?.[0] || "";
-  const grammarText = grammarTextRaw ? normalizeSpaces(toArabicGrammarLabel(grammarTextRaw)) : null;
+  const grammarText = segmentLines.length
+    ? segmentLines.join(" • ")
+    : (grammarTextRaw ? normalizeSpaces(toArabicGrammarLabel(grammarTextRaw)) : null);
 
   return { rootText, grammarText };
 };
@@ -173,10 +185,15 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({ word, surahNumber
                 ? wordData.grammar
                 : { text: morphology.grammarText || "تحليل نحوي غير متوفر لهذه الكلمة" },
               corpusUrl: morphology.sourceUrl,
+              source: "corpus",
             };
           } catch {
             // Keep Quran.com data as-is if Arabic corpus fallback is unavailable.
           }
+        }
+
+        if (!wordData.source) {
+          wordData = { ...wordData, source: "quran" };
         }
 
         setJuzNumber(Number(json?.verse?.juz_number) || null);
@@ -251,7 +268,9 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({ word, surahNumber
           </div>
 
           <p className="text-[10px] text-center text-muted-foreground font-naskh italic">
-            تم الاستعانة ببيانات Quran.com للتحليل اللغوي
+            {data?.source === "corpus"
+              ? "تم الاستعانة ببيانات Quranic Arabic Corpus للتحليل اللغوي"
+              : "تم الاستعانة ببيانات Quran.com للتحليل اللغوي"}
           </p>
           {data?.corpusUrl && (
             <a
