@@ -7,7 +7,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useHifzMastery } from "@/hooks/useHifzMastery";
 import { toArabicNumber } from "@/data/quranData";
-import { normalizeArabic } from "@/lib/arabicUtils";
+import { normalizeArabic, areArabicWordsSimilar } from "@/lib/arabicUtils";
 import { toast } from "sonner";
 
 interface HifzQuizViewProps {
@@ -60,14 +60,7 @@ const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, onComplete, onC
   const handleCheck = (answerOverride?: string) => {
     const current = questions[currentIndex];
     const actualAnswer = answerOverride || userAnswer;
-    
-    const normAnswer = normalizeArabic(current.answer);
-    const normUser = normalizeArabic(actualAnswer);
-    
-    // Check with normalized versions
-    const correct = normUser === normAnswer || 
-                   (normAnswer.includes(normUser) && normUser.length > 2) ||
-                   (normUser.includes(normAnswer) && normAnswer.length > 2);
+    const correct = areArabicWordsSimilar(actualAnswer, current.answer);
     
     setIsCorrect(correct);
     if (correct) {

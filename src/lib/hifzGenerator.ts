@@ -17,6 +17,13 @@ export const generatePageQuiz = async (pageNumber: number, difficulty: "beginner
   const ayahs = await fetchPageVerses(pageNumber);
   if (!ayahs || ayahs.length === 0) return [];
 
+  // Fetch previous and next page for transitional questions
+  let prevPageAyahs: any[] = [];
+  let nextPageAyahs: any[] = [];
+  
+  if (pageNumber > 1) prevPageAyahs = await fetchPageVerses(pageNumber - 1);
+  if (pageNumber < 604) nextPageAyahs = await fetchPageVerses(pageNumber + 1);
+
   const questions: HifzQuestion[] = [];
 
   // 1. Boundary: First word of the page
@@ -37,8 +44,22 @@ export const generatePageQuiz = async (pageNumber: number, difficulty: "beginner
     question: "ما هي الكلمة التي تبدأ بها هذه الصفحة؟",
     answer: firstWord,
     options: difficulty === "beginner" ? shuffle([firstWord, "الحمد", "يا أيها", "إن الذين", "قل", "إذا", "سبح"].filter(w => w !== firstWord).slice(0, 3).concat(firstWord)) : undefined,
-    hint: "انظر إلى بداية أول آية"
+    hint: "انظر إلى بداية أول آية في الصفحة"
   });
+
+  // 1b. Page Transition: From previous page
+  if (prevPageAyahs.length > 0) {
+    const lastAyahPrev = prevPageAyahs[prevPageAyahs.length - 1].text;
+    const lastWordsPrev = lastAyahPrev.split(/\s+/).filter(w => w.length > 0).slice(-3).map(cleanWord).join(" ");
+    
+    questions.push({
+      id: `transition-prev-${pageNumber}`,
+      type: "bridge",
+      question: `تنتهي الصفحة السابقة بـ: "... ${lastWordsPrev}". ما هي أول كلمة في هذه الصفحة؟`,
+      answer: firstWord,
+      hint: "الربط بين الصفحات من أساسيات الحفظ المتقن"
+    });
+  }
 
   // 2. Bridge Question: Transition between verses
   if (ayahs.length > 1) {
@@ -81,9 +102,29 @@ export const generatePageQuiz = async (pageNumber: number, difficulty: "beginner
       type: "ending",
       question: `أكمل ختام الآية: "${startOfVerse.split(" ").slice(-5).join(" ")} ..."`,
       answer: actualEnding,
-      options: shuffle([actualEnding, ...COMMON_ENDINGS.filter(ce => ce !== actualEnding).slice(0, 3)]),
+      options: shuffle([
+        actualEnding, 
+        ...COMMON_ENDINGS.filter(ce => ce !== actualEnding && (ce.includes(actualEnding.split(" ").slice(-1)[0]) || actualEnding.includes(ce.split(" ").slice(-1)[0])))
+          .slice(0, 3)
+      ]),
       verseKey: verse.verseKey,
       explanation: "تنبيه: هذا الموضع من المتشابهات التي يكثر فيها الخطأ."
+    });
+  }
+
+  // 5. Next Page Transition
+  if (nextPageAyahs.length > 0) {
+    const firstAyahNext = nextPageAyahs[0].text;
+    const firstWordNext = cleanWord(firstAyahNext.split(/\s+/).filter(isRealWord)[0]);
+    const lastAyahThis = ayahs[ayahs.length - 1].text;
+    const lastWordsThis = lastAyahThis.split(/\s+/).filter(w => w.length > 0).slice(-3).map(cleanWord).join(" ");
+
+    questions.push({
+      id: `transition-next-${pageNumber}`,
+      type: "bridge",
+      question: `تنتهي هذه الصفحة بـ: "... ${lastWordsThis}". ما هي أول كلمة في الصفحة التالية؟`,
+      answer: firstWordNext,
+      hint: "حاول تذكر بداية الصفحة القادمة"
     });
   }
 

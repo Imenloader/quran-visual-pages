@@ -14,3 +14,27 @@ export const normalizeArabic = (text: string): string => {
     .toLowerCase()
     .trim();
 };
+/**
+ * Checks if two Arabic words/phrases are similar enough to be considered correct.
+ * This handles minor variations that aren't memorization errors.
+ */
+export const areArabicWordsSimilar = (a: string, b: string): boolean => {
+  const normA = normalizeArabic(a);
+  const normB = normalizeArabic(b);
+  
+  if (normA === normB) return true;
+  
+  // Allow missing leading "wa" (و) or other minor prefixes if the core word is long enough
+  if (normA.length > 4 && normB.length > 4) {
+    if (normA.startsWith("و") && normA.substring(1) === normB) return true;
+    if (normB.startsWith("و") && normB.substring(1) === normA) return true;
+  }
+
+  // Jaro-Winkler or Levenshtein distance could be used here for even smarter matching
+  // For now, simple substring check for phrases
+  if (normA.length > 10 && normB.length > 10) {
+     return normA.includes(normB) || normB.includes(normA);
+  }
+
+  return false;
+};
