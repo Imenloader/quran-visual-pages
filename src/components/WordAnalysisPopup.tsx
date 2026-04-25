@@ -2,8 +2,8 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   X, Book, Info, Loader2, Volume2, Copy, 
-  Share2, ChevronLeft, Sparkles, Hash,
-  AlertCircle, CheckCircle2, History, ExternalLink
+  Share2, Sparkles, Hash, AlertCircle, 
+  CheckCircle2, Library
 } from 'lucide-react';
 import { toArabicNumber } from '@/data/quranData';
 import { useQuery } from '@tanstack/react-query';
@@ -23,6 +23,7 @@ interface QuranWordData {
   audio_url?: string;
   translation?: { text: string };
   transliteration?: { text: string };
+  root?: { text: string };
 }
 
 interface TafsirData {
@@ -40,7 +41,7 @@ interface TafsirData {
 
 const normalizeArabicWord = (value: string = "") =>
   value
-    .replace(/[\u064B-\u065F\u0670]/g, "")
+    .replace(/[\u064B-\u065F\u0670\u0654\u0655]/g, "")
     .replace(/[^\u0621-\u063A\u0641-\u064A]/g, "");
 
 const fallbackDict: Record<string, string> = {
@@ -66,7 +67,7 @@ const translateEnglishToArabicFallback = (text: string) => {
 const fetchWordAnalysis = async (surah: number, ayah: number, word: string, index: number) => {
   const verseKey = `${surah}:${ayah}`;
   const response = await fetch(
-    `https://api.quran.com/api/v4/verses/by_key/${verseKey}?words=true&word_fields=text_uthmani,location,audio_url,transliteration&word_translation_language=en`
+    `https://api.quran.com/api/v4/verses/by_key/${verseKey}?words=true&word_fields=text_uthmani,location,audio_url,transliteration,root&word_translation_language=en`
   );
   if (!response.ok) throw new Error("Failed to fetch word data");
   
@@ -107,11 +108,11 @@ const translateText = async (text: string): Promise<string> => {
 // --- Components ---
 
 const SectionHeader = ({ icon: Icon, title, colorClass = "text-primary" }: { icon: any, title: string, colorClass?: string }) => (
-  <div className="flex items-center gap-2 mb-3">
-    <div className={`p-1.5 rounded-lg bg-current/10 ${colorClass}`}>
-      <Icon size={16} />
+  <div className="flex items-center gap-2 mb-2">
+    <div className={`p-1 rounded-lg bg-current/10 ${colorClass}`}>
+      <Icon size={14} />
     </div>
-    <span className={`text-sm font-bold font-naskh ${colorClass}`}>{title}</span>
+    <span className={`text-xs font-bold font-naskh ${colorClass}`}>{title}</span>
   </div>
 );
 
@@ -152,9 +153,13 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
   const handleAudio = useCallback(() => {
     if (!analysis?.word?.audio_url || isPlaying) return;
     
-    const audioUrl = analysis.word.audio_url.startsWith('//') 
-      ? `https:${analysis.word.audio_url}` 
-      : analysis.word.audio_url;
+    let audioUrl = analysis.word.audio_url;
+    // Robust URL building
+    if (audioUrl.startsWith('//')) {
+      audioUrl = `https:${audioUrl}`;
+    } else if (!audioUrl.startsWith('http')) {
+      audioUrl = `https://audio.quran.com/${audioUrl}`;
+    }
 
     const audio = new Audio(audioUrl);
     
@@ -201,8 +206,6 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
       handleCopy(`${word}: ${translatedMeaning}`, "بيانات الكلمة");
     }
   };
-
-  const isLoading = isMainLoading || isTafsirLoading || isTranslating;
 
   return (
     <AnimatePresence>
@@ -294,7 +297,7 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
                           {translatedMeaning}
                         </p>
                         {analysis?.word?.translation?.text && analysis.word.translation.text !== translatedMeaning && (
-                          <p className="text-[10px] text-muted-foreground font-medium italic opacity-50 ltr">
+                          <p className="text-[10px] text-muted-foreground font-medium italic opacity-50 ltr text-left">
                             ({analysis.word.translation.text})
                           </p>
                         )}
@@ -302,6 +305,32 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
                     )}
                   </div>
                 </motion.div>
+
+                {/* Root & Grammar Section */}
+                {analysis?.word?.root?.text && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.05 }}
+                    className="p-4 bg-blue-500/[0.04] rounded-2xl border border-blue-500/10 hover:border-blue-500/20 transition-all"
+                  >
+                    <SectionHeader icon={Library} title="التحليل اللغوي" colorClass="text-blue-600 dark:text-blue-400" />
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-[10px] text-muted-foreground font-bold uppercase mb-1">الجذر اللغوي</p>
+                        <p className="text-sm font-quran text-blue-700 dark:text-blue-300 bg-blue-500/10 px-2 py-0.5 rounded-md inline-block">
+                          {analysis.word.root.text}
+                        </p>
+                      </div>
+                      <div className="text-left">
+                        <p className="text-[10px] text-muted-foreground font-bold uppercase mb-1">الأصل</p>
+                        <p className="text-xs font-naskh font-bold opacity-60">
+                          {analysis.word.text_uthmani.replace(/[\u064B-\u065F]/g, '')}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
 
                 {/* Tafsir Section */}
                 <motion.div 
@@ -367,9 +396,7 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
         </motion.div>
       </div>
     </AnimatePresence>
-
   );
 };
 
 export default WordAnalysisPopup;
-
