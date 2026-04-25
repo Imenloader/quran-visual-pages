@@ -113,7 +113,9 @@ const resources = {
         "footerDescription": "A comprehensive app aiming to bring Muslims closer to the Book of Allah and the Sunnah of His Prophet through a premium digital experience.",
         "privacyPolicy": "Privacy Policy",
         "userGuide": "User Guide",
-        "contactUs": "Contact Us"
+        "contactUs": "Contact Us",
+        "readingCircles": "Private Reading Circles",
+        "community": "Faith Community"
       },
       "prayerTimes": {
         "title": "Prayer Times"
@@ -624,7 +626,9 @@ const resources = {
         "footerDescription": "تطبيق شامل يهدف إلى تقريب المسلم من كتاب الله وسنة نبيه عبر تجربة رقمية فاخرة.",
         "privacyPolicy": "سياسة الخصوصية",
         "userGuide": "دليل المستخدم",
-        "contactUs": "تواصل معنا"
+        "contactUs": "تواصل معنا",
+        "readingCircles": "حلقات القراءة الخاصة",
+        "community": "مجتمع قرآنيات"
       },
       "prayerTimes": {
         "title": "مواقيت الصلاة"

@@ -34,6 +34,11 @@
     --emerald: 145 60% 15%;
     --emerald-light: 145 60% 30%;
     --emerald-deep: 145 60% 10%; /* Lighter than before */
+
+    /* Dynamic Theme Overrides */
+    --dynamic-bg-top: 45 30% 98%;
+    --dynamic-bg-bottom: 45 30% 98%;
+    --dynamic-accent: 145 60% 15%;
   }
 
   .dark {
@@ -129,6 +134,18 @@
   
   .container-responsive {
     @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .theme-transitioning {
+    transition: background 1s ease, color 1s ease, border-color 1s ease !important;
+  }
+  
+  .dynamic-bg {
+    background: linear-gradient(to bottom, var(--dynamic-bg-top), var(--dynamic-bg-bottom)) !important;
+  }
+
+  .perspective-1000 {
+    perspective: 1000px;
   }
   
   /* Responsive typography tweaks */

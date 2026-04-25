@@ -1000,18 +1000,19 @@ function JuzViewer() {
                 </motion.div>
               ))
             ) : (
-              <div className="w-full flex flex-col items-center">
+              <div className="w-full flex flex-col items-center perspective-1000">
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={currentPage}
-                    initial={{ opacity: 0, x: 30, scale: 0.98 }}
-                    animate={{ opacity: 1, x: 0, scale: 1 }}
-                    exit={{ opacity: 0, x: -30, scale: 1.02 }}
+                    initial={{ opacity: 0, rotateY: 90, x: 100 }}
+                    animate={{ opacity: 1, rotateY: 0, x: 0 }}
+                    exit={{ opacity: 0, rotateY: -90, x: -100 }}
                     transition={{ 
-                      duration: 0.5, 
+                      duration: 0.6, 
                       ease: [0.16, 1, 0.3, 1]
                     }}
-                    className="relative rounded-[2.5rem] md:rounded-[3rem] border border-border/40 bg-card shadow-2xl w-full"
+                    style={{ transformStyle: "preserve-3d" }}
+                    className="relative rounded-[2.5rem] md:rounded-[3rem] border border-border/40 bg-card shadow-2xl w-full overflow-hidden"
                   >
                     <div className="relative">
                       {hifzMode && (

@@ -17,6 +17,7 @@ import { parseJuzTextToVerses, type ParsedVerseData } from "@/lib/quranTextParse
 
 import TajweedLegend from "@/components/TajweedLegend";
 import FontSizeAdjuster from "@/components/FontSizeAdjuster";
+import WordAnalysisPopup from "@/components/WordAnalysisPopup";
 
 interface VerseData {
   text: string;
@@ -68,6 +69,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
   const lastReportedVerseKey = React.useRef<string | undefined>(undefined);
   const { isFavorite, toggleFavorite, collections } = useFavorites();
   const [showCollections, setShowCollections] = useState(false);
+  const [selectedWord, setSelectedWord] = useState<{ word: string; index: number; verse: VerseData } | null>(null);
 
   // Split text into verses based on common markers and associate with Surah/Ayah
   const versesData = React.useMemo(() => {
@@ -167,6 +169,26 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
   }, [hiddenVerses, currentJuz, hifzMode]);
 
   // Track reading progress
+  const renderVerseWords = (verse: VerseData, isHidden: boolean) => {
+    if (isHidden) return verse.text;
+    
+    // Split by spaces, but keep the word for word index consistent
+    const words = verse.text.split(/\s+/).filter(w => w.length > 0);
+    return words.map((word, i) => (
+      <span
+        key={i}
+        onClick={(e) => {
+          if (hifzMode) return;
+          e.stopPropagation();
+          setSelectedWord({ word, index: i, verse });
+        }}
+        className="hover:text-accent hover:underline decoration-accent/30 decoration-wavy underline-offset-4 transition-all duration-300"
+      >
+        {tajweedMode ? applyTajweedColors(word) : word}{" "}
+      </span>
+    ));
+  };
+
   useEffect(() => {
     if (currentJuz && !readOnly) {
       const today = new Date().toISOString().split('T')[0];
@@ -365,11 +387,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
                       : "blur-0 opacity-100 scale-100 hover:bg-accent/5"
                 }`}
               >
-                {tajweedMode && !isHidden ? (
-                  applyTajweedColors(verse.text)
-                ) : (
-                  verse.text
-                )}
+                {renderVerseWords(verse, isHidden)}
               </span>
             </React.Fragment>
           );
@@ -530,6 +548,15 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
             verse={selectedVerse}
             translation={tafsirContent || undefined}
             onClose={() => setShowShareCard(false)}
+          />
+        )}
+        {selectedWord && (
+          <WordAnalysisPopup
+            word={selectedWord.word}
+            surahNumber={selectedWord.verse.surahNumber}
+            ayahNumber={selectedWord.verse.ayahNumber}
+            wordIndex={selectedWord.index}
+            onClose={() => setSelectedWord(null)}
           />
         )}
       </AnimatePresence>

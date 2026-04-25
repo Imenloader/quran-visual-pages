@@ -196,6 +196,8 @@ const Hub = () => {
         tools: [
           { id: 'khatma', name: t("hub.khatma"), icon: <BookOpen className="w-5 h-5" />, path: "/khatma" },
           { id: 'collab-khatma', name: t("hub.collaborativeKhatma"), icon: <Users className="w-5 h-5" />, path: "/khatma-jamaaiya" },
+          { id: 'community', name: t("hub.community") || "المجتمع", icon: <MessageSquare className="w-5 h-5" />, path: "/community" },
+          { id: 'reading-circles', name: t("hub.readingCircles") || "حلقات القراءة", icon: <Users className="w-5 h-5" />, path: "/reading-circles" },
           { id: 'hifz', name: t("hub.hifzTester"), icon: <GradIcon className="w-5 h-5" />, path: "/tools/hifz-tester" },
           { id: 'routine', name: t("hub.routineBuilder"), icon: <Zap className="w-5 h-5" />, path: "/routine-builder" },
           { id: 'fasting', name: t("hub.fastingTracker"), icon: <Moon className="w-5 h-5" />, path: "/fasting-tracker" },

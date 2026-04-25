@@ -34,6 +34,7 @@ import CommandPalette from "./components/CommandPalette";
 import AdminRoute from "./components/AdminRoute";
 import { lazyWithRetry } from "./lib/lazyRetry";
 import { checkNetworkReliability } from "./lib/networkCheck";
+import DynamicThemeWrapper from "./components/DynamicThemeWrapper";
 
 // --- التعديل هنا: تحميل الصفحات الأساسية بشكل LazyRetry لمحاولة حل مشكلة الـ ReferenceError و Chunk errors ---
 const Index = lazyWithRetry(() => import("./pages/Index"));
@@ -84,6 +85,8 @@ const MoonTracker = lazyWithRetry(() => import("./pages/tools/MoonTracker"));
 const Memorization = lazyWithRetry(() => import("./pages/tools/Memorization"));
 const Leaderboard = lazyWithRetry(() => import("./pages/tools/Leaderboard"));
 const AthkarCircles = lazyWithRetry(() => import("./pages/tools/AthkarCircles"));
+const ReadingCircles = lazyWithRetry(() => import("./pages/tools/ReadingCircles"));
+const CommunityTopics = lazyWithRetry(() => import("./pages/CommunityTopics"));
 const Virtues = lazyWithRetry(() => import("./pages/ramadan/Virtues"));
 const FastingRules = lazyWithRetry(() => import("./pages/ramadan/FastingRules"));
 const Duas = lazyWithRetry(() => import("./pages/ramadan/Duas"));
@@ -227,17 +230,18 @@ const AppContent = () => {
   return (
     <TooltipProvider>
       <AudioPlayerProvider>
-        <NotificationInitializer />
-        <SplashScreen />
-        <ServiceWorkerRegistration />
-        <LanguageHandler />
-        <NetworkStatus />
-        <AudioUnlockBanner />
-        <CommandPalette />
-        <div className="page-dimming-overlay" />
-        <Toaster />
-        <Sonner />
-        <ScrollRestoration />
+        <DynamicThemeWrapper>
+          <NotificationInitializer />
+          <SplashScreen />
+          <ServiceWorkerRegistration />
+          <LanguageHandler />
+          <NetworkStatus />
+          <AudioUnlockBanner />
+          <CommandPalette />
+          <div className="page-dimming-overlay" />
+          <Toaster />
+          <Sonner />
+          <ScrollRestoration />
         
         {/* Admin Maintenance Banner */}
         {settings.maintenanceMode && isAdmin && (
@@ -294,6 +298,8 @@ const AppContent = () => {
                         <Route path="/memorization" element={<Memorization />} />
                         <Route path="/leaderboard" element={<Leaderboard />} />
                         <Route path="/athkar-circles" element={<AthkarCircles />} />
+                        <Route path="/reading-circles" element={<ReadingCircles />} />
+                        <Route path="/community" element={<CommunityTopics />} />
                         <Route path="/ramadan/virtues" element={<Virtues />} />
                         <Route path="/ramadan/fasting-rules" element={<FastingRules />} />
                         <Route path="/ramadan/duas" element={<Duas />} />
@@ -334,8 +340,9 @@ const AppContent = () => {
                     </Suspense>
                     </MaintenanceGuard>
                     <BottomNav />
-                  </AudioPlayerProvider>
-                </TooltipProvider>
+                  </DynamicThemeWrapper>
+                </AudioPlayerProvider>
+              </TooltipProvider>
   );
 };
 
