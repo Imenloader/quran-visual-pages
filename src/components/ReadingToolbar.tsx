@@ -46,7 +46,7 @@ const ReadingToolbar = ({
   isDownloadingAudio
 }: ReadingToolbarProps) => {
    const { theme, setTheme, readingMode, setReadingMode, scrollDirection, setScrollDirection, tajweedMode, setTajweedMode, atmosphericBackground, setAtmosphericBackground } = useTheme();
-  const [showQuiz, setShowQuiz] = useState(false);
+  const [isQuizOpen, setIsQuizOpen] = useState(false);
 
   const toggleTheme = () => {
     if (theme === "light") {
@@ -153,7 +153,7 @@ const ReadingToolbar = ({
               {hifzMode ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
             </Button>
 
-            <Sheet>
+            <Sheet open={isQuizOpen} onOpenChange={setIsQuizOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
@@ -174,8 +174,9 @@ const ReadingToolbar = ({
                 <div className="overflow-y-auto pb-12">
                   <HifzQuizView 
                     pageNumber={currentPage} 
-                    onClose={() => {}}
+                    onClose={() => setIsQuizOpen(false)}
                     onComplete={() => {
+                      setIsQuizOpen(false);
                       toast.success("تم تحديث مستوى إتقان الصفحة");
                     }}
                   />

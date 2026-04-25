@@ -153,7 +153,7 @@ const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, isSmartReview, 
   };
 
   const finishQuiz = async () => {
-    const finalScore = score + (isCorrect ? 1 : 0);
+    const finalScore = score;
     const success = finalScore >= questions.length * 0.7; // 70% to count as success
     
     // Only save mastery if it's a specific page test
