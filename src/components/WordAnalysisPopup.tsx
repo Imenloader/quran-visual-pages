@@ -27,34 +27,47 @@ interface VerseByKeyResponse {
   };
 }
 
-const extractCorpusRoot = (html: string): string | null => {
-  const rootMatch = html.match(/root is[^()]*\(([^)]+)\)/i);
-  if (!rootMatch?.[1]) return null;
-  const arabicOnly = rootMatch[1].replace(/[^\u0621-\u063A\u0641-\u064A\s]/g, "").trim();
-  return arabicOnly || rootMatch[1].trim();
-};
+interface QuraniTag {
+  code?: string;
+  meaning?: string;
+  user_meaning?: string;
+}
 
-const extractCorpusGrammar = (html: string): string | null => {
-  const compactHtml = html.replace(/\s+/g, " ");
-  const englishSummary = compactHtml.match(/The .*?<\/?[^>]*>.*?<\/?[^>]*>.*?\./i);
-  if (englishSummary?.[0]) {
-    return englishSummary[0].replace(/<[^>]+>/g, "").trim();
-  }
+interface QuraniMorphologyResponse {
+  code?: number;
+  data?: {
+    morphology?: {
+      tags_by_category?: {
+        Root?: QuraniTag[];
+        Irab?: QuraniTag[];
+        Sarf?: QuraniTag[];
+      };
+    };
+  };
+}
 
-  const arabicHint = compactHtml.match(/[\u0600-\u06FF][^<]{3,40}/);
-  return arabicHint?.[0]?.trim() || null;
-};
+const pickTagText = (tags: QuraniTag[] = []) =>
+  tags
+    .map((tag) => tag.user_meaning || tag.meaning || tag.code || "")
+    .map((text) => text.trim())
+    .filter(Boolean);
 
-const fetchCorpusFallback = async (location: string) => {
-  const url = `https://corpus.quran.com/wordmorphology.jsp?location=(${location})`;
-  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-  const res = await fetch(proxyUrl);
-  if (!res.ok) throw new Error("Failed to load corpus fallback");
-  const html = await res.text();
+const fetchQuraniMorphology = async (location: string) => {
+  const url = `https://api.qurani.ai/gw/qh/v1/morphology/word/${location}?include_meaning=true`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Failed to load Qurani morphology");
+  const json: QuraniMorphologyResponse = await res.json();
+  const tags = json?.data?.morphology?.tags_by_category;
+  const rootCandidates = pickTagText(tags?.Root || []);
+  const grammarCandidates = [
+    ...pickTagText(tags?.Irab || []),
+    ...pickTagText(tags?.Sarf || []),
+  ];
+
   return {
-    rootText: extractCorpusRoot(html),
-    grammarText: extractCorpusGrammar(html),
-    corpusUrl: url,
+    rootText: rootCandidates[0] || null,
+    grammarText: grammarCandidates.length ? grammarCandidates.join(" • ") : null,
+    sourceUrl: `https://qurani.ai/en/morphology/${location}`,
   };
 };
 
@@ -124,17 +137,17 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({ word, surahNumber
         const missingGrammar = !wordData?.grammar?.text && !wordData?.grammar?.type;
         if ((missingRoot || missingGrammar) && wordData.location) {
           try {
-            const corpus = await fetchCorpusFallback(wordData.location);
+            const morphology = await fetchQuraniMorphology(wordData.location);
             wordData = {
               ...wordData,
-              root: wordData.root?.text ? wordData.root : { text: corpus.rootText || "غير متوفر" },
+              root: wordData.root?.text ? wordData.root : { text: morphology.rootText || "غير متوفر" },
               grammar: wordData.grammar?.text || wordData.grammar?.type
                 ? wordData.grammar
-                : { text: corpus.grammarText || "تحليل نحوي غير متوفر لهذه الكلمة" },
-              corpusUrl: corpus.corpusUrl,
+                : { text: morphology.grammarText || "تحليل نحوي غير متوفر لهذه الكلمة" },
+              corpusUrl: morphology.sourceUrl,
             };
           } catch {
-            // Keep Quran.com data as-is if corpus fallback is unavailable.
+            // Keep Quran.com data as-is if Qurani API fallback is unavailable.
           }
         }
 
@@ -219,7 +232,7 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({ word, surahNumber
               rel="noopener noreferrer"
               className="block text-center text-[11px] font-naskh text-primary hover:underline"
             >
-              عرض التحليل الكامل من Quranic Arabic Corpus
+              عرض التحليل الكامل من مصدر الصرف
             </a>
           )}
         </div>
