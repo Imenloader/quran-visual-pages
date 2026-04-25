@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.widget.RemoteViews;
 
+import org.json.JSONObject;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -44,9 +46,48 @@ public class PrayerWidget extends AppWidgetProvider {
 
         // Get prayer times from SharedPreferences (CapacitorStorage)
         SharedPreferences prefs = context.getSharedPreferences("CapacitorStorage", Context.MODE_PRIVATE);
-        String nextPrayerName = prefs.getString("next_prayer_name", "قيد الانتظار...");
-        String nextPrayerTime = prefs.getString("next_prayer_time", "");
-        String cityName = prefs.getString("city_name", "Quraaniat App");
+        String cityName = prefs.getString("city_name", "Quraaniat");
+        String prayerTimesJson = prefs.getString("prayer_times_json", "");
+
+        String nextPrayerName = "قيد الانتظار...";
+        String nextPrayerTime = "";
+
+        if (!prayerTimesJson.isEmpty()) {
+            try {
+                JSONObject times = new JSONObject(prayerTimesJson);
+                String[] prayerOrder = {"Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"};
+                
+                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.US);
+                Date now = new Date();
+                
+                boolean found = false;
+                for (String name : prayerOrder) {
+                    String timeStr = times.optString(name);
+                    if (timeStr.isEmpty()) continue;
+                    
+                    Date prayerTime = sdf.parse(timeStr);
+                    Date targetDate = new Date();
+                    targetDate.setHours(prayerTime.getHours());
+                    targetDate.setMinutes(prayerTime.getMinutes());
+                    targetDate.setSeconds(0);
+                    
+                    if (targetDate.after(now)) {
+                        nextPrayerName = getPrayerNameAr(name);
+                        nextPrayerTime = timeStr;
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if (!found) {
+                    // All prayers today have passed, show tomorrow's Fajr
+                    nextPrayerName = getPrayerNameAr("Fajr");
+                    nextPrayerTime = times.optString("Fajr");
+                }
+            } catch (Exception e) {
+                nextPrayerName = "خطأ في البيانات";
+            }
+        }
 
         views.setTextViewText(R.id.widget_prayer_name, "صلاة " + nextPrayerName);
         views.setTextViewText(R.id.widget_city, cityName);
@@ -57,7 +98,6 @@ public class PrayerWidget extends AppWidgetProvider {
                 Date prayerDate = sdf.parse(nextPrayerTime);
                 Date now = new Date();
                 
-                // Align prayer date to today
                 Date targetDate = new Date();
                 targetDate.setHours(prayerDate.getHours());
                 targetDate.setMinutes(prayerDate.getMinutes());
@@ -71,7 +111,7 @@ public class PrayerWidget extends AppWidgetProvider {
                 long hours = diff / (60 * 60 * 1000);
                 long minutes = (diff / (60 * 1000)) % 60;
 
-                String countdown = String.format(Locale.US, "%02d:%02d", hours, minutes);
+                String countdown = String.format(Locale.US, "%02d:%02d", (int)hours, (int)minutes);
                 views.setTextViewText(R.id.widget_countdown, countdown);
             } catch (Exception e) {
                 views.setTextViewText(R.id.widget_countdown, "--:--");
@@ -86,6 +126,18 @@ public class PrayerWidget extends AppWidgetProvider {
         views.setOnClickPendingIntent(R.id.widget_countdown, pendingIntent);
 
         appWidgetManager.updateAppWidget(appWidgetId, views);
+    }
+
+    private static String getPrayerNameAr(String name) {
+        switch (name) {
+            case "Fajr": return "الفجر";
+            case "Sunrise": return "الشروق";
+            case "Dhuhr": return "الظهر";
+            case "Asr": return "العصر";
+            case "Maghrib": return "المغرب";
+            case "Isha": return "العشاء";
+            default: return name;
+        }
     }
 
     private void scheduleNextUpdate(Context context) {

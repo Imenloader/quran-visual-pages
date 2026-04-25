@@ -65,12 +65,11 @@ const getNextPrayer = (
   return { name: "Fajr", time: times.Fajr };
 };
 
-const syncToNativeWidget = async (name: string, time: string, city: string) => {
+const syncToNativeWidget = async (times: PrayerTimesData, city: string) => {
   if (Capacitor.getPlatform() !== "android") return;
   try {
-    const prayerName = PRAYER_NAMES[name as keyof PrayerTimesData] || name;
-    await Preferences.set({ key: "next_prayer_name", value: prayerName || "..." });
-    await Preferences.set({ key: "next_prayer_time", value: time || "" });
+    // Send full schedule so the widget can switch prayers autonomously
+    await Preferences.set({ key: "prayer_times_json", value: JSON.stringify(times) });
     await Preferences.set({ key: "city_name", value: city || "Quraaniat" });
   } catch (err) {
     console.error("Failed to sync to widget:", err);
@@ -207,10 +206,9 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
 
   useEffect(() => {
     if (effectiveTimes && settings.cityName) {
-      const next = getNextPrayer(effectiveTimes, getNow());
-      if (next) syncToNativeWidget(next.name, next.time, settings.cityName);
+      syncToNativeWidget(effectiveTimes, settings.cityName);
     }
-  }, [effectiveTimes, settings.cityName, getNow]);
+  }, [effectiveTimes, settings.cityName]);
 
   const playAdhanSound = useCallback(async (soundId: string, prayerNameAr?: string) => {
     if (optionsRef.current?.onAdhanStart) optionsRef.current.onAdhanStart();
