@@ -1,6 +1,6 @@
 import { getQuranPageFallbackImageUrl, getQuranPageImageUrl } from "@/data/quranData";
 
-export type OfflineBundleId = "quran-pages" | "tafsir" | "audio";
+export type OfflineBundleId = "quran-pages" | "tafsir" | "audio" | "quran-text";
 export type OfflineTaskStatus = "pending" | "running" | "done" | "failed";
 export type OfflineBundleState = "idle" | "running" | "paused" | "completed" | "error";
 
@@ -9,12 +9,14 @@ const OFFLINE_DB_VERSION = 1;
 const OFFLINE_BUNDLES_STORE = "bundles";
 
 const PAGES_CACHE_NAME = "quran-pages-cache";
+const TEXT_CACHE_NAME = "quran-text-cache";
 const TOTAL_QURAN_PAGES = 604;
 
 const BUNDLE_CONCURRENCY: Record<OfflineBundleId, number> = {
   "quran-pages": 3,
   tafsir: 5,
   audio: 2,
+  "quran-text": 10, // Text is small, can handle more concurrent requests
 };
 
 interface OfflineTask {
@@ -273,6 +275,31 @@ class OfflineOrchestrator {
       };
     }
 
+    if (bundleId === "quran-text") {
+      const tasks: OfflineTask[] = Array.from({ length: TOTAL_QURAN_PAGES }, (_, index) => {
+        const pageNumber = index + 1;
+        return {
+          id: `text-page-${pageNumber}`,
+          pageNumber,
+          url: `https://api.quran.com/api/v4/quran/verses/uthmani?page_number=${pageNumber}`,
+          fallbackUrl: `https://api.quran.g0v.id/api/v4/quran/verses/uthmani?page_number=${pageNumber}`,
+          status: "pending",
+          attempts: 0,
+          maxAttempts: 3,
+        };
+      });
+
+      return {
+        bundleId,
+        state: "idle",
+        total: tasks.length,
+        completed: 0,
+        failed: 0,
+        updatedAt: Date.now(),
+        tasks,
+      };
+    }
+
     return {
       bundleId,
       state: "idle",
@@ -398,7 +425,7 @@ class OfflineOrchestrator {
   }
 
   private async executeTask(bundleId: OfflineBundleId, task: OfflineTask) {
-    if (bundleId === "quran-pages") {
+    if (bundleId === "quran-pages" || bundleId === "quran-text") {
       if (!task.url) {
         throw new Error("Missing page URL");
       }
@@ -411,7 +438,8 @@ class OfflineOrchestrator {
         throw new Error("Cache API is not supported");
       }
 
-      const cache = await caches.open(PAGES_CACHE_NAME);
+      const cacheName = bundleId === "quran-pages" ? PAGES_CACHE_NAME : TEXT_CACHE_NAME;
+      const cache = await caches.open(cacheName);
       
       // Optimization: Check if already cached before fetching
       const match = await cache.match(task.url);
@@ -419,14 +447,22 @@ class OfflineOrchestrator {
         return;
       }
 
-      let response = await fetch(task.url);
-
-      if (!response.ok && task.fallbackUrl) {
-        response = await fetch(task.fallbackUrl);
+      let response;
+      try {
+        response = await fetch(task.url);
+        if (!response.ok && task.fallbackUrl) {
+          response = await fetch(task.fallbackUrl);
+        }
+      } catch (e) {
+        if (task.fallbackUrl) {
+          response = await fetch(task.fallbackUrl);
+        } else {
+          throw e;
+        }
       }
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+      if (!response || !response.ok) {
+        throw new Error(`HTTP ${response?.status || 'Unknown'}`);
       }
 
       await cache.put(task.url, response.clone());

@@ -77,7 +77,29 @@ export const fetchReciters = async (language = "ar"): Promise<Reciter[]> => {
 };
 
 export const fetchPageVerses = async (pageNumber: number) => {
-  const data = await fetchWithCache(`https://api.quran.com/api/v4/quran/verses/uthmani?page_number=${pageNumber}`, {
+  const url = `https://api.quran.com/api/v4/quran/verses/uthmani?page_number=${pageNumber}`;
+  
+  // Try Cache API first (Offline Bundle)
+  if ("caches" in window) {
+    try {
+      const cache = await caches.open("quran-text-cache");
+      const match = await cache.match(url);
+      if (match) {
+        const data = await match.json();
+        if (data && data.verses) {
+          return data.verses.map((v: any) => ({ 
+            text: v.text_uthmani, 
+            numberInSurah: v.verse_number,
+            verseKey: v.verse_key 
+          }));
+        }
+      }
+    } catch (e) {
+      console.warn("Offline text cache check failed", e);
+    }
+  }
+
+  const data = await fetchWithCache(url, {
     expiry: 30 * 24 * 60 * 60 * 1000 // Cache for 30 days
   });
   if (data && data.verses) {

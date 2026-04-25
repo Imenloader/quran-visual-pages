@@ -87,29 +87,50 @@ const Hub = () => {
 
     const bootstrap = async () => {
       try {
-        const status = await offlineOrchestrator.getBundleStatus("quran-pages");
-        setDownloadAllProgress(status.progress);
-        if (status.state === "running") setDownloadAllState("downloading");
-        else if (status.state === "paused") setDownloadAllState("paused");
-        else if (status.state === "completed") setDownloadAllState("done");
+        const pagesStatus = await offlineOrchestrator.getBundleStatus("quran-pages");
+        const textStatus = await offlineOrchestrator.getBundleStatus("quran-text");
+        
+        // Progress is average of both
+        const combinedProgress = (pagesStatus.progress + textStatus.progress) / 2;
+        setDownloadAllProgress(combinedProgress);
+        
+        const combinedState = (pagesStatus.state === "running" || textStatus.state === "running") ? "running" 
+                            : (pagesStatus.state === "completed" && textStatus.state === "completed") ? "completed"
+                            : (pagesStatus.state === "paused" || textStatus.state === "paused") ? "paused"
+                            : "idle";
+
+        if (combinedState === "running") setDownloadAllState("downloading");
+        else if (combinedState === "paused") setDownloadAllState("paused");
+        else if (combinedState === "completed") setDownloadAllState("done");
         else setDownloadAllState("idle");
       } catch (error) {
         console.error("Failed to bootstrap Hub offline status:", error);
       }
     };
 
-    void bootstrap();
+    bootstrap();
 
     const unsubscribe = offlineOrchestrator.subscribe((event) => {
-      if (event.bundleId !== "quran-pages" || !event.bundleStatus) return;
+      if (!["quran-pages", "quran-text"].includes(event.bundleId as string) || !event.globalStatus) return;
       
-      const status = event.bundleStatus;
-      setDownloadAllProgress(status.progress);
+      const status = event.globalStatus;
+      const pages = status.bundles.find(b => b.bundleId === "quran-pages");
+      const text = status.bundles.find(b => b.bundleId === "quran-text");
+
+      if (!pages || !text) return;
+
+      const combinedProgress = (pages.progress + text.progress) / 2;
+      setDownloadAllProgress(combinedProgress);
       
-      if (status.state === "running") setDownloadAllState("downloading");
-      else if (status.state === "paused") setDownloadAllState("paused");
-      else if (status.state === "completed") setDownloadAllState("done");
-      else if (status.state === "error") setDownloadAllState("paused");
+      const combinedState = (pages.state === "running" || text.state === "running") ? "running" 
+                          : (pages.state === "completed" && text.state === "completed") ? "completed"
+                          : (pages.state === "paused" || text.state === "paused") ? "paused"
+                          : "idle";
+
+      if (combinedState === "running") setDownloadAllState("downloading");
+      else if (combinedState === "paused") setDownloadAllState("paused");
+      else if (combinedState === "completed") setDownloadAllState("done");
+      else if (combinedState === "error") setDownloadAllState("paused");
       else setDownloadAllState("idle");
     });
 
@@ -127,12 +148,14 @@ const Hub = () => {
     }
 
     try {
-      const status = await offlineOrchestrator.getBundleStatus("quran-pages");
-      if (status.state === "paused") {
-        await offlineOrchestrator.resumeBundle("quran-pages");
-      } else {
-        await offlineOrchestrator.prepareBundle("quran-pages");
-      }
+      const pagesStatus = await offlineOrchestrator.getBundleStatus("quran-pages");
+      const textStatus = await offlineOrchestrator.getBundleStatus("quran-text");
+
+      if (pagesStatus.state === "paused") await offlineOrchestrator.resumeBundle("quran-pages");
+      else await offlineOrchestrator.prepareBundle("quran-pages");
+
+      if (textStatus.state === "paused") await offlineOrchestrator.resumeBundle("quran-text");
+      else await offlineOrchestrator.prepareBundle("quran-text");
     } catch (error) {
       console.error("Hub download failed:", error);
       toast.error(t("hub.offline.clearError"));
@@ -142,6 +165,7 @@ const Hub = () => {
   const pauseDownload = useCallback(async () => {
     try {
       await offlineOrchestrator.pauseBundle("quran-pages");
+      await offlineOrchestrator.pauseBundle("quran-text");
     } catch (error) {
       console.error("Hub pause failed:", error);
     }
