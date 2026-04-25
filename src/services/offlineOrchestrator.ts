@@ -412,6 +412,13 @@ class OfflineOrchestrator {
       }
 
       const cache = await caches.open(PAGES_CACHE_NAME);
+      
+      // Optimization: Check if already cached before fetching
+      const match = await cache.match(task.url);
+      if (match) {
+        return;
+      }
+
       let response = await fetch(task.url);
 
       if (!response.ok && task.fallbackUrl) {

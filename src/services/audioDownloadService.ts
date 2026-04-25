@@ -14,6 +14,15 @@ export const audioDownloadService = {
 
     try {
       const cache = await caches.open(AUDIO_CACHE_NAME);
+      
+      // Check if already cached
+      const cachedResponse = await cache.match(url);
+      const isAr = document.documentElement.lang === 'ar' || window.location.pathname.includes('/ar');
+      if (cachedResponse) {
+        toast.info(`${fileName} ${isAr ? 'موجود بالفعل في الذاكرة' : 'is already cached'}`);
+        return true;
+      }
+
       const response = await fetch(url);
       
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);

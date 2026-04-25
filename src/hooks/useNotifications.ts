@@ -336,7 +336,7 @@ export function useNotifications() {
   }, []);
 
   const testNotification = useCallback(
-    (type: "athkarMorning" | "athkarEvening" | "quranReading") => {
+    (type: "athkarMorning" | "athkarEvening" | "quranReading" | "dailyVerse") => {
       if (type === "athkarMorning") {
         const { title, body, url } = getRandomAthkar("morning");
         showNotification(title, body, "test-morning", url);
@@ -344,8 +344,12 @@ export function useNotifications() {
         const { title, body, url } = getRandomAthkar("evening");
         showNotification(title, body, "test-evening", url);
       } else if (type === "quranReading") {
+        const title = "📖 ورد القرآن الكريم";
+        const body = getRandomMessage(QURAN_READING_MESSAGES);
+        showNotification(title, body, "test-quran", "/juz/1");
+      } else if (type === "dailyVerse") {
         const { title, body, url } = getRandomDailyVerse();
-        showNotification(title, body, "test-quran", url);
+        showNotification(title, body, "test-daily-verse", url);
       }
     },
     []

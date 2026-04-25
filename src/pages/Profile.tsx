@@ -47,6 +47,27 @@ const Profile = () => {
     setNewName(profile.name);
   }, [profile.name]);
 
+  const [isPersistent, setIsPersistent] = useState(false);
+  useEffect(() => {
+    if (navigator.storage && navigator.storage.persisted) {
+      navigator.storage.persisted().then(setIsPersistent);
+    }
+  }, []);
+
+  const togglePersistence = async () => {
+    if (!navigator.storage || !navigator.storage.persist) {
+      toast.error(isAr ? "متصفحك لا يدعم هذه الخاصية" : "Your browser doesn't support this feature");
+      return;
+    }
+    const granted = await navigator.storage.persist();
+    setIsPersistent(granted);
+    if (granted) {
+      toast.success(isAr ? "تم تمكين التخزين الدائم بنجاح" : "Persistent storage enabled successfully");
+    } else {
+      toast.error(isAr ? "تعذر تفعيل التخزين الدائم. قد يكون المتصفح يرفض الطلب" : "Could not enable persistent storage. Browser may have rejected the request");
+    }
+  };
+
   const handleUpdateProfile = () => {
     updateProfile({ name: newName });
     setIsEditingProfile(false);
@@ -887,6 +908,41 @@ const Profile = () => {
                           <p className="text-[8px] text-primary/70">{t("hub.offline.manageDesc") || (isAr ? "إدارة المحتوى والمساحة التخزينية" : "Manage offline content and storage")}</p>
                         </div>
                         <OfflineManager />
+
+                        {/* Persistent Storage Toggle */}
+                        <div className="p-4 rounded-2xl bg-primary/5 border border-primary/5 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className={`${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                              <h4 className="text-xs font-bold font-serif text-primary">
+                                {isAr ? "التخزين الدائم (في ذاكرة الهاتف)" : "Persistent Storage (Phone Memory)"}
+                              </h4>
+                              <p className="text-[9px] text-primary/60 font-serif">
+                                {isAr 
+                                  ? "منع النظام من حذف الصفحات والأصوات المحملة تلقائياً" 
+                                  : "Prevent system from auto-deleting downloaded pages and audio"}
+                              </p>
+                            </div>
+                            <button
+                              onClick={togglePersistence}
+                              className={`w-11 h-6 rounded-full transition-all flex items-center p-1 shadow-inner ${
+                                isPersistent ? "bg-emerald-deep justify-end" : "bg-primary/10 justify-start"
+                              }`}
+                            >
+                              <motion.div 
+                                layout
+                                className="w-4 h-4 rounded-full bg-white shadow-lg" 
+                              />
+                            </button>
+                          </div>
+                          <div className={`p-2 rounded-lg bg-gold/10 border border-gold/20 flex gap-2 ${isAr ? 'flex-row-reverse' : 'flex-row'}`}>
+                            <AlertCircle className="w-3.5 h-3.5 text-gold shrink-0 mt-0.5" />
+                            <p className="text-[8px] text-primary/80 font-serif leading-relaxed">
+                              {isAr 
+                                ? "هذه الخاصية تطلب من المتصفح والاندرويد اعتبار بيانات التطبيق أساسية وعدم حذفها لتوفير المساحة. سيتم تخزين البيانات في مجلد التطبيق الخاص بجهازك."
+                                : "This feature asks the browser and Android to treat app data as essential. Data is stored in the app's private folder on your device."}
+                            </p>
+                          </div>
+                        </div>
                         
                         {/* Audio Download Manager Section */}
                         <div className="pt-4 border-t border-border/40">
@@ -1113,13 +1169,24 @@ const Profile = () => {
 
                               <button
                                 onClick={() => {
+                                  testNotification("dailyVerse");
+                                  toast.info(t("profile.testNotifSent"));
+                                }}
+                                className="w-full h-10 rounded-xl bg-primary/5 text-primary border border-primary/10 font-serif font-bold text-[10px] hover:bg-primary/10 transition-all flex items-center justify-center gap-2"
+                              >
+                                <Sparkles className="w-3.5 h-3.5" />
+                                {t("profile.testQuranNotif") || (isAr ? "تجربة آية اليوم" : "Test Daily Verse")}
+                              </button>
+
+                              <button
+                                onClick={() => {
                                   testNotification("quranReading");
                                   toast.info(t("profile.testNotifSent"));
                                 }}
                                 className="w-full h-10 rounded-xl bg-primary/5 text-primary border border-primary/10 font-serif font-bold text-[10px] hover:bg-primary/10 transition-all flex items-center justify-center gap-2"
                               >
                                 <BookOpen className="w-3.5 h-3.5" />
-                                {t("profile.testQuranNotif")}
+                                {isAr ? "تجربة ورد القراءة" : "Test Reading Reminder"}
                               </button>
                             </div>
                           </>
