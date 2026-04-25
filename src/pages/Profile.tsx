@@ -49,9 +49,23 @@ const Profile = () => {
 
   const [isPersistent, setIsPersistent] = useState(false);
   useEffect(() => {
-    if (navigator.storage && navigator.storage.persisted) {
-      navigator.storage.persisted().then(setIsPersistent);
-    }
+    const initPersistence = async () => {
+      if (navigator.storage && navigator.storage.persisted) {
+        const persisted = await navigator.storage.persisted();
+        if (persisted) {
+          setIsPersistent(true);
+        } else if (navigator.storage.persist) {
+          // Attempt to enable persistent storage by default
+          try {
+            const granted = await navigator.storage.persist();
+            setIsPersistent(granted);
+          } catch (e) {
+            console.warn("Storage persistence request failed:", e);
+          }
+        }
+      }
+    };
+    initPersistence();
   }, []);
 
   const togglePersistence = async () => {
