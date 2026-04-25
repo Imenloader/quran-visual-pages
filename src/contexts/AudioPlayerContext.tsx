@@ -198,6 +198,31 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     isShuffleRef.current = isShuffle;
   }, [isShuffle]);
 
+  // Predictive Audio Pre-fetching
+  useEffect(() => {
+    if (currentAyahIndex >= 0 && currentAyahs.length > 0) {
+      const nextIndices = [currentAyahIndex + 1, currentAyahIndex + 2];
+      nextIndices.forEach(idx => {
+        if (idx < currentAyahs.length) {
+          const nextAyah = currentAyahs[idx];
+          let nextUrl = nextAyah.audio;
+          if (nextUrl) {
+            if (nextUrl.startsWith("//")) nextUrl = "https:" + nextUrl;
+            caches.open("quran-audio-cache").then(cache => {
+              cache.match(nextUrl).then(match => {
+                if (!match) {
+                  fetch(nextUrl).then(res => {
+                    if (res.ok) cache.put(nextUrl, res);
+                  }).catch(() => {});
+                }
+              });
+            });
+          }
+        }
+      });
+    }
+  }, [currentAyahIndex, currentAyahs]);
+
   useEffect(() => { playlistQueueRef.current = playlistQueue; }, [playlistQueue]);
   useEffect(() => { playlistQueueIndexRef.current = playlistQueueIndex; }, [playlistQueueIndex]);
   useEffect(() => { syncModeRef.current = syncMode; }, [syncMode]);

@@ -186,3 +186,18 @@ function CE_SIMILAR(ce: string, ending: string): boolean {
 function shuffle<T>(array: T[]): T[] {
   return [...array].sort(() => Math.random() - 0.5);
 }
+
+/**
+ * Generates a comprehensive review quiz from multiple at-risk pages.
+ */
+export const generateSmartReviewQuiz = async (pageNumbers: number[], difficulty: "beginner" | "advanced" = "advanced"): Promise<HifzQuestion[]> => {
+  let allQuestions: HifzQuestion[] = [];
+  
+  // Fetch up to 3 questions from each at-risk page
+  for (const pageNum of pageNumbers.slice(0, 5)) {
+    const pageQuestions = await generatePageQuiz(pageNum, difficulty);
+    allQuestions = [...allQuestions, ...pageQuestions.slice(0, 3)];
+  }
+
+  return shuffle(allQuestions);
+};

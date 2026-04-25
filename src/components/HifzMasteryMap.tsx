@@ -1,8 +1,12 @@
 import React from "react";
 import { useHifzMastery } from "@/hooks/useHifzMastery";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { Trophy, Target, BookOpen } from "lucide-react";
+import { Trophy, Target, BookOpen, ExternalLink, PlayCircle, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
+import { Button } from "./ui/button";
+import { useNavigate } from "react-router-dom";
+import { getSurahByPage } from "@/data/quranData";
 
 interface HifzMasteryMapProps {
   onPageClick?: (page: number) => void;
@@ -11,6 +15,8 @@ interface HifzMasteryMapProps {
 const HifzMasteryMap: React.FC<HifzMasteryMapProps> = ({ onPageClick }) => {
   const { t, i18n } = useTranslation();
   const { masteryData, isLoaded } = useHifzMastery();
+  const navigate = useNavigate();
+  const [selectedPage, setSelectedPage] = React.useState<number | null>(null);
   const isAr = i18n.language === "ar";
 
   const totalPages = 604;
@@ -70,14 +76,93 @@ const HifzMasteryMap: React.FC<HifzMasteryMapProps> = ({ onPageClick }) => {
               <motion.div
                 key={pageNum}
                 whileHover={{ scale: 1.5, zIndex: 10 }}
-                onClick={() => onPageClick?.(pageNum)}
+                onClick={() => setSelectedPage(pageNum)}
                 className={`aspect-square rounded-[2px] transition-colors cursor-pointer ${color}`}
-                title={`Page ${pageNum}`}
               />
             );
           })}
         </div>
       </div>
+
+      {/* Page Detail Dialog */}
+      <Dialog open={selectedPage !== null} onOpenChange={(open) => !open && setSelectedPage(null)}>
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 border-none bg-card/95 backdrop-blur-xl shadow-2xl">
+          {selectedPage && (() => {
+            const surah = getSurahByPage(selectedPage);
+            const mastery = masteryData[selectedPage];
+            return (
+              <div className="space-y-6">
+                <DialogHeader>
+                  <div className="flex items-center gap-4 mb-2">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-serif font-bold text-xl">
+                      {selectedPage}
+                    </div>
+                    <div>
+                      <DialogTitle className="text-2xl font-serif font-bold text-primary">
+                        {isAr ? surah?.name : surah?.englishName}
+                      </DialogTitle>
+                      <DialogDescription className="text-xs font-serif italic text-muted-foreground">
+                        {isAr ? `الصفحة ${selectedPage}` : `Page ${selectedPage}`}
+                      </DialogDescription>
+                    </div>
+                  </div>
+                </DialogHeader>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 rounded-3xl bg-primary/5 border border-primary/10">
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">
+                      {isAr ? "مستوى الإتقان" : "Mastery Level"}
+                    </p>
+                    <div className="flex gap-1">
+                      {[1, 2, 3].map(lvl => (
+                        <div 
+                          key={lvl} 
+                          className={`h-2 flex-1 rounded-full ${
+                            (mastery?.masteryLevel || 0) >= lvl ? "bg-emerald-500" : "bg-primary/10"
+                          }`} 
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-3xl bg-primary/5 border border-primary/10">
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">
+                      {isAr ? "آخر اختبار" : "Last Tested"}
+                    </p>
+                    <p className="text-xs font-serif font-medium">
+                      {mastery ? new Date(mastery.lastTested).toLocaleDateString(isAr ? 'ar-SA' : 'en-US') : (isAr ? 'لم يختبر بعد' : 'Not tested')}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  <Button 
+                    className="h-14 rounded-2xl bg-accent hover:bg-accent/90 text-white gap-3 font-serif font-bold"
+                    onClick={() => {
+                      if (onPageClick) onPageClick(selectedPage);
+                      else navigate(`/quran/page/${selectedPage}?test=true`);
+                      setSelectedPage(null);
+                    }}
+                  >
+                    <PlayCircle size={20} />
+                    {isAr ? "ابدأ اختبار الحفظ" : "Start Hifz Test"}
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className="h-14 rounded-2xl border-primary/10 bg-primary/5 hover:bg-primary/10 text-primary gap-3 font-serif font-bold"
+                    onClick={() => {
+                      navigate(`/quran/page/${selectedPage}`);
+                      setSelectedPage(null);
+                    }}
+                  >
+                    <ExternalLink size={18} />
+                    {isAr ? "قراءة الصفحة" : "Read Page"}
+                  </Button>
+                </div>
+              </div>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
       
       <p className="text-[10px] text-center text-muted-foreground font-serif italic">
         {isAr 

@@ -100,6 +100,14 @@ function JuzViewer() {
     }
   });
 
+  // Predictive Pre-fetching Effect
+  useEffect(() => {
+    if (currentPage > 0 && juz) {
+      prefetchNeighborPages(currentPage, 2, { start: juz.startPage, end: juz.endPage });
+    }
+  }, [currentPage, juz, prefetchNeighborPages]);
+
+
   const { isFullscreen, setIsFullscreen } = useTheme();
   const { playAyah, togglePlay, currentSurah, stopPlayer, syncMode } = useAudioPlayer();
   const [showControls, setShowControls] = useState(true);

@@ -17,19 +17,30 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toArabicNumber, juzData } from "@/data/quranData";
 import { useHifzMastery } from "@/hooks/useHifzMastery";
+import { useSmartReview } from "@/hooks/useSmartReview";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import HifzQuizView from "@/components/HifzQuizView";
 import MasteryBadge from "@/components/MasteryBadge";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const HifzTester = () => {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === "ar";
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { masteryData } = useHifzMastery();
+  const { atRiskPages, isLoaded: smartLoaded } = useSmartReview();
+  const [isSmartMode, setIsSmartMode] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPage, setSelectedPage] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (smartLoaded && searchParams.get('review') === 'true') {
+      setIsSmartMode(true);
+      setSelectedPage(0); // Dummy page to trigger sheet
+    }
+  }, [smartLoaded, searchParams]);
 
   const masteredCount = Object.values(masteryData).filter(m => m.masteryLevel === 3).length;
   const totalTested = Object.keys(masteryData).length;
@@ -137,21 +148,32 @@ const HifzTester = () => {
         </div>
       </div>
 
-      <Sheet open={selectedPage !== null} onOpenChange={(open) => !open && setSelectedPage(null)}>
+      <Sheet open={selectedPage !== null} onOpenChange={(open) => {
+        if (!open) {
+          setSelectedPage(null);
+          setIsSmartMode(false);
+        }
+      }}>
         <SheetContent side="bottom" className="h-[auto] max-h-[90vh] rounded-t-[2.5rem] border-t-accent/20 bg-card/95 backdrop-blur-xl p-0 overflow-hidden">
           <SheetHeader className="p-6 border-b border-border/40">
             <SheetTitle className="text-right font-serif flex items-center gap-2">
               <GraduationCap className="text-accent" />
-              {isAr ? "اختبار الحفظ الذكي" : "Smart Hifz Test"}
+              {isSmartMode ? (isAr ? "مراجعة ذكية شاملة" : "Complete Smart Review") : (isAr ? "اختبار الحفظ الذكي" : "Smart Hifz Test")}
             </SheetTitle>
           </SheetHeader>
           <div className="overflow-y-auto pb-12">
-            {selectedPage && (
+            {(selectedPage !== null) && (
               <HifzQuizView 
-                pageNumber={selectedPage} 
-                onClose={() => setSelectedPage(null)}
+                pageNumber={isSmartMode ? undefined : selectedPage} 
+                isSmartReview={isSmartMode}
+                atRiskPages={isSmartMode ? atRiskPages.map(p => p.pageNumber) : undefined}
+                onClose={() => {
+                  setSelectedPage(null);
+                  setIsSmartMode(false);
+                }}
                 onComplete={() => {
                   setSelectedPage(null);
+                  setIsSmartMode(false);
                 }}
               />
             )}

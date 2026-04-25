@@ -1,25 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { HifzQuestion, generatePageQuiz } from "@/lib/hifzGenerator";
+import { HifzQuestion, generatePageQuiz, generateSmartReviewQuiz } from "@/lib/hifzGenerator";
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { CheckCircle2, XCircle, HelpCircle, ArrowLeft, ArrowRight, Sparkles, Trophy, Loader2, GraduationCap } from "lucide-react";
+import { CheckCircle2, XCircle, HelpCircle, ArrowLeft, ArrowRight, Sparkles, Trophy, Loader2, GraduationCap, Volume2, Play } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useHifzMastery } from "@/hooks/useHifzMastery";
 import { toArabicNumber } from "@/data/quranData";
 import { normalizeArabic, areArabicWordsSimilar } from "@/lib/arabicUtils";
+import { getVerseAudioUrl } from "@/services/quranService";
 import { Haptics, ImpactStyle, NotificationType } from "@capacitor/haptics";
 import { Capacitor } from "@capacitor/core";
 import { toast } from "sonner";
 import HifzMasteryMap from "./HifzMasteryMap";
 
 interface HifzQuizViewProps {
-  pageNumber: number;
+  pageNumber?: number;
+  isSmartReview?: boolean;
+  atRiskPages?: number[];
   onComplete: (score: number) => void;
   onClose: () => void;
 }
 
-const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, onComplete, onClose }) => {
+const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, isSmartReview, atRiskPages, onComplete, onClose }) => {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === "ar";
   const { saveResult } = useHifzMastery();
@@ -34,29 +37,52 @@ const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, onComplete, onC
   const [loading, setLoading] = useState(false);
   const [quizFinished, setQuizFinished] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+
+  const playVerseAudio = async (verseKey: string, duration?: number) => {
+    if (!verseKey) return;
+    setIsPlayingAudio(true);
+    const audio = new Audio(getVerseAudioUrl(verseKey));
+    audio.play();
+    if (duration) {
+      setTimeout(() => {
+        audio.pause();
+        setIsPlayingAudio(false);
+      }, duration);
+    } else {
+      audio.onended = () => setIsPlayingAudio(false);
+    }
+  };
 
   const startQuiz = async (diff: "beginner" | "advanced") => {
-    if (!pageNumber || pageNumber < 1) {
-      toast.error(isAr ? "رقم الصفحة غير صالح" : "Invalid page number");
-      return;
-    }
-    
     setDifficulty(diff);
     setLoading(true);
     try {
-      const generated = await generatePageQuiz(pageNumber, diff);
-      if (!generated || generated.length === 0) {
-        toast.error(isAr ? "لم نتمكن من إنشاء أسئلة لهذه الصفحة حالياً" : "Could not generate questions for this page at this time");
+      let generated: HifzQuestion[] = [];
+      
+      if (isSmartReview && atRiskPages && atRiskPages.length > 0) {
+        generated = await generateSmartReviewQuiz(atRiskPages, diff);
+      } else if (pageNumber) {
+        generated = await generatePageQuiz(pageNumber, diff);
+      } else {
+        toast.error(isAr ? "رقم الصفحة غير صالح" : "Invalid page number");
         setLoading(false);
         return;
       }
+      
+      if (!generated || generated.length === 0) {
+        toast.error(isAr ? "لم نتمكن من إنشاء أسئلة حالياً" : "Could not generate questions at this time");
+        setLoading(false);
+        return;
+      }
+      
       setQuestions(generated);
       setLoading(false);
       setHasStarted(true);
     } catch (error) {
       console.error("Quiz generation error:", error);
       setLoading(false);
-      toast.error(isAr ? "تعذر إنشاء الاختبار لهذه الصفحة. يرجى التحقق من الاتصال." : "Could not generate quiz for this page. Please check connection.");
+      toast.error(isAr ? "تعذر إنشاء الاختبار. يرجى التحقق من الاتصال." : "Could not generate quiz. Please check connection.");
     }
   };
 
@@ -71,6 +97,10 @@ const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, onComplete, onC
       setScore(s => s + 1);
       if (Capacitor.isNativePlatform()) {
         Haptics.notification({ type: NotificationType.Success });
+      }
+      // Play audio on success if available
+      if (questions[currentIndex].verseKey) {
+        playVerseAudio(questions[currentIndex].verseKey);
       }
     } else {
       if (Capacitor.isNativePlatform()) {
@@ -240,25 +270,31 @@ const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, onComplete, onC
             <div className="flex gap-2">
               {isCorrect === null ? (
                 <>
-                  {!current.options && (
-                    <Button 
-                      variant="outline" 
-                      className="flex-1 h-12 rounded-xl"
-                      onClick={() => setShowHint(!showHint)}
+                  <Button 
+                    className="flex-1 h-12 rounded-xl bg-accent text-white font-bold"
+                    onClick={() => handleCheck()}
+                    disabled={!current.options && !userAnswer.trim()}
+                  >
+                    {isAr ? "تحقق" : "Check"}
+                  </Button>
+                  {current.verseKey && (
+                    <Button
+                      variant="outline"
+                      className={`h-12 w-12 rounded-xl border-accent/20 text-accent ${isPlayingAudio ? 'animate-pulse bg-accent/10' : ''}`}
+                      onClick={() => playVerseAudio(current.verseKey!, 3000)}
+                      disabled={isPlayingAudio}
+                      title={isAr ? "استمع للتلميح" : "Listen to Hint"}
                     >
-                      <HelpCircle className="w-4 h-4 ml-2" />
-                      {isAr ? "تلميح" : "Hint"}
+                      <Volume2 size={20} />
                     </Button>
                   )}
-                  {!current.options && (
-                    <Button 
-                      className="flex-1 h-12 rounded-xl bg-accent hover:bg-accent/90"
-                      onClick={() => handleCheck()}
-                      disabled={!userAnswer.trim()}
-                    >
-                      {isAr ? "تحقق" : "Check"}
-                    </Button>
-                  )}
+                  <Button 
+                    variant="ghost"
+                    className="h-12 w-12 rounded-xl text-muted-foreground"
+                    onClick={() => setShowHint(!showHint)}
+                  >
+                    <HelpCircle size={20} />
+                  </Button>
                 </>
               ) : (
                 <Button 

@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Smartphone, Download, Store, Sparkles, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Smartphone, Download, Store, Sparkles, ArrowLeft, ArrowRight, BrainCircuit } from 'lucide-react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/firebase';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { useSmartReview } from '@/hooks/useSmartReview';
 
 const HubHeroBanner: React.FC = () => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const { atRiskPages, isLoaded: smartLoaded } = useSmartReview();
   const isAr = i18n.language === 'ar';
   const [links, setLinks] = useState<{ direct?: string; playStore?: string }>({});
   const [isVisible, setIsVisible] = useState(true);
@@ -103,6 +107,22 @@ const HubHeroBanner: React.FC = () => {
             </p>
 
             <div className={`flex flex-wrap items-center justify-center ${isAr ? 'lg:justify-start' : 'lg:justify-end'} gap-4 pt-4`}>
+              {/* Smart Review Button */}
+              {smartLoaded && atRiskPages.length > 0 && (
+                <motion.button
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate('/tools/hifz-tester?review=true')}
+                  className="flex items-center gap-2.5 px-6 py-3 bg-white text-emerald-950 rounded-2xl font-bold text-sm font-serif shadow-xl hover:bg-white/90 transition-all border-b-4 border-emerald-100"
+                >
+                  <BrainCircuit size={18} className="text-accent" />
+                  {isAr ? "مراجعة ذكية" : "Smart Review"}
+                  <div className="flex items-center justify-center bg-accent text-white text-[10px] w-5 h-5 rounded-full ml-1">
+                    {atRiskPages.length > 9 ? "+9" : atRiskPages.length}
+                  </div>
+                </motion.button>
+              )}
+
               {/* The "Nano" Buttons */}
               {links.direct ? (
                 <motion.a
@@ -114,33 +134,9 @@ const HubHeroBanner: React.FC = () => {
                   className="flex items-center gap-2.5 px-6 py-3 bg-gold text-emerald-950 rounded-2xl font-bold text-sm font-serif shadow-xl shadow-gold/20 hover:bg-gold/90 transition-all border-b-4 border-gold-dark"
                 >
                   <Download size={18} />
-                  {isAr ? "تحميل مباشر (APK)" : "Direct Download (APK)"}
+                  {isAr ? "تحميل التطبيق" : "Download App"}
                 </motion.a>
-              ) : (
-                <div className="flex items-center gap-2.5 px-6 py-3 bg-white/5 border border-white/10 text-white/40 rounded-2xl font-bold text-[10px] font-serif">
-                  <Download size={14} />
-                  {isAr ? "التحميل المباشر يتوفر قريباً" : "Direct APK Coming Soon"}
-                </div>
-              )}
-
-              {links.playStore ? (
-                <motion.a
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                  href={links.playStore}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2.5 px-6 py-3 bg-white/5 backdrop-blur-md border border-white/20 text-white rounded-2xl font-bold text-sm font-serif hover:bg-white/10 transition-all"
-                >
-                  <Store size={18} />
-                  Google Play
-                </motion.a>
-              ) : (
-                <div className="flex items-center gap-2.5 px-6 py-3 bg-white/5 border border-white/10 text-white/40 rounded-2xl font-bold text-[10px] font-serif">
-                  <Store size={14} />
-                  {isAr ? "قريباً على Google Play" : "Play Store Coming Soon"}
-                </div>
-              )}
+              ) : null}
             </div>
 
             <div className={`flex items-center justify-center ${isAr ? 'lg:justify-start' : 'lg:justify-end'} gap-6 opacity-40`}>

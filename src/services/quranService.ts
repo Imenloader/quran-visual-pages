@@ -111,3 +111,12 @@ export const fetchPageVerses = async (pageNumber: number) => {
   }
   return [];
 };
+
+/**
+ * Gets a stable audio URL for a specific verse.
+ * Uses everyayah.com for high reliability and consistent naming.
+ */
+export const getVerseAudioUrl = (verseKey: string, reciter = "Alafasy_128kbps") => {
+  const [surah, ayah] = verseKey.split(":").map(n => n.padStart(3, "0"));
+  return `https://everyayah.com/data/${reciter}/${surah}${ayah}.mp3`;
+};

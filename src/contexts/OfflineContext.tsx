@@ -170,6 +170,7 @@ export const OfflineProvider = ({ children }: { children: ReactNode }) => {
     if (!("caches" in window)) return;
 
     const cache = await caches.open(CACHE_NAME);
+    const textCache = await caches.open("quran-text-cache");
     const pages: number[] = [];
 
     for (let p = currentPage - distance; p <= currentPage + distance; p++) {
@@ -182,8 +183,22 @@ export const OfflineProvider = ({ children }: { children: ReactNode }) => {
 
     await Promise.all(
       pages.map(async (page) => {
-        const ok = await cachePageWithFallbacks(cache, page);
-        setPageStatus(prev => ({ ...prev, [page]: ok ? "cached" : "missing" }));
+        // Prefetch Image
+        const imgOk = await cachePageWithFallbacks(cache, page);
+        
+        // Prefetch Text
+        const textUrl = `https://api.quran.com/api/v4/quran/verses/uthmani?page_number=${page}`;
+        const hasText = await textCache.match(textUrl);
+        if (!hasText) {
+          try {
+            const res = await fetch(textUrl);
+            if (res.ok) await textCache.put(textUrl, res);
+          } catch (e) {
+            console.warn("Predictive text fetch failed", e);
+          }
+        }
+
+        setPageStatus(prev => ({ ...prev, [page]: imgOk ? "cached" : "missing" }));
       })
     );
 
