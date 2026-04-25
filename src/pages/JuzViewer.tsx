@@ -854,7 +854,7 @@ function JuzViewer() {
         className={`mx-auto px-4 flex flex-col items-center transition-all duration-500 ${isFullscreen ? "pb-12 pt-4" : "pb-40 pt-4"}`}
         onClick={handleScreenTap}
       >
-        {tajweedMode && !hifzMode && (
+        {tajweedMode && !hifzMode && readingMode === "image" && (
           <div className={`w-full max-w-5xl mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ${isFullscreen ? "mt-4" : ""}`}>
             <TajweedLegend />
           </div>
