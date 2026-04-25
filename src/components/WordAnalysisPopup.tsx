@@ -151,11 +151,34 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
 
   const handleAudio = useCallback(() => {
     if (!analysis?.word?.audio_url || isPlaying) return;
-    const audio = new Audio(`https:${analysis.word.audio_url}`);
+    
+    const audioUrl = analysis.word.audio_url.startsWith('//') 
+      ? `https:${analysis.word.audio_url}` 
+      : analysis.word.audio_url;
+
+    const audio = new Audio(audioUrl);
+    
+    const cleanup = () => {
+      setIsPlaying(false);
+      audio.onended = null;
+      audio.onerror = null;
+    };
+
     setIsPlaying(true);
-    audio.play().finally(() => {
-      audio.onended = () => setIsPlaying(false);
-    });
+    
+    audio.play()
+      .then(() => {
+        audio.onended = cleanup;
+      })
+      .catch((err) => {
+        console.error("Audio playback failed:", err);
+        cleanup();
+        toast.error("تعذر تشغيل الملف الصوتي", {
+          position: "top-center"
+        });
+      });
+
+    audio.onerror = cleanup;
   }, [analysis, isPlaying]);
 
   const handleCopy = (text: string, label: string) => {
@@ -183,107 +206,95 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[999] flex items-end justify-center sm:items-center p-4">
+      <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 sm:p-6">
         {/* Backdrop */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/60 backdrop-blur-md"
         />
 
         {/* Modal Container */}
         <motion.div
-          initial={{ opacity: 0, y: 100, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 100, scale: 0.95 }}
-          transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-lg bg-card/90 backdrop-blur-2xl rounded-[2.5rem] border border-border/50 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.9, y: 20 }}
+          transition={{ type: "spring", damping: 25, stiffness: 350 }}
+          className="relative w-full max-w-sm bg-card/95 backdrop-blur-3xl rounded-[2rem] border border-border/40 shadow-2xl overflow-hidden flex flex-col max-h-[85vh] sm:max-h-[80vh]"
           dir="rtl"
         >
           {/* Header */}
-          <div className="p-6 pb-2 flex items-start justify-between bg-gradient-to-b from-primary/5 to-transparent">
+          <div className="p-5 pb-2 flex items-start justify-between bg-gradient-to-b from-primary/10 to-transparent">
             <div className="flex-1">
               <div className="flex items-center gap-3">
-                <h3 className="text-4xl font-quran text-primary drop-shadow-sm leading-tight">{word}</h3>
+                <h3 className="text-3xl font-quran text-primary leading-tight">{word}</h3>
                 <button 
                   onClick={handleAudio}
                   disabled={!analysis?.word?.audio_url || isPlaying}
-                  className="p-2.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-all disabled:opacity-30 active:scale-95 mt-1"
+                  className="p-2 rounded-full bg-primary/15 text-primary hover:bg-primary/25 transition-all disabled:opacity-30 active:scale-90 mt-1"
                   aria-label="استمع للكلمة"
                 >
-                  {isPlaying ? <Loader2 size={20} className="animate-spin" /> : <Volume2 size={20} />}
+                  {isPlaying ? <Loader2 size={18} className="animate-spin" /> : <Volume2 size={18} />}
                 </button>
               </div>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-bold uppercase tracking-wider">
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground font-bold uppercase">
                   {analysis?.word?.transliteration?.text || '...'}
                 </span>
-                <p className="text-[11px] text-muted-foreground/80 font-naskh font-bold">
+                <p className="text-[10px] text-muted-foreground/70 font-naskh font-medium">
                   {locationText || "جاري التحميل..."}
                 </p>
               </div>
             </div>
             <button 
               onClick={onClose} 
-              className="p-2 rounded-xl hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+              className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
           </div>
 
           {/* Content */}
-          <div className="p-6 pt-2 overflow-y-auto custom-scrollbar flex-1">
+          <div className="p-5 pt-1 overflow-y-auto custom-scrollbar flex-1">
             {mainError ? (
-              <div className="py-12 px-6 text-center space-y-4">
-                <div className="inline-flex p-4 rounded-full bg-destructive/10 text-destructive">
-                  <AlertCircle size={32} />
+              <div className="py-8 px-4 text-center space-y-3">
+                <div className="inline-flex p-3 rounded-full bg-destructive/10 text-destructive">
+                  <AlertCircle size={24} />
                 </div>
-                <h4 className="text-lg font-bold font-naskh">حدث خطأ أثناء جلب البيانات</h4>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  تأكد من اتصالك بالإنترنت وحاول مرة أخرى لاحقاً.
-                </p>
+                <h4 className="text-base font-bold font-naskh">تعذر تحميل البيانات</h4>
                 <button 
                   onClick={() => window.location.reload()}
-                  className="px-6 py-2 bg-primary text-primary-foreground rounded-full font-bold text-sm"
+                  className="px-5 py-1.5 bg-primary text-primary-foreground rounded-full font-bold text-xs"
                 >
-                  إعادة المحاولة
+                  تحديث الصفحة
                 </button>
               </div>
             ) : (
-              <div className="space-y-4 pb-6">
+              <div className="space-y-3 pb-4">
                 
                 {/* Meaning Section */}
                 <motion.div 
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="group relative p-5 bg-gradient-to-br from-primary/[0.03] to-primary/[0.08] rounded-3xl border border-primary/10 hover:border-primary/20 transition-all overflow-hidden"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="group relative p-4 bg-primary/[0.04] rounded-2xl border border-primary/10 hover:border-primary/20 transition-all"
                 >
-                  <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button 
-                      onClick={() => handleCopy(translatedMeaning || "", "المعنى")}
-                      className="p-1.5 rounded-lg bg-white/50 dark:bg-black/20 text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      <Copy size={14} />
-                    </button>
-                  </div>
-                  
                   <SectionHeader icon={Info} title="معنى الكلمة" />
                   
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     {isTranslating ? (
-                      <div className="flex items-center gap-2 py-2">
-                        <Loader2 size={16} className="animate-spin text-primary/50" />
-                        <span className="text-sm text-muted-foreground font-naskh">جاري استخراج المعنى...</span>
+                      <div className="flex items-center gap-2 py-1">
+                        <Loader2 size={14} className="animate-spin text-primary/40" />
+                        <span className="text-[11px] text-muted-foreground font-naskh">جاري الاستخراج...</span>
                       </div>
                     ) : (
                       <>
-                        <p className="text-xl font-naskh font-bold text-foreground leading-relaxed">
+                        <p className="text-lg font-naskh font-bold text-foreground leading-relaxed">
                           {translatedMeaning}
                         </p>
                         {analysis?.word?.translation?.text && analysis.word.translation.text !== translatedMeaning && (
-                          <p className="text-xs text-muted-foreground font-medium italic mt-1 ltr opacity-60">
+                          <p className="text-[10px] text-muted-foreground font-medium italic opacity-50 ltr">
                             ({analysis.word.translation.text})
                           </p>
                         )}
@@ -294,44 +305,39 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
 
                 {/* Tafsir Section */}
                 <motion.div 
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className="p-5 bg-gradient-to-br from-emerald-500/[0.03] to-emerald-500/[0.08] rounded-3xl border border-emerald-500/10 hover:border-emerald-500/20 transition-all"
+                  className="p-4 bg-emerald-500/[0.04] rounded-2xl border border-emerald-500/10 hover:border-emerald-500/20 transition-all"
                 >
-                  <SectionHeader icon={Book} title="تفسير الآية (الميسر)" colorClass="text-emerald-600 dark:text-emerald-400" />
+                  <SectionHeader icon={Book} title="تفسير الآية" colorClass="text-emerald-600 dark:text-emerald-400" />
                   
                   {isTafsirLoading ? (
-                    <div className="space-y-2 py-2">
-                      <div className="h-4 bg-emerald-500/10 rounded animate-pulse w-full" />
-                      <div className="h-4 bg-emerald-500/10 rounded animate-pulse w-[90%]" />
-                      <div className="h-4 bg-emerald-500/10 rounded animate-pulse w-[80%]" />
+                    <div className="space-y-2 py-1">
+                      <div className="h-3 bg-emerald-500/10 rounded animate-pulse w-full" />
+                      <div className="h-3 bg-emerald-500/10 rounded animate-pulse w-[80%]" />
                     </div>
                   ) : (
-                    <p className="text-[15px] font-naskh text-foreground/90 leading-[1.8] text-justify">
-                      {tafsir?.data?.text || 'تعذر جلب التفسير لهذه الآية.'}
+                    <p className="text-sm font-naskh text-foreground/80 leading-relaxed text-justify">
+                      {tafsir?.data?.text || 'تعذر جلب التفسير.'}
                     </p>
                   )}
                 </motion.div>
 
-                {/* Analysis Footer / Stats */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-4 rounded-2xl bg-muted/30 border border-border/40 flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500">
-                      <Hash size={16} />
-                    </div>
+                {/* Stats */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="p-3 rounded-xl bg-muted/20 border border-border/30 flex items-center gap-2">
+                    <Hash size={14} className="text-orange-500" />
                     <div>
-                      <p className="text-[10px] text-muted-foreground font-bold uppercase">الآية</p>
-                      <p className="text-sm font-bold font-naskh">{toArabicNumber(ayahNumber)}</p>
+                      <p className="text-[8px] text-muted-foreground font-bold uppercase">الآية</p>
+                      <p className="text-xs font-bold font-naskh">{toArabicNumber(ayahNumber)}</p>
                     </div>
                   </div>
-                  <div className="p-4 rounded-2xl bg-muted/30 border border-border/40 flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
-                      <Sparkles size={16} />
-                    </div>
+                  <div className="p-3 rounded-xl bg-muted/20 border border-border/30 flex items-center gap-2">
+                    <Sparkles size={14} className="text-blue-500" />
                     <div>
-                      <p className="text-[10px] text-muted-foreground font-bold uppercase">الموقع</p>
-                      <p className="text-sm font-bold font-naskh">الجزء {analysis ? toArabicNumber(analysis.juz) : '...'}</p>
+                      <p className="text-[8px] text-muted-foreground font-bold uppercase">الجزء</p>
+                      <p className="text-xs font-bold font-naskh">{analysis ? toArabicNumber(analysis.juz) : '...'}</p>
                     </div>
                   </div>
                 </div>
@@ -341,27 +347,27 @@ const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
           </div>
 
           {/* Bottom Actions */}
-          <div className="p-4 bg-muted/50 border-t border-border/40 flex items-center gap-3 shrink-0">
+          <div className="p-3 bg-muted/40 border-t border-border/30 flex items-center gap-2 shrink-0">
             <button 
               onClick={handleShare}
               disabled={!analysis}
-              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm shadow-lg shadow-primary/20 active:scale-95 transition-all disabled:opacity-50"
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-xs shadow-md active:scale-95 transition-all disabled:opacity-50"
             >
-              <Share2 size={18} />
-              <span>مشاركة النتائج</span>
+              <Share2 size={16} />
+              <span>مشاركة</span>
             </button>
             <button 
               onClick={() => handleCopy(`${word}: ${translatedMeaning}`, "بيانات الكلمة")}
               disabled={!analysis}
-              className="p-3.5 rounded-2xl bg-background border border-border/60 text-foreground hover:bg-muted active:scale-95 transition-all disabled:opacity-50"
-              title="نسخ الكل"
+              className="p-2.5 rounded-xl bg-background border border-border/50 text-foreground hover:bg-muted active:scale-95 transition-all disabled:opacity-50"
             >
-              <Copy size={18} />
+              <Copy size={16} />
             </button>
           </div>
         </motion.div>
       </div>
     </AnimatePresence>
+
   );
 };
 
