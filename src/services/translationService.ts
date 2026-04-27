@@ -5,6 +5,8 @@ const strictDictionary: Record<string, string> = {
   lord: "رب",
   merciful: "رحيم",
   compassionate: "رحمن",
+  "in (the) name": "باسم",
+  "in the name of": "باسم",
 };
 
 const containsArabic = (text?: string) =>
@@ -24,6 +26,6 @@ export const translateIslamic = async (
   // ✅ Strict dictionary (prevents bad translations)
   if (strictDictionary[clean]) return strictDictionary[clean];
 
-  // ❌ Avoid external APIs unless absolutely necessary
-  return english; // fallback: show original instead of wrong Arabic
+  // ❌ Enforce Arabic only - do not show English fallbacks
+  return "غير متوفر في المعجم";
 };

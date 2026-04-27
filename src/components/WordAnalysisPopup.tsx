@@ -8,7 +8,6 @@ import {
 
 import { toArabicNumber } from '@/data/quranData';
 import { useWordAnalysis } from '@/hooks/useWordAnalysis';
-import { useTafsir } from '@/hooks/useTafsir';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useWordTafsir } from '@/hooks/useWordTafsir';
 
@@ -58,14 +57,14 @@ const WordAnalysisPopup: React.FC<Props> = ({
     error
   } = useWordAnalysis(surahNumber, ayahNumber, word, wordIndex);
 
-  const { data: tafsir } = useTafsir(analysis?.verseKey);
-
-  const { data: meaning, isLoading: translating } = useTranslation(
+  const { data: meaningData, isLoading: translating } = useTranslation(
     analysis?.englishMeaning,
     analysis?.arabicMeaning
   );
 
   const { data: wordTafsirData, isLoading: loadingWordTafsir } = useWordTafsir(word);
+  
+  const meaning = wordTafsirData?.meaning || meaningData;
 
   // ---------------- Actions ----------------
 
@@ -75,7 +74,10 @@ const WordAnalysisPopup: React.FC<Props> = ({
     let url = analysis.word.audio_url;
 
     if (url.startsWith('//')) url = `https:${url}`;
-    if (!url.startsWith('http')) url = `https://audio.quran.com/${url}`;
+    if (!url.startsWith('http')) {
+      // Use verses.quran.com for wbw audio
+      url = url.startsWith('wbw/') ? `https://verses.quran.com/${url}` : `https://verses.quran.com/${url}`;
+    }
 
     if (audioRef.current) {
       audioRef.current.pause();
@@ -191,45 +193,23 @@ const WordAnalysisPopup: React.FC<Props> = ({
 
               {/* Meaning */}
               <Section title="معنى الكلمة">
-                {translating ? (
+                {translating || loadingWordTafsir ? (
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Loader2 className="animate-spin" size={14} />
-                    <span className="text-sm">جاري الترجمة...</span>
+                    <span className="text-sm">جاري البحث...</span>
                   </div>
                 ) : (
-                  <p className="text-xl font-bold text-foreground">
-                    {meaning || "غير متوفر"}
-                  </p>
-                )}
-              </Section>
-
-              {/* Word Tafsir */}
-              {!loadingWordTafsir && wordTafsirData && (
-                <Section title="شرح الكلمة">
                   <div className="space-y-2">
-                    {wordTafsirData.root && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="text-muted-foreground">الجذر:</span>
-                        <span className="font-bold text-primary">{wordTafsirData.root}</span>
-                      </div>
-                    )}
-                    {wordTafsirData.meaning && (
-                      <p className="text-foreground leading-relaxed">{wordTafsirData.meaning}</p>
-                    )}
-                    {wordTafsirData.notes && (
-                      <p className="text-sm text-muted-foreground italic border-r-2 border-primary/20 pr-3 py-1">
+                    <p className="text-xl font-bold text-foreground">
+                      {meaning || "غير متوفر"}
+                    </p>
+                    {wordTafsirData?.notes && (
+                      <p className="text-sm text-muted-foreground italic border-r-2 border-primary/20 pr-3 py-1 mt-2">
                         {wordTafsirData.notes}
                       </p>
                     )}
                   </div>
-                </Section>
-              )}
-
-              {/* Ayah Tafsir */}
-              <Section title="تفسير الآية">
-                <p className="text-sm leading-relaxed text-foreground/80">
-                  {tafsir || "غير متوفر"}
-                </p>
+                )}
               </Section>
 
               {/* Meta */}

@@ -120,7 +120,7 @@ const queryClient = new QueryClient();
 
 const PageLoader = () => (
   <div className="min-h-screen bg-background flex items-center justify-center">
-    <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+    <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full" />
   </div>
 );
 
@@ -243,7 +243,7 @@ const AppContent = () => {
         
         {/* Admin Maintenance Banner */}
         {settings.maintenanceMode && isAdmin && (
-          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[1000] bg-rose-500 text-white px-4 py-2 rounded-full text-[10px] font-bold flex items-center gap-2 shadow-lg animate-pulse border border-white/20 whitespace-nowrap">
+          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[1000] bg-rose-500 text-white px-4 py-2 rounded-full text-[10px] font-bold flex items-center gap-2 shadow-lg border border-white/20 whitespace-nowrap">
             <AlertTriangle size={14} />
             وضع الصيانة مفعل للمستخدمين
           </div>

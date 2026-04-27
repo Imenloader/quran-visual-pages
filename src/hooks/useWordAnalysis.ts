@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchVerseWords } from "@/services/quranApi";
 
-const normalize = (t: string) =>
-  t.replace(/[\u064B-\u065F]/g, "").replace(/[^\u0621-\u064A]/g, "");
+import { normalizeArabic as normalize } from "@/utils/arabicUtils";
 
 export const useWordAnalysis = (
   surah: number,
@@ -25,10 +24,14 @@ export const useWordAnalysis = (
 
       const normalized = normalize(word);
 
-      const match = (arr: any[]) =>
-        arr[index] && normalize(arr[index].text_uthmani) === normalized
-          ? arr[index]
-          : arr.find(w => normalize(w.text_uthmani) === normalized) || arr[0];
+      const match = (arr: any[]) => {
+        if (!arr || arr.length === 0) return null;
+        const textToMatch = (w: any) => normalize(w.text_uthmani || w.text);
+        if (arr[index] && textToMatch(arr[index]) === normalized) {
+          return arr[index];
+        }
+        return arr.find((w: any) => textToMatch(w) === normalized) || arr[0];
+      };
 
       const enWord = match(enWords);
       const arWord = match(arWords);
@@ -36,8 +39,8 @@ export const useWordAnalysis = (
       return {
         verseKey,
         word: enWord,
-        arabicMeaning: arWord.translation?.text,
-        englishMeaning: enWord.translation?.text,
+        arabicMeaning: arWord?.translation?.text,
+        englishMeaning: enWord?.translation?.text,
         juz: en.verse.juz_number
       };
     },

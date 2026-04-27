@@ -136,8 +136,16 @@
     @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
 
+  /* Disable all animations and transitions globally */
+  * {
+    animation: none !important;
+    transition: none !important;
+    transition-duration: 0ms !important;
+    transition-property: none !important;
+  }
+
   .theme-transitioning {
-    transition: background 1s ease, color 1s ease, border-color 1s ease !important;
+    transition: none !important;
   }
   
   .dynamic-bg {
@@ -207,10 +215,9 @@
     -webkit-user-select: none;
   }
 
-  /* Improve tap feedback */
+  /* Improve tap feedback - disabled scale animation */
   .active-scale:active {
-    transform: scale(0.98);
-    transition: transform 0.1s ease;
+    transform: none;
   }
 }
 
@@ -236,12 +243,12 @@
 }
 
 .quran-page-img {
-  @apply w-full h-auto object-contain transition-all duration-700;
+  @apply w-full h-auto object-contain;
   filter: sepia(0.05) contrast(1.02);
 }
 
 .page-dimming-overlay {
-  @apply fixed inset-0 pointer-events-none z-[100] bg-black transition-opacity duration-500;
+  @apply fixed inset-0 pointer-events-none z-[100] bg-black;
   opacity: var(--page-dimming-opacity, 0);
 }
 
@@ -254,7 +261,7 @@
 }
 
 .toolbar-btn {
-  @apply p-2.5 rounded-2xl hover:bg-muted/50 transition-all active:scale-95 flex items-center justify-center text-muted-foreground hover:text-primary hover:shadow-sm;
+  @apply p-2.5 rounded-2xl hover:bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:shadow-sm;
 }
 
 .pattern-islamic {
@@ -282,13 +289,9 @@
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.03);
 }
 
-@keyframes long-press-ring {
-  from { stroke-dashoffset: 175.929; }
-  to { stroke-dashoffset: 0; }
-}
-
+/* Long press ring animation removed */
 .animate-long-press-ring {
-  animation: long-press-ring 0.6s linear forwards;
+  animation: none;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -300,7 +303,7 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  @apply bg-primary/10 rounded-full hover:bg-primary/20 transition-colors;
+  @apply bg-primary/10 rounded-full hover:bg-primary/20;
 }
 
 .fullscreen-reading {
@@ -312,7 +315,7 @@
 }
 
 .bento-card {
-  @apply relative overflow-hidden rounded-[2rem] border border-border bg-card p-8 transition-all duration-500 hover:shadow-islamic hover:-translate-y-1.5;
+  @apply relative overflow-hidden rounded-[2rem] border border-border bg-card p-8 hover:shadow-islamic;
 }
 
 .pill-image {
@@ -327,35 +330,12 @@
   @apply bg-background;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-primary/20 rounded-full hover:bg-primary/30 transition-colors;
+  @apply bg-primary/20 rounded-full hover:bg-primary/30;
 }
 
-/* Custom animations */
-@keyframes slide-up {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-slide-up {
-  animation: slide-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes pulse-slow {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(1.05); }
-}
-
-.animate-pulse-slow {
-  animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.animate-spin-slow {
-  animation: spin-slow 20s linear infinite;
+/* Custom animations removed */
+.animate-slide-up, .animate-pulse-slow, .animate-spin-slow {
+  animation: none;
 }
 
 .shamsa {
@@ -401,3 +381,34 @@
 .tajweed-sajdah { color: #7C3AED !important; }
 .tajweed-small_letters, .tajweed-small_alif { color: #FF4500 !important; }
 
+
+/* Tafsir Content Styling */
+.tafsir-content {
+  @apply space-y-3 text-foreground/90;
+}
+
+.tafsir-content h1 {
+  @apply text-xl font-bold text-primary mt-6 mb-3 border-b border-primary/10 pb-2;
+  font-family: inherit;
+}
+
+.tafsir-content h2 {
+  @apply text-lg font-bold text-primary/80 mt-5 mb-2;
+  font-family: inherit;
+}
+
+.tafsir-content p {
+  @apply leading-relaxed mb-4;
+}
+
+.tafsir-content span[style*="color"] {
+  color: inherit !important;
+}
+
+.dark .tafsir-content span[style*="color"] {
+  color: var(--primary) !important;
+}
+
+.tafsir-content .arabic {
+  @apply font-quran text-2xl py-2 block text-center leading-[2];
+}
