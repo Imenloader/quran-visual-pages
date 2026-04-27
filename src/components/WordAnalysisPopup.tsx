@@ -212,6 +212,31 @@ const WordAnalysisPopup: React.FC<Props> = ({
                 )}
               </Section>
 
+              {/* Grammar (Nahw) */}
+              {wordTafsirData?.nahw && (
+                <Section title="التحليل الصرفي (النحو)">
+                  <div className="flex flex-wrap gap-2">
+                    {wordTafsirData.nahw.split(' + ').map((part, i) => (
+                      <span 
+                        key={i} 
+                        className="px-2 py-1 bg-primary/10 text-primary rounded-md text-sm font-medium"
+                      >
+                        {part}
+                      </span>
+                    ))}
+                  </div>
+                </Section>
+              )}
+
+              {/* Root */}
+              {wordTafsirData?.root && (
+                <Section title="الجذر اللغوي">
+                  <p className="text-2xl font-quran tracking-widest text-primary/80">
+                    {wordTafsirData.root}
+                  </p>
+                </Section>
+              )}
+
               {/* Meta */}
               <div className="flex items-center justify-between pt-2">
                 <div className="flex gap-4 text-xs font-medium text-muted-foreground">
