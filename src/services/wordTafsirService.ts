@@ -9,12 +9,6 @@ interface WordTafsir {
 
 import { normalizeArabic } from "@/utils/arabicUtils";
 
-// ─── Pre-build a normalised key → entry map once (avoid re-scanning on every lookup) ───
-const _normalisedIndex = new Map<string, WordTafsir>();
-for (const [key, val] of Object.entries(mujamData)) {
-  _normalisedIndex.set(normalizeArabic(key), val as WordTafsir);
-}
-
 // ─── Arabic prefixes (longest first) ─────────────────────────────────────────────────
 const PREFIXES = ["وال", "فال", "بال", "كال", "لل", "ال", "و", "ف", "ب", "ك", "ل"];
 
@@ -41,8 +35,40 @@ const SUFFIXES = [
 
 const MIN_STEM = 2; // don't reduce a word below 2 chars
 
+// ─── Pre-build a normalised key → entry map once (avoid re-scanning on every lookup) ───
+const _normalisedIndex = new Map<string, WordTafsir>();
+const _stemmedIndex = new Map<string, WordTafsir>();
+
+function basicStem(word: string): string {
+  let stem = word;
+  for (const prefix of PREFIXES) {
+    if (stem.startsWith(prefix) && stem.length > prefix.length + MIN_STEM) {
+      stem = stem.slice(prefix.length);
+      break;
+    }
+  }
+  for (const suffix of SUFFIXES) {
+    if (stem.endsWith(suffix) && stem.length > suffix.length + MIN_STEM) {
+      stem = stem.slice(0, stem.length - suffix.length);
+      break;
+    }
+  }
+  return stem;
+}
+
+for (const [key, val] of Object.entries(mujamData)) {
+  const normKey = normalizeArabic(key);
+  _normalisedIndex.set(normKey, val as WordTafsir);
+  
+  // Create a stemmed version of the dictionary key to catch suffix/prefix variations
+  const stemmedKey = basicStem(normKey);
+  if (stemmedKey !== normKey && !_normalisedIndex.has(stemmedKey) && !_stemmedIndex.has(stemmedKey)) {
+    _stemmedIndex.set(stemmedKey, val as WordTafsir);
+  }
+}
+
 function lookupNorm(norm: string): WordTafsir | null {
-  return _normalisedIndex.get(norm) ?? null;
+  return _normalisedIndex.get(norm) ?? _stemmedIndex.get(norm) ?? null;
 }
 
 function stripAndLookup(norm: string, affixes: string[], stripFrom: "start" | "end"): WordTafsir | null {

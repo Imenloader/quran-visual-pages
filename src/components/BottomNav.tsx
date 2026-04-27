@@ -139,12 +139,20 @@ const BottomNav = () => {
                     }`}>
                       {item.label}
                     </span>
-      {/* Global Audio Player integrated with Nav Bar */}
-      {!location.pathname.startsWith("/juz/") && (
-        <div className="pointer-events-auto z-[130] mb-2">
-          <GlobalAudioPlayer />
-        </div>
-      )}
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
+        )}
+
+        {/* Global Audio Player integrated with Nav Bar */}
+        {!location.pathname.startsWith("/juz/") && (
+          <div className="pointer-events-auto z-[130] mb-2 w-full max-w-xl px-4 md:px-6">
+            <GlobalAudioPlayer />
+          </div>
+        )}
+      </div>
     </div>
   );
 };
