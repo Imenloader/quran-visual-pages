@@ -1,156 +1,199 @@
 import json
 import os
-import urllib.request
-import urllib.parse
+import requests
 import re
 import time
 import glob
 import sys
+import random
+import urllib3
+from bs4 import BeautifulSoup
+
+# Disable SSL warnings
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Fix encoding issue for windows consoles printing arabic
 sys.stdout.reconfigure(encoding='utf-8')
 
-# Robust normalization matching our UI arabicUtils.ts
 def normalize_word(word):
     if not word: return ""
-    # Strip diacritics
-    w = re.sub(r'[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E8\u06EA-\u06ED]', '', word)
-    # Unify Alifs
+    # Remove all Quranic marks, diacritics, and small vowels
+    w = re.sub(r'[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]', '', word)
+    # Normalize Alif Wasla and other Alifs
     w = re.sub(r'[أإآٱ]', 'ا', w)
-    # Unify Yaa
+    # Simplify Yaa/Alif Maqsura
     w = re.sub(r'[ىي]', 'ي', w)
-    # Remove Tatweel
-    w = re.sub(r'ـ', '', w)
-    # Remove zero-width spaces
-    w = re.sub(r'[\u200B-\u200D\uFEFF]', '', w)
+    # Remove Tatweel and other noise
+    w = re.sub(r'[ـ\u200B-\u200D\uFEFF]', '', w)
+    # Keep only basic Arabic letters
+    w = re.sub(r'[^\u0621-\u064A\u067E\u0686\u0698\u06AF\u06A9\u0640]', '', w)
     return w.strip()
 
-def fetch_from_kalimmat(word):
-    clean = normalize_word(word)
-    path = urllib.parse.quote(f"معنى-كلمة/{clean}")
-    url = f"https://kalimmat.com/{path}"
-    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'})
-    
+def strip_prefix(word):
+    # Common prefixes to strip for dictionary lookups
+    prefixes = ["وال", "فال", "بال", "كال", "لل", "ال", "و", "ف", "ب", "ك", "ل"]
+    for p in prefixes:
+        if word.startswith(p) and len(word) > len(p) + 1:
+            return word[len(p):]
+    return word
+
+def parse_source_file(file_path):
+    """Greedy parser to extract EVERY possible row and meaning from HTML/Text sources."""
+    local_data = {} # norm -> {word: str, meanings: set, source: str}
+    if not os.path.exists(file_path):
+        return local_data
+
+    print(f"Parsing local source file: {file_path}...")
     try:
-        response = urllib.request.urlopen(req)
-        html = response.read().decode('utf-8')
-        
-        # Extract meaning from kalimmat
-        match = re.search(r'<div[^>]*class=["\'].*?meaning.*?["\'][^>]*>(.*?)</div>', html, re.IGNORECASE | re.DOTALL)
-        if match:
-            meaning_html = match.group(1)
-            meaning_text = re.sub(r'<[^>]+>', '', meaning_html).strip()
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
             
-            # Clean up the text further
-            meaning_text = meaning_text.replace('&quot;', '"').replace('&nbsp;', ' ').strip()
+        soup = BeautifulSoup(content, 'html.parser')
+        # If it's a View Source format, we need to decode the spans
+        if soup.find(id="viewsource") or "start-tag" in content:
+            raw_html = soup.get_text()
+            soup = BeautifulSoup(raw_html, 'html.parser')
             
-            if meaning_text and meaning_text != "غير متوفر":
-                return {
-                    "word": word,
-                    "meaning": meaning_text,
-                    "source": "kalimmat"
-                }
+        # Find all rows (case insensitive)
+        rows = soup.find_all(re.compile(r'^tr$', re.I))
+        if not rows:
+            rows = soup.find_all(['tr', 'TR'])
+            
+        rows_parsed = 0
+        for row in rows:
+            tds = row.find_all(['td', 'TD'])
+            if len(tds) >= 3:
+                # Ayah # | Word | Meaning
+                raw_word = tds[1].get_text(strip=True)
+                raw_meaning = tds[2].get_text(strip=True)
+                
+                # Check if it's a header
+                if "الكلمة" in raw_word or "التفسير" in raw_meaning:
+                    continue
+
+                if raw_word and raw_meaning and len(raw_word) < 150:
+                    rows_parsed += 1
+                    norm = normalize_word(raw_word)
+                    if not norm: continue
+                    
+                    if norm not in local_data:
+                        local_data[norm] = {
+                            "word": raw_word,
+                            "meanings": set(),
+                            "source": os.path.basename(file_path)
+                        }
+                    local_data[norm]["meanings"].add(raw_meaning)
+                    
+                    # Split phrases aggressively
+                    parts = re.split(r'\s+', raw_word)
+                    if len(parts) > 1:
+                        for part in parts:
+                            p_norm = normalize_word(part)
+                            if p_norm and len(p_norm) > 1:
+                                if p_norm not in local_data:
+                                    local_data[p_norm] = {
+                                        "word": part,
+                                        "meanings": set(),
+                                        "source": f"extracted_from_{os.path.basename(file_path)}"
+                                    }
+                                local_data[p_norm]["meanings"].add(f"({raw_word}): {raw_meaning}")
+
+        print(f"Successfully parsed {rows_parsed} rows from {os.path.basename(file_path)}.")
     except Exception as e:
-        # 404 means word not found on kalimmat, which is fine
-        if hasattr(e, 'code') and e.code == 404:
-            return None
-        print(f"Error fetching {clean}: {e}")
-    return None
+        print(f"Error parsing {file_path}: {e}")
+        
+    return local_data
 
 def extract_all_quran_words():
-    words = set()
-    juz_dir = os.path.join(os.path.dirname(__file__), '..', 'juz')
-    ts_files = glob.glob(os.path.join(juz_dir, '*.ts'))
-    
-    for file in ts_files:
-        with open(file, 'r', encoding='utf-8') as f:
-            content = f.read()
-            # Extract all text inside backticks `...`
-            matches = re.findall(r'`([^`]+)`', content)
-            for m in matches:
-                # Remove end-of-ayah numbers and markers
-                clean_ayah = re.sub(r'[٠١٢٣٤٥٦٧٨٩]', '', m)
-                # Remove other symbols like brackets, parens
-                clean_ayah = re.sub(r'[()\[\]{}]', '', clean_ayah)
-                for w in clean_ayah.split():
-                    w = w.strip()
-                    # Skip 'سورة' and 'الفاتحة' headers or empty words
-                    if w and len(normalize_word(w)) > 0:
-                        words.add(w)
-    return words
+    juz_files = glob.glob("../juz/juz*.ts")
+    unique_words = set()
+    for file in sorted(juz_files):
+        try:
+            with open(file, 'r', encoding='utf-8') as f:
+                content = f.read()
+                match = re.search(r'`(.*)`', content, re.DOTALL)
+                if match:
+                    text = match.group(1)
+                    tokens = text.split()
+                    for t in tokens:
+                        clean_t = re.sub(r'[\(\)\d]', '', t)
+                        if clean_t and not clean_t.isdigit():
+                            unique_words.add(clean_t)
+        except Exception as e:
+            print(f"Error reading {file}: {e}")
+    return sorted(list(unique_words))
 
 def main():
-    output_path = os.path.join(os.path.dirname(__file__), 'mujam.json')
-    
-    # Load existing mujam data
-    mujam_data = {}
-    if os.path.exists(output_path):
-        with open(output_path, 'r', encoding='utf-8') as f:
-            try:
-                mujam_data = json.load(f)
-            except:
-                pass
+    mujam_path = 'mujam.json'
+    if os.path.exists(mujam_path):
+        with open(mujam_path, 'r', encoding='utf-8') as f:
+            mujam = json.load(f)
+    else:
+        mujam = {}
 
-    print("Extracting all unique words from Juz files...")
-    quran_words = extract_all_quran_words()
-    print(f"Total unique raw words in Quran: {len(quran_words)}")
+    unique_words = extract_all_quran_words()
+    print(f"Total unique raw tokens in Quran: {len(unique_words)}")
     
-    # Filter out words we already have in the dictionary
-    existing_normalized_keys = {normalize_word(k) for k in mujam_data.keys()}
+    source_files = [
+        os.path.join(os.path.dirname(__file__), '..', '..', 'source.txt'),
+        os.path.join(os.path.dirname(__file__), '..', '..', 'https___quran.mu.edu.sa_words.html#Qwords.htm')
+    ]
     
-    words_to_scrape = []
-    for w in quran_words:
-        norm = normalize_word(w)
-        if norm not in existing_normalized_keys:
-            words_to_scrape.append(w)
-            
-    print(f"Words already in dictionary: {len(existing_normalized_keys)}")
-    print(f"Words remaining to scrape: {len(words_to_scrape)}")
-    
-    if len(words_to_scrape) == 0:
-        print("Dictionary is complete!")
-        return
-
-    print("Starting scraping process. Press Ctrl+C to stop at any time.")
-    print("Data will be saved every 10 words.")
-    
-    count = 0
-    try:
-        for w in words_to_scrape:
-            norm = normalize_word(w)
-            # Skip if we fetched it in this session already (since multiple raw words can map to same normalized word)
-            if norm in existing_normalized_keys:
-                continue
-                
-            print(f"[{count+1}/{len(words_to_scrape)}] Fetching: {w} ({norm})...", end=" ", flush=True)
-            result = fetch_from_kalimmat(w)
-            
-            if result:
-                print("Found!")
-                mujam_data[norm] = result
-                existing_normalized_keys.add(norm)
+    mega_local = {}
+    for sf in source_files:
+        file_data = parse_source_file(sf)
+        for norm, data in file_data.items():
+            if norm not in mega_local:
+                mega_local[norm] = data
             else:
-                print("Not found.")
-                # We can mark it as not found so we don't retry, but for now we just skip
-                pass
-                
-            count += 1
-            
-            # Save every 10 fetches to prevent data loss
-            if count % 10 == 0:
-                with open(output_path, 'w', encoding='utf-8') as f:
-                    json.dump(mujam_data, f, ensure_ascii=False, indent=4)
-                print(f"--- Saved progress ({len(mujam_data)} total entries) ---")
-                
-            time.sleep(1.0) # Polite delay to avoid IP ban from kalimmat.com
-                
-    except KeyboardInterrupt:
-        print("\nScraping interrupted by user.")
+                mega_local[norm]["meanings"].update(data["meanings"])
+    
+    print(f"Combined Local meanings: {len(mega_local)} normalized keys")
+
+    new_found = 0
+    updated_count = 0
+    
+    for w in unique_words:
+        norm = normalize_word(w)
+        if not norm: continue
         
-    # Final save
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(mujam_data, f, ensure_ascii=False, indent=4)
-    print(f"Saved! Total words in dataset: {len(mujam_data)}")
+        # Variations to try: exact, stripped prefix
+        match = None
+        for attempt in [norm, normalize_word(strip_prefix(w))]:
+            if attempt in mega_local:
+                match = mega_local[attempt]
+                break
+        
+        if match:
+            # Aggregate all unique meanings
+            sorted_meanings = sorted(list(match["meanings"]))
+            final_meaning = " | ".join(sorted_meanings)
+            
+            if norm not in mujam:
+                mujam[norm] = {
+                    "word": match["word"],
+                    "meaning": final_meaning,
+                    "source": "local_greedy_final"
+                }
+                new_found += 1
+            else:
+                # Supplemental update
+                current = mujam[norm].get("meaning", "")
+                # Only add if it's new information
+                if final_meaning not in current and len(final_meaning) > 5:
+                    if current:
+                        mujam[norm]["meaning"] = f"{current} || {final_meaning}"
+                    else:
+                        mujam[norm]["meaning"] = final_meaning
+                    updated_count += 1
+
+    with open(mujam_path, 'w', encoding='utf-8') as f:
+        json.dump(mujam, f, ensure_ascii=False, indent=4)
+        
+    print(f"Final Report:")
+    print(f"- New meanings added: {new_found}")
+    print(f"- Existing meanings supplemented: {updated_count}")
+    print(f"- Total dictionary size: {len(mujam)} keys")
 
 if __name__ == "__main__":
     main()
