@@ -14,11 +14,9 @@ const PREFIXES = ["وال", "فال", "بال", "كال", "لل", "ال", "و", 
 
 // ─── Arabic suffixes for verb conjugations / pronouns (longest first) ─────────────────
 const SUFFIXES = [
-  // Verb plural endings with pronouns
   "وهما", "وهم", "وهن", "وها", "وه",
   "ونهم", "ونها", "ونه",
   "تموهم", "تموها", "تموه", "تموهن",
-  // Common verb endings
   "تموا", "تما", "تمو",
   "ونني", "وننا",
   "وني", "ونا",
@@ -33,9 +31,8 @@ const SUFFIXES = [
   "ه", "ا", "ت", "ن",
 ];
 
-const MIN_STEM = 2; // don't reduce a word below 2 chars
+const MIN_STEM = 2;
 
-// ─── Pre-build a normalised key → entry map once (avoid re-scanning on every lookup) ───
 const _normalisedIndex = new Map<string, WordTafsir>();
 const _stemmedIndex = new Map<string, WordTafsir>();
 
@@ -56,11 +53,11 @@ function basicStem(word: string): string {
   return stem;
 }
 
+// Pre-fill indices
 for (const [key, val] of Object.entries(mujamData)) {
   const normKey = normalizeArabic(key);
   _normalisedIndex.set(normKey, val as WordTafsir);
   
-  // Create a stemmed version of the dictionary key to catch suffix/prefix variations
   const stemmedKey = basicStem(normKey);
   if (stemmedKey !== normKey && !_normalisedIndex.has(stemmedKey) && !_stemmedIndex.has(stemmedKey)) {
     _stemmedIndex.set(stemmedKey, val as WordTafsir);
@@ -68,7 +65,18 @@ for (const [key, val] of Object.entries(mujamData)) {
 }
 
 function lookupNorm(norm: string): WordTafsir | null {
-  return _normalisedIndex.get(norm) ?? _stemmedIndex.get(norm) ?? null;
+  // Try exact normalized
+  let hit = _normalisedIndex.get(norm) ?? _stemmedIndex.get(norm);
+  if (hit) return hit;
+
+  // FALLBACK: Try removing 'ا' if it might be an extra dagger alif (e.g., هاذا -> هذا)
+  if (norm.includes('ا')) {
+    const altNorm = norm.replace(/ا/g, '');
+    hit = _normalisedIndex.get(altNorm) ?? _stemmedIndex.get(altNorm);
+    if (hit) return hit;
+  }
+  
+  return null;
 }
 
 function stripAndLookup(norm: string, affixes: string[], stripFrom: "start" | "end"): WordTafsir | null {
@@ -103,15 +111,15 @@ export const getWordTafsir = (word: string): WordTafsir | null => {
   const hit4 = stripAndLookup(norm, SUFFIXES, "end");
   if (hit4) return hit4;
 
-  // Pass 5 — strip prefix then suffix (handles ال + verb + ون etc.)
+  // Pass 5 — strip prefix then suffix
   for (const prefix of PREFIXES) {
     if (!norm.startsWith(prefix)) continue;
     const afterPrefix = norm.slice(prefix.length);
     if (afterPrefix.length < MIN_STEM) continue;
-    // direct lookup on stem after prefix
+    
     const hit5a = lookupNorm(afterPrefix);
     if (hit5a) return hit5a;
-    // suffix strip on what remains after prefix
+    
     const hit5b = stripAndLookup(afterPrefix, SUFFIXES, "end");
     if (hit5b) return hit5b;
   }
