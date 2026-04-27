@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => ({
       filename: 'service-worker.ts',
       registerType: "autoUpdate",
       injectManifest: {
-        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
+        maximumFileSizeToCacheInBytes: 30 * 1024 * 1024,
       },
       includeAssets: ["icon.svg", "robots.txt", "sitemap.xml", "pwa-192x192.png", "pwa-512x512.png", "placeholder.svg", "Adhan Sounds/*.mp3"],
       useCredentials: true,
