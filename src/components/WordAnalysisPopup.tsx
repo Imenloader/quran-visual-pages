@@ -1,10 +1,9 @@
-:::writing{variant="standard" id="84219"}
 import React, { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  X, Info, Loader2, Volume2, Copy,
+  X, Loader2, Volume2, Copy,
   Share2, Hash, Sparkles, AlertCircle,
-  CheckCircle2, BookOpen
+  CheckCircle2
 } from 'lucide-react';
 
 import { toArabicNumber } from '@/data/quranData';
@@ -25,9 +24,14 @@ interface Props {
   onClose: () => void;
 }
 
+interface SectionProps {
+  title: string;
+  children: React.ReactNode;
+}
+
 // ---------------- UI Helpers ----------------
 
-const Section = ({ title, children }: any) => (
+const Section = ({ title, children }: SectionProps) => (
   <div className="p-4 rounded-2xl border border-border/30 bg-muted/20 space-y-2">
     <h4 className="text-xs font-bold text-primary">{title}</h4>
     {children}
@@ -61,7 +65,7 @@ const WordAnalysisPopup: React.FC<Props> = ({
     analysis?.arabicMeaning
   );
 
-  const wordTafsir = useWordTafsir(word);
+  const { data: wordTafsirData, isLoading: loadingWordTafsir } = useWordTafsir(word);
 
   // ---------------- Actions ----------------
 
@@ -83,10 +87,17 @@ const WordAnalysisPopup: React.FC<Props> = ({
 
     setIsPlaying(true);
 
-    audio.play().catch(() => setIsPlaying(false));
+    audio.play().catch((err) => {
+      console.error("Audio play failed:", err);
+      setIsPlaying(false);
+      toast.error("تعذر تشغيل الصوت");
+    });
 
     audio.onended = () => setIsPlaying(false);
-    audio.onerror = () => setIsPlaying(false);
+    audio.onerror = () => {
+      setIsPlaying(false);
+      toast.error("خطأ في تحميل الملف الصوتي");
+    };
   }, [analysis, isPlaying]);
 
   const handleCopy = (text: string) => {
@@ -131,7 +142,7 @@ const WordAnalysisPopup: React.FC<Props> = ({
 
         {/* Popup */}
         <motion.div
-          className="relative w-full max-w-md bg-card rounded-2xl shadow-xl p-4 space-y-4 max-h-[85vh] overflow-y-auto"
+          className="relative w-full max-w-md bg-card rounded-2xl shadow-xl p-6 space-y-6 max-h-[85vh] overflow-y-auto"
           dir="rtl"
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -139,84 +150,102 @@ const WordAnalysisPopup: React.FC<Props> = ({
         >
 
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">{word}</h2>
+          <div className="flex items-center justify-between border-b pb-4">
+            <h2 className="text-3xl font-quran text-primary">{word}</h2>
 
-            <div className="flex items-center gap-2">
-              <button onClick={handleAudio}>
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={handleAudio}
+                className="p-2 hover:bg-muted rounded-full transition-colors"
+                title="استماع"
+              >
                 {isPlaying ? (
-                  <Loader2 className="animate-spin" size={18} />
+                  <Loader2 className="animate-spin text-primary" size={20} />
                 ) : (
-                  <Volume2 size={18} />
+                  <Volume2 className="text-muted-foreground hover:text-primary" size={20} />
                 )}
               </button>
 
-              <button onClick={onClose}>
-                <X size={18} />
+              <button 
+                onClick={onClose}
+                className="p-2 hover:bg-muted rounded-full transition-colors"
+              >
+                <X size={20} />
               </button>
             </div>
           </div>
 
           {/* Content */}
           {error ? (
-            <div className="text-center space-y-2">
-              <AlertCircle className="mx-auto" />
-              <p>تعذر تحميل البيانات</p>
+            <div className="text-center py-10 space-y-4">
+              <AlertCircle className="mx-auto text-destructive" size={40} />
+              <p className="text-muted-foreground font-medium">تعذر تحميل البيانات. يرجى المحاولة لاحقاً.</p>
             </div>
           ) : isLoading ? (
-            <div className="flex justify-center py-6">
-              <Loader2 className="animate-spin" />
+            <div className="flex flex-col items-center justify-center py-12 gap-4">
+              <Loader2 className="animate-spin text-primary" size={40} />
+              <p className="text-sm text-muted-foreground animate-pulse">جاري التحليل...</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
 
               {/* Meaning */}
               <Section title="معنى الكلمة">
                 {translating ? (
-                  <Loader2 className="animate-spin" size={16} />
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="animate-spin" size={14} />
+                    <span className="text-sm">جاري الترجمة...</span>
+                  </div>
                 ) : (
-                  <p className="text-lg font-bold">
+                  <p className="text-xl font-bold text-foreground">
                     {meaning || "غير متوفر"}
                   </p>
                 )}
               </Section>
 
               {/* Word Tafsir */}
-              {wordTafsir && (
+              {!loadingWordTafsir && wordTafsirData && (
                 <Section title="شرح الكلمة">
-                  {wordTafsir.root && (
-                    <p>الجذر: {wordTafsir.root}</p>
-                  )}
-                  {wordTafsir.meaning && (
-                    <p>{wordTafsir.meaning}</p>
-                  )}
-                  {wordTafsir.notes && (
-                    <p className="text-sm text-muted-foreground">
-                      {wordTafsir.notes}
-                    </p>
-                  )}
+                  <div className="space-y-2">
+                    {wordTafsirData.root && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground">الجذر:</span>
+                        <span className="font-bold text-primary">{wordTafsirData.root}</span>
+                      </div>
+                    )}
+                    {wordTafsirData.meaning && (
+                      <p className="text-foreground leading-relaxed">{wordTafsirData.meaning}</p>
+                    )}
+                    {wordTafsirData.notes && (
+                      <p className="text-sm text-muted-foreground italic border-r-2 border-primary/20 pr-3 py-1">
+                        {wordTafsirData.notes}
+                      </p>
+                    )}
+                  </div>
                 </Section>
               )}
 
               {/* Ayah Tafsir */}
               <Section title="تفسير الآية">
-                <p className="text-sm leading-relaxed">
+                <p className="text-sm leading-relaxed text-foreground/80">
                   {tafsir || "غير متوفر"}
                 </p>
               </Section>
 
               {/* Meta */}
-              <div className="flex gap-3 text-sm">
-                <div className="flex items-center gap-1">
-                  <Hash size={14} />
-                  <span>آية {toArabicNumber(ayahNumber)}</span>
-                </div>
+              <div className="flex items-center justify-between pt-2">
+                <div className="flex gap-4 text-xs font-medium text-muted-foreground">
+                  <div className="flex items-center gap-1 bg-muted/50 px-2 py-1 rounded-lg">
+                    <Hash size={12} />
+                    <span>آية {toArabicNumber(ayahNumber)}</span>
+                  </div>
 
-                <div className="flex items-center gap-1">
-                  <Sparkles size={14} />
-                  <span>
-                    جزء {analysis ? toArabicNumber(analysis.juz) : "..."}
-                  </span>
+                  <div className="flex items-center gap-1 bg-muted/50 px-2 py-1 rounded-lg">
+                    <Sparkles size={12} />
+                    <span>
+                      جزء {analysis ? toArabicNumber(analysis.juz) : "..."}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -224,23 +253,22 @@ const WordAnalysisPopup: React.FC<Props> = ({
           )}
 
           {/* Actions */}
-          <div className="flex gap-2 pt-2 border-t">
-
+          <div className="flex gap-3 pt-4 border-t">
             <button
               onClick={handleShare}
-              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-primary text-white"
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-primary-foreground font-bold hover:opacity-90 transition-opacity"
             >
-              <Share2 size={16} />
+              <Share2 size={18} />
               مشاركة
             </button>
 
             <button
               onClick={() => handleCopy(`${word} - ${meaning}`)}
-              className="p-2 border rounded-xl"
+              className="p-3 border border-border bg-background rounded-xl hover:bg-muted transition-colors"
+              title="نسخ"
             >
-              <Copy size={16} />
+              <Copy size={18} className="text-muted-foreground" />
             </button>
-
           </div>
 
         </motion.div>
@@ -250,4 +278,3 @@ const WordAnalysisPopup: React.FC<Props> = ({
 };
 
 export default WordAnalysisPopup;
-:::
