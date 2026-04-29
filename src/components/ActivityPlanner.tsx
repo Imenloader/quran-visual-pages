@@ -19,11 +19,27 @@ interface ActivityPlannerProps {
   title: string;
 }
 
+import { notificationService } from '@/services/notificationService';
+
 const ActivityPlanner: React.FC<ActivityPlannerProps> = ({ storageKey, type, title }) => {
   const { t } = useTranslation();
   const [activities, setActivities] = useState<PlannedActivity[]>([]);
   const [newActivityTitle, setNewActivityTitle] = useState('');
   const [selectedDay, setSelectedDay] = useState(new Date().toISOString().split('T')[0]);
+
+  const handleNotificationRequest = async () => {
+    try {
+      const granted = await notificationService.requestPermission();
+      if (granted) {
+        toast.success('تم تفعيل التنبيهات بنجاح');
+      } else {
+        toast.error('يرجى تفعيل التنبيهات من إعدادات المتصفح');
+      }
+    } catch (error) {
+      console.error('Notification error:', error);
+      toast.error('حدث خطأ أثناء تفعيل التنبيهات');
+    }
+  };
 
   useEffect(() => {
     const saved = localStorage.getItem(storageKey);
@@ -72,7 +88,12 @@ const ActivityPlanner: React.FC<ActivityPlannerProps> = ({ storageKey, type, tit
           {title}
         </h3>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="rounded-xl h-8 text-[10px] uppercase tracking-widest font-bold">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleNotificationRequest}
+            className="rounded-xl h-8 text-[10px] uppercase tracking-widest font-bold"
+          >
             <Bell className="w-3 h-3 mr-1" />
             تنبيه
           </Button>

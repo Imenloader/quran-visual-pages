@@ -44,17 +44,17 @@ export const FITNESS_PLAYLISTS: YouTubePlaylist[] = [
 
 export const EXERCISES = [
   // Upper Body
-  { id: 'pushups', name: 'تمرين الضغط (Pushups)', target: 'الصدر والترايسيبس', videoId: 'kYJ5_l_0V4Y', difficulty: 'متوسط', description: 'تمرين أساسي لتقوية الجزء العلوي من الجسم.' },
-  { id: 'pullups', name: 'تمرين العقلة (Pull-ups)', target: 'الظهر والبيسيبس', videoId: 'pS-W_h_q_0U', difficulty: 'صعب', description: 'أقوى تمرين لبناء عضلات الظهر.' },
-  { id: 'dips', name: 'تمرين المتوازي (Dips)', target: 'الترايسيبس والصدر السفلي', videoId: '2z8JmcrW-As', difficulty: 'متوسط', description: 'لتقوية الذراعين ومنطقة الصدر.' },
+  { id: 'pushups', name: 'تمرين الضغط (Pushups)', target: 'الصدر والترايسيبس', videoId: 'YRhFSWz_J3I', difficulty: 'متوسط', description: 'تمرين أساسي لتقوية الجزء العلوي من الجسم.' },
+  { id: 'pullups', name: 'تمرين العقلة (Pull-ups)', target: 'الظهر والبيسيبس', videoId: 'eGo4IYlbE5g', difficulty: 'صعب', description: 'أقوى تمرين لبناء عضلات الظهر.' },
+  { id: 'dips', name: 'تمرين المتوازي (Dips)', target: 'الترايسيبس والصدر السفلي', videoId: '6kALZikcCdM', difficulty: 'متوسط', description: 'لتقوية الذراعين ومنطقة الصدر.' },
   
   // Lower Body
-  { id: 'squats', name: 'تمرين القرفصاء (Squats)', target: 'الأرجل والأرداف', videoId: 'qcG69UM9JOU', difficulty: 'سهل', description: 'تمرين ممتاز لتقوية عضلات الأرجل وبناء القوة.' },
+  { id: 'squats', name: 'تمرين القرفصاء (Squats)', target: 'الأرجل والأرداف', videoId: '0kP0rP0r57s', difficulty: 'سهل', description: 'تمرين ممتاز لتقوية عضلات الأرجل وبناء القوة.' },
   { id: 'lunges', name: 'تمرين الطعن (Lunges)', target: 'الأرجل والتوازن', videoId: 'QOVaHwm-Q6U', difficulty: 'متوسط', description: 'لتحسين التوازن وقوة الأرجل المنفردة.' },
   
   // Core & Cardio
-  { id: 'plank', name: 'تمرين البلانك (Plank)', target: 'عضلات البطن والمركز', videoId: 'y3mIn64_kUo', difficulty: 'متوسط', description: 'تمرين الثبات لتقوية عضلات البطن والظهر.' },
-  { id: 'burpees', name: 'تمرين البيربي (Burpees)', target: 'كامل الجسم - كارديو', videoId: 'kR6ZfWlX10A', difficulty: 'صعب', description: 'تمرين عالي الشدة لحرق الدهون ورفع اللياقة.' },
+  { id: 'plank', name: 'تمرين البلانك (Plank)', target: 'عضلات البطن والمركز', videoId: 'pYcpY20QaE8', difficulty: 'متوسط', description: 'تمرين الثبات لتقوية عضلات البطن والظهر.' },
+  { id: 'burpees', name: 'تمرين البيربي (Burpees)', target: 'كامل الجسم - كارديو', videoId: 'fB8vL0-Yq_U', difficulty: 'صعب', description: 'تمرين عالي الشدة لحرق الدهون ورفع اللياقة.' },
   { id: 'mountain-climbers', name: 'متسلق الجبال', target: 'البطن والكارديو', videoId: 'nmwgirg-V60', difficulty: 'متوسط', description: 'لرفع معدل ضربات القلب وتقوية البطن.' }
 ];
 
@@ -107,7 +107,7 @@ export const SCHOLARS_DATA = [
     name: 'سمير مصطفى',
     channelId: '@SheikhSamirMustafa',
     playlists: [
-      { id: 'UU_qS7pL-8Xv_Z_Z_Z_Z_Z_Z_Z', title: 'الدروس الكاملة' },
+      { id: 'UUZ-qS7pL-8Xv_Z_Z_Z_Z_Z_Z_Z', title: 'الدروس الكاملة' },
       { id: 'PLZ_vW7t_m_N1N7E6X_z7T5xX_z7T5xX_z', title: 'سلسلة التربية' }
     ]
   },
