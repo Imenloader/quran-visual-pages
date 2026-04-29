@@ -11,16 +11,9 @@ import { toast } from "sonner";
 
 const KnowledgeSessions = () => {
   const { t } = useTranslation();
-  const [selectedScholar, setSelectedScholar] = useState(SCHOLARS_DATA[0]);
-
-  const openYouTubePlaylist = (playlistId: string) => {
-    window.open(`https://www.youtube.com/playlist?list=${playlistId}`, "_blank");
-    toast.success("يتم الآن فتح قائمة التشغيل على يوتيوب");
-  };
-
-  const openYouTubeChannel = (channelId: string) => {
-    window.open(`https://www.youtube.com/${channelId}`, "_blank");
-    toast.success("يتم الآن فتح القناة على يوتيوب");
+  const openYouTubeLink = (url: string) => {
+    window.open(url, "_blank");
+    toast.success("يتم الآن الانتقال إلى يوتيوب");
   };
 
   return (
@@ -32,125 +25,83 @@ const KnowledgeSessions = () => {
       />
       
       <div className="max-w-7xl mx-auto px-4 mt-6">
-        <header className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <BackButton />
-            <div className="h-10 w-[1px] bg-border/40" />
-            <p className="text-sm text-muted-foreground font-naskh">طلب العلم الشرعي</p>
-          </div>
-          <Button 
-            variant="outline"
-            onClick={() => openYouTubeChannel(selectedScholar.channelId)}
-            className="rounded-full font-naskh text-xs gap-2 border-accent/20 hover:bg-accent/5"
-          >
-            <Users className="w-4 h-4" />
-            زيارة قناة {selectedScholar.name}
-          </Button>
+        <header className="flex items-center gap-4 mb-8">
+          <BackButton />
+          <div className="h-10 w-[1px] bg-border/40" />
+          <p className="text-sm text-muted-foreground font-naskh">دليل القنوات الإسلامية</p>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-8 space-y-12">
-            {/* Featured Scholars Horizontal Scroll */}
+          <div className="lg:col-span-8 space-y-8">
             <ScrollReveal>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between px-2">
-                  <h3 className="font-bold text-lg font-naskh flex items-center gap-2">
-                    <Users className="w-5 h-5 text-accent" />
-                    المشايخ والدعاة
-                  </h3>
-                </div>
-                <div className="flex gap-4 overflow-x-auto pb-4 px-2 scrollbar-hide">
-                  {SCHOLARS_DATA.map((scholar) => (
-                    <button
-                      key={scholar.id}
-                      onClick={() => setSelectedScholar(scholar)}
-                      className={`flex flex-col items-center gap-3 p-4 rounded-3xl transition-all border min-w-[120px] ${
-                        selectedScholar.id === scholar.id
-                          ? "bg-accent/10 border-accent/30 shadow-lg shadow-accent/5"
-                          : "bg-card border-border/40 hover:border-accent/20"
-                      }`}
-                    >
-                      <div className={`w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold ${
-                        selectedScholar.id === scholar.id ? "bg-accent text-white" : "bg-muted text-muted-foreground"
-                      }`}>
-                        {scholar.name[0]}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {SCHOLARS_DATA.map((scholar, idx) => (
+                  <div
+                    key={scholar.id}
+                    onClick={() => openYouTubeLink(scholar.channelUrl)}
+                    className="group p-6 bg-card border border-border/40 rounded-[2rem] hover:border-accent/30 transition-all cursor-pointer shadow-sm hover:shadow-md"
+                  >
+                    <div className="flex flex-col gap-4">
+                      <div className="flex items-center justify-between">
+                        <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center text-xl font-bold text-accent group-hover:bg-accent group-hover:text-white transition-all">
+                          {scholar.name[0]}
+                        </div>
+                        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center group-hover:bg-accent/10 transition-colors">
+                          <Play className="w-4 h-4 fill-current" />
+                        </div>
                       </div>
-                      <span className="text-xs font-bold font-naskh whitespace-nowrap">{scholar.name}</span>
-                    </button>
-                  ))}
-                </div>
+                      <div>
+                        <h4 className="font-bold text-lg font-naskh mb-1">{scholar.name}</h4>
+                        <p className="text-xs text-muted-foreground font-naskh leading-relaxed line-clamp-2">
+                          {scholar.description}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-accent uppercase tracking-wider group-hover:gap-3 transition-all">
+                        زيارة القناة <ChevronRight className="w-3 h-3" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </ScrollReveal>
 
-            {/* Selected Scholar Series */}
-            <div className="space-y-6">
-              <ScrollReveal>
-                <div className="flex items-center gap-3 px-2">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Book className="w-5 h-5 text-primary" />
-                  </div>
-                  <h3 className="font-bold text-lg font-naskh">سلاسل {selectedScholar.name}</h3>
-                </div>
-              </ScrollReveal>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {selectedScholar.playlists.map((playlist, idx) => (
-                  <ScrollReveal key={playlist.id} delay={idx * 100}>
-                    <div 
-                      className="group p-5 bg-card border border-border/40 rounded-3xl flex items-center justify-between hover:border-accent/30 transition-all cursor-pointer"
-                      onClick={() => openYouTubePlaylist(playlist.id)}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center group-hover:bg-accent/10 group-hover:text-accent transition-colors">
-                          <Play className="w-5 h-5 fill-current" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-sm font-naskh">{playlist.title}</h4>
-                          <p className="text-[10px] text-muted-foreground font-naskh">فتح على يوتيوب</p>
-                        </div>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-[-4px] transition-transform" />
-                    </div>
-                  </ScrollReveal>
-                ))}
-              </div>
-            </div>
-
-            {/* Academy Highlights */}
+            {/* Academy Section */}
             <div className="space-y-6">
               <ScrollReveal>
                 <div className="flex items-center gap-3 px-2">
                   <div className="w-10 h-10 rounded-xl bg-indigo-600/10 flex items-center justify-center">
                     <GraduationCap className="w-5 h-5 text-indigo-600" />
                   </div>
-                  <h3 className="font-bold text-lg font-naskh">أكاديمية زاد - جميع المستويات</h3>
+                  <h3 className="font-bold text-lg font-naskh">أكاديمية زاد</h3>
                 </div>
               </ScrollReveal>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {ZAD_ACADEMY_LEVELS.map((level, idx) => (
-                  <ScrollReveal key={level.id} delay={idx * 100}>
-                    <div className="bg-indigo-600 rounded-[2rem] p-6 text-white relative overflow-hidden shadow-lg group">
-                      <div className="absolute top-0 right-0 p-4 opacity-10 transform group-hover:scale-110 transition-transform">
-                        <GraduationCap className="w-24 h-24" />
-                      </div>
-                      <div className="relative z-10 space-y-3">
-                        <h4 className="text-xl font-bold font-naskh">{level.title}</h4>
-                        <p className="text-white/80 text-xs font-naskh leading-relaxed h-8 line-clamp-2">
+              {ZAD_ACADEMY_LEVELS.map((level) => (
+                <ScrollReveal key={level.id}>
+                  <div 
+                    onClick={() => openYouTubeLink(level.url)}
+                    className="bg-indigo-600 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-lg group cursor-pointer"
+                  >
+                    <div className="absolute top-0 right-0 p-6 opacity-10 transform group-hover:scale-110 transition-transform">
+                      <GraduationCap className="w-32 h-32" />
+                    </div>
+                    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                      <div className="space-y-2">
+                        <h4 className="text-2xl font-bold font-naskh">{level.title}</h4>
+                        <p className="text-white/80 text-sm font-naskh max-w-md">
                           {level.description}
                         </p>
-                        <Button 
-                          onClick={() => openYouTubePlaylist(level.playlistId)}
-                          className="w-full bg-white text-indigo-600 hover:bg-white/90 rounded-xl text-xs font-bold font-naskh mt-2"
-                        >
-                          عرض المنهج على يوتيوب
-                        </Button>
                       </div>
+                      <Button 
+                        className="bg-white text-indigo-600 hover:bg-white/90 rounded-2xl px-8 font-bold font-naskh"
+                      >
+                        عرض القناة
+                      </Button>
                     </div>
-                  </ScrollReveal>
-                ))}
-              </div>
+                  </div>
+                </ScrollReveal>
+              ))}
             </div>
           </div>
 ...

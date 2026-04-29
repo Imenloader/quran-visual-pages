@@ -90,62 +90,53 @@ export const SCHOLARS_DATA = [
   {
     id: 'ghaleez',
     name: 'محمد الغليظ',
-    channelId: 'mohelghaleez',
-    playlists: [
-      { id: 'PL2mYfO9Q_zX7vL0pZ0Z1B8_5Z0Z1B8_5Z', title: 'سلسلة كلمات (مختارات)' },
-      { id: 'PL2mYfO9Q_zX7vL0pZ0Z1B8_5Z0Z1B8_5Z', title: 'دروس تربوية' }
-    ]
+    channelUrl: 'https://www.youtube.com/@mohelghaleez',
+    description: 'دروس تربوية ومواعظ إيمانية تلامس قلوب الشباب.'
   },
   {
     id: 'alaahamed',
     name: 'علاء حامد',
-    channelId: 'AlaaHamed',
-    playlists: [
-      { id: 'PL2S_Y1XpM30X_z7T5xX_z7T5xX_z', title: 'سلسلة إني أخاف الله' },
-      { id: 'PL2S_Y1XpM30X_z7T5xX_z7T5xX_z', title: 'سلسلة القلوب' }
-    ]
+    channelUrl: 'https://www.youtube.com/@AlaaHamed',
+    description: 'سلسلة إني أخاف الله ودروس في تزكية النفس وإصلاح القلوب.'
   },
   {
     id: 'shoman',
     name: 'حازم شومان',
-    channelId: 'DrHazemShoman',
-    playlists: [
-      { id: 'PL2_vW7t_m_N1N7E6X_z7T5xX_z7T5xX_z', title: 'أسرار المحبين' },
-      { id: 'PL2_vW7t_m_N1N7E6X_z7T5xX_z7T5xX_z', title: 'دروس القرب من الله' }
-    ]
+    channelUrl: 'https://www.youtube.com/@DrHazemShoman',
+    description: 'دروس قوية في التوبة والعودة إلى الله والهمة في العبادة.'
   },
   {
     id: 'aymanswayd',
     name: 'أيمن سويد',
-    channelId: 'DrAymanSwayd',
-    playlists: [
-      { id: 'PL_S_Y1XpM30V_q7Z5z8Q6H1VzYfXy5z8', title: 'دروس التجويد كاملة' },
-      { id: 'PL_S_Y1XpM30V_q7Z5z8Q6H1VzYfXy5z8', title: 'شرح منظومة الجزرية' }
-    ]
+    channelUrl: 'https://www.youtube.com/@DrAymanSwayd',
+    description: 'مرجع التجويد والقراءات، دروس مفصلة في قواعد التلاوة.'
   },
   {
     id: 'alkhamis',
     name: 'عثمان الخميس',
-    channelId: 'othmanalkamees',
-    playlists: [
-      { id: 'PL2mYfO9Q_zX7vL0pZ0Z1B8_5Z0Z1B8_5Z', title: 'سلسلة العقيدة' },
-      { id: 'PL2mYfO9Q_zX7vL0pZ0Z1B8_5Z0Z1B8_5Z', title: 'فقه المعاملات' }
-    ]
+    channelUrl: 'https://www.youtube.com/@othmanalkamees',
+    description: 'دروس العقيدة والفقه والرد على الشبهات بأسلوب علمي رصين.'
   },
   {
     id: 'alkamali',
     name: 'سعيد الكملي',
-    channelId: 'SaidiKamali',
-    playlists: [
-      { id: 'PL2_vW7t_m_N1N7E6X_z7T5xX_z7T5xX_z', title: 'الموطأ (شرح الحديث)' },
-      { id: 'PL2_vW7t_m_N1N7E6X_z7T5xX_z7T5xX_z', title: 'أدب العلماء' }
-    ]
+    channelUrl: 'https://www.youtube.com/@SaidiKamali',
+    description: 'شروحات الموطأ والأدب العربي والفقيه المالكي المتميز.'
+  },
+  {
+    id: 'mustafa_hosny',
+    name: 'مصطفى حسني',
+    channelUrl: 'https://www.youtube.com/@MustafaHosny',
+    description: 'برامج تربوية معاصرة تركز على الأخلاق والتعاملات الإنسانية.'
+  },
+  {
+    id: 'zakir_naik',
+    name: 'ذاكر نايك',
+    channelUrl: 'https://www.youtube.com/@DrZakirNaik',
+    description: 'مقارنة الأديان والدعوة إلى الله بأسلوب منطقي وعلمي.'
   }
 ];
 
 export const ZAD_ACADEMY_LEVELS = [
-  { id: 'L1', title: 'المستوى الأول', playlistId: 'PL2-FkZlEhqXREiSg-uB7W99J78J3m9Z9z', description: 'بداية الرحلة في العلوم الشرعية' },
-  { id: 'L2', title: 'المستوى الثاني', playlistId: 'PL2-FkZlEhqXT-pYpYpYpYpYpYpYpYpYp', description: 'تعميق الفهم في العقيدة والفقه' },
-  { id: 'L3', title: 'المستوى الثالث', playlistId: 'PL2-FkZlEhqXU-pYpYpYpYpYpYpYpYpYp', description: 'دراسة الحديث والتفسير المتقدم' },
-  { id: 'L4', title: 'المستوى الرابع', playlistId: 'PL2-FkZlEhqXV-pYpYpYpYpYpYpYpYpYp', description: 'ختام المنهج الأكاديمي' }
+  { id: 'academy', title: 'قناة أكاديمية زاد', playlistId: 'PL2-FkZlEhqXREiSg-uB7W99J78J3m9Z9z', url: 'https://www.youtube.com/@ZadAcademy', description: 'المنهج التعليمي الشرعي المتكامل لطلب العلم.' }
 ];
