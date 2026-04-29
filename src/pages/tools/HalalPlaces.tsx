@@ -18,7 +18,7 @@ const HalalPlaces = () => {
     setLoading(true);
     setError(null);
     try {
-      const results = await searchPlaces(queryOverride || "مطاعم حلال قريبة", lat, lng);
+      const results = await searchPlaces(queryOverride || "مطاعم حلال قريبة", lat, lng, "halal");
       setPlaces(results);
       if (results.length === 0) {
         setError("لم يتم العثور على أماكن حلال قريبة. يرجى التأكد من تفعيل الموقع أو المحاولة لاحقاً.");
@@ -112,7 +112,7 @@ const HalalPlaces = () => {
                       </div>
                       <div className="space-y-1">
                         <h3 className="font-bold font-naskh text-foreground">{place.name}</h3>
-                        <p className="text-[10px] text-muted-foreground font-naskh">{place.type === 'fallback' ? place.address : (place.type || "مطعم حلال")}</p>
+                        <p className="text-[10px] text-muted-foreground font-naskh">{place.distance ? `${place.distance} • ` : ""}{place.type === 'fallback' ? place.address : (place.type || "مطعم حلال")}</p>
                       </div>
                     </div>
                     <div className="text-right">
