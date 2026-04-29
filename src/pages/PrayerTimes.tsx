@@ -170,8 +170,8 @@ function NextPrayerCountdown({
             <h2 className="font-serif text-2xl md:text-4xl font-bold text-foreground mb-0.5 md:mb-1 tracking-tight">
               {PRAYER_NAMES[prayerName]}
             </h2>
-            <p className="text-xs md:text-base text-white/80 font-serif italic opacity-80">
-              في تمام الساعة {formatTime(prayerTime, timeFormat)}
+            <p className="text-sm md:text-lg text-white/90 font-naskh">
+              موعد الأذان: <span className="font-bold underline decoration-gold/30 underline-offset-4">{formatTime(prayerTime, settings.timeFormat)}</span>
             </p>
           </div>
         </div>
@@ -526,9 +526,6 @@ export default function PrayerTimes() {
                             <div className={`flex flex-col items-end ${isNext ? "text-primary" : "text-muted-foreground"}`}>
                               <span className="font-bold text-lg md:text-3xl tabular-nums tracking-tighter" dir="ltr">
                                 {formatTime(times[prayer], settings.timeFormat)}
-                              </span>
-                              <span className="text-[9px] md:text-[11px] opacity-60 font-naskh">
-                                {isNext && isAr ? "حان الآن" : ""}
                               </span>
                             </div>
                           </div>
