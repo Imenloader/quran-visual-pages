@@ -210,7 +210,8 @@ const Hub = () => {
            { id: 'qanet', name: t("hub.qiyam") || "من القانتين", icon: <Moon className="w-5 h-5" />, path: "/qanet" },
            { id: 'qiyam-100', name: t("hub.qiyam100") || "١٠٠ آية", icon: <Sparkles className="w-5 h-5" />, path: "/qiyam" },
            { id: 'strong-believer', name: "المؤمن القوي", icon: <Dumbbell className="w-5 h-5" />, path: "/strong-believer" },
-           { id: 'names', name: t("hub.namesOfAllah"), icon: <Heart className="w-5 h-5" />, path: "/names-of-allah" },
+           { id: 'salah-guide', name: i18n.language === 'ar' ? 'دليل الصلاة' : 'Salah Guide', icon: <BookOpen className="w-5 h-5" />, path: "/salah-guide" },
+          { id: 'names', name: t("hub.namesOfAllah"), icon: <Heart className="w-5 h-5" />, path: "/names-of-allah" },
         ]
       },
       {
@@ -251,6 +252,7 @@ const Hub = () => {
           { id: 'quiz', name: t("hub.islamicQuiz"), icon: <Brain className="w-5 h-5" />, path: "/islamic-quiz" },
           { id: 'inheritance', name: t("hub.inheritanceCalculator"), icon: <Calculator className="w-5 h-5" />, path: "/inheritance-calculator" },
           { id: 'hajj', name: t("hub.hajjUmrahGuide"), icon: <MapPin className="w-5 h-5" />, path: "/hajj-guide" },
+          { id: 'stories-hub', name: i18n.language === 'ar' ? 'مكتبة القصص' : 'Stories Hub', icon: <BookOpen className="w-5 h-5" />, path: "/stories" },
           { id: 'stories', name: t("hub.prophetStories"), icon: <BookOpen className="w-5 h-5" />, path: "/prophet-stories" },
           { id: 'names-dir', name: t("hub.namesDirectory"), icon: <Fingerprint className="w-5 h-5" />, path: "/names-directory" },
           { id: 'sunan', name: t("hub.propheticSunnan"), icon: <Sparkles className="w-5 h-5" />, path: "/daily-adhkar" },
