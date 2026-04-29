@@ -197,9 +197,50 @@ export default function QanetCalculator() {
               {PRESET_PLANS.map(plan => (
                 <button
                   key={plan.id}
-                  onClick={() => { setTarget(plan.ayahs); setMode('target'); }}
+                  onClick={() => { 
+                    setTarget(plan.ayahs); 
+                    setMode('range');
+                    // Find end point for this target starting from current start
+                    let remaining = plan.ayahs;
+                    let currSurah = startSurah;
+                    let currAyah = startAyah;
+                    let found = false;
+
+                    const startS = surahData.find(s => s.number === currSurah);
+                    if (startS) {
+                      const avail = startS.ayahs - currAyah + 1;
+                      if (remaining <= avail) {
+                        setEndSurah(currSurah);
+                        setEndAyah(currAyah + remaining - 1);
+                        found = true;
+                      } else {
+                        remaining -= avail;
+                        currSurah++;
+                      }
+                    }
+
+                    if (!found) {
+                      while (currSurah <= 114) {
+                        const s = surahData.find(sd => sd.number === currSurah);
+                        if (!s) break;
+                        if (remaining <= s.ayahs) {
+                          setEndSurah(currSurah);
+                          setEndAyah(remaining);
+                          found = true;
+                          break;
+                        }
+                        remaining -= s.ayahs;
+                        currSurah++;
+                      }
+                    }
+
+                    if (!found) {
+                      setEndSurah(114);
+                      setEndAyah(6);
+                    }
+                  }}
                   className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
-                    target === plan.ayahs && mode === 'target' 
+                    target === plan.ayahs && mode === 'range' 
                       ? `${plan.bg} border-${plan.id === 'muqantar' ? 'purple' : plan.id === 'qanet' ? 'emerald' : 'red'}-500/50`
                       : 'bg-muted/30 border-transparent hover:bg-muted/50'
                   }`}

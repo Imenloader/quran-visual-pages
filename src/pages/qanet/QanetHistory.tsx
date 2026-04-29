@@ -4,7 +4,7 @@ import { useQanet } from './QanetContext';
 import { calculateStats, getQanetLevel, getLevelLabel } from './utils';
 import { surahData } from '@/data/quranData';
 import { toHijri, getHijriMonthDays, getHijriMonthStartDay, toArabicDigits, WEEKDAYS_AR_SHORT } from './hijriUtils';
-import { startOfDay, subDays, parseISO, isValid } from 'date-fns';
+import { startOfDay, subDays, parseISO, isValid, format } from 'date-fns';
 import { StatCard } from './components/StatCard';
 import { 
   AreaChart, 

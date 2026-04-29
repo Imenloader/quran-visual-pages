@@ -16,21 +16,33 @@ export default function QanetSettings() {
   const currentHijriDate = formatHijriDate(new Date(), settings.hijriOffset);
 
   const handleShare = async () => {
-    const shareData = {
-      title: 'من القانتين',
-      text: 'تطبيق من القانتين - رفيقك في قيام الليل\n\nقال النبي ﷺ: "من قام بعشر آيات لم يُكتب من الغافلين، ومن قام بمائة آية كُتب من القانتين"',
-      url: window.location.origin,
-    };
+    const isAr = language === 'ar';
+    const shareUrl = window.location.origin;
+    const shareText = isAr 
+      ? `تطبيق "من القانتين" - رفيقك في قيام الليل. ساعدنا في نشر الخير!\n\nقال النبي ﷺ: "من قام بعشر آيات لم يُكتب من الغافلين، ومن قام بمائة آية كُتب من القانتين، ومن قام بألف آية كُتب من المقنطرين"\n\nحمل التطبيق من هنا: ${shareUrl}`
+      : `Qaniteen App - Your companion for Night Prayer. Help us spread the word!\n\nThe Prophet (PBUH) said: "Whoever stands (in prayer) reciting ten verses will not be recorded as one of the heedless..."\n\nDownload here: ${shareUrl}`;
 
     try {
-      if (navigator.share) {
-        await navigator.share(shareData);
+      if (Capacitor.isNativePlatform()) {
+        const { Share } = await import('@capacitor/share');
+        await Share.share({
+          title: isAr ? 'من القانتين' : 'Qaniteen',
+          text: shareText,
+          url: shareUrl,
+          dialogTitle: isAr ? 'مشاركة التطبيق' : 'Share App',
+        });
+      } else if (navigator.share) {
+        await navigator.share({
+          title: isAr ? 'من القانتين' : 'Qaniteen',
+          text: shareText,
+          url: shareUrl,
+        });
       } else {
-        await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
-        toast.success('تم نسخ الرابط');
+        await navigator.clipboard.writeText(shareText);
+        toast.success(isAr ? 'تم نسخ نص المشاركة' : 'Share text copied');
       }
     } catch (e) {
-      // User cancelled share
+      console.error('Share failed:', e);
     }
   };
 
@@ -75,7 +87,10 @@ export default function QanetSettings() {
   };
 
   const handleFeedback = () => {
-    window.open('mailto:3wdkyarb@gmail.com?subject=ملاحظات على تطبيق من القانتين', '_blank');
+    const isAr = language === 'ar';
+    const subject = encodeURIComponent(isAr ? 'ملاحظات على تطبيق من القانتين' : 'Feedback on Qaniteen App');
+    const body = encodeURIComponent(isAr ? '\n\n--- معلومات الجهاز ---\nالمنصة: ' + Capacitor.getPlatform() : '\n\n--- Device Info ---\nPlatform: ' + Capacitor.getPlatform());
+    window.location.href = `mailto:3wdkyarb@gmail.com?subject=${subject}&body=${body}`;
   };
 
   const handleResetData = () => {
@@ -265,9 +280,17 @@ const SettingItem = ({ title, icon, toggle, onToggle }: { title: string, icon: R
   <div className="p-5 flex justify-between items-center transition-colors hover:bg-muted/30">
     <button
       onClick={onToggle}
-      className={`w-14 h-7 rounded-full relative transition-colors duration-300 ${toggle ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+      className={`w-12 h-6 rounded-full relative transition-all duration-300 border border-border shadow-inner ${
+        toggle 
+          ? 'bg-emerald-500 border-emerald-600' 
+          : 'bg-muted/80 border-muted-foreground/20'
+      }`}
     >
-      <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-all duration-300 ${toggle ? 'left-1' : 'right-1'}`} />
+      <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 shadow-md transition-all duration-300 transform ${
+        toggle 
+          ? 'translate-x-[-1.5rem]' 
+          : 'translate-x-[-0.125rem]'
+      }`} style={{ right: '0.125rem' }} />
     </button>
     <div className="flex items-center gap-3">
       <span className="font-bold text-sm text-foreground">{title}</span>

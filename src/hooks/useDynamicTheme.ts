@@ -5,19 +5,19 @@ import { parseTime } from '@/lib/utils';
 
 export type DayPhase = 'fajr' | 'day' | 'asr' | 'maghrib' | 'isha';
 
-export const useDynamicTheme = () => {
-  const { times, settings } = usePrayerTimes();
+export const useDynamicTheme = (forceEnable: boolean = false) => {
+  const { times } = usePrayerTimes();
   const { atmosphericBackground } = useTheme();
   const [phase, setPhase] = useState<DayPhase>('day');
+  const active = atmosphericBackground || forceEnable;
 
   useEffect(() => {
-    if (!times || !atmosphericBackground) return;
+    if (!times || !active) return;
 
     const updatePhase = () => {
       const now = new Date();
       const fajr = parseTime(times.Fajr, now);
       const sunrise = parseTime(times.Sunrise, now);
-      const dhuhr = parseTime(times.Dhuhr, now);
       const asr = parseTime(times.Asr, now);
       const maghrib = parseTime(times.Maghrib, now);
       const isha = parseTime(times.Isha, now);
@@ -30,12 +30,12 @@ export const useDynamicTheme = () => {
     };
 
     updatePhase();
-    const interval = setInterval(updatePhase, 60000); // Update every minute
+    const interval = setInterval(updatePhase, 60000);
     return () => clearInterval(interval);
-  }, [times, atmosphericBackground]);
+  }, [times, active]);
 
   useEffect(() => {
-    if (!atmosphericBackground) {
+    if (!active) {
       document.documentElement.style.removeProperty('--dynamic-bg-top');
       document.documentElement.style.removeProperty('--dynamic-bg-bottom');
       document.documentElement.style.removeProperty('--dynamic-accent');
@@ -43,11 +43,11 @@ export const useDynamicTheme = () => {
     }
 
     const themeColors: Record<DayPhase, { top: string; bottom: string; accent: string }> = {
-      fajr: { top: '#ffecd2', bottom: '#fcb69f', accent: '#f6ad55' }, // Peach / Gold
-      day: { top: '#e0f2f1', bottom: '#ffffff', accent: '#10b981' }, // Bright / Emerald
-      asr: { top: '#fef3c7', bottom: '#fbbf24', accent: '#d97706' }, // Warm Gold / Amber
-      maghrib: { top: '#4c1d95', bottom: '#db2777', accent: '#f472b6' }, // Purple / Sunset
-      isha: { top: '#0f172a', bottom: '#1e293b', accent: '#38bdf8' }, // Deep Blue / Sky
+      fajr: { top: '#ffecd2', bottom: '#fcb69f', accent: '#f6ad55' },
+      day: { top: '#e0f2f1', bottom: '#ffffff', accent: '#10b981' },
+      asr: { top: '#fef3c7', bottom: '#fbbf24', accent: '#d97706' },
+      maghrib: { top: '#4c1d95', bottom: '#db2777', accent: '#f472b6' },
+      isha: { top: '#0f172a', bottom: '#1e293b', accent: '#38bdf8' },
     };
 
     const colors = themeColors[phase];
@@ -55,14 +55,13 @@ export const useDynamicTheme = () => {
     document.documentElement.style.setProperty('--dynamic-bg-bottom', colors.bottom);
     document.documentElement.style.setProperty('--dynamic-accent', colors.accent);
     
-    // Add a transition class for smooth color shifting
     document.documentElement.classList.add('theme-transitioning');
     const timer = setTimeout(() => {
       document.documentElement.classList.remove('theme-transitioning');
     }, 1000);
     
     return () => clearTimeout(timer);
-  }, [phase, atmosphericBackground]);
+  }, [phase, active]);
 
   return { phase };
 };

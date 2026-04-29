@@ -2,7 +2,7 @@ import React from "react";
 import QuranHeader from "@/components/QuranHeader";
 import BackButton from "@/components/BackButton";
 import { useTranslation } from "react-i18next";
-import { Shield, Lock, Eye, CheckCircle2 } from "lucide-react";
+import { Shield, Lock, Eye, CheckCircle2, MessageSquare } from "lucide-react";
 
 const PrivacyPolicy = () => {
   const { t, i18n } = useTranslation();
@@ -41,57 +41,70 @@ const PrivacyPolicy = () => {
       </QuranHeader>
 
       <main className="container max-w-2xl mx-auto px-4 py-8 space-y-8">
-        <section className="bg-card border border-border rounded-3xl p-6 md:p-8 shadow-soft">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <Shield className="text-primary" />
+        <section className="bg-card border border-border rounded-[2.5rem] p-8 md:p-10 shadow-soft relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16" />
+          <div className="flex items-center gap-5 mb-8 relative z-10">
+            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <Shield className="text-primary w-7 h-7" />
             </div>
             <div>
-              <h2 className="text-xl font-serif font-bold text-primary">
+              <h2 className="text-2xl font-serif font-bold text-primary">
                 {isAr ? "التزامنا بالخصوصية" : "Our Privacy Commitment"}
               </h2>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground font-bold">
                 {isAr ? "آخر تحديث: أبريل 2024" : "Last Updated: April 2024"}
               </p>
             </div>
           </div>
 
-          <p className="text-sm text-foreground/80 leading-relaxed font-naskh">
-            {isAr 
-              ? "نحن في تطبيق قرآنيات نقدر خصوصيتك. تم تصميم هذا التطبيق ليكون خادماً لك في رحلتك مع كتاب الله، ونحن نلتزم بحماية بياناتك بأعلى معايير الأمان."
-              : "At Quraaniat app, we value your privacy. This app is designed to serve you in your journey with the Book of Allah, and we are committed to protecting your data with the highest security standards."}
-          </p>
+          <div className="space-y-4 text-foreground/80 leading-relaxed font-naskh text-base relative z-10">
+            <p>
+              {isAr 
+                ? "نحن في تطبيق قرآنيات نؤمن بأن خصوصيتك هي أمانة. تم تطوير هذا التطبيق لخدمة كتاب الله وتسهيل قيام الليل، دون أي أهداف تجارية أو تطفلية."
+                : "At Quraaniat, we believe your privacy is a trust. This app was developed to serve the Book of Allah and facilitate Night Prayer, without any commercial or intrusive goals."}
+            </p>
+            <p>
+              {isAr
+                ? "بياناتك الشخصية وتقدمك في التلاوة تبقى ملكاً لك، ونحن نستخدم أحدث التقنيات لضمان حمايتها ومزامنتها بأمان."
+                : "Your personal data and reading progress remain yours. We use the latest technologies to ensure they are protected and synced securely."}
+            </p>
+          </div>
         </section>
 
         <div className="grid gap-6">
           {sections.map((section, i) => (
-            <div key={i} className="bg-muted/30 border border-border/50 rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-3">
-                {section.icon}
-                <h3 className="font-serif font-bold text-base">{section.title}</h3>
+            <div key={i} className="bg-card border border-border/50 rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
+                  {section.icon}
+                </div>
+                <h3 className="font-serif font-bold text-lg text-foreground">{section.title}</h3>
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed font-naskh">
+              <p className="text-base text-muted-foreground leading-relaxed font-naskh pr-2">
                 {section.content}
               </p>
             </div>
           ))}
         </div>
 
-        <section className="bg-gold/5 border border-gold/20 rounded-2xl p-6 text-center">
-          <h3 className="font-serif font-bold text-primary mb-2">
-            {isAr ? "تواصل معنا" : "Contact Us"}
+        <section className="bg-primary/5 border border-primary/20 rounded-[2.5rem] p-8 text-center space-y-4">
+          <h3 className="font-serif font-bold text-xl text-primary">
+            {isAr ? "هل لديك استفسار؟" : "Have a question?"}
           </h3>
-          <p className="text-sm text-primary/70 mb-4">
+          <p className="text-base text-primary/70">
             {isAr 
-              ? "إذا كان لديك أي أسئلة حول سياسة الخصوصية، يرجى التواصل معنا."
-              : "If you have any questions about our privacy policy, please contact us."}
+              ? "فريقنا مستعد دائماً للإجابة على تساؤلاتكم حول كيفية حماية بياناتكم."
+              : "Our team is always ready to answer your questions about how we protect your data."}
           </p>
-          <a 
-            href="mailto:contact@quraaniat.app" 
-            className="text-primary font-bold underline"
-          >
-            contact@quraaniat.app
-          </a>
+          <div className="pt-2">
+            <a 
+              href="mailto:contact@quraaniat.app" 
+              className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-2xl font-bold hover:bg-primary/90 transition-all shadow-md"
+            >
+              <MessageSquare size={18} />
+              <span>{isAr ? "تواصل معنا عبر البريد" : "Contact via Email"}</span>
+            </a>
+          </div>
         </section>
       </main>
     </div>

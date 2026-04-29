@@ -412,3 +412,23 @@
 .tafsir-content .arabic {
   @apply font-quran text-2xl py-2 block text-center leading-[2];
 }
+
+/* Dynamic Atmospheric Background */
+.dynamic-bg {
+  background: linear-gradient(135deg, var(--dynamic-bg-top), var(--dynamic-bg-bottom)) !important;
+  transition: background 1.5s ease-in-out;
+  position: relative;
+}
+
+.dynamic-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, var(--dynamic-accent), transparent 40%);
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.theme-transitioning * {
+  transition: background-color 1s ease-in-out, border-color 1s ease-in-out, color 1s ease-in-out !important;
+}
