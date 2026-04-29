@@ -61,6 +61,25 @@ const Hub = () => {
   const totalPages = 604;
 
   useEffect(() => {
+    // Restore scroll position
+    const savedPosition = sessionStorage.getItem("hubScrollPosition");
+    if (savedPosition) {
+      // Delay slightly to allow content to render
+      setTimeout(() => {
+        window.scrollTo({
+          top: parseInt(savedPosition),
+          behavior: "instant" as any
+        });
+      }, 100);
+    }
+
+    const handleScroll = () => {
+      // Save scroll position with a small debounce/throttle effect implicitly by just saving
+      sessionStorage.setItem("hubScrollPosition", window.scrollY.toString());
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
     const today = new Date();
     const dateString = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
     let hash = 0;
@@ -74,7 +93,11 @@ const Hub = () => {
     const unsub = onSnapshot(doc(db, "settings", "hub"), (snap) => {
       if (snap.exists()) setHubSettings(snap.data().sections);
     });
-    return () => unsub();
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      unsub();
+    };
   }, []);
 
   useEffect(() => {
