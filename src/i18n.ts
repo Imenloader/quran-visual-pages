@@ -74,6 +74,7 @@ const resources = {
         "favourites": "Favourites",
         "prayerTimes": "Prayer Times",
         "qiyam": "Min Al-Qaniteen",
+        "qiyam100": "100 Ayah",
         "khatma_external": "Khatma",
         "khatma_complete": {
           "badge": "Mubarak! Congratulations!",
@@ -586,6 +587,7 @@ const resources = {
         "favourites": "المفضلات",
         "prayerTimes": "مواقيت الصلاة",
         "qiyam": "من القانتين",
+        "qiyam100": "١٠٠ آية",
         "khatma_external": "ختمة",
         "khatma_complete": {
           "badge": "مبارك! هنيئاً لك!",
