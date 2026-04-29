@@ -32,6 +32,7 @@ const IMG_PROMISED = "https://images.unsplash.com/photo-1473580044384-7ba9967e16
 const IMG_MOTHER_1 = "https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=600&auto=format&fit=crop";
 const IMG_MOTHER_2 = "https://images.unsplash.com/photo-1440635593441-698379c66914?q=80&w=600&auto=format&fit=crop";
 const IMG_SPIRITUAL = "https://images.unsplash.com/photo-1590076214667-cda43216bb8b?q=80&w=600&auto=format&fit=crop";
+const IMG_GOLD = "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?q=80&w=600&auto=format&fit=crop";
 
 export const sahabaData: SahabaCompanion[] = [
   // --- The Four Rightly Guided Caliphs ---
