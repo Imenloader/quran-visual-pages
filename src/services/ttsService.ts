@@ -17,7 +17,7 @@ export function speakPrayerName(prayerNameEn: string): boolean {
   console.log("Attempting to speak prayer name:", prayerNameEn);
 
   try {
-    // Ensure it's not paused
+    // Ensure it's not paused - using optional chaining for safety
     if (window.speechSynthesis.paused) {
       window.speechSynthesis.resume();
     }
@@ -61,7 +61,11 @@ export function speakPrayerName(prayerNameEn: string): boolean {
 
     // Small delay to ensure cancel() has finished processing
     setTimeout(() => {
-      window.speechSynthesis.speak(utterance);
+      try {
+        window.speechSynthesis.speak(utterance);
+      } catch (e) {
+        console.error("TTS speak failed in timeout", e);
+      }
     }, 150);
 
     return !!arabicVoice;
@@ -75,7 +79,7 @@ export function speakPrayerName(prayerNameEn: string): boolean {
 // Pre-load voices safely
 if (typeof window !== "undefined" && window.speechSynthesis) {
   try {
-    // Safe calls for early initialization
+    // Safe calls for early initialization - use optional chaining
     window.speechSynthesis.getVoices?.();
     if (window.speechSynthesis.onvoiceschanged !== undefined) {
       window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices?.();

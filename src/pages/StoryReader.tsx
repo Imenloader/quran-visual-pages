@@ -41,8 +41,18 @@ const StoryReader: React.FC = () => {
   const handleToggleTTS = () => {
     if (!story) return;
 
+    // Check if speech synthesis is supported
+    if (typeof window === 'undefined' || !window.speechSynthesis) {
+      toast.error(isAr ? 'الميزة غير مدعومة على هذا الجهاز' : 'Feature not supported on this device');
+      return;
+    }
+
     if (isSpeaking) {
-      window.speechSynthesis.cancel();
+      try {
+        window.speechSynthesis.cancel();
+      } catch (error) {
+        console.warn("TTS cancel failed:", error);
+      }
       setIsSpeaking(false);
       return;
     }
@@ -54,7 +64,7 @@ const StoryReader: React.FC = () => {
       .trim();
 
     const utterance = new SpeechSynthesisUtterance(cleanContent);
-    const voices = window.speechSynthesis.getVoices();
+    const voices = window.speechSynthesis.getVoices?.() || [];
     const preferredLang = story.language === 'ar' ? 'ar' : 'en';
     const voice = voices.find(v => v.lang.startsWith(preferredLang));
     
@@ -69,9 +79,14 @@ const StoryReader: React.FC = () => {
       setIsSpeaking(false);
     };
 
-    window.speechSynthesis.speak(utterance);
-    setSpeech(utterance);
-    toast.success(isAr ? 'جاري القراءة بصوت عالٍ...' : 'Started reading aloud...');
+    try {
+      window.speechSynthesis.speak(utterance);
+      setSpeech(utterance);
+      toast.success(isAr ? 'جاري القراءة بصوت عالٍ...' : 'Started reading aloud...');
+    } catch (error) {
+      console.error('TTS speak failed:', error);
+      toast.error(isAr ? 'فشل تشغيل الصوت' : 'Failed to play audio');
+    }
   };
 
   const handleShare = async () => {

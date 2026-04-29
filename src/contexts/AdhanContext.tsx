@@ -43,8 +43,12 @@ export const AdhanProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     }
 
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch (error) {
+        console.warn("TTS cancel failed in stopAdhan:", error);
+      }
     }
     setIsAdhanPlaying(false);
   }, []);
