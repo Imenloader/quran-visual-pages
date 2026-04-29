@@ -6,6 +6,7 @@ import "./index.css";
 import "./i18n";
 import ErrorBoundary from "./components/ErrorBoundary.tsx";
 import { registerPeriodicSync } from "./lib/pwa-utils";
+import { reportWebVitals } from "./lib/vitals.ts";
 
 // Hide splash screen as soon as app is ready
 if (Capacitor.isNativePlatform()) {
@@ -72,4 +73,12 @@ if (document.readyState === "complete") {
   preCacheEmbeddedSites();
 } else {
   window.addEventListener("load", preCacheEmbeddedSites, { once: true });
+}
+
+// Log Web Vitals
+if (import.meta.env.MODE === 'production') {
+  // In production, you could send this to an analytics endpoint
+  reportWebVitals(console.log);
+} else {
+  reportWebVitals(console.log);
 }
