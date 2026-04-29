@@ -40,25 +40,36 @@ const KnowledgeSessions = () => {
                   <div
                     key={scholar.id}
                     onClick={() => openYouTubeLink(scholar.channelUrl)}
-                    className="group p-6 bg-card border border-border/40 rounded-[2rem] hover:border-accent/30 transition-all cursor-pointer shadow-sm hover:shadow-md"
+                    className="group relative p-6 bg-card border border-border/40 rounded-[2.5rem] hover:border-accent/30 transition-all cursor-pointer shadow-sm hover:shadow-xl hover:-translate-y-1 overflow-hidden"
                   >
-                    <div className="flex flex-col gap-4">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-accent/10 transition-colors" />
+                    
+                    <div className="flex flex-col gap-5 relative z-10">
                       <div className="flex items-center justify-between">
-                        <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center text-xl font-bold text-accent group-hover:bg-accent group-hover:text-white transition-all">
-                          {scholar.name[0]}
+                        <div className="w-16 h-16 rounded-2xl bg-muted overflow-hidden border-2 border-border/20 group-hover:border-accent/30 transition-all shadow-inner">
+                          {scholar.thumbnail ? (
+                            <img src={scholar.thumbnail} alt={scholar.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-accent bg-accent/5">
+                              {scholar.name[0]}
+                            </div>
+                          )}
                         </div>
-                        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center group-hover:bg-accent/10 transition-colors">
+                        <div className="w-10 h-10 rounded-xl bg-accent/5 text-accent flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-all shadow-sm">
                           <Play className="w-4 h-4 fill-current" />
                         </div>
                       </div>
+                      
                       <div>
-                        <h4 className="font-bold text-lg font-naskh mb-1">{scholar.name}</h4>
+                        <h4 className="font-bold text-xl font-naskh mb-2 text-foreground group-hover:text-accent transition-colors">{scholar.name}</h4>
                         <p className="text-xs text-muted-foreground font-naskh leading-relaxed line-clamp-2">
                           {scholar.description}
                         </p>
                       </div>
-                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-accent uppercase tracking-wider group-hover:gap-3 transition-all">
-                        زيارة القناة <ChevronRight className="w-3 h-3" />
+                      
+                      <div className="flex items-center gap-2 text-[10px] font-bold text-accent uppercase tracking-[0.2em] group-hover:gap-4 transition-all">
+                        <span>زيارة القناة</span>
+                        <ChevronRight className="w-3 h-3" />
                       </div>
                     </div>
                   </div>

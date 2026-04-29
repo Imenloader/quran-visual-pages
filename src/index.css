@@ -126,6 +126,9 @@
   * {
     @apply border-border;
   }
+  html, body {
+    @apply overflow-x-hidden;
+  }
   body {
     @apply bg-background text-foreground font-sans selection:bg-primary/20 antialiased;
     -webkit-tap-highlight-color: transparent;

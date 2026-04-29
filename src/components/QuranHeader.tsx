@@ -52,9 +52,9 @@ const QuranHeader = ({
         </div>
 
         {/* Main Title */}
-        <div className="relative mb-6 md:mb-14">
+        <div className="relative mb-6 md:mb-14 w-full max-w-full overflow-hidden">
           <div className="relative transform-gpu">
-            <h1 className="font-serif text-4xl sm:text-6xl md:text-8xl lg:text-[9rem] font-light text-white leading-none tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+            <h1 className="font-serif text-3xl sm:text-5xl md:text-7xl lg:text-[8rem] font-light text-white leading-tight tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] break-words px-4">
               {title}
             </h1>
             

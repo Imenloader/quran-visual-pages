@@ -25,6 +25,7 @@ const ActivityPlanner: React.FC<ActivityPlannerProps> = ({ storageKey, type, tit
   const { t } = useTranslation();
   const [activities, setActivities] = useState<PlannedActivity[]>([]);
   const [newActivityTitle, setNewActivityTitle] = useState('');
+  const [newActivityTime, setNewActivityTime] = useState('');
   const [selectedDay, setSelectedDay] = useState(new Date().toISOString().split('T')[0]);
 
   const handleNotificationRequest = async () => {
@@ -52,19 +53,37 @@ const ActivityPlanner: React.FC<ActivityPlannerProps> = ({ storageKey, type, tit
     localStorage.setItem(storageKey, JSON.stringify(activities));
   }, [activities, storageKey]);
 
-  const addActivity = () => {
+  const addActivity = async () => {
     if (!newActivityTitle.trim()) return;
 
+    const id = Math.random().toString(36).substr(2, 9);
     const newAct: PlannedActivity = {
-      id: Math.random().toString(36).substr(2, 9),
+      id,
       title: newActivityTitle,
       type,
       day: selectedDay,
+      time: newActivityTime || undefined,
       completed: false,
     };
 
+    if (newActivityTime) {
+      const scheduledDate = new Date(`${selectedDay}T${newActivityTime}`);
+      if (scheduledDate > new Date()) {
+        const success = await notificationService.scheduleReminder(
+          type === 'workout' ? 'وقت التمرين!' : 'وقت الجلسة العلمية!',
+          newActivityTitle,
+          scheduledDate,
+          id
+        );
+        if (success) {
+          toast.success('تم جدولة التنبيه بنجاح');
+        }
+      }
+    }
+
     setActivities([...activities, newAct]);
     setNewActivityTitle('');
+    setNewActivityTime('');
     toast.success(t('common.saved') || 'تم الحفظ');
   };
 
@@ -100,20 +119,29 @@ const ActivityPlanner: React.FC<ActivityPlannerProps> = ({ storageKey, type, tit
         </div>
       </div>
 
-      <div className="flex gap-2">
-        <input 
-          type="date"
-          value={selectedDay}
-          onChange={(e) => setSelectedDay(e.target.value)}
-          className="bg-muted/50 border border-border/40 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
-        />
-        <div className="flex-1 flex gap-2">
+      <div className="space-y-3">
+        <div className="flex gap-2">
+          <input 
+            type="date"
+            value={selectedDay}
+            onChange={(e) => setSelectedDay(e.target.value)}
+            className="bg-muted/50 border border-border/40 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-accent"
+          />
+          <input 
+            type="time"
+            value={newActivityTime}
+            onChange={(e) => setNewActivityTime(e.target.value)}
+            className="bg-muted/50 border border-border/40 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-accent w-24"
+          />
+        </div>
+        
+        <div className="flex gap-2">
           <input 
             type="text"
             placeholder={type === 'workout' ? 'اسم التمرين...' : 'عنوان الجلسة...'}
             value={newActivityTitle}
             onChange={(e) => setNewActivityTitle(e.target.value)}
-            className="flex-1 bg-muted/50 border border-border/40 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+            className="flex-1 bg-muted/50 border border-border/40 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent font-naskh"
           />
           <Button onClick={addActivity} size="icon" className="rounded-xl shrink-0">
             <Plus className="w-5 h-5" />

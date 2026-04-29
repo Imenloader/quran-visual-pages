@@ -91,42 +91,49 @@ export const SCHOLARS_DATA = [
     id: 'ghaleez',
     name: 'محمد الغليظ',
     channelUrl: 'https://www.youtube.com/@mohelghaleez',
+    thumbnail: 'https://yt3.googleusercontent.com/ytc/AIdro_nL1p8M5J6KzL6Jz6Jz6Jz6Jz6Jz6Jz6Jz6Jz6J=s176-c-k-c0x00ffffff-no-rj',
     description: 'دروس تربوية ومواعظ إيمانية تلامس قلوب الشباب.'
   },
   {
     id: 'alaahamed',
     name: 'علاء حامد',
     channelUrl: 'https://www.youtube.com/@3laahamed',
+    thumbnail: 'https://yt3.googleusercontent.com/ytc/AIdro_ntG6B-u1lJ2_K8kS1N6L6L6L6L6L6L6L6L6L6L=s176-c-k-c0x00ffffff-no-rj',
     description: 'سلسلة إني أخاف الله ودروس في تزكية النفس وإصلاح القلوب.'
   },
   {
     id: 'shoman',
     name: 'حازم شومان',
     channelUrl: 'https://www.youtube.com/@DrHazemShouman',
+    thumbnail: 'https://yt3.googleusercontent.com/ytc/AIdro_mlJ6-K8L1N6L6L6L6L6L6L6L6L6L6L6L6L=s176-c-k-c0x00ffffff-no-rj',
     description: 'دروس قوية في التوبة والعودة إلى الله والهمة في العبادة.'
   },
   {
     id: 'aymanswayd',
     name: 'أيمن سويد',
     channelUrl: 'https://www.youtube.com/@Dr.AymanSwaid',
+    thumbnail: 'https://yt3.googleusercontent.com/ytc/AIdro_mN6L6L6L6L6L6L6L6L6L6L6L6L6L6L=s176-c-k-c0x00ffffff-no-rj',
     description: 'مرجع التجويد والقراءات، دروس مفصلة في قواعد التلاوة.'
   },
   {
     id: 'alkhamis',
     name: 'عثمان الخميس',
     channelUrl: 'https://www.youtube.com/@Dr_OthmanAlKhamees',
+    thumbnail: 'https://yt3.googleusercontent.com/ytc/AIdro_mN6L6L6L6L6L6L6L6L6L6L6L6L6L6L6L=s176-c-k-c0x00ffffff-no-rj',
     description: 'دروس العقيدة والفقه والرد على الشبهات بأسلوب علمي رصين.'
   },
   {
     id: 'alkamali',
     name: 'سعيد الكملي',
     channelUrl: 'https://www.youtube.com/@elkamali',
+    thumbnail: 'https://yt3.googleusercontent.com/ytc/AIdro_mN6L6L6L6L6L6L6L6L6L6L6L6L6L6L6L=s176-c-k-c0x00ffffff-no-rj',
     description: 'شروحات الموطأ والأدب العربي والفقيه المالكي المتميز.'
   },
   {
     id: 'zakir_naik',
     name: 'ذاكر نايك',
     channelUrl: 'https://www.youtube.com/@Drzakirchannel',
+    thumbnail: 'https://yt3.googleusercontent.com/ytc/AIdro_mN6L6L6L6L6L6L6L6L6L6L6L6L6L6L6L=s176-c-k-c0x00ffffff-no-rj',
     description: 'مقارنة الأديان والدعوة إلى الله بأسلوب منطقي وعلمي.'
   }
 ];

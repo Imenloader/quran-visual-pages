@@ -77,22 +77,24 @@ const StrongBeliever = () => {
               {/* Individual Exercises for Home */}
               {selectedCategory === 'home' && EXERCISES.map((exercise, idx) => (
                 <ScrollReveal key={exercise.id} delay={idx * 100}>
-                  <div className="bg-card border border-border/40 rounded-[2rem] p-6 hover:border-accent/30 transition-all shadow-sm flex flex-col gap-4 group">
-                    <div className="flex items-start justify-between">
-                      <div className="flex gap-4">
-                        <div className="w-16 h-16 rounded-2xl bg-accent/5 overflow-hidden flex items-center justify-center p-2 border border-accent/10">
+                  <div className="bg-card border border-border/40 rounded-[2.5rem] p-6 hover:border-accent/30 transition-all shadow-sm flex flex-col gap-5 group relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-accent/5 rounded-full blur-2xl -mr-12 -mt-12 group-hover:bg-accent/10 transition-colors" />
+                    
+                    <div className="flex items-center justify-between relative z-10">
+                      <div className="flex items-center gap-4 min-w-0">
+                        <div className="w-16 h-16 rounded-2xl bg-accent/5 overflow-hidden flex items-center justify-center p-2 border border-accent/10 shrink-0 shadow-inner">
                           <img 
                             src={exercise.image} 
                             alt={exercise.name} 
                             className="w-full h-full object-contain group-hover:scale-110 transition-transform"
                           />
                         </div>
-                        <div>
-                          <span className="text-[10px] font-bold text-accent bg-accent/5 px-2 py-1 rounded-lg uppercase tracking-wider mb-2 inline-block">
+                        <div className="min-w-0 flex-1">
+                          <span className="text-[9px] font-bold text-accent bg-accent/10 px-2 py-0.5 rounded-full uppercase tracking-widest mb-2 inline-block">
                             {exercise.difficulty}
                           </span>
-                          <h3 className="font-bold font-naskh text-base">{exercise.name}</h3>
-                          <p className="text-xs text-muted-foreground font-naskh">{exercise.target}</p>
+                          <h3 className="font-bold font-naskh text-lg truncate text-foreground">{exercise.name}</h3>
+                          <p className="text-xs text-muted-foreground font-naskh truncate">{exercise.target}</p>
                         </div>
                       </div>
                       <button 
@@ -100,9 +102,9 @@ const StrongBeliever = () => {
                           toast.info('قل "بسم الله" وابدأ!');
                           setActiveItem(exercise);
                         }}
-                        className="w-10 h-10 rounded-xl bg-accent text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform mt-2"
+                        className="w-12 h-12 rounded-2xl bg-accent text-white flex items-center justify-center shadow-lg shadow-accent/20 hover:scale-110 transition-transform shrink-0"
                       >
-                        <Play className="w-4 h-4 fill-current" />
+                        <Play className="w-5 h-5 fill-current" />
                       </button>
                     </div>
                   </div>
@@ -138,24 +140,35 @@ const StrongBeliever = () => {
 
             {/* Set Dhikr Integration */}
             <ScrollReveal>
-              <div className="bg-primary/5 border border-primary/20 rounded-[2.5rem] p-8 space-y-6">
-                <div className="flex items-center gap-3">
-                  <Sparkles className="w-6 h-6 text-primary" />
-                  <h3 className="font-bold text-xl font-naskh">أذكار بين المجموعات (بين الجلسات)</h3>
-                </div>
-                <p className="text-sm text-muted-foreground font-naskh italic">استغل وقت الراحة في ذكر الله لتنال أجر القوة وأجر الذكر.</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {SET_DHIKR.map((dhikr, idx) => (
-                    <div key={idx} className="bg-card p-4 rounded-2xl border border-border/40 flex items-center justify-between group hover:border-primary/30 transition-all">
-                      <div>
-                        <p className="font-bold text-sm font-naskh text-primary">{dhikr.text}</p>
-                        <p className="text-[10px] text-muted-foreground font-naskh mt-1">{dhikr.benefit}</p>
-                      </div>
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-                        {dhikr.count}x
-                      </div>
+              <div className="bg-emerald-900 rounded-[3rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl shadow-emerald-950/20">
+                <div className="absolute inset-0 pattern-islamic opacity-[0.05] scale-150" />
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-gold/10 rounded-full blur-[80px]" />
+                
+                <div className="relative z-10 space-y-8">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <Sparkles className="w-6 h-6 text-gold" />
+                      <h3 className="font-bold text-2xl font-naskh">أذكار بين المجموعات</h3>
                     </div>
-                  ))}
+                    <p className="text-emerald-100/70 text-sm font-naskh leading-relaxed max-w-lg">
+                      استغل وقت الراحة في ذكر الله لتنال أجر القوة وأجر الذكر معاً.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {SET_DHIKR.map((dhikr, idx) => (
+                      <div key={idx} className="bg-white/10 backdrop-blur-md border border-white/10 p-5 rounded-[2rem] flex items-center justify-between group hover:bg-white/20 transition-all">
+                        <div className="min-w-0">
+                          <p className="font-bold text-base font-naskh text-white mb-1 truncate">{dhikr.text}</p>
+                          <p className="text-[10px] text-emerald-100/60 font-naskh truncate">{dhikr.benefit}</p>
+                        </div>
+                        <div className="w-12 h-12 rounded-2xl bg-gold/20 text-gold flex flex-col items-center justify-center shrink-0 border border-gold/20 shadow-lg">
+                          <span className="text-xs font-bold leading-none">{dhikr.count}</span>
+                          <span className="text-[8px] uppercase tracking-tighter mt-1 opacity-60">مرة</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </ScrollReveal>

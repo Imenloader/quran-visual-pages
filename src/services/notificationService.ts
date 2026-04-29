@@ -3,40 +3,56 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 export const notificationService = {
   async requestPermission() {
     try {
-      // Try Capacitor first
       const perm = await LocalNotifications.requestPermissions();
-      if (perm.display === 'granted') return true;
+      return perm.display === 'granted';
     } catch (e) {
       console.warn('Capacitor notifications not available, falling back to Web API');
+      if ('Notification' in window) {
+        const permission = await Notification.requestPermission();
+        return permission === 'granted';
+      }
     }
-
-    // Fallback to Web Notification API
-    if ('Notification' in window) {
-      const permission = await Notification.requestPermission();
-      return permission === 'granted';
-    }
-    
     return false;
   },
 
-  async scheduleReminder(title: string, body: string, date: Date, id: number) {
-    await LocalNotifications.schedule({
-      notifications: [
-        {
-          title,
-          body,
-          id,
-          schedule: { at: date },
-          sound: 'default',
-          attachments: [],
-          actionTypeId: '',
-          extra: null,
-        },
-      ],
-    });
+  async scheduleReminder(title: string, body: string, date: Date, id: string) {
+    try {
+      const numericId = Math.abs(this.hashCode(id));
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            title,
+            body,
+            id: numericId,
+            schedule: { at: date },
+            sound: 'default',
+            actionTypeId: 'OPEN_APP',
+          },
+        ],
+      });
+      return true;
+    } catch (e) {
+      console.error('Failed to schedule notification:', e);
+      return false;
+    }
   },
 
-  async cancelAll() {
-    await LocalNotifications.cancel({ notifications: [] });
+  async cancelReminder(id: string) {
+    try {
+      const numericId = Math.abs(this.hashCode(id));
+      await LocalNotifications.cancel({ notifications: [{ id: numericId }] });
+    } catch (e) {
+      console.error('Failed to cancel notification:', e);
+    }
+  },
+
+  hashCode(str: string) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
   }
 };
