@@ -342,23 +342,20 @@ export default function PrayerTimes() {
         )}
       </QuranHeader>
 
-      <main className="container max-w-2xl mx-auto px-4 py-6 space-y-5">
+      <main className="container max-w-lg mx-auto px-4 py-4 space-y-4">
         {isAdhanPlaying && (
           <div
-            className="bg-destructive/90 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between border border-white/20 transition-all duration-300 opacity-100 translate-y-0"
+            className="bg-destructive/90 text-white p-3 rounded-xl shadow-xl flex items-center justify-between border border-white/20"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                <Volume2 size={20} />
-              </div>
+              <Volume2 size={18} />
               <div className="text-right">
-                <p className="font-naskh font-bold text-sm">الأذان يعمل الآن</p>
-                <p className="text-[10px] opacity-80">يمكنك إيقافه من هنا أو بالضغط على الإشعار</p>
+                <p className="font-naskh font-bold text-xs">الأذان يعمل الآن</p>
               </div>
             </div>
             <button
               onClick={stopAdhan}
-              className="bg-white text-destructive px-6 py-2 rounded-xl font-naskh text-sm font-bold hover:bg-white/90 transition-all shadow-lg active:scale-95"
+              className="bg-white text-destructive px-4 py-1.5 rounded-lg font-naskh text-xs font-bold"
             >
               إيقاف
             </button>
@@ -366,29 +363,26 @@ export default function PrayerTimes() {
         )}
 
         {!settings.latitude ? (
-          <section className="bg-card border border-border rounded-2xl p-6 text-center shadow-soft transition-all">
-            <div className="w-16 h-16 rounded-full gradient-islamic flex items-center justify-center mx-auto mb-4">
-              <MapPin size={28} className="text-primary-foreground" />
+          <section className="bg-card border border-border rounded-xl p-5 text-center shadow-sm">
+            <div className="w-12 h-12 rounded-full gradient-islamic flex items-center justify-center mx-auto mb-3">
+              <MapPin size={22} className="text-primary-foreground" />
             </div>
-            <h2 className="font-naskh text-lg font-bold text-foreground mb-2">حدد موقعك</h2>
-            <p className="text-sm text-primary/70 font-naskh mb-4">
+            <h2 className="font-naskh text-base font-bold text-foreground mb-1">حدد موقعك</h2>
+            <p className="text-xs text-primary/70 font-naskh mb-3">
               لعرض مواقيت الصلاة الصحيحة حسب منطقتك
             </p>
             <button
               onClick={detectLocation}
               disabled={locationLoading}
-              className="w-full py-3 rounded-xl gradient-islamic text-primary-foreground font-naskh text-sm font-bold hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50 active:scale-98"
+              className="w-full py-2.5 rounded-lg gradient-islamic text-primary-foreground font-naskh text-xs font-bold flex items-center justify-center gap-2"
             >
               {locationLoading ? (
-                <Loader2 size={18} className="animate-spin" />
+                <Loader2 size={16} className="animate-spin" />
               ) : (
-                <MapPin size={18} />
+                <MapPin size={16} />
               )}
-              {locationLoading ? "جاري تحديد الموقع..." : "تحديد الموقع تلقائياً"}
+              {locationLoading ? "جاري التحديد..." : "تحديد الموقع تلقائياً"}
             </button>
-            {error && (
-              <p className="text-xs text-destructive font-naskh mt-3">{error}</p>
-            )}
           </section>
         ) : (
           <>
@@ -402,47 +396,45 @@ export default function PrayerTimes() {
               />
             )}
 
-            <section className="bg-card border border-border rounded-2xl overflow-hidden shadow-soft transition-all">
-              <div className="flex items-center justify-between px-5 py-3 border-b border-border">
+            <section className="bg-card border border-border rounded-2xl overflow-hidden shadow-islamic">
+              <div className="flex items-center justify-between px-5 py-2.5 border-b border-border/50 bg-muted/20">
                 <button
                   onClick={() => {
                     if (settings.latitude && settings.longitude) {
                       updateSettings({ method: settings.method }); 
                     }
                   }}
-                  aria-label={isAr ? "تحديث المواقيت" : "Refresh prayer times"}
-                  className="text-muted-foreground hover:text-foreground transition-colors active:scale-90"
-                  title="تحديث"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+                  <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
                 </button>
-                <h2 className="font-naskh text-base font-bold text-foreground">مواقيت اليوم</h2>
+                <h2 className="font-naskh text-sm font-bold text-foreground">مواقيت اليوم</h2>
               </div>
 
               {loading ? (
-                <div className="flex items-center justify-center py-10">
-                  <Loader2 size={24} className="animate-spin text-accent" />
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 size={20} className="animate-spin text-accent" />
                 </div>
               ) : error ? (
-                <div className="text-center py-6">
-                  <p className="text-sm text-destructive font-naskh">{error}</p>
+                <div className="text-center py-5">
+                  <p className="text-xs text-destructive font-naskh">{error}</p>
                 </div>
               ) : times ? (
-                <div className="divide-y divide-border">
+                <div className="divide-y divide-border/40">
                   {prayerOrder.map((prayer) => {
                     const isNext = nextPrayer?.name === prayer;
                     const isOverridden = !!settings.manualOverrides[prayer];
                     const isEditing = editingPrayer === prayer;
 
                     return (
-                        <div
-                          key={prayer}
-                          className={`group relative grid grid-cols-[100px_1fr_100px] md:grid-cols-[150px_1fr_150px] items-center gap-2 md:gap-4 px-4 md:px-8 py-6 md:py-8 border-b border-border/40 last:border-0 transition-all duration-300 ${
-                            isNext 
-                              ? "bg-primary/[0.04] shadow-[inset_0_0_20px_rgba(var(--primary-rgb),0.05)]" 
-                              : "hover:bg-muted/30"
-                          }`}
-                        >
+                      <div
+                        key={prayer}
+                        className={`group relative grid grid-cols-[80px_1fr_80px] md:grid-cols-[100px_1fr_100px] items-center gap-2 px-4 py-4 md:py-5 border-b border-border/20 last:border-0 transition-all ${
+                          isNext 
+                            ? "bg-primary/[0.04]" 
+                            : "hover:bg-muted/30"
+                        }`}
+                      >
                           {/* Icon & Actions - Right side (Col 1) */}
                           <div className="flex items-center gap-3 justify-start overflow-visible">
                             <div className={`relative z-10 w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl flex items-center justify-center text-xl md:text-3xl shadow-lg transition-all duration-500 ${
