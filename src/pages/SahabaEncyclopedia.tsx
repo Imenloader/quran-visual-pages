@@ -53,7 +53,7 @@ const SahabaEncyclopedia: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="fixed top-0 left-0 right-0 z-50">
+      <div className="sticky top-0 z-50">
         <QuranHeader 
           title={isAr ? 'موسوعة الصحابة' : 'Sahaba Encyclopedia'} 
           variant="compact"
@@ -61,7 +61,7 @@ const SahabaEncyclopedia: React.FC = () => {
         />
       </div>
 
-      <main className="pt-20 px-4 md:px-8 max-w-7xl mx-auto">
+      <main className="pt-8 px-4 md:px-8 max-w-7xl mx-auto">
         {/* Search and Stats Toggle */}
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="relative flex-1">
