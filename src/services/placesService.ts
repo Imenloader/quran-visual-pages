@@ -64,21 +64,39 @@ export async function searchPlaces(query: string, lat?: number, lng?: number): P
       }
 
       if (data?.elements?.length > 0) {
-        return data.elements.map((el: any) => {
+        const uniquePlaces = new Map<string, Place>();
+        
+        data.elements.forEach((el: any) => {
           const tags = el.tags || {};
-          const name = tags.name || tags.name_ar || tags.name_en || (isMosqueSearch ? "مسجد" : "مكان حلال");
-          const address = tags["addr:street"] 
-            ? `${tags["addr:street"]} ${tags["addr:housenumber"] || ""}` 
-            : "العنوان متاح على الخريطة";
+          const lat = el.lat || el.center?.lat;
+          const lon = el.lon || el.center?.lon;
+          const name = tags.name || tags["name:ar"] || tags["name:en"] || (isMosqueSearch ? "مسجد" : "مكان حلال");
           
-          return {
+          // Use coordinate hash + name to detect duplicates
+          const key = `${Math.round(lat*1000)},${Math.round(lon*1000)},${name}`;
+          if (uniquePlaces.has(key)) return;
+
+          const addressParts = [];
+          if (tags["addr:street"]) addressParts.push(tags["addr:street"]);
+          if (tags["addr:housenumber"]) addressParts.push(tags["addr:housenumber"]);
+          if (tags["addr:suburb"]) addressParts.push(tags["addr:suburb"]);
+          if (tags["addr:neighbourhood"]) addressParts.push(tags["addr:neighbourhood"]);
+          if (tags["addr:city"]) addressParts.push(tags["addr:city"]);
+          
+          const address = addressParts.length > 0 
+            ? addressParts.join(", ") 
+            : (tags.place || tags.operator || "العنوان متاح على الخريطة");
+          
+          uniquePlaces.set(key, {
             name,
             address,
-            url: `https://www.google.com/maps/search/?api=1&query=${el.lat || el.center?.lat},${el.lon || el.center?.lon}`,
+            url: `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`,
             type: isMosqueSearch ? "مسجد" : "مكان حلال",
             rating: tags.rating ? parseFloat(tags.rating) : undefined
-          };
-        }).slice(0, 20);
+          });
+        });
+
+        return Array.from(uniquePlaces.values()).slice(0, 20);
       }
     } catch (err) {
       console.error("Overpass API error, falling back to Nominatim:", err);
