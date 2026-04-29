@@ -126,9 +126,6 @@
   * {
     @apply border-border;
   }
-  html, body {
-    @apply overflow-x-hidden;
-  }
   body {
     @apply bg-background text-foreground font-sans selection:bg-primary/20 antialiased;
     -webkit-tap-highlight-color: transparent;
@@ -183,13 +180,7 @@
     font-family: 'Cormorant Garamond', serif;
   }
 
-  /* Mobile smoothness improvements */
   @media (max-width: 768px) {
-    html, body {
-      overscroll-behavior-y: none;
-      -webkit-overflow-scrolling: touch;
-    }
-    
     .safe-area-bottom {
       padding-bottom: env(safe-area-inset-bottom);
     }
