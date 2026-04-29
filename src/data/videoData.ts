@@ -90,7 +90,7 @@ export const SCHOLARS_DATA = [
   {
     id: 'ghaleez',
     name: 'محمد الغليظ',
-    channelUrl: 'https://www.youtube.com/@MohammadElghaleez',
+    channelUrl: 'https://www.youtube.com/@mohelghaleez',
     description: 'دروس تربوية ومواعظ إيمانية تلامس قلوب الشباب.'
   },
   {
@@ -122,12 +122,6 @@ export const SCHOLARS_DATA = [
     name: 'سعيد الكملي',
     channelUrl: 'https://www.youtube.com/@elkamali',
     description: 'شروحات الموطأ والأدب العربي والفقيه المالكي المتميز.'
-  },
-  {
-    id: 'mustafa_hosny',
-    name: 'مصطفى حسني',
-    channelUrl: 'https://www.youtube.com/@MustafaHosnyOfficial',
-    description: 'برامج تربوية معاصرة تركز على الأخلاق والتعاملات الإنسانية.'
   },
   {
     id: 'zakir_naik',
