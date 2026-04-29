@@ -73,7 +73,7 @@ const resources = {
         "favorites": "Favourites",
         "favourites": "Favourites",
         "prayerTimes": "Prayer Times",
-        "qiyam": "Qiyam Al-Layl",
+        "qiyam": "Min Al-Qaniteen",
         "khatma_external": "Khatma",
         "khatma_complete": {
           "badge": "Mubarak! Congratulations!",
@@ -453,7 +453,7 @@ const resources = {
         "quickAccess": {
           "prayer": "Prayer Times",
           "recitations": "Recitations",
-          "qiyam": "Qiyam Al-Layl",
+          "qiyam": "Min Al-Qaniteen",
           "khatma": "Quran Khatma",
           "guide": "User Guide",
           "tajweed": "Tajweed Rules",
@@ -585,7 +585,7 @@ const resources = {
         "favorites": "المفضلات",
         "favourites": "المفضلات",
         "prayerTimes": "مواقيت الصلاة",
-        "qiyam": "قيام الليل",
+        "qiyam": "من القانتين",
         "khatma_external": "ختمة",
         "khatma_complete": {
           "badge": "مبارك! هنيئاً لك!",
@@ -965,7 +965,7 @@ const resources = {
         "quickAccess": {
           "prayer": "مواقيت الصلاة",
           "recitations": "تلاوات عطرة",
-          "qiyam": "قيام الليل",
+          "qiyam": "من القانتين",
           "khatma": "ختمة القرآن",
           "guide": "دليل الاستخدام",
           "tajweed": "أحكام التجويد",

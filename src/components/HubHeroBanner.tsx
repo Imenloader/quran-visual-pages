@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
 import { Smartphone, Download, Store, Sparkles, ArrowLeft, ArrowRight, BrainCircuit } from 'lucide-react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/firebase';
@@ -26,7 +25,6 @@ const HubHeroBanner: React.FC = () => {
       }
     });
     
-    // Check if dismissed session-wise
     const dismissed = sessionStorage.getItem('hub-hero-dismissed');
     if (dismissed === 'true') {
       setIsVisible(false);
@@ -38,11 +36,7 @@ const HubHeroBanner: React.FC = () => {
   if (!isVisible) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="relative w-full max-w-7xl mx-auto px-4 mb-12"
-    >
+    <div className="relative w-full max-w-7xl mx-auto px-4 mb-12">
       <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-950 border border-white/10 shadow-2xl">
         {/* Background Patterns */}
         <div className="absolute inset-0 pattern-islamic opacity-[0.03] scale-150" />
@@ -51,33 +45,17 @@ const HubHeroBanner: React.FC = () => {
 
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 items-center gap-8 p-8 md:p-12">
           
-          {/* Mockup - Floating Effect */}
-          <motion.div
-            initial={{ x: isAr ? 50 : -50, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className={`flex justify-center ${isAr ? 'lg:order-1' : 'lg:order-2'}`}
-          >
-            <motion.div
-              animate={{ 
-                y: [0, -15, 0],
-                rotate: [0, 2, 0]
-              }}
-              transition={{ 
-                duration: 5, 
-                repeat: Infinity, 
-                ease: "easeInOut" 
-              }}
-              className="relative w-64 md:w-72 lg:w-80"
-            >
+          {/* Mockup */}
+          <div className={`flex justify-center ${isAr ? 'lg:order-1' : 'lg:order-2'}`}>
+            <div className="relative w-64 md:w-72 lg:w-80">
               <div className="absolute inset-0 bg-gold/20 blur-[60px] rounded-full scale-75" />
               <img 
                 src="/assets/images/quran_app_mockup.png" 
                 alt="Quraaniat Mobile App" 
                 className="relative z-10 w-full drop-shadow-[0_35px_35px_rgba(0,0,0,0.5)]"
               />
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
 
           {/* Content Area */}
           <div className={`text-center ${isAr ? 'lg:text-right lg:order-2' : 'lg:text-left lg:order-1'} space-y-6`}>
@@ -109,9 +87,7 @@ const HubHeroBanner: React.FC = () => {
             <div className={`flex flex-wrap items-center justify-center ${isAr ? 'lg:justify-start' : 'lg:justify-end'} gap-4 pt-4`}>
               {/* Smart Review Button */}
               {smartLoaded && atRiskPages.length > 0 && (
-                <motion.button
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
+                <button
                   onClick={() => navigate('/tools/hifz-tester?review=true')}
                   className="flex items-center gap-2.5 px-6 py-3 bg-white text-emerald-950 rounded-2xl font-bold text-sm font-serif shadow-xl hover:bg-white/90 transition-all border-b-4 border-emerald-100"
                 >
@@ -120,14 +96,12 @@ const HubHeroBanner: React.FC = () => {
                   <div className="flex items-center justify-center bg-accent text-white text-[10px] w-5 h-5 rounded-full ml-1">
                     {atRiskPages.length > 9 ? "+9" : atRiskPages.length}
                   </div>
-                </motion.button>
+                </button>
               )}
 
               {/* The "Nano" Buttons */}
               {links.direct ? (
-                <motion.a
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
+                <a
                   href={links.direct}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -135,7 +109,7 @@ const HubHeroBanner: React.FC = () => {
                 >
                   <Download size={18} />
                   {isAr ? "تحميل التطبيق" : "Download App"}
-                </motion.a>
+                </a>
               ) : null}
             </div>
 
@@ -157,8 +131,9 @@ const HubHeroBanner: React.FC = () => {
 
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
 export default HubHeroBanner;
+

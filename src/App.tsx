@@ -27,6 +27,7 @@ import { useKhatmaNotifications } from "./hooks/useKhatmaNotifications";
 import { usePeriodicReminders } from "./hooks/usePeriodicReminders";
 import { usePrayerNotifications } from "./hooks/usePrayerNotifications";
 import { useGoalNotifications } from "./hooks/useGoalNotifications";
+import { useQanetNotifications } from "./hooks/useQanetNotifications";
 import SplashScreen from "./components/SplashScreen";
 import ScrollRestoration from "./components/ScrollRestoration";
 import CommandPalette from "./components/CommandPalette";
@@ -44,6 +45,8 @@ const JuzViewer = lazyWithRetry(() => import("./pages/JuzViewer"));
 const Install = lazyWithRetry(() => import("./pages/Install"));
 const Recitations = lazyWithRetry(() => import("./pages/Recitations"));
 const EmbedView = lazyWithRetry(() => import("./pages/EmbedView"));
+const QanetApp = lazyWithRetry(() => import("./pages/qanet/QanetApp"));
+const QiyamAya100 = lazyWithRetry(() => import("./pages/qanet/QiyamAya100"));
 const Athkar = lazyWithRetry(() => import("./pages/Athkar"));
 const Favorites = lazyWithRetry(() => import("./pages/Favorites"));
 const Profile = lazyWithRetry(() => import("./pages/Profile"));
@@ -159,6 +162,19 @@ const NotificationInitializer = () => {
   return null;
 };
 
+const QanetNotificationBridge = () => {
+  try {
+    const qanetState = JSON.parse(localStorage.getItem('qanet_state') || '{}');
+    useQanetNotifications(
+      qanetState.notificationsEnabled || false,
+      qanetState.reminderTime || '21:00'
+    );
+  } catch {
+    // Qanet state not available
+  }
+  return null;
+};
+
 const App = () => {
   useEffect(() => {
     // ... same init code as before ...
@@ -231,6 +247,7 @@ const AppContent = () => {
       <AudioPlayerProvider>
         <DynamicThemeWrapper>
           <NotificationInitializer />
+          <QanetNotificationBridge />
           <SplashScreen />
           <ServiceWorkerRegistration />
           <LanguageHandler />
@@ -263,6 +280,8 @@ const AppContent = () => {
                         <Route path="/hub" element={<Hub />} />
                         <Route path="/tasbih" element={<Tasbih />} />
                         <Route path="/qibla" element={<QiblaFinder />} />
+                        <Route path="/qanet/*" element={<QanetApp />} />
+                        <Route path="/qiyam" element={<QiyamAya100 />} />
                         <Route path="/names-of-allah" element={<NamesOfAllah />} />
                         <Route path="/zakat" element={<ZakatCalculator />} />
                         <Route path="/prayer-tracker" element={<PrayerTracker />} />

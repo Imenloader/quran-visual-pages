@@ -4,13 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { toArabicNumber } from '@/data/quranData';
 import { motion } from 'motion/react';
 import { TrendingUp, Calendar, BookOpen } from 'lucide-react';
+import { useUser } from '@/contexts/UserContext';
 
 interface ReadingDay {
   date: string;
   pages: number;
 }
-
-import { useUser } from '@/contexts/UserContext';
 
 const ReadingProgress: React.FC = () => {
   const { t, i18n } = useTranslation();

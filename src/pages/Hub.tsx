@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from "react";
-import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { 
   Compass, 
@@ -43,9 +42,9 @@ import { offlineOrchestrator } from "@/services/offlineOrchestrator";
 import { toast } from "sonner";
 import { db } from "@/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
+import HubHeroBanner from "@/components/HubHeroBanner";
 
 const ReadingProgress = lazy(() => import("@/components/ReadingProgress"));
-import HubHeroBanner from "@/components/HubHeroBanner";
 
 const Hub = () => {
   const { t, i18n } = useTranslation();
@@ -62,7 +61,6 @@ const Hub = () => {
   const totalPages = 604;
 
   useEffect(() => {
-    // Fetch verse of the day
     const today = new Date();
     const dateString = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
     let hash = 0;
@@ -73,7 +71,6 @@ const Hub = () => {
     const verse = dailyVerses[index];
     setVerseOfDay({ text: verse.text, surah: verse.surah, number: verse.number });
 
-    // Fetch Hub Settings
     const unsub = onSnapshot(doc(db, "settings", "hub"), (snap) => {
       if (snap.exists()) setHubSettings(snap.data().sections);
     });
@@ -91,7 +88,6 @@ const Hub = () => {
         const pagesStatus = await offlineOrchestrator.getBundleStatus("quran-pages");
         const textStatus = await offlineOrchestrator.getBundleStatus("quran-text");
         
-        // Progress is average of both
         const combinedProgress = (pagesStatus.progress + textStatus.progress) / 2;
         setDownloadAllProgress(combinedProgress);
         
@@ -187,6 +183,8 @@ const Hub = () => {
           { id: 'zakat', name: t("hub.zakat"), icon: <Calculator className="w-5 h-5" />, path: "/zakat" },
           { id: 'sadaqah', name: t("hub.sadaqahLogger"), icon: <Heart className="w-5 h-5" />, path: "/sadaqah-logger" },
           { id: 'dua', name: t("hub.duaLibrary"), icon: <Sparkles className="w-5 h-5" />, path: "/dua-library" },
+          { id: 'qanet', name: t("hub.qiyam") || "من القانتين", icon: <Moon className="w-5 h-5" />, path: "/qanet" },
+          { id: 'qiyam-100', name: t("hub.qiyam100") || "١٠٠ آية", icon: <Sparkles className="w-5 h-5" />, path: "/qiyam" },
           { id: 'names', name: t("hub.namesOfAllah"), icon: <Heart className="w-5 h-5" />, path: "/names-of-allah" },
         ]
       },
@@ -204,7 +202,6 @@ const Hub = () => {
           { id: 'fasting', name: t("hub.fastingTracker"), icon: <Moon className="w-5 h-5" />, path: "/fasting-tracker" },
           { id: 'friday', name: t("hub.fridaySunan"), icon: <Sparkles className="w-5 h-5" />, path: "/friday-sunan" },
           { id: 'prayer-tracker', name: t("hub.prayerTracker"), icon: <CheckCircle2 className="w-5 h-5" />, path: "/prayer-tracker" },
-          { id: 'qiyam', name: t("hub.qiyam"), icon: <Moon className="w-5 h-5" />, path: "/embed/qiyam" },
           { id: 'khatma-ext', name: t("hub.khatma_external"), icon: <BookOpen className="w-5 h-5" />, path: "/embed/khatma" },
         ]
       },
@@ -278,32 +275,31 @@ const Hub = () => {
       <div className="max-w-7xl mx-auto px-4">
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Column: Progress & Offline */}
           <div className="lg:col-span-4 space-y-8">
             <ScrollReveal>
-              <section className="bento-card !p-8 bg-card/40 backdrop-blur-2xl border border-border/40 shadow-islamic h-fit hover:shadow-emerald-deep/5 transition-all duration-500 min-h-[300px]">
+              <section className="bento-card !p-8 bg-card/40 backdrop-blur-2xl border border-border/40 shadow-islamic h-fit min-h-[300px]">
                 <Suspense fallback={<div className="h-[240px] flex items-center justify-center"><Loader2 className="animate-spin text-accent" /></div>}>
                   <ReadingProgress />
                 </Suspense>
               </section>
             </ScrollReveal>
 
-            <ScrollReveal delay={0.1}>
+            <ScrollReveal>
               <section
-                className={`bento-card !p-8 border-none relative overflow-hidden group shadow-islamic transition-all duration-500 ${
+                className={`bento-card !p-8 border-none relative overflow-hidden group shadow-islamic ${
                   downloadAllState === "done" 
                     ? "!bg-primary text-primary-foreground shadow-primary/20" 
                     : "!bg-accent/5 text-accent-foreground shadow-accent/5 border border-accent/10"
                 }`}
               >
-                <div className="absolute inset-0 pattern-islamic opacity-[0.03] group-hover:scale-110 transition-transform duration-1000" />
+                <div className="absolute inset-0 pattern-islamic opacity-[0.03]" />
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-8">
                     <div className={`p-4 rounded-2xl shadow-inner ${downloadAllState === "done" ? "bg-primary/10" : "bg-accent/10"}`}>
                       <DownloadCloud strokeWidth={1.5} className={`size-[24px] ${downloadAllState === "done" ? "text-white" : "text-accent"}`} />
                     </div>
                     {downloadAllState === "downloading" && (
-                      <div className="flex items-center gap-3 px-4 py-1.5 rounded-full bg-black/5 backdrop-blur-sm border border-black/5 animate-pulse">
+                      <div className="flex items-center gap-3 px-4 py-1.5 rounded-full bg-black/5 backdrop-blur-sm border border-black/5">
                         <Loader2 className="size-[12px] animate-spin text-accent" />
                         <span className="text-[10px] font-bold tracking-widest uppercase text-accent">{t("hub.offline.downloading")}</span>
                       </div>
@@ -320,15 +316,13 @@ const Hub = () => {
                   </p>
                   
                   {downloadAllState === "idle" ? (
-                    <motion.button 
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                    <button 
                       onClick={downloadAll}
                       className="w-full py-4 rounded-2xl bg-accent text-white hover:bg-accent/90 transition-all font-serif font-bold text-base flex items-center justify-center gap-3 shadow-lg shadow-accent/20"
                     >
                       <DownloadCloud size={20} />
                       {t("hub.offline.download")}
-                    </motion.button>
+                    </button>
                   ) : (
                     <div className="space-y-6">
                       <div className="space-y-3">
@@ -337,11 +331,9 @@ const Hub = () => {
                           <span>{i18n.language === "ar" ? toArabicNumber(Math.round((downloadAllProgress / 100) * 604)) : Math.round((downloadAllProgress / 100) * 604)} / {i18n.language === "ar" ? toArabicNumber(604) : 604}</span>
                         </div>
                         <div className="h-2.5 bg-black/5 rounded-full overflow-hidden p-0.5 border border-black/5">
-                          <motion.div 
-                            className={`h-full rounded-full ${downloadAllState === "done" ? "bg-white shadow-[0_0_15px_rgba(255,255,255,0.6)]" : "bg-accent shadow-[0_0_15px_rgba(16,185,129,0.4)]"}`}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${downloadAllProgress}%` }}
-                            transition={{ type: "spring", bounce: 0, duration: 1 }}
+                          <div 
+                            className={`h-full rounded-full ${downloadAllState === "done" ? "bg-white" : "bg-accent"}`}
+                            style={{ width: `${downloadAllProgress}%` }}
                           />
                         </div>
                       </div>
@@ -372,12 +364,10 @@ const Hub = () => {
             </ScrollReveal>
           </div>
 
-          {/* Right Column: Categories */}
           <div className="lg:col-span-8 space-y-12">
-            {/* Tools Grid */}
             <div className="space-y-12">
-              {categories.map((category, idx) => (
-                <ScrollReveal key={category.title} delay={0.4 + idx * 0.1}>
+              {categories.map((category) => (
+                <ScrollReveal key={category.title}>
                   <section className="space-y-6">
                     <div className="flex items-center gap-3 px-2">
                       <div className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center shadow-sm border border-border/40">
@@ -389,17 +379,16 @@ const Hub = () => {
                       {category.tools.map((tool) => {
                         const isExternal = tool.path.startsWith('http');
                         const Content = (
-                          <motion.div
-                            whileHover={{ y: -4, scale: 1.02 }}
-                            className="p-6 rounded-[2.5rem] bg-card border border-border/60 flex flex-col items-center text-center group transition-all hover:shadow-xl hover:border-accent/20 h-full"
+                          <div
+                            className="p-6 rounded-[2.5rem] bg-card border border-border/60 flex flex-col items-center text-center group transition-all hover:border-accent/20 h-full"
                           >
-                            <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mb-5 group-hover:scale-110 group-hover:bg-accent/10 group-hover:text-accent transition-all duration-300 shadow-inner">
+                            <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mb-5 group-hover:bg-accent/10 group-hover:text-accent transition-all duration-300 shadow-inner">
                               {tool.icon}
                             </div>
                             <span className="font-bold text-sm font-naskh text-foreground group-hover:text-accent transition-colors">
                               {tool.name}
                             </span>
-                          </motion.div>
+                          </div>
                         );
 
                         return isExternal ? (
@@ -421,7 +410,6 @@ const Hub = () => {
         </div>
       </div>
 
-      {/* Footer / Knowledge Base */}
       <footer className="mt-20 py-12 border-t border-border/40 relative">
         <div className="absolute inset-0 pattern-islamic opacity-[0.02]" />
         <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
@@ -459,3 +447,4 @@ const Hub = () => {
 };
 
 export default Hub;
+
