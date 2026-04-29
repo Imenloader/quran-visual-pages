@@ -185,7 +185,9 @@ const SalahGuide: React.FC = () => {
                             <Volume2 size={20} />
                           </Button>
                         </div>
-                        <p className={`text-3xl md:text-4xl font-quran text-center leading-[1.8] text-foreground ${isAr ? 'rtl' : 'ltr'}`}>
+                        <p className={`font-quran text-center leading-[2.2] text-foreground ${isAr ? 'rtl' : 'ltr'} ${
+                          currentStep.arabicRecitation.length > 100 ? 'text-2xl md:text-3xl' : 'text-3xl md:text-5xl'
+                        }`}>
                           {currentStep.arabicRecitation}
                         </p>
                       </div>
