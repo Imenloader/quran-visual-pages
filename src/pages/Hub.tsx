@@ -258,6 +258,7 @@ const Hub = () => {
           { id: 'hijri', name: t("hub.hijri"), icon: <Calendar className="w-5 h-5" />, path: "/hijri" },
            { id: 'daily-verse', name: t("hub.dailyVerse"), icon: <BookOpen className="w-5 h-5" />, path: "/daily-verse" },
            { id: 'knowledge-sessions', name: "جلسات علمية", icon: <GradIcon className="w-5 h-5" />, path: "/knowledge-sessions" },
+           { id: 'marriage-guide', name: "دليل الزواج", icon: <Heart className="w-5 h-5" />, path: "/marriage-guide" },
            { id: 'tafsir', name: t("hub.tafsir"), icon: <BookOpen className="w-5 h-5" />, path: "/tafsir" },
           { id: 'search', name: t("hub.search"), icon: <Search className="w-5 h-5" />, path: "/search" },
           { id: 'tajweed', name: t("hub.tajweed"), icon: <Sparkles className="w-5 h-5" />, path: "/tajweed" },
