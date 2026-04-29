@@ -12,18 +12,21 @@ import {
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import QuranHeader from '@/components/QuranHeader';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 const SalahGuide: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const currentStep = salahSteps[currentStepIndex];
   const progress = ((currentStepIndex + 1) / salahSteps.length) * 100;
+  const isAr = i18n.language === 'ar';
 
   const nextStep = () => {
     if (currentStepIndex < salahSteps.length - 1) {
       setCurrentStepIndex(prev => prev + 1);
     } else {
-      toast.success("Masha'Allah! You've completed the 2-Rak'ah guide.");
+      toast.success(isAr ? "ما شاء الله! لقد أتممت دليل الصلاة." : "Masha'Allah! You've completed the 2-Rak'ah guide.");
     }
   };
 
@@ -35,18 +38,18 @@ const SalahGuide: React.FC = () => {
 
   const resetGuide = () => {
     setCurrentStepIndex(0);
-    toast.info("Guide reset to the beginning.");
+    toast.info(isAr ? "تم إعادة تعيين الدليل إلى البداية." : "Guide reset to the beginning.");
   };
 
   const playAudio = () => {
-    toast.info("Audio recitation coming soon!");
+    toast.info(isAr ? "التسجيل الصوتي قريباً إن شاء الله!" : "Audio recitation coming soon!");
   };
 
   return (
     <div className="min-h-screen bg-background pb-20">
       <QuranHeader 
-        title="Interactive Salah Guide" 
-        subtitle="Step-by-step 2-Rak'ah Prayer"
+        title={isAr ? "دليل الصلاة التفاعلي" : "Interactive Salah Guide"} 
+        subtitle={isAr ? "خطوات الصلاة ركعتين خطوة بخطوة" : "Step-by-step 2-Rak'ah Prayer"}
         variant="compact"
         showBack
       />
@@ -56,10 +59,10 @@ const SalahGuide: React.FC = () => {
         <div className="mb-8 bg-card border border-border/40 rounded-3xl p-6 shadow-soft">
           <div className="flex justify-between items-center mb-4">
             <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">
-              Step {currentStepIndex + 1} of {salahSteps.length}
+              {isAr ? `الخطوة ${currentStepIndex + 1} من ${salahSteps.length}` : `Step ${currentStepIndex + 1} of ${salahSteps.length}`}
             </span>
             <span className="text-sm font-bold text-primary">
-              {Math.round(progress)}% Complete
+              {Math.round(progress)}% {isAr ? 'اكتمل' : 'Complete'}
             </span>
           </div>
           <Progress value={progress} className="h-3 rounded-full bg-muted shadow-inner" />
@@ -85,13 +88,13 @@ const SalahGuide: React.FC = () => {
           {/* Details Column */}
           <div className="flex flex-col h-full space-y-6">
             <div className="bg-card border border-border/40 rounded-[2.5rem] p-8 shadow-soft flex-1">
-              <h2 className="text-3xl font-bold mb-2 text-foreground">{currentStep.stepName}</h2>
-              <p className="text-muted-foreground mb-8">{currentStep.description}</p>
+              <h2 className="text-3xl font-bold mb-2 text-foreground">{isAr ? currentStep.stepNameAr : currentStep.stepName}</h2>
+              <p className="text-muted-foreground mb-8">{isAr ? currentStep.descriptionAr : currentStep.description}</p>
 
               <div className="space-y-6">
                 <div className="p-6 bg-primary/5 border border-primary/10 rounded-3xl space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Arabic Recitation</span>
+                    <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">{isAr ? 'النص الأصلي' : 'Arabic Recitation'}</span>
                     <Button 
                       variant="ghost" 
                       size="icon" 
@@ -107,13 +110,15 @@ const SalahGuide: React.FC = () => {
                 </div>
 
                 <div className="space-y-4 px-2">
-                  <div>
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] block mb-1">Transliteration</span>
-                    <p className="italic text-foreground font-serif text-lg">{currentStep.transliteration}</p>
-                  </div>
+                  {!isAr && (
+                    <div>
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] block mb-1">Transliteration</span>
+                      <p className="italic text-foreground font-serif text-lg">{currentStep.transliteration}</p>
+                    </div>
+                  )}
                   <div className="pt-4 border-t border-border/40">
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] block mb-1">Translation</span>
-                    <p className="text-muted-foreground leading-relaxed">{currentStep.translation}</p>
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] block mb-1">{isAr ? 'الترجمة' : 'Translation'}</span>
+                    <p className="text-muted-foreground leading-relaxed">{isAr ? currentStep.translationAr : currentStep.translation}</p>
                   </div>
                 </div>
               </div>
@@ -127,16 +132,16 @@ const SalahGuide: React.FC = () => {
                 variant="outline"
                 className="h-16 rounded-2xl gap-2 font-bold shadow-soft active:scale-95 transition-all"
               >
-                <ChevronLeft size={20} /> Previous
+                <ChevronLeft size={20} /> {isAr ? 'السابق' : 'Previous'}
               </Button>
               <Button 
                 onClick={nextStep}
                 className="h-16 rounded-2xl gap-2 font-bold shadow-soft gradient-islamic text-white active:scale-95 transition-all"
               >
                 {currentStepIndex === salahSteps.length - 1 ? (
-                  <>Finish <CheckCircle2 size={20} /></>
+                  <>{isAr ? 'إنهاء' : 'Finish'} <CheckCircle2 size={20} /></>
                 ) : (
-                  <>Next <ChevronRight size={20} /></>
+                  <>{isAr ? 'التالي' : 'Next'} <ChevronRight size={20} /></>
                 )}
               </Button>
             </div>
@@ -147,7 +152,7 @@ const SalahGuide: React.FC = () => {
                 onClick={resetGuide}
                 className="text-muted-foreground hover:text-primary gap-2"
               >
-                <RotateCcw size={14} /> Restart Guide
+                <RotateCcw size={14} /> {isAr ? 'إعادة البدء' : 'Restart Guide'}
               </Button>
             )}
           </div>
@@ -159,9 +164,9 @@ const SalahGuide: React.FC = () => {
             <Info size={24} />
           </div>
           <div>
-            <h4 className="font-bold text-gold-foreground mb-1">Focus & Tranquility (Khushu)</h4>
+            <h4 className="font-bold text-gold-foreground mb-1">{isAr ? 'الخشوع والطمأنينة' : 'Focus & Tranquility (Khushu)'}</h4>
             <p className="text-sm text-gold-foreground/80 leading-relaxed">
-              Take your time with each posture. The Prophet (PBUH) taught us that the most important part of prayer is stillness and presence of heart before Allah.
+              {isAr ? 'خذ وقتك في كل وضعية. علمنا النبي ﷺ أن أهم جزء في الصلاة هو السكون وحضور القلب بين يدي الله.' : 'Take your time with each posture. The Prophet (PBUH) taught us that the most important part of prayer is stillness and presence of heart before Allah.'}
             </p>
           </div>
         </section>

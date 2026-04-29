@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { stories, Story } from '@/data/storiesData';
+import { useTranslation } from 'react-i18next';
 import { 
   BookOpen, 
   Search, 
@@ -17,31 +18,36 @@ import { Badge } from '@/components/ui/badge';
 import QuranHeader from '@/components/QuranHeader';
 
 const StoriesLibrary: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterAudience, setFilterAudience] = useState<'all' | 'child' | 'adult'>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
+  const filteredStoriesByLang = useMemo(() => {
+    return stories.filter(s => s.language === i18n.language);
+  }, [i18n.language]);
+
   const categories = useMemo(() => {
-    const cats = new Set(stories.map(s => s.category));
+    const cats = new Set(filteredStoriesByLang.map(s => s.category));
     return ['All', ...Array.from(cats)];
-  }, []);
+  }, [filteredStoriesByLang]);
 
   const filteredStories = useMemo(() => {
-    return stories.filter(story => {
+    return filteredStoriesByLang.filter(story => {
       const matchesSearch = story.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           story.category.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesAudience = filterAudience === 'all' || story.targetAudience === filterAudience;
       const matchesCategory = selectedCategory === 'All' || story.category === selectedCategory;
       return matchesSearch && matchesAudience && matchesCategory;
     });
-  }, [searchQuery, filterAudience, selectedCategory]);
+  }, [filteredStoriesByLang, searchQuery, filterAudience, selectedCategory]);
 
   return (
     <div className="min-h-screen bg-background pb-20">
       <QuranHeader 
-        title="Islamic Stories Hub" 
-        subtitle="Spiritual journeys for all ages"
+        title={i18n.language === 'ar' ? 'مكتبة القصص الإسلامية' : 'Islamic Stories Hub'} 
+        subtitle={i18n.language === 'ar' ? 'رحلات إيمانية لكل الأعمار' : 'Spiritual journeys for all ages'}
         variant="compact"
         showBack
       />
@@ -52,7 +58,7 @@ const StoriesLibrary: React.FC = () => {
           <div className="relative group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={20} />
             <Input 
-              placeholder="Search stories by title or category..." 
+              placeholder={i18n.language === 'ar' ? 'ابحث عن القصص بالعنوان أو التصنيف...' : 'Search stories by title or category...'} 
               className="pl-12 h-14 rounded-2xl bg-card border-border/40 shadow-sm focus-visible:ring-primary"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -66,21 +72,21 @@ const StoriesLibrary: React.FC = () => {
                 className="rounded-full px-6"
                 onClick={() => setFilterAudience('all')}
               >
-                All Ages
+                {i18n.language === 'ar' ? 'كل الأعمار' : 'All Ages'}
               </Button>
               <Button 
                 variant={filterAudience === 'child' ? 'default' : 'outline'}
                 className="rounded-full px-6 flex gap-2"
                 onClick={() => setFilterAudience('child')}
               >
-                <Baby size={16} /> Children
+                <Baby size={16} /> {i18n.language === 'ar' ? 'للأطفال' : 'Children'}
               </Button>
               <Button 
                 variant={filterAudience === 'adult' ? 'default' : 'outline'}
                 className="rounded-full px-6 flex gap-2"
                 onClick={() => setFilterAudience('adult')}
               >
-                <User size={16} /> Adults
+                <User size={16} /> {i18n.language === 'ar' ? 'للكبار' : 'Adults'}
               </Button>
             </div>
 
