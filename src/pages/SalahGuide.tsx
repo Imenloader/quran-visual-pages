@@ -21,7 +21,8 @@ import {
   Heart,
   ShieldCheck,
   Zap,
-  Quote
+  Quote,
+  AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -96,6 +97,7 @@ const SalahGuide: React.FC = () => {
       case 'benefits': return <Zap className="text-amber-500" />;
       case 'consistency': return <Sparkles className="text-blue-500" />;
       case 'hadiths': return <Quote className="text-purple-500" />;
+      case 'mistakes': return <AlertTriangle className="text-orange-500" />;
       default: return <Bookmark className="text-primary" />;
     }
   };
@@ -180,9 +182,10 @@ const SalahGuide: React.FC = () => {
                   <div className="lg:col-span-4 xl:col-span-3 relative group">
                     <div className="relative aspect-square bg-card rounded-[2.5rem] overflow-hidden shadow-xl border border-border/10 ring-1 ring-black/5 max-h-[320px] mx-auto">
                       <img 
+                        key={currentStep.id}
                         src={currentStep.postureImageUrl} 
                         alt={currentStep.stepName}
-                        className="w-full h-full object-contain p-4 transition-transform duration-1000 group-hover:scale-105"
+                        className="w-full h-full object-contain p-4 transition-all duration-700 group-hover:scale-105 animate-in fade-in zoom-in-95 duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent pointer-events-none" />
                     </div>
@@ -305,16 +308,48 @@ const SalahGuide: React.FC = () => {
                       {(isAr ? section.contentAr : section.content).split('\n').map((line, i) => {
                         const trimmed = line.trim();
                         if (!trimmed) return <br key={i} />;
+                        
+                        // Handle bold text **text**
+                        const parts = trimmed.split(/(\*\*.*?\*\*)/g);
+                        const renderedLine = parts.map((part, index) => {
+                          if (part.startsWith('**') && part.endsWith('**')) {
+                            return <strong key={index} className="text-foreground font-bold">{part.slice(2, -2)}</strong>;
+                          }
+                          return part;
+                        });
+
+                        // Check for list item
                         if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
                           return <li key={i} className="mb-2 list-none flex items-start gap-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2.5 shrink-0" />
-                            {trimmed.substring(2)}
+                            <span className="flex-1">
+                              {renderedLine.map((part, idx) => {
+                                if (typeof part === 'string' && idx === 0) {
+                                  return part.substring(2); // Remove "* " or "- " from the first string part
+                                }
+                                return part;
+                              })}
+                            </span>
                           </li>;
                         }
-                        if (trimmed.match(/^\d+\./)) {
-                          return <p key={i} className="font-bold text-primary mt-4 mb-2">{trimmed}</p>;
+
+                        // Check for numbered item
+                        const numberedMatch = trimmed.match(/^(\d+\.)\s*(.*)/);
+                        if (numberedMatch) {
+                          return <div key={i} className="mt-4 mb-2 flex items-start gap-2">
+                            <span className="font-bold text-primary shrink-0">{numberedMatch[1]}</span>
+                            <span className="font-bold text-primary flex-1">
+                              {renderedLine.map((part, idx) => {
+                                if (typeof part === 'string' && idx === 0) {
+                                  return part.substring(numberedMatch[1].length).trimStart();
+                                }
+                                return part;
+                              })}
+                            </span>
+                          </div>;
                         }
-                        return <p key={i} className="mb-3">{trimmed}</p>;
+
+                        return <p key={i} className="mb-3">{renderedLine}</p>;
                       })}
                     </div>
                   </AccordionContent>

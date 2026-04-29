@@ -143,5 +143,28 @@ export const salahEducationalContent: EducationalSection[] = [
       * "صلوا كما رأيتموني أصلي" [رواه البخاري].
       * "أقرب ما يكون العبد من ربه وهو ساجد، فأكثروا الدعاء" [رواه مسلم].
     `
+  },
+  {
+    id: 'mistakes',
+    title: 'Common Mistakes',
+    titleAr: 'أخطاء شائعة في الصلاة',
+    content: `
+      Avoiding common mistakes ensures your prayer is performed correctly and with full reward:
+      
+      1. **Moving Too Fast**: Lack of tranquility (Tuma'ninah) is one of the most common mistakes. Each posture should be held until you are still.
+      2. **Preceding the Imam**: In congregational prayer, you must follow the Imam, not move before him.
+      3. **Looking Around**: You should keep your eyes on the place of prostration.
+      4. **Incorrect Sujud**: Not placing all seven body parts firmly on the ground (forehead/nose, two palms, two knees, and two sets of toes).
+      5. **Tucking Up Clothes/Hair**: The Prophet ﷺ forbade tucking up hair or clothes during prayer.
+    `,
+    contentAr: `
+      تجنب الأخطاء الشائعة يزيد من أجر الصلاة ويضمن صحتها:
+      
+      1. **السرعة وعدم الطمأنينة**: الطمأنينة ركن، والسرعة الزائدة قد تبطل الصلاة.
+      2. **مسابقة الإمام**: يجب متابعة الإمام وعدم التحرك قبله أو معه.
+      3. **الالتفات بالبصر**: السنة النظر إلى موضع السجود وعدم الالتفات يميناً أو يساراً.
+      4. **عدم التمكين في السجود**: يجب السجود على الأعضاء السبعة كاملة.
+      5. **كفت الثياب أو الشعر**: نهى النبي ﷺ عن كفت (ضم) الثياب أو الشعر في الصلاة.
+    `
   }
 ];

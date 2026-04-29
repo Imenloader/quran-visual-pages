@@ -123,6 +123,7 @@ const AnalyticsPage = lazyWithRetry(() => import("./pages/admin/AnalyticsPage"))
 const StoriesLibrary = lazyWithRetry(() => import("./pages/StoriesLibrary"));
 const StoryReader = lazyWithRetry(() => import("./pages/StoryReader"));
 const SalahGuide = lazyWithRetry(() => import("./pages/SalahGuide"));
+const SahabaEncyclopedia = lazyWithRetry(() => import("./pages/SahabaEncyclopedia"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -225,6 +226,11 @@ const App = () => {
       });
   }, []);
 
+  useEffect(() => {
+    // Pre-load voices for TTS
+    window.speechSynthesis.getVoices();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -308,6 +314,7 @@ const AppContent = () => {
                         <Route path="/library" element={<Library />} />
                         <Route path="/hajj-guide" element={<HajjGuide />} />
                         <Route path="/prophet-stories" element={<ProphetStories />} />
+                        <Route path="/sahaba" element={<SahabaEncyclopedia />} />
                         <Route path="/names-directory" element={<NamesDirectory />} />
                         <Route path="/daily-adhkar" element={<DailyAdhkar />} />
                         <Route path="/khatma-jamaaiya" element={<KhatmaJamaaiya />} />

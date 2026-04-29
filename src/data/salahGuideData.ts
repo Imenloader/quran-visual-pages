@@ -18,7 +18,11 @@ export const wuduSteps: GuideStep[] = [
     stepNameAr: 'النية',
     description: 'Make the intention in your heart to perform Wudu for the sake of Allah.',
     descriptionAr: 'عزم القلب على فعل الوضوء طاعة لله تعالى.',
-    postureImageUrl: '/assets/guides/child_wudu_niyyah_correct_1777487190054.png'
+    postureImageUrl: '/assets/guides/child_wudu_niyyah_correct_1777487190054.png',
+    arabicRecitation: 'بِسْمِ اللَّه',
+    transliteration: 'Bismillah',
+    translation: 'In the name of Allah',
+    translationAr: 'بسم الله'
   },
   {
     id: 'w2',
@@ -74,7 +78,11 @@ export const wuduSteps: GuideStep[] = [
     stepNameAr: 'غسل الرجلين',
     description: 'Wash your right foot up to and including the ankles three times, then the left foot.',
     descriptionAr: 'غسل الرجل اليمنى إلى الكعبين ثلاث مرات مع تخليل الأصابع، ثم اليسرى مثلها.',
-    postureImageUrl: '/assets/guides/child_wudu_feet_1777486318686.png'
+    postureImageUrl: '/assets/guides/child_wudu_feet_1777486318686.png',
+    arabicRecitation: 'أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ. اللَّهُمَّ اجْعَلْنِي مِنَ التَّوَّابِينَ وَاجْعَلْنِي مِنَ الْمُتَطَهِّرِينَ.',
+    transliteration: 'Ash-hadu an la ilaha illallahu wahdahu la sharika lahu, wa ash-hadu anna Muhammadan \'abduhu wa rasuluh. Allahummaj-\'alni minat-tawwabina waj-\'alni minal-mutatahhirin.',
+    translation: 'I bear witness that there is no deity worthy of worship except Allah alone, without partner, and I bear witness that Muhammad is His servant and messenger. O Allah, make me of those who repent and make me of those who purify themselves.',
+    translationAr: 'الشهادة ودعاء ما بعد الوضوء'
   }
 ];
 
@@ -85,7 +93,7 @@ export const allSalahSteps: Record<string, GuideStep> = {
     stepNameAr: 'النية',
     description: 'Formulate the intention in your heart to pray and face the Qiblah.',
     descriptionAr: 'استحضار النية في القلب للصلاة والتوجه نحو القبلة.',
-    postureImageUrl: '/assets/guides/child_praying_takbir_1777486213577.png'
+    postureImageUrl: '/assets/guides/child_wudu_niyyah_correct_1777487190054.png'
   },
   takbir: {
     id: 's2',
@@ -105,7 +113,7 @@ export const allSalahSteps: Record<string, GuideStep> = {
     stepNameAr: 'دعاء الاستفتاح',
     description: 'Recite the opening supplication silently.',
     descriptionAr: 'قراءة دعاء الاستفتاح سراً بعد تكبيرة الإحرام.',
-    postureImageUrl: '/assets/guides/child_praying_takbir_1777486213577.png',
+    postureImageUrl: '/assets/guides/child_wudu_niyyah_correct_1777487190054.png',
     arabicRecitation: 'سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ، وَتَبَارَكَ اسْمُكَ، وَتَعَالَى جَدُّكَ، وَلَا إِلَهَ غَيْرُكَ',
     transliteration: 'Subhanaka Allahumma wa bihamdika, wa tabarakasmuka wa ta\'ala jadduka wala ilaha ghayruk',
     translation: 'Glory be to You, O Allah, and all praise is due to You. Blessed is Your name and exalted is Your majesty. There is no deity worthy of worship except You.',
@@ -117,7 +125,7 @@ export const allSalahSteps: Record<string, GuideStep> = {
     stepNameAr: 'القيام والقراءة',
     description: 'Recite Surah Al-Fatiha fully.',
     descriptionAr: 'قراءة سورة الفاتحة كاملة بخشوع.',
-    postureImageUrl: '/assets/guides/child_praying_takbir_1777486213577.png',
+    postureImageUrl: '/assets/guides/child_wudu_niyyah_correct_1777487190054.png',
     arabicRecitation: 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ. الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ. الرَّحْمَنِ الرَّحِيمِ. مَالِكِ يَوْمِ الدِّينِ. إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ. اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ. صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ.',
     transliteration: 'Bismillahir Rahmanir Rahim. Alhamdu lillahi rabbil \'alamin. Ar-Rahmanir Rahim. Maliki yawmid-din. Iyyaka na\'budu wa iyyaka nasta\'in. Ihdinas-siratal-mustaqim. Siratal-ladhina an\'amta \'alayhim, ghayril-maghdubi \'alayhim walad-dallin.',
     translation: 'In the name of Allah, the Entirely Merciful, the Especially Merciful. [All] praise is [due] to Allah, Lord of the worlds. The Entirely Merciful, the Especially Merciful. Sovereign of the Day of Recompense. It is You we worship and You we ask for help. Guide us to the straight path. The path of those upon whom You have bestowed favor, not of those who have evoked [Your] anger or of those who are astray.',
@@ -141,7 +149,7 @@ export const allSalahSteps: Record<string, GuideStep> = {
     stepNameAr: 'الاعتدال',
     description: 'Rise from Ruku and stand straight.',
     descriptionAr: 'الرفع من الركوع والاعتدال قائماً مع حمد الله.',
-    postureImageUrl: '/assets/guides/child_praying_takbir_1777486213577.png',
+    postureImageUrl: '/assets/guides/child_wudu_niyyah_correct_1777487190054.png',
     arabicRecitation: 'سَمِعَ اللهُ لِمَنْ حَمِدَه. رَبَّنَا وَلَكَ الْحَمْدُ',
     transliteration: 'Sami\' Allahu liman hamidah. Rabbana walakal hamd',
     translation: 'Allah hears those who praise Him. Our Lord, all praise is for You.',
@@ -175,9 +183,9 @@ export const allSalahSteps: Record<string, GuideStep> = {
     id: 's11',
     stepName: 'Half Tashahhud',
     stepNameAr: 'التشهد الأوسط',
-    description: 'Recite Attahiyyat in the middle of 3 or 4 Rakah prayer.',
-    descriptionAr: 'الجلوس للتشهد الأول وقراءة التحيات كاملة.',
-    postureImageUrl: '/assets/guides/child_tashahhud_perfect.png',
+    description: 'Sit upright and recite Attahiyyat. Keep your right index finger raised/moving as a sign of Oneness of Allah.',
+    descriptionAr: 'الجلوس للتشهد الأول وقراءة التحيات مع الإشارة بالسبابة اليمنى.',
+    postureImageUrl: '/assets/guides/child_tashahhud_pointing_correct_1777486554757.png',
     arabicRecitation: 'التَّحِيَّاتُ لِلَّهِ، وَالصَّلَوَاتُ وَالطَّيِّبَاتُ، السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ، السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللَّهِ الصَّالِحِينَ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ، وَأَشْهَدُ أَنْ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ.',
     transliteration: 'At-tahiyyatu lillahi, was-salawatu wat-tayyibatu, as-salamu \'alayka ayyuhan-nabiyyu wa rahmatullahi wa barakatuhu, as-salamu \'alayna wa \'ala \'ibadillahis-salihin. Ash-hadu an la ilaha illallahu, wa ash-hadu anna Muhammadan \'abduhu wa rasuluh.',
     translation: 'All compliments, prayers and pure works are due to Allah. Peace be upon you, O Prophet, and the mercy of Allah and His blessings. Peace be upon us and upon the righteous servants of Allah. I bear witness that there is no deity worthy of worship except Allah, and I bear witness that Muhammad is His servant and messenger.',
@@ -187,12 +195,12 @@ export const allSalahSteps: Record<string, GuideStep> = {
     id: 's12',
     stepName: 'Final Tashahhud & Ibrahimic Prayer',
     stepNameAr: 'التشهد الأخير كاملاً',
-    description: 'Recite full Tashahhud and the Ibrahimic Prayer.',
-    descriptionAr: 'قراءة التشهد كاملاً ثم الصلاة الإبراهيمية كاملة قبل التسليم.',
+    description: 'Recite full Tashahhud and the Ibrahimic Prayer. Keep your right index finger raised.',
+    descriptionAr: 'قراءة التشهد كاملاً ثم الصلاة الإبراهيمية مع الإشارة بالسبابة اليمنى.',
     postureImageUrl: '/assets/guides/child_tashahhud_perfect.png',
     arabicRecitation: 'التَّحِيَّاتُ لِلَّهِ، وَالصَّلَوَاتُ وَالطَّيِّبَاتُ، السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ، السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللَّهِ الصَّالِحِينَ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ، وَأَشْهَدُ أَنْ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ. اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ، كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ، اللَّهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ، كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، فِي الْعَالَمِينَ إِنَّكَ حَمِيدٌ مَجِيدٌ.',
-    transliteration: 'At-tahiyyatu lillahi... Allahumma salli \'ala Muhammadin wa \'ala ali Muhammadin, kama sallayta \'ala Ibrahima wa \'ala ali Ibrahima, innaka Hamidun Majid. Allahumma barik \'ala Muhammadin wa \'ala ali Muhammadin, kama barakta \'ala Ibrahima wa \'ala ali Ibrahima, fil-\'alamina innaka Hamidun Majid.',
-    translation: 'All compliments... O Allah, send prayers upon Muhammad and upon the family of Muhammad, as You sent prayers upon Ibrahim and upon the family of Ibrahim; indeed, You are Praiseworthy and Glorious. O Allah, bless Muhammad and the family of Muhammad, as You blessed Ibrahim and the family of Ibrahim; indeed, You are Praiseworthy and Glorious in the worlds.',
+    transliteration: 'At-tahiyyatu lillahi, was-salawatu wat-tayyibatu, as-salamu \'alayka ayyuhan-nabiyyu wa rahmatullahi wa barakatuhu, as-salamu \'alayna wa \'ala \'ibadillahis-salihin. Ash-hadu an la ilaha illallahu, wa ash-hadu anna Muhammadan \'abduhu wa rasuluh. Allahumma salli \'ala Muhammadin wa \'ala ali Muhammadin, kama sallayta \'ala Ibrahima wa \'ala ali Ibrahima, innaka Hamidun Majid. Allahumma barik \'ala Muhammadin wa \'ala ali Muhammadin, kama barakta \'ala Ibrahima wa \'ala ali Ibrahima, fil-\'alamina innaka Hamidun Majid.',
+    translation: 'All compliments, prayers and pure works are due to Allah. Peace be upon you, O Prophet, and the mercy of Allah and His blessings. Peace be upon us and upon the righteous servants of Allah. I bear witness that there is no deity worthy of worship except Allah, and I bear witness that Muhammad is His servant and messenger. O Allah, send prayers upon Muhammad and upon the family of Muhammad, as You sent prayers upon Ibrahim and upon the family of Ibrahim; indeed, You are Praiseworthy and Glorious. O Allah, bless Muhammad and the family of Muhammad, as You blessed Ibrahim and the family of Ibrahim, in the worlds; indeed, You are Praiseworthy and Glorious.',
     translationAr: 'التشهد الأخير مع الصلاة الإبراهيمية'
   },
   taslim: {

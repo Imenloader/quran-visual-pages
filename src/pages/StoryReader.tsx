@@ -9,16 +9,19 @@ import {
   Clock, 
   Share2, 
   Bookmark,
-  Languages
+  Languages,
+  Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import QuranHeader from '@/components/QuranHeader';
 import { toast } from 'sonner';
+import { useFavorites } from '@/hooks/useFavorites';
 
 const StoryReader: React.FC = () => {
   const { storyId } = useParams<{ storyId: string }>();
   const navigate = useNavigate();
+  const { toggleFavorite, isFavorite } = useFavorites();
   const [story, setStory] = useState<Story | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [speech, setSpeech] = useState<SpeechSynthesisUtterance | null>(null);
@@ -32,6 +35,9 @@ const StoryReader: React.FC = () => {
     }
   }, [storyId, navigate]);
 
+  const isAr = story?.language === 'ar';
+  const isBookmarked = story ? isFavorite('story', story.id) : false;
+
   const handleToggleTTS = () => {
     if (!story) return;
 
@@ -41,26 +47,65 @@ const StoryReader: React.FC = () => {
       return;
     }
 
-    // Clean markdown for better speech
     const cleanContent = story.markdownContent
-      .replace(/#+\s/g, '') // Remove headers
-      .replace(/\*\*+/g, '') // Remove bold
-      .replace(/\*+/g, '');  // Remove italics
+      .replace(/[#*`~_]/g, '')
+      .replace(/\[(.*?)\]\(.*?\)/g, '$1')
+      .replace(/\n+/g, ' ')
+      .trim();
 
     const utterance = new SpeechSynthesisUtterance(cleanContent);
-    utterance.lang = story.language === 'ar' ? 'ar-SA' : 'en-US';
-    utterance.rate = 0.9;
+    const voices = window.speechSynthesis.getVoices();
+    const preferredLang = story.language === 'ar' ? 'ar' : 'en';
+    const voice = voices.find(v => v.lang.startsWith(preferredLang));
     
+    if (voice) utterance.voice = voice;
+    utterance.lang = story.language === 'ar' ? 'ar-SA' : 'en-US';
+    utterance.rate = 0.95;
+    
+    utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => {
+    utterance.onerror = (event) => {
+      console.error('TTS Error:', event);
       setIsSpeaking(false);
-      toast.error('Speech synthesis failed');
     };
 
     window.speechSynthesis.speak(utterance);
     setSpeech(utterance);
-    setIsSpeaking(true);
-    toast.success(story.language === 'ar' ? 'جاري القراءة بصوت عالٍ...' : 'Started reading aloud...');
+    toast.success(isAr ? 'جاري القراءة بصوت عالٍ...' : 'Started reading aloud...');
+  };
+
+  const handleShare = async () => {
+    if (!story) return;
+    const shareData = {
+      title: story.title,
+      text: isAr ? `اقرأ قصة: ${story.title}` : `Read this story: ${story.title}`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success(isAr ? 'تم نسخ الرابط للمشاركة!' : 'Link copied to clipboard!');
+      }
+    } catch (err) {
+      console.error('Share failed:', err);
+    }
+  };
+
+  const handleBookmark = () => {
+    if (!story) return;
+    toggleFavorite({
+      type: 'story',
+      id: story.id,
+      title: story.title
+    });
+    toast.success(
+      isBookmarked 
+        ? (isAr ? 'تمت الإزالة من المفضلة' : 'Removed from favorites') 
+        : (isAr ? 'تمت الإضافة للمفضلة' : 'Added to favorites')
+    );
   };
 
   if (!story) return null;
@@ -77,7 +122,7 @@ const StoryReader: React.FC = () => {
 
       <main className="pt-20 pb-32 px-4 md:px-0">
         <article className="max-w-4xl mx-auto">
-          {/* Cover Image Header - Reduced size and improved contrast */}
+          {/* Cover Image Header */}
           <div className="relative h-48 md:h-72 rounded-[2rem] overflow-hidden mb-6 shadow-xl border border-border/20">
             <img 
               src={story.coverImage} 
@@ -86,8 +131,8 @@ const StoryReader: React.FC = () => {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
             
-            <div className={`absolute bottom-6 left-6 right-6 ${story.language === 'ar' ? 'text-right' : 'text-left'}`}>
-              <div className={`flex items-center gap-3 mb-2 ${story.language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+            <div className={`absolute bottom-6 left-6 right-6 ${isAr ? 'text-right' : 'text-left'}`}>
+              <div className={`flex items-center gap-3 mb-2 ${isAr ? 'flex-row-reverse' : 'flex-row'}`}>
                 <Badge variant="secondary" className="bg-white/20 backdrop-blur-md text-white border-white/30 px-3 py-0.5 text-[10px]">
                   {story.category}
                 </Badge>
@@ -97,31 +142,41 @@ const StoryReader: React.FC = () => {
                 </div>
               </div>
               <h1 className={`text-2xl md:text-4xl font-bold text-white leading-tight ${
-                story.language === 'ar' ? 'font-naskh' : 'font-serif'
+                isAr ? 'font-naskh' : 'font-serif'
               }`}>
                 {story.title}
               </h1>
             </div>
           </div>
 
-          {/* Reading Controls - More compact and sticky */}
+          {/* Reading Controls */}
           <div className="sticky top-20 z-40 flex items-center justify-between p-3 mb-6 bg-card/95 backdrop-blur-xl border border-border/40 rounded-2xl shadow-lg">
-            <div className={`flex gap-2 ${story.language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+            <div className={`flex gap-2 ${isAr ? 'flex-row-reverse' : 'flex-row'}`}>
               <Button 
                 onClick={handleToggleTTS}
                 variant={isSpeaking ? "default" : "outline"}
-                className="rounded-xl gap-2 h-10 px-4 text-xs"
+                className="rounded-xl gap-2 h-10 px-4 text-xs font-bold"
               >
                 {isSpeaking ? <Pause size={14} /> : <Play size={14} />}
-                {isSpeaking ? (story.language === 'ar' ? 'إيقاف' : 'Stop') : (story.language === 'ar' ? 'استماع' : 'Listen')}
+                {isSpeaking ? (isAr ? 'إيقاف' : 'Stop') : (isAr ? 'استماع' : 'Listen')}
               </Button>
             </div>
 
             <div className="flex gap-1.5">
-              <Button variant="ghost" size="icon" className="rounded-xl h-10 w-10">
-                <Bookmark size={16} />
+              <Button 
+                variant={isBookmarked ? "default" : "ghost"} 
+                size="icon" 
+                onClick={handleBookmark}
+                className={`rounded-xl h-10 w-10 transition-all ${isBookmarked ? 'bg-primary text-white' : ''}`}
+              >
+                <Bookmark size={16} fill={isBookmarked ? "currentColor" : "none"} />
               </Button>
-              <Button variant="ghost" size="icon" className="rounded-xl h-10 w-10">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleShare}
+                className="rounded-xl h-10 w-10"
+              >
                 <Share2 size={16} />
               </Button>
             </div>
@@ -162,7 +217,7 @@ const StoryReader: React.FC = () => {
               onClick={() => navigate('/stories')}
             >
               <ChevronLeft size={18} />
-              Back to Library
+              {story.language === 'ar' ? 'العودة للمكتبة' : 'Back to Library'}
             </Button>
           </div>
         </article>

@@ -16,6 +16,7 @@ export type FavoriteItem = (
   | { type: "reciter"; id: number; name: string; nickname?: string }
   | { type: "hadith"; id: number; bookId: string; bookName: string; text: string; nickname?: string }
   | { type: "verse"; id: string; surahNumber: number; verseNumber: number; surahName: string; text: string; nickname?: string }
+  | { type: "story"; id: string; title: string; nickname?: string }
 ) & { collectionId?: string };
 
 const STORAGE_KEY = "quran-favorites";
@@ -130,7 +131,7 @@ export const useFavorites = () => {
   }, [collections, favorites, saveCollections, saveFavorites]);
 
   const isFavorite = useCallback(
-    (type: FavoriteItem["type"], id: number, reciterId?: number, moshafId?: number) => {
+    (type: FavoriteItem["type"], id: string | number, reciterId?: number, moshafId?: number) => {
       if (type === "recitation" && reciterId !== undefined && moshafId !== undefined) {
         return favorites.some(f => f.type === "recitation" && f.id === id && f.reciterId === reciterId && f.moshafId === moshafId);
       }

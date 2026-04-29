@@ -253,6 +253,7 @@ const Hub = () => {
           { id: 'inheritance', name: t("hub.inheritanceCalculator"), icon: <Calculator className="w-5 h-5" />, path: "/inheritance-calculator" },
           { id: 'hajj', name: t("hub.hajjUmrahGuide"), icon: <MapPin className="w-5 h-5" />, path: "/hajj-guide" },
           { id: 'stories-hub', name: i18n.language === 'ar' ? 'مكتبة القصص' : 'Stories Hub', icon: <BookOpen className="w-5 h-5" />, path: "/stories" },
+          { id: 'sahaba', name: i18n.language === 'ar' ? 'موسوعة الصحابة' : 'Sahaba Encyclopedia', icon: <Users className="w-5 h-5" />, path: "/sahaba" },
           { id: 'stories', name: t("hub.prophetStories"), icon: <BookOpen className="w-5 h-5" />, path: "/prophet-stories" },
           { id: 'names-dir', name: t("hub.namesDirectory"), icon: <Fingerprint className="w-5 h-5" />, path: "/names-directory" },
           { id: 'sunan', name: t("hub.propheticSunnan"), icon: <Sparkles className="w-5 h-5" />, path: "/daily-adhkar" },

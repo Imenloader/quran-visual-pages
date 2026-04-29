@@ -22,7 +22,7 @@ const StoriesLibrary: React.FC = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterAudience, setFilterAudience] = useState<'all' | 'child' | 'adult'>('all');
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [selectedCategory, setSelectedCategory] = useState<string>(i18n.language === 'ar' ? 'الكل' : 'All');
 
   const filteredStoriesByLang = useMemo(() => {
     return stories.filter(s => s.language === i18n.language);
@@ -30,7 +30,7 @@ const StoriesLibrary: React.FC = () => {
 
   const categories = useMemo(() => {
     const cats = new Set(filteredStoriesByLang.map(s => s.category));
-    return ['All', ...Array.from(cats)];
+    return [i18n.language === 'ar' ? 'الكل' : 'All', ...Array.from(cats)];
   }, [filteredStoriesByLang]);
 
   const filteredStories = useMemo(() => {
@@ -38,7 +38,7 @@ const StoriesLibrary: React.FC = () => {
       const matchesSearch = story.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           story.category.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesAudience = filterAudience === 'all' || story.targetAudience === filterAudience;
-      const matchesCategory = selectedCategory === 'All' || story.category === selectedCategory;
+      const matchesCategory = selectedCategory === (i18n.language === 'ar' ? 'الكل' : 'All') || story.category === selectedCategory;
       return matchesSearch && matchesAudience && matchesCategory;
     });
   }, [filteredStoriesByLang, searchQuery, filterAudience, selectedCategory]);
@@ -186,7 +186,7 @@ const StoriesLibrary: React.FC = () => {
               onClick={() => {
                 setSearchQuery('');
                 setFilterAudience('all');
-                setSelectedCategory('All');
+                setSelectedCategory(i18n.language === 'ar' ? 'الكل' : 'All');
               }}
             >
               {i18n.language === 'ar' ? 'مسح كل الفلاتر' : 'Clear all filters'}
