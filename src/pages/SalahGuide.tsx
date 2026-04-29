@@ -9,7 +9,8 @@ import {
   CheckCircle2,
   Volume2,
   Droplets,
-  BookOpen
+  BookOpen,
+  Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
