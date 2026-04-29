@@ -102,8 +102,17 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
+  const [tick, setTick] = useState(0);
   const { isAdhanPlaying, playAdhan, stopAdhan } = useAdhan();
   const optionsRef = useRef(options);
+
+  // Update tick every minute to refresh nextPrayer and remainingTime
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTick(t => t + 1);
+    }, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     optionsRef.current = options;
@@ -218,7 +227,15 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
   const updateSettings = useCallback(async (partial: Partial<PrayerSettings>) => {
     const next = { ...settings, ...partial };
     setSettings(next);
-    await storage.set(PRAYER_SETTINGS_KEY, JSON.stringify(next));
+    const serialized = JSON.stringify(next);
+    await storage.set(PRAYER_SETTINGS_KEY, serialized);
+    
+    // Manually trigger storage event for the same window so usePrayerNotifications can catch it
+    window.dispatchEvent(new StorageEvent('storage', { 
+      key: PRAYER_SETTINGS_KEY, 
+      newValue: serialized 
+    }));
+
     if ((partial.method !== undefined || partial.latitude !== undefined) && next.latitude) {
       fetchTimes(next.latitude, next.longitude, next.method);
     }
@@ -242,6 +259,7 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
   return {
     settings, updateSettings, times: effectiveTimes, loading, error, locationLoading, detectLocation,
     nextPrayer: effectiveTimes ? getNextPrayer(effectiveTimes, getNow()) : null,
+    tick, // Expose tick if needed for internal forcing
     getRemainingTime: (timeStr: string) => getRemainingTime(timeStr, getNow()),
     previewAdhan: (soundId: string) => {
       playAdhanSound(soundId, "العصر");

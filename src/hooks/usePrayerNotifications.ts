@@ -13,6 +13,7 @@ import { isBefore, addDays } from 'date-fns';
 import { useAdhan } from '@/contexts/AdhanContext';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Capacitor } from '@capacitor/core';
+import { App } from '@capacitor/app';
 import { storage } from '@/lib/storage';
 import { Coordinates, CalculationMethod, PrayerTimes } from 'adhan';
 import { DateTime } from 'luxon';
@@ -60,7 +61,7 @@ export const usePrayerNotifications = () => {
           description: 'تنبيهات مواقيت الصلاة مع صوت الأذان',
           importance: 5,
           visibility: 1,
-          sound: 'adhan.mp3', 
+          sound: Capacitor.getPlatform() === 'android' ? 'adhan' : 'adhan.mp3', 
           vibration: true,
         });
       } else {
@@ -162,9 +163,9 @@ export const usePrayerNotifications = () => {
                 body: `حان موعد أذان صلاة ${PRAYER_NAMES[prayer]} بتوقيت ${settings.cityName || 'موقعك'}`,
                 id: prayerID + 1000,
                 schedule: { at: target, allowPause: false, alwaysShow: true, repeats: false },
-                sound: 'adhan.mp3',
+                sound: Capacitor.getPlatform() === 'android' ? 'adhan' : 'adhan.mp3', // Android usually expects resource name without extension
                 channelId: 'adhan-notifications',
-                smallIcon: 'ic_stat_icon_config_sample',
+                smallIcon: 'ic_launcher',
                 extra: { prayer, type: 'adhan', url: "/prayer-times" }
               });
 
@@ -178,7 +179,7 @@ export const usePrayerNotifications = () => {
                     body: `بقي ${settings.prePrayerMinutes} دقائق على أذان صلاة ${PRAYER_NAMES[prayer]}`,
                     id: prayerID + 2000,
                     schedule: { at: preTarget, allowPause: false, alwaysShow: true },
-                    smallIcon: 'ic_stat_icon_config_sample',
+                    smallIcon: 'ic_launcher',
                     extra: { prayer, type: 'pre', url: "/prayer-times" }
                   });
                 }
@@ -238,7 +239,7 @@ export const usePrayerNotifications = () => {
           }
         }
 
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 7; i++) {
           await scheduleForDate(addDays(now, i));
         }
 
@@ -255,12 +256,24 @@ export const usePrayerNotifications = () => {
     };
     window.addEventListener('storage', handleStorageChange);
 
+    // Listen for app state changes to ensure notifications are up to date when returning to foreground
+    let appStateListener: any;
+    if (Capacitor.isNativePlatform()) {
+      App.addListener('appStateChange', ({ isActive }) => {
+        if (isActive) {
+          console.log("[PrayerNotif] App became active, refreshing schedule...");
+          scheduleNotifications();
+        }
+      }).then(l => appStateListener = l);
+    }
+
     const refreshInterval = setInterval(scheduleNotifications, 12 * 60 * 60 * 1000); 
 
     return () => {
       timersRef.current.forEach(clearTimeout);
       clearInterval(refreshInterval);
       window.removeEventListener('storage', handleStorageChange);
+      if (appStateListener) appStateListener.remove();
     };
   }, [i18n.language, playAdhan]);
 };
