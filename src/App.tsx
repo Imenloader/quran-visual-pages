@@ -45,6 +45,7 @@ const Install = lazyWithRetry(() => import("./pages/Install"));
 const Recitations = lazyWithRetry(() => import("./pages/Recitations"));
 const EmbedView = lazyWithRetry(() => import("./pages/EmbedView"));
 const QanetApp = lazyWithRetry(() => import("./pages/qanet/QanetApp"));
+import { QanetProvider } from "./pages/qanet/QanetContext";
 const QiyamAya100 = lazyWithRetry(() => import("./pages/qanet/QiyamAya100"));
 const Athkar = lazyWithRetry(() => import("./pages/Athkar"));
 const Favorites = lazyWithRetry(() => import("./pages/Favorites"));
@@ -283,7 +284,11 @@ const AppContent = () => {
                         <Route path="/tasbih" element={<Tasbih />} />
                         <Route path="/qibla" element={<QiblaFinder />} />
                         <Route path="/qanet/*" element={<QanetApp />} />
-                        <Route path="/qiyam" element={<QiyamAya100 />} />
+                        <Route path="/qiyam" element={
+                          <QanetProvider>
+                            <QiyamAya100 />
+                          </QanetProvider>
+                        } />
                         <Route path="/names-of-allah" element={<NamesOfAllah />} />
                         <Route path="/zakat" element={<ZakatCalculator />} />
                         <Route path="/prayer-tracker" element={<PrayerTracker />} />
