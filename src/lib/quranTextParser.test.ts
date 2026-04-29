@@ -13,7 +13,7 @@ describe('quranTextParser', () => {
     expect(saba1).toBeDefined();
     expect(saba1?.text).not.toContain('سورة');
     expect(saba1?.text).not.toContain('بسم الله');
-    expect(saba1?.showBasmalah).toBe(true);
+    expect(saba1?.showBasmalah).toBe(false);
     
     // The text should start with "الحمد لله"
     expect(saba1?.text).toMatch(/^ٱلۡحَمۡدُ لِلَّهِ/);

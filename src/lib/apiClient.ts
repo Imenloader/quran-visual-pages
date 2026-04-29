@@ -1,7 +1,29 @@
+import { openDB } from 'idb';
+
 const CACHE_PREFIX = "quran_api_cache_";
 export const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 
-// Helper to safely encode strings for localStorage keys
+// Circuit Breaker setup per origin/endpoint
+const MAX_FAILURES = 5;
+const RESET_TIMEOUT = 30000; // 30 seconds
+const circuitBreakers = new Map<string, { failureCount: number, nextAttempt: number }>();
+
+function getOrigin(url: string): string {
+  try {
+    return new URL(url).origin;
+  } catch {
+    return url;
+  }
+}
+
+// IndexedDB Setup
+const dbPromise = openDB('quran-api-cache-db', 1, {
+  upgrade(db) {
+    db.createObjectStore('api-cache');
+  },
+});
+
+// Helper to safely encode strings for cache keys
 function safeEncode(str: string): string {
   try {
     return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => {
@@ -26,16 +48,30 @@ export async function fetchWithCache(
   
   const cacheKey = CACHE_PREFIX + safeEncode(url);
   
+  // Try reading from IndexedDB first
   try {
-    const cached = localStorage.getItem(cacheKey);
+    const db = await dbPromise;
+    const cached = await db.get('api-cache', cacheKey);
     if (cached) {
-      const { data, timestamp } = JSON.parse(cached);
-      if (Date.now() - timestamp < expiry) {
-        return data;
+      if (Date.now() - cached.timestamp < expiry) {
+        return cached.data;
       }
     }
   } catch (e) {
-    console.warn("Cache read error", e);
+    console.warn("IndexedDB Cache read error", e);
+  }
+
+  const origin = getOrigin(url);
+  let breaker = circuitBreakers.get(origin) || { failureCount: 0, nextAttempt: 0 };
+
+  // Circuit Breaker check
+  if (breaker.failureCount >= MAX_FAILURES && Date.now() < breaker.nextAttempt) {
+    console.warn(`Circuit breaker open for ${origin}, aborting request to:`, url);
+    throw new Error(`Circuit breaker is open for ${origin} due to repeated failures`);
+  } else if (breaker.failureCount >= MAX_FAILURES && Date.now() >= breaker.nextAttempt) {
+    // Half-open state
+    breaker.failureCount = MAX_FAILURES - 1;
+    circuitBreakers.set(origin, breaker);
   }
 
   let lastError: unknown;
@@ -110,35 +146,30 @@ export async function fetchWithCache(
       clearTimeout(timeoutId);
       const data = await response.json();
       
+      // Request succeeded, reset circuit breaker
+      breaker.failureCount = 0;
+      breaker.nextAttempt = 0;
+      circuitBreakers.set(origin, breaker);
+
+      // Save to IndexedDB
       try {
-        localStorage.setItem(cacheKey, JSON.stringify({
-          data,
-          timestamp: Date.now()
-        }));
+        const db = await dbPromise;
+        await db.put('api-cache', { data, timestamp: Date.now() }, cacheKey);
       } catch (e) {
-        // LocalStorage might be full, clear old items
-        if (e instanceof Error && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
-          try {
-            // Simple cleanup: remove all items with our prefix
-            const keysToRemove = [];
-            for (let j = 0; j < localStorage.length; j++) {
-              const key = localStorage.key(j);
-              if (key?.startsWith(CACHE_PREFIX)) {
-                keysToRemove.push(key);
-              }
-            }
-            keysToRemove.forEach(key => localStorage.removeItem(key));
-          } catch (cleanupError) {
-            console.error("Failed to cleanup localStorage", cleanupError);
-          }
-        }
-        console.warn("Failed to cache API response", e);
+        console.warn("Failed to cache API response in IndexedDB", e);
       }
       
       return data;
     } catch (e) {
       lastError = e;
       
+      // Update circuit breaker state
+      breaker.failureCount++;
+      if (breaker.failureCount >= MAX_FAILURES) {
+        breaker.nextAttempt = Date.now() + RESET_TIMEOUT;
+      }
+      circuitBreakers.set(origin, breaker);
+
       const errorMessage = e instanceof Error ? e.message : String(e);
       const isFetchError = errorMessage.toLowerCase().includes("failed to fetch") || 
                           errorMessage.toLowerCase().includes("load failed") ||

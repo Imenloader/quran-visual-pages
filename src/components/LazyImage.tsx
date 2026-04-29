@@ -48,6 +48,8 @@ const LazyImage = ({ src, alt, className = "", onLoad, onError, priority = false
           onError?.();
         }}
         loading={priority ? "eager" : "lazy"}
+        decoding="async"
+        fetchPriority={priority ? "high" : "auto"}
       />
     </div>
   );
