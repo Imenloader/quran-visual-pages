@@ -161,6 +161,8 @@ export const SiteTour = () => {
       showSkipButton
       scrollToFirstStep
       disableScrolling={false}
+      disableScrollParentFix
+      scrollOffset={100}
       disableOverlayClose
       disableCloseOnEsc
       spotlightClicks
