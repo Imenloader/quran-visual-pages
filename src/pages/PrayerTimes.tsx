@@ -437,56 +437,58 @@ export default function PrayerTimes() {
                     return (
                         <div
                           key={prayer}
-                          className={`group relative flex items-center gap-4 md:gap-8 px-6 md:px-10 py-6 md:py-8 border-b border-border/40 last:border-0 transition-colors ${
+                          className={`group relative grid grid-cols-[100px_1fr_100px] md:grid-cols-[150px_1fr_150px] items-center gap-2 md:gap-4 px-4 md:px-8 py-6 md:py-8 border-b border-border/40 last:border-0 transition-all duration-300 ${
                             isNext 
-                              ? "bg-primary/[0.03]" 
+                              ? "bg-primary/[0.04] shadow-[inset_0_0_20px_rgba(var(--primary-rgb),0.05)]" 
                               : "hover:bg-muted/30"
                           }`}
                         >
-                          {/* Icon & Actions - Right side */}
-                          <div className="flex items-center gap-4">
-                            <div className={`relative z-10 w-14 h-14 md:w-20 md:h-20 rounded-2xl md:rounded-[2.5rem] flex items-center justify-center text-2xl md:text-4xl shadow-xl transition-all duration-700 ${
+                          {/* Icon & Actions - Right side (Col 1) */}
+                          <div className="flex items-center gap-3 justify-start overflow-visible">
+                            <div className={`relative z-10 w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl flex items-center justify-center text-xl md:text-3xl shadow-lg transition-all duration-500 ${
                               isNext 
-                                ? "bg-primary text-white scale-110 shadow-primary/40 rotate-3 ring-4 ring-primary/10" 
-                                : "bg-card border border-border/40 text-muted-foreground group-hover:bg-muted"
+                                ? "bg-primary text-white scale-110 shadow-primary/30 rotate-2 ring-4 ring-primary/10" 
+                                : "bg-card border border-border/40 text-muted-foreground group-hover:scale-105"
                             }`}>
                               {prayerIcons[prayer]}
                               {isNext && (
-                                <div className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-gold rounded-full border-2 border-white animate-bounce" />
+                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-gold rounded-full border-2 border-white animate-bounce" />
                               )}
                             </div>
 
-                            <div className="flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+                            <div className="hidden md:flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
                               {prayer !== "Sunrise" && (
                                 <button
                                   onClick={() => handleSpeakPrayer(prayer)}
-                                  className="w-8 h-8 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all flex items-center justify-center shadow-sm"
+                                  className="w-7 h-7 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all flex items-center justify-center shadow-sm"
+                                  title="نطق"
                                 >
-                                  <Volume2 size={14} />
+                                  <Volume2 size={12} />
                                 </button>
                               )}
                               <button
                                 onClick={() => handleEditPrayer(prayer)}
-                                className="w-8 h-8 rounded-lg bg-muted text-muted-foreground hover:bg-foreground hover:text-white transition-all flex items-center justify-center shadow-sm"
+                                className="w-7 h-7 rounded-lg bg-muted text-muted-foreground hover:bg-foreground hover:text-white transition-all flex items-center justify-center shadow-sm"
+                                title="تعديل"
                               >
-                                <Edit3 size={14} />
+                                <Edit3 size={12} />
                               </button>
                             </div>
                           </div>
 
-                          {/* Name - Middle */}
-                          <div className="flex-1 flex flex-col items-center justify-center relative z-10">
+                          {/* Name - Middle (Col 2) */}
+                          <div className="flex flex-col items-center justify-center relative z-10 text-center">
                             {isEditing ? (
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 bg-card p-1 rounded-xl border border-primary/20 shadow-sm">
                                 <button 
                                   onClick={() => setEditingPrayer(null)} 
-                                  className="w-8 h-8 rounded-lg bg-muted text-muted-foreground flex items-center justify-center"
+                                  className="w-8 h-8 rounded-lg bg-muted text-muted-foreground flex items-center justify-center hover:bg-destructive hover:text-white transition-colors"
                                 >
                                   <X size={14} />
                                 </button>
                                 <button 
                                   onClick={saveEdit} 
-                                  className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center shadow-lg"
+                                  className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center shadow-md hover:scale-105 transition-transform"
                                 >
                                   <Check size={14} />
                                 </button>
@@ -494,47 +496,49 @@ export default function PrayerTimes() {
                                   type="time"
                                   value={editValue}
                                   onChange={(e) => setEditValue(e.target.value)}
-                                  className="text-xs bg-card border-2 border-primary/20 rounded-lg px-2 py-1 w-24 outline-none"
+                                  className="text-xs bg-transparent font-bold px-2 py-1 w-20 outline-none text-center"
                                   autoFocus
                                 />
                               </div>
                             ) : (
-                              <>
-                                <div className="flex items-center gap-3">
-                                  {isNext && (
-                                    <div 
-                                      className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-600 text-white text-[10px] font-bold shadow-lg shadow-emerald-600/20"
-                                    >
-                                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                                      {isAr ? "الصلاة القادمة" : "Next"}
-                                    </div>
-                                  )}
-                                  <p className={`font-naskh text-xl md:text-2xl font-bold transition-colors ${
-                                    isNext ? "text-primary" : "text-foreground"
-                                  }`}>
-                                    {PRAYER_NAMES[prayer]}
-                                  </p>
-                                </div>
-                                <p className="text-[10px] text-muted-foreground font-naskh mt-1 opacity-60">
-                                  {formatTime(times[prayer], settings.timeFormat)}
+                              <div className="flex flex-col items-center gap-1">
+                                <p className={`font-naskh text-lg md:text-2xl font-bold transition-colors ${
+                                  isNext ? "text-primary" : "text-foreground"
+                                }`}>
+                                  {PRAYER_NAMES[prayer]}
                                 </p>
-                              </>
+                                {isNext && (
+                                  <div 
+                                    className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-600/10 text-emerald-600 text-[9px] md:text-[10px] font-bold border border-emerald-600/20"
+                                  >
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                                    {isAr ? "الصلاة القادمة" : "Next"}
+                                  </div>
+                                )}
+                              </div>
                             )}
                             
-                            {isOverridden && (
+                            {isOverridden && !isEditing && (
                               <button
                                 onClick={() => resetOverride(prayer)}
-                                className="mt-2 flex items-center gap-1.5 text-[9px] text-gold font-naskh font-bold hover:underline bg-gold/5 px-2.5 py-1 rounded-full"
+                                className="mt-2 text-[8px] text-gold font-bold hover:underline bg-gold/5 px-2 py-0.5 rounded-full flex items-center gap-1"
                               >
-                                <RefreshCw size={10} />
-                                {isAr ? "معدّل يدوياً" : "Modified"}
+                                <RefreshCw size={8} />
+                                {isAr ? "معدّل" : "Modified"}
                               </button>
                             )}
                           </div>
 
-                          {/* Time - Left side */}
-                          <div className="flex items-center gap-2 text-primary font-bold text-lg md:text-2xl tabular-nums">
-                             <span dir="ltr">{formatTime(times[prayer], settings.timeFormat)}</span>
+                          {/* Time - Left side (Col 3) */}
+                          <div className="flex items-center justify-end">
+                            <div className={`flex flex-col items-end ${isNext ? "text-primary" : "text-muted-foreground"}`}>
+                              <span className="font-bold text-lg md:text-3xl tabular-nums tracking-tighter" dir="ltr">
+                                {formatTime(times[prayer], settings.timeFormat)}
+                              </span>
+                              <span className="text-[9px] md:text-[11px] opacity-60 font-naskh">
+                                {isNext && isAr ? "حان الآن" : ""}
+                              </span>
+                            </div>
                           </div>
                         </div>
                     );
