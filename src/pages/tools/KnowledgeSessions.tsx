@@ -46,7 +46,7 @@ const KnowledgeSessions = () => {
                     
                     <div className="flex flex-col gap-5 relative z-10">
                       <div className="flex items-center justify-between">
-                        <div className="w-16 h-16 rounded-2xl bg-muted overflow-hidden border-2 border-border/20 group-hover:border-accent/30 transition-all shadow-inner">
+                        <div className="w-16 h-16 rounded-2xl bg-muted/50 overflow-hidden border border-border/40 group-hover:border-accent/30 transition-all shadow-inner shrink-0 flex items-center justify-center">
                           {scholar.thumbnail ? (
                             <img src={scholar.thumbnail} alt={scholar.name} className="w-full h-full object-cover" />
                           ) : (

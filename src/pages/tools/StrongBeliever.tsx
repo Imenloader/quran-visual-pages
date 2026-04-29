@@ -82,7 +82,7 @@ const StrongBeliever = () => {
                     
                     <div className="flex items-center justify-between relative z-10">
                       <div className="flex items-center gap-4 min-w-0">
-                        <div className="w-16 h-16 rounded-2xl bg-accent/5 overflow-hidden flex items-center justify-center p-2 border border-accent/10 shrink-0 shadow-inner">
+                        <div className="w-16 h-16 rounded-2xl bg-muted/50 overflow-hidden flex items-center justify-center p-2 border border-border/40 group-hover:border-accent/30 transition-all shrink-0 shadow-inner">
                           <img 
                             src={exercise.image} 
                             alt={exercise.name} 
