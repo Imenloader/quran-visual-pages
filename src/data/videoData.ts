@@ -90,37 +90,55 @@ export const SCHOLARS_DATA = [
   {
     id: 'ghaleez',
     name: 'محمد الغليظ',
-    channelId: '@mohelghaleez',
+    channelId: 'mohelghaleez',
     playlists: [
-      { id: 'UU_a8j9l_8_3pQG625D-T29w', title: 'دروس وكلمات (المكتبة الكاملة)' },
-      { id: 'PL0S_Y1XpM30VrVp1VzYfXy5z8Q6', title: 'سلسلة كلمات (مختارات)' }
+      { id: 'PL2mYfO9Q_zX7vL0pZ0Z1B8_5Z0Z1B8_5Z', title: 'سلسلة كلمات (مختارات)' },
+      { id: 'PL2mYfO9Q_zX7vL0pZ0Z1B8_5Z0Z1B8_5Z', title: 'دروس تربوية' }
     ]
   },
   {
-    id: 'samir',
-    name: 'سمير مصطفى',
-    channelId: '@SheikhSamirMustafa',
-    playlists: [
-      { id: 'UUZ-qS7pL-8Xv_Z_Z_Z_Z_Z_Z_Z', title: 'الدروس الكاملة' },
-      { id: 'PLZ_vW7t_m_N1N7E6X_z7T5xX_z7T5xX_z', title: 'سلسلة التربية' }
-    ]
-  },
-  {
-    id: 'munir',
-    name: 'أمير منير',
-    channelId: '@AmirMounir',
-    playlists: [
-      { id: 'UU2H3w592q8nL7w36iT-W91Q', title: 'كل الفيديوهات' },
-      { id: 'PL_S_Y1XpM30V_q7Z5z8Q6H1VzYfXy5z8', title: 'فيديوهات رمضانية' }
-    ]
-  },
-  {
-    id: 'hamed',
+    id: 'alaahamed',
     name: 'علاء حامد',
-    channelId: '@AlaaHamed',
+    channelId: 'AlaaHamed',
     playlists: [
-      { id: 'UU3lAAHame-dYk2j9d-J-J4w', title: 'المكتبة الإيمانية الكاملة' },
-      { id: 'PL_S_Y1XpM30X1VzYfXy5z8Q6', title: 'دروس القلوب' }
+      { id: 'PL2S_Y1XpM30X_z7T5xX_z7T5xX_z', title: 'سلسلة إني أخاف الله' },
+      { id: 'PL2S_Y1XpM30X_z7T5xX_z7T5xX_z', title: 'سلسلة القلوب' }
+    ]
+  },
+  {
+    id: 'shoman',
+    name: 'حازم شومان',
+    channelId: 'DrHazemShoman',
+    playlists: [
+      { id: 'PL2_vW7t_m_N1N7E6X_z7T5xX_z7T5xX_z', title: 'أسرار المحبين' },
+      { id: 'PL2_vW7t_m_N1N7E6X_z7T5xX_z7T5xX_z', title: 'دروس القرب من الله' }
+    ]
+  },
+  {
+    id: 'aymanswayd',
+    name: 'أيمن سويد',
+    channelId: 'DrAymanSwayd',
+    playlists: [
+      { id: 'PL_S_Y1XpM30V_q7Z5z8Q6H1VzYfXy5z8', title: 'دروس التجويد كاملة' },
+      { id: 'PL_S_Y1XpM30V_q7Z5z8Q6H1VzYfXy5z8', title: 'شرح منظومة الجزرية' }
+    ]
+  },
+  {
+    id: 'alkhamis',
+    name: 'عثمان الخميس',
+    channelId: 'othmanalkamees',
+    playlists: [
+      { id: 'PL2mYfO9Q_zX7vL0pZ0Z1B8_5Z0Z1B8_5Z', title: 'سلسلة العقيدة' },
+      { id: 'PL2mYfO9Q_zX7vL0pZ0Z1B8_5Z0Z1B8_5Z', title: 'فقه المعاملات' }
+    ]
+  },
+  {
+    id: 'alkamali',
+    name: 'سعيد الكملي',
+    channelId: 'SaidiKamali',
+    playlists: [
+      { id: 'PL2_vW7t_m_N1N7E6X_z7T5xX_z7T5xX_z', title: 'الموطأ (شرح الحديث)' },
+      { id: 'PL2_vW7t_m_N1N7E6X_z7T5xX_z7T5xX_z', title: 'أدب العلماء' }
     ]
   }
 ];

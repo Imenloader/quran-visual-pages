@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { BookOpen, GraduationCap, Play, Users, MessageSquare, ChevronRight, Book, Sparkles } from "lucide-react";
+import { GraduationCap, Play, Users, ChevronRight, Book, Sparkles } from "lucide-react";
 import QuranHeader from "@/components/QuranHeader";
 import BackButton from "@/components/BackButton";
 import ScrollReveal from "@/components/ScrollReveal";
-import { SCHOLARS_DATA, KNOWLEDGE_CATEGORIES, ZAD_ACADEMY_LEVELS, SET_DHIKR } from "@/data/videoData";
-import InternalVideoPlayer from "@/components/InternalVideoPlayer";
+import { SCHOLARS_DATA, ZAD_ACADEMY_LEVELS } from "@/data/videoData";
 import ActivityPlanner from "@/components/ActivityPlanner";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -13,7 +12,16 @@ import { toast } from "sonner";
 const KnowledgeSessions = () => {
   const { t } = useTranslation();
   const [selectedScholar, setSelectedScholar] = useState(SCHOLARS_DATA[0]);
-  const [activeVideo, setActiveVideo] = useState<{ id: string; title: string } | null>(null);
+
+  const openYouTubePlaylist = (playlistId: string) => {
+    window.open(`https://www.youtube.com/playlist?list=${playlistId}`, "_blank");
+    toast.success("يتم الآن فتح قائمة التشغيل على يوتيوب");
+  };
+
+  const openYouTubeChannel = (channelId: string) => {
+    window.open(`https://www.youtube.com/${channelId}`, "_blank");
+    toast.success("يتم الآن فتح القناة على يوتيوب");
+  };
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -24,10 +32,20 @@ const KnowledgeSessions = () => {
       />
       
       <div className="max-w-7xl mx-auto px-4 mt-6">
-        <header className="flex items-center gap-4 mb-8">
-          <BackButton />
-          <div className="h-10 w-[1px] bg-border/40" />
-          <p className="text-sm text-muted-foreground font-naskh">طلب العلم الشرعي</p>
+        <header className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <BackButton />
+            <div className="h-10 w-[1px] bg-border/40" />
+            <p className="text-sm text-muted-foreground font-naskh">طلب العلم الشرعي</p>
+          </div>
+          <Button 
+            variant="outline"
+            onClick={() => openYouTubeChannel(selectedScholar.channelId)}
+            className="rounded-full font-naskh text-xs gap-2 border-accent/20 hover:bg-accent/5"
+          >
+            <Users className="w-4 h-4" />
+            زيارة قناة {selectedScholar.name}
+          </Button>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -81,7 +99,7 @@ const KnowledgeSessions = () => {
                   <ScrollReveal key={playlist.id} delay={idx * 100}>
                     <div 
                       className="group p-5 bg-card border border-border/40 rounded-3xl flex items-center justify-between hover:border-accent/30 transition-all cursor-pointer"
-                      onClick={() => setActiveVideo({ id: playlist.id, title: playlist.title })}
+                      onClick={() => openYouTubePlaylist(playlist.id)}
                     >
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center group-hover:bg-accent/10 group-hover:text-accent transition-colors">
@@ -89,7 +107,7 @@ const KnowledgeSessions = () => {
                         </div>
                         <div>
                           <h4 className="font-bold text-sm font-naskh">{playlist.title}</h4>
-                          <p className="text-[10px] text-muted-foreground font-naskh">مشاهدة السلسلة كاملة</p>
+                          <p className="text-[10px] text-muted-foreground font-naskh">فتح على يوتيوب</p>
                         </div>
                       </div>
                       <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-[-4px] transition-transform" />
@@ -123,10 +141,10 @@ const KnowledgeSessions = () => {
                           {level.description}
                         </p>
                         <Button 
-                          onClick={() => setActiveVideo({ id: level.playlistId, title: `أكاديمية زاد - ${level.title}` })}
+                          onClick={() => openYouTubePlaylist(level.playlistId)}
                           className="w-full bg-white text-indigo-600 hover:bg-white/90 rounded-xl text-xs font-bold font-naskh mt-2"
                         >
-                          عرض المنهج
+                          عرض المنهج على يوتيوب
                         </Button>
                       </div>
                     </div>
@@ -135,8 +153,9 @@ const KnowledgeSessions = () => {
               </div>
             </div>
           </div>
+...
 
-          {/* Sidebar / Planner */}
+      {/* Sidebar / Planner */}
           <div className="lg:col-span-4 space-y-8">
             <ScrollReveal>
               <ActivityPlanner 
@@ -163,15 +182,6 @@ const KnowledgeSessions = () => {
           </div>
         </div>
       </div>
-
-      {/* Video Player Portal */}
-      {activeVideo && (
-        <InternalVideoPlayer
-          videoId={activeVideo.id}
-          title={activeVideo.title}
-          onClose={() => setActiveVideo(null)}
-        />
-      )}
     </div>
   );
 };
