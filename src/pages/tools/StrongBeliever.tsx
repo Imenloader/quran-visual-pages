@@ -72,6 +72,8 @@ const StrongBeliever = () => {
               </div>
             </ScrollReveal>
 
+            {/* List Selection */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Individual Exercises for Home */}
               {selectedCategory === 'home' && EXERCISES.map((exercise, idx) => (
                 <ScrollReveal key={exercise.id} delay={idx * 100}>
