@@ -138,5 +138,5 @@ export const SCHOLARS_DATA = [
 ];
 
 export const ZAD_ACADEMY_LEVELS = [
-  { id: 'academy', title: 'قناة أكاديمية زاد', playlistId: 'PL2-FkZlEhqXREiSg-uB7W99J78J3m9Z9z', url: 'https://www.youtube.com/@ZadAcademy', description: 'المنهج التعليمي الشرعي المتكامل لطلب العلم.' }
+  { id: 'academy', title: 'قناة أكاديمية زاد', playlistId: 'PL2-FkZlEhqXREiSg-uB7W99J78J3m9Z9z', url: 'https://www.youtube.com/@AcademyZAD', description: 'المنهج التعليمي الشرعي المتكامل لطلب العلم.' }
 ];
