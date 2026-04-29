@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Joyride, { Step, CallBackProps, STATUS, ACTIONS, EVENTS } from "react-joyride";
+import { Joyride, Step, CallBackProps, STATUS, ACTIONS, EVENTS } from "react-joyride";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useNavigate, useLocation } from "react-router-dom";
