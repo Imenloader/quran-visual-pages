@@ -4,7 +4,7 @@ import { Dumbbell, Play, Heart, Flame, Timer, ChevronRight } from "lucide-react"
 import QuranHeader from "@/components/QuranHeader";
 import BackButton from "@/components/BackButton";
 import ScrollReveal from "@/components/ScrollReveal";
-import { FITNESS_CATEGORIES, FITNESS_PLAYLISTS } from "@/data/videoData";
+import { FITNESS_CATEGORIES, FITNESS_PLAYLISTS, EXERCISES, NUTRITION_TIPS } from "@/data/videoData";
 import InternalVideoPlayer from "@/components/InternalVideoPlayer";
 import ActivityPlanner from "@/components/ActivityPlanner";
 
@@ -81,40 +81,99 @@ const StrongBeliever = () => {
               </div>
             </ScrollReveal>
 
-            {/* Video Grid */}
+            {/* List Selection */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {filteredPlaylists.map((playlist, idx) => (
-                <ScrollReveal key={playlist.id} delay={idx * 100}>
-                  <div 
-                    className="group relative bg-card border border-border/40 rounded-[2rem] overflow-hidden hover:border-accent/30 transition-all shadow-sm h-full flex flex-col"
-                  >
-                    <div className="aspect-video bg-muted relative">
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
+              {/* Individual Exercises for Home/Gym */}
+              {(selectedCategory === 'home' || selectedCategory === 'gym') && EXERCISES.map((exercise, idx) => (
+                <ScrollReveal key={exercise.id} delay={idx * 100}>
+                  <div className="bg-card border border-border/40 rounded-[2rem] p-6 hover:border-accent/30 transition-all shadow-sm flex flex-col gap-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <span className="text-[10px] font-bold text-accent bg-accent/5 px-2 py-1 rounded-lg uppercase tracking-wider mb-2 inline-block">
+                          {exercise.difficulty}
+                        </span>
+                        <h3 className="font-bold font-naskh text-lg">{exercise.name}</h3>
+                        <p className="text-xs text-muted-foreground font-naskh">{exercise.target}</p>
+                      </div>
                       <button 
-                        onClick={() => setActiveVideo({ id: playlist.id, title: playlist.title })}
-                        className="absolute inset-0 flex items-center justify-center"
+                        onClick={() => setActiveVideo({ id: exercise.videoId, title: exercise.name })}
+                        className="w-12 h-12 rounded-2xl bg-accent text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
                       >
-                        <div className="w-14 h-14 rounded-full bg-accent text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
-                          <Play className="w-6 h-6 fill-current" />
-                        </div>
+                        <Play className="w-5 h-5 fill-current" />
                       </button>
                     </div>
-                    <div className="p-6 space-y-3 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-accent uppercase tracking-widest bg-accent/5 px-2 py-1 rounded-lg">
-                          {playlist.channelTitle}
-                        </span>
-                      </div>
-                      <h3 className="font-bold font-naskh text-lg group-hover:text-accent transition-colors">
-                        {playlist.title}
-                      </h3>
-                      <p className="text-xs text-muted-foreground font-naskh line-clamp-2">
-                        {playlist.description}
-                      </p>
-                    </div>
+                    <p className="text-xs text-muted-foreground font-naskh line-clamp-2 italic">
+                      "{exercise.description}"
+                    </p>
                   </div>
                 </ScrollReveal>
               ))}
+
+              {/* Nutrition/Health Advice */}
+              {selectedCategory === 'nutrition' && NUTRITION_TIPS.map((tip, idx) => (
+                <ScrollReveal key={tip.id} delay={idx * 100}>
+                  <div className="bg-card border border-border/40 rounded-[2rem] p-6 hover:border-emerald-500/30 transition-all shadow-sm flex flex-col gap-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4">
+                          <Heart className="w-5 h-5 text-emerald-500" />
+                        </div>
+                        <h3 className="font-bold font-naskh text-base mb-1">{tip.title}</h3>
+                        <p className="text-xs text-muted-foreground font-naskh leading-relaxed">
+                          {tip.content}
+                        </p>
+                      </div>
+                    </div>
+                    {tip.videoId && (
+                      <button 
+                        onClick={() => setActiveVideo({ id: tip.videoId, title: tip.title })}
+                        className="w-full py-3 rounded-xl bg-emerald-500/10 text-emerald-600 font-bold text-xs font-naskh flex items-center justify-center gap-2 hover:bg-emerald-500/20 transition-all"
+                      >
+                        <Play className="w-4 h-4 fill-current" />
+                        مشاهدة الشرح / الوصفة
+                      </button>
+                    )}
+                  </div>
+                </ScrollReveal>
+              ))}
+
+              {/* Playlists (if no specific exercises) */}
+              {selectedCategory === 'home' && filteredPlaylists.length > 0 && (
+                <div className="col-span-full pt-8">
+                  <h3 className="font-bold text-lg font-naskh mb-6 px-2">برامج تدريبية كاملة</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {filteredPlaylists.map((playlist, idx) => (
+                      <ScrollReveal key={playlist.id} delay={idx * 100}>
+                        <div 
+                          className="group relative bg-card border border-border/40 rounded-[2rem] overflow-hidden hover:border-accent/30 transition-all shadow-sm h-full flex flex-col"
+                        >
+                          <div className="aspect-video bg-muted relative">
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
+                            <button 
+                              onClick={() => setActiveVideo({ id: playlist.id, title: playlist.title })}
+                              className="absolute inset-0 flex items-center justify-center"
+                            >
+                              <div className="w-14 h-14 rounded-full bg-accent text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
+                                <Play className="w-6 h-6 fill-current" />
+                              </div>
+                            </button>
+                          </div>
+                          <div className="p-6 space-y-3 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-bold text-accent uppercase tracking-widest bg-accent/5 px-2 py-1 rounded-lg">
+                                {playlist.channelTitle}
+                              </span>
+                            </div>
+                            <h3 className="font-bold font-naskh text-lg group-hover:text-accent transition-colors">
+                              {playlist.title}
+                            </h3>
+                          </div>
+                        </div>
+                      </ScrollReveal>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

@@ -42,6 +42,62 @@ export const FITNESS_PLAYLISTS: YouTubePlaylist[] = [
   }
 ];
 
+export const EXERCISES = [
+  {
+    id: 'pushups',
+    name: 'تمرين الضغط (Pushups)',
+    target: 'الصدر والترايسيبس',
+    videoId: 'IODxDxX7oi4',
+    difficulty: 'متوسط',
+    description: 'تمرين أساسي لتقوية الجزء العلوي من الجسم.'
+  },
+  {
+    id: 'squats',
+    name: 'تمرين القرفصاء (Squats)',
+    target: 'الأرجل والأرداف',
+    videoId: 'mGvzVjuY8SY',
+    difficulty: 'سهل',
+    description: 'تمرين ممتاز لتقوية عضلات الأرجل وبناء القوة.'
+  },
+  {
+    id: 'plank',
+    name: 'تمرين البلانك (Plank)',
+    target: 'عضلات البطن والمركز',
+    videoId: 'ASdvN_XEl_c',
+    difficulty: 'متوسط',
+    description: 'تمرين الثبات لتقوية عضلات البطن والظهر.'
+  },
+  {
+    id: 'burpees',
+    name: 'تمرين البيربي (Burpees)',
+    target: 'كامل الجسم - كارديو',
+    videoId: 'auBLPXO8FKI',
+    difficulty: 'صعب',
+    description: 'تمرين عالي الشدة لحرق الدهون ورفع اللياقة.'
+  }
+];
+
+export const NUTRITION_TIPS = [
+  {
+    id: 'protein',
+    title: 'أهمية البروتين لبناء العضلات',
+    content: 'يعد البروتين حجر الأساس لبناء الأنسجة العضلية وترميمها بعد التمرين.',
+    videoId: '2pZ8D1_6Q6Y'
+  },
+  {
+    id: 'recipe-1',
+    title: 'وجبة فطور صحية وعالية البروتين',
+    content: 'طريقة تحضير فطور متكامل يمدك بالطاقة طوال اليوم.',
+    videoId: 'rB9U6n6vE5M'
+  },
+  {
+    id: 'water',
+    title: 'شرب الماء والأداء الرياضي',
+    content: 'الجفاف يؤدي لتراجع الأداء بنسبة تصل لـ ٢٠٪، احرص على شرب الماء بانتظام.',
+    videoId: 'n5p6t8u9y' // Placeholder
+  }
+];
+
 export const SCHOLARS_DATA = [
   {
     id: 'ghaleez',
