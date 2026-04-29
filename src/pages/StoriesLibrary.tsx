@@ -118,6 +118,12 @@ const StoriesLibrary: React.FC = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
                   
+                  <div className="absolute top-4 right-4 flex flex-col gap-2">
+                    <Badge className={story.isReal ? "bg-emerald-500/90 text-white" : "bg-purple-500/90 text-white"}>
+                      {story.isReal ? "حقيقي" : "مُنشأ"}
+                    </Badge>
+                  </div>
+
                   <div className="absolute top-4 left-4">
                     <Badge className="bg-white/90 text-black border-none hover:bg-white shadow-lg backdrop-blur-sm">
                       {story.category}
