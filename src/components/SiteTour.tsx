@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
+import { Sparkles, Check } from "lucide-react";
 
 const TOUR_STORAGE_KEY = "quraaniat-tour-completed";
 
