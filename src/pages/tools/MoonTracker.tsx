@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { Moon, Sun, Calendar, Info, Star, Sparkles, MapPin, Clock } from "lucide-react";
 import QuranHeader from "@/components/QuranHeader";
@@ -93,9 +92,7 @@ const MoonTracker = () => {
           <div className="absolute top-1/2 right-1/3 w-6 h-6 rounded-full bg-slate-800/50" />
           
           {/* Illumination Layer */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+          <div 
             className="absolute inset-0 bg-amber-100"
             style={{
               clipPath: moonPhase <= 0.5 

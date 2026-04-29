@@ -3,7 +3,6 @@ import { RefreshCw, CheckCircle2, AlertCircle, Download, Info } from "lucide-rea
 import { useTranslation } from "react-i18next";
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { toast } from "sonner";
-import { motion } from "motion/react";
 import { toArabicNumber } from "@/data/quranData";
 
 const UpdateManager: React.FC = () => {
@@ -89,29 +88,23 @@ const UpdateManager: React.FC = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+          <button
             onClick={checkUpdates}
             disabled={isChecking}
-            className="w-full h-12 rounded-xl bg-emerald-deep text-gold font-serif font-bold flex items-center justify-center gap-3 shadow-lg shadow-emerald-deep/20 disabled:opacity-50"
+            className="w-full h-12 rounded-xl bg-emerald-deep text-gold font-serif font-bold flex items-center justify-center gap-3 shadow-lg shadow-emerald-deep/20 disabled:opacity-50 transition-all active:scale-95"
           >
             <RefreshCw size={18} className={isChecking ? "animate-spin" : ""} />
             {isChecking ? (t("settings.update.checking") || "جاري التحقق...") : (t("settings.update.check") || "التحقق من وجود تحديثات")}
-          </motion.button>
+          </button>
 
           {needRefresh && (
-            <motion.button
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+            <button
               onClick={() => updateServiceWorker(true)}
-              className="w-full h-12 rounded-xl bg-gold text-emerald-deep font-serif font-bold flex items-center justify-center gap-3 shadow-lg shadow-gold/20"
+              className="w-full h-12 rounded-xl bg-gold text-emerald-deep font-serif font-bold flex items-center justify-center gap-3 shadow-lg shadow-gold/20 transition-all active:scale-95 opacity-100 translate-y-0"
             >
               <Download size={18} />
               {t("settings.update.installNow") || "تثبيت التحديث الجديد"}
-            </motion.button>
+            </button>
           )}
         </div>
 

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { HifzQuestion, generatePageQuiz, generateSmartReviewQuiz } from "@/lib/hifzGenerator";
-import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { CheckCircle2, XCircle, HelpCircle, ArrowLeft, ArrowRight, Sparkles, Trophy, Loader2, GraduationCap, Volume2, Play } from "lucide-react";
 import { Button } from "./ui/button";
@@ -168,7 +167,9 @@ const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, isSmartReview, 
     return (
       <div className="p-8 text-center space-y-8">
         <div className="space-y-2">
-          <GraduationCap className="w-12 h-12 text-accent mx-auto" />
+          <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto">
+            <GraduationCap className="w-6 h-6 text-accent" />
+          </div>
           <h3 className="text-2xl font-bold font-serif">{isSmartReview ? (isAr ? "مراجعة ذكية شاملة" : "Complete Smart Review") : (isAr ? "اختبار حفظ الصفحة" : "Page Hifz Test")}</h3>
           <p className="text-muted-foreground text-sm">
             {isSmartReview 
@@ -220,10 +221,8 @@ const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, isSmartReview, 
 
   if (quizFinished) {
     return (
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="p-8 text-center space-y-6"
+      <div 
+        className="p-8 text-center space-y-6 transition-all duration-500 opacity-100 scale-100"
       >
         <div className="w-20 h-20 bg-gold/20 rounded-full flex items-center justify-center mx-auto">
           <Trophy className="w-10 h-10 text-gold" />
@@ -234,10 +233,10 @@ const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, isSmartReview, 
             {isAr ? `لقد أجبت على ${toArabicNumber(score)} من أصل ${toArabicNumber(questions.length)} أسئلة بشكل صحيح.` : `You answered ${score} out of ${questions.length} questions correctly.`}
           </p>
         </div>
-        <Button onClick={onClose} className="w-full h-12 rounded-xl bg-primary">
+        <Button onClick={onClose} className="w-full h-12 rounded-xl bg-primary transition-all active:scale-95">
           {isAr ? "العودة للمصحف" : "Back to Quran"}
         </Button>
-      </motion.div>
+      </div>
     );
   }
 
@@ -247,141 +246,127 @@ const HifzQuizView: React.FC<HifzQuizViewProps> = ({ pageNumber, isSmartReview, 
     <div className="p-6 space-y-8">
       {/* Progress Header */}
       <div className="flex justify-between items-center">
-        <span className="text-[10px] font-bold text-accent uppercase tracking-widest">
-          {isAr ? `السؤال ${toArabicNumber(currentIndex + 1)} من ${toArabicNumber(questions.length)}` : `Question ${currentIndex + 1} of ${questions.length}`}
-        </span>
         <div className="h-1.5 w-32 bg-muted rounded-full overflow-hidden">
           <div 
             className="h-full bg-accent transition-all duration-500" 
             style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
           />
         </div>
+        <span className="text-[10px] font-bold text-accent uppercase tracking-widest">
+          {isAr ? `السؤال ${toArabicNumber(currentIndex + 1)} من ${toArabicNumber(questions.length)}` : `Question ${currentIndex + 1} of ${questions.length}`}
+        </span>
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentIndex}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          className="space-y-6"
-        >
-          <h4 className="text-xl font-bold font-serif text-center leading-relaxed">
-            {current.question}
-          </h4>
+      <div
+        className="space-y-6 transition-all duration-300 opacity-100 translate-x-0"
+      >
+        <h4 className="text-xl font-bold font-serif text-center leading-relaxed">
+          {current.question}
+        </h4>
 
-          <div className="space-y-4">
-            {current.options ? (
-              <div className="grid grid-cols-1 gap-2">
-                {current.options.map((option, i) => (
-                  <Button
-                    key={i}
-                    variant={isCorrect !== null && normalizeArabic(option) === normalizeArabic(current.answer) ? "default" : "outline"}
-                    className={`h-14 rounded-2xl font-serif text-lg ${
-                      isCorrect !== null 
-                        ? normalizeArabic(option) === normalizeArabic(current.answer) 
-                          ? "bg-emerald-500 text-white" 
-                          : normalizeArabic(option) === normalizeArabic(userAnswer) 
-                            ? "bg-rose-500 text-white" 
-                            : ""
-                        : "hover:border-accent hover:bg-accent/5"
-                    }`}
-                    onClick={() => isCorrect === null && handleCheck(option)}
-                    disabled={isCorrect !== null}
-                  >
-                    {option}
-                  </Button>
-                ))}
-              </div>
-            ) : (
-              <Input
-                value={userAnswer}
-                onChange={(e) => setUserAnswer(e.target.value)}
-                placeholder={isAr ? "اكتب الإجابة هنا..." : "Type answer here..."}
-                className="h-14 text-center text-lg font-serif rounded-2xl border-2 focus-visible:ring-accent"
-                dir={isAr ? "rtl" : "ltr"}
-                onKeyDown={(e) => e.key === "Enter" && isCorrect === null && handleCheck()}
-              />
-            )}
-
-            <div className="flex gap-2">
-              {isCorrect === null ? (
-                <>
-                  <Button 
-                    className="flex-1 h-12 rounded-xl bg-accent text-white font-bold"
-                    onClick={() => handleCheck()}
-                    disabled={!current.options && !userAnswer.trim()}
-                  >
-                    {isAr ? "تحقق" : "Check"}
-                  </Button>
-                  {current.verseKey && (
-                    <Button
-                      variant="outline"
-                      className={`h-12 w-12 rounded-xl border-accent/20 text-accent ${isPlayingAudio ? 'animate-pulse bg-accent/10' : ''}`}
-                      onClick={() => playVerseAudio(current.verseKey!, 3000)}
-                      disabled={isPlayingAudio}
-                      title={isAr ? "استمع للتلميح" : "Listen to Hint"}
-                    >
-                      <Volume2 size={20} />
-                    </Button>
-                  )}
-                  <Button 
-                    variant="ghost"
-                    className="h-12 w-12 rounded-xl text-muted-foreground"
-                    onClick={() => setShowHint(!showHint)}
-                  >
-                    <HelpCircle size={20} />
-                  </Button>
-                </>
-              ) : (
-                <Button 
-                  className={`w-full h-12 rounded-xl ${isCorrect ? "bg-emerald-500 hover:bg-emerald-600" : "bg-rose-500 hover:bg-rose-600"}`}
-                  onClick={handleNext}
+        <div className="space-y-4">
+          {current.options ? (
+            <div className="grid grid-cols-1 gap-2">
+              {current.options.map((option, i) => (
+                <Button
+                  key={i}
+                  variant={isCorrect !== null && normalizeArabic(option) === normalizeArabic(current.answer) ? "default" : "outline"}
+                  className={`h-14 rounded-2xl font-serif text-lg transition-all active:scale-98 ${
+                    isCorrect !== null 
+                      ? normalizeArabic(option) === normalizeArabic(current.answer) 
+                        ? "bg-emerald-500 text-white" 
+                        : normalizeArabic(option) === normalizeArabic(userAnswer) 
+                          ? "bg-rose-500 text-white" 
+                          : ""
+                      : "hover:border-accent hover:bg-accent/5"
+                  }`}
+                  onClick={() => isCorrect === null && handleCheck(option)}
+                  disabled={isCorrect !== null}
                 >
-                  {isAr ? "التالي" : "Next"}
-                  {isAr ? <ArrowLeft className="w-4 h-4 mr-2" /> : <ArrowRight className="w-4 h-4 ml-2" />}
+                  {option}
                 </Button>
-              )}
+              ))}
             </div>
+          ) : (
+            <Input
+              value={userAnswer}
+              onChange={(e) => setUserAnswer(e.target.value)}
+              placeholder={isAr ? "اكتب الإجابة هنا..." : "Type answer here..."}
+              className="h-14 text-center text-lg font-serif rounded-2xl border-2 focus-visible:ring-accent transition-all"
+              dir={isAr ? "rtl" : "ltr"}
+              onKeyDown={(e) => e.key === "Enter" && isCorrect === null && handleCheck()}
+            />
+          )}
 
-            <AnimatePresence>
-              {showHint && current.hint && (
-                <motion.p 
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  className="text-center text-xs text-muted-foreground bg-accent/5 p-3 rounded-xl border border-accent/10"
-                >
-                  {current.hint}
-                </motion.p>
-              )}
-            </AnimatePresence>
-
-            {isCorrect !== null && (
-              <motion.div 
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="space-y-4"
+          <div className="flex gap-2">
+            <Button 
+              variant="ghost"
+              className="h-12 w-12 rounded-xl text-muted-foreground hover:bg-muted transition-all active:scale-90"
+              onClick={() => setShowHint(!showHint)}
+            >
+              <HelpCircle size={20} />
+            </Button>
+            {current.verseKey && (
+              <Button
+                variant="outline"
+                className={`h-12 w-12 rounded-xl border-accent/20 text-accent transition-all active:scale-90 ${isPlayingAudio ? 'animate-pulse bg-accent/10' : ''}`}
+                onClick={() => playVerseAudio(current.verseKey!, 3000)}
+                disabled={isPlayingAudio}
+                title={isAr ? "استمع للتلميح" : "Listen to Hint"}
               >
-                <div className={`flex items-center justify-center gap-2 p-4 rounded-2xl ${isCorrect ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600"}`}>
-                  {isCorrect ? <CheckCircle2 /> : <XCircle />}
-                  <span className="font-bold font-serif">
-                    {isCorrect 
-                      ? (isAr ? "إجابة صحيحة! أحسنت." : "Correct answer! Well done.") 
-                      : (isAr ? `خطأ، الإجابة هي: ${current.answer}` : `Incorrect, the answer is: ${current.answer}`)}
-                  </span>
-                </div>
-                
-                {current.explanation && (
-                  <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-700 text-sm text-center font-serif leading-relaxed italic">
-                    <Sparkles className="w-4 h-4 inline-block ml-2 opacity-70" />
-                    {current.explanation}
-                  </div>
-                )}
-              </motion.div>
+                <Volume2 size={20} />
+              </Button>
+            )}
+            {isCorrect === null ? (
+              <Button 
+                className="flex-1 h-12 rounded-xl bg-accent text-white font-bold transition-all active:scale-95"
+                onClick={() => handleCheck()}
+                disabled={!current.options && !userAnswer.trim()}
+              >
+                {isAr ? "تحقق" : "Check"}
+              </Button>
+            ) : (
+              <Button 
+                className={`flex-1 h-12 rounded-xl transition-all active:scale-95 ${isCorrect ? "bg-emerald-500 hover:bg-emerald-600" : "bg-rose-500 hover:bg-rose-600"}`}
+                onClick={handleNext}
+              >
+                {isAr ? <ArrowLeft className="w-4 h-4 mr-2" /> : <ArrowRight className="w-4 h-4 ml-2" />}
+                {isAr ? "التالي" : "Next"}
+              </Button>
             )}
           </div>
-        </motion.div>
-      </AnimatePresence>
+
+          {showHint && current.hint && (
+            <p 
+              className="text-center text-xs text-muted-foreground bg-accent/5 p-3 rounded-xl border border-accent/10 transition-all opacity-100"
+            >
+              {current.hint}
+            </p>
+          )}
+
+          {isCorrect !== null && (
+            <div 
+              className="space-y-4 transition-all duration-500 opacity-100 scale-100"
+            >
+              <div className={`flex items-center justify-center gap-2 p-4 rounded-2xl ${isCorrect ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600"}`}>
+                <span className="font-bold font-serif text-right flex-1">
+                  {isCorrect 
+                    ? (isAr ? "إجابة صحيحة! أحسنت." : "Correct answer! Well done.") 
+                    : (isAr ? `خطأ، الإجابة هي: ${current.answer}` : `Incorrect, the answer is: ${current.answer}`)}
+                </span>
+                {isCorrect ? <CheckCircle2 /> : <XCircle />}
+              </div>
+              
+              {current.explanation && (
+                <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-700 text-sm text-center font-serif leading-relaxed italic">
+                  <Sparkles className="w-4 h-4 inline-block ml-2 opacity-70" />
+                  {current.explanation}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

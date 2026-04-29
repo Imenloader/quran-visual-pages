@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -81,43 +80,38 @@ const NamesDirectory = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <AnimatePresence mode="popLayout">
-            {filteredNames.map((item) => (
-              <motion.div 
-                layout key={item.name}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="p-6 rounded-[2rem] bg-card border border-border hover:border-primary/40 hover:shadow-xl transition-all duration-300 group relative"
+          {filteredNames.map((item) => (
+            <div 
+              key={item.name}
+              className="p-6 rounded-[2rem] bg-card border border-border hover:border-primary/40 hover:shadow-xl transition-all duration-300 group relative active:scale-98"
+            >
+              <button 
+                onClick={() => toggleFavorite(item.name)}
+                className={`absolute top-4 left-4 p-2 rounded-full transition-all ${
+                  favorites.includes(item.name) ? "bg-rose-500 text-white shadow-lg shadow-rose-500/20" : "bg-muted text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500"
+                } active:scale-90`}
               >
-                <button 
-                  onClick={() => toggleFavorite(item.name)}
-                  className={`absolute top-4 left-4 p-2 rounded-full transition-all ${
-                    favorites.includes(item.name) ? "bg-rose-500 text-white shadow-lg shadow-rose-500/20" : "bg-muted text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500"
-                  }`}
-                >
-                  <Heart size={16} className={favorites.includes(item.name) ? "fill-current" : ""} />
-                </button>
+                <Heart size={16} className={favorites.includes(item.name) ? "fill-current" : ""} />
+              </button>
 
-                <div className="flex flex-col items-center text-center space-y-4">
-                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-2 ${item.gender === 'boy' ? 'bg-blue-500/10 text-blue-500' : 'bg-rose-500/10 text-rose-500'}`}>
-                    <Baby size={32} />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold font-serif">{item.name}</h3>
-                    <p className="text-primary font-bold text-sm">{item.nameEn}</p>
-                  </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
-                    {i18n.language === 'ar' ? item.meaning : item.meaningEn}
-                  </p>
-                  <div className="flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                    <History size={12} />
-                    {i18n.language === 'ar' ? item.origin : item.originEn}
-                  </div>
+              <div className="flex flex-col items-center text-center space-y-4">
+                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-2 ${item.gender === 'boy' ? 'bg-blue-500/10 text-blue-500' : 'bg-rose-500/10 text-rose-500'} group-hover:scale-110 transition-transform duration-500`}>
+                  <Baby size={32} />
                 </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+                <div>
+                  <h3 className="text-2xl font-bold font-serif">{item.name}</h3>
+                  <p className="text-primary font-bold text-sm">{item.nameEn}</p>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+                  {i18n.language === 'ar' ? item.meaning : item.meaningEn}
+                </p>
+                <div className="flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  <History size={12} />
+                  {i18n.language === 'ar' ? item.origin : item.originEn}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

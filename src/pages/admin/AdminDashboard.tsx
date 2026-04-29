@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "motion/react";
 import { 
   LayoutDashboard, 
   Users, 
@@ -154,10 +153,7 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {menuItems.map((item, idx) => (
             <Link key={item.id} to={item.path}>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
+              <div
                 className="p-6 bg-card border border-border rounded-3xl shadow-soft group hover:border-accent/50 transition-all cursor-pointer flex items-center justify-between"
               >
                 <div className="flex items-center gap-4">
@@ -170,7 +166,7 @@ const AdminDashboard = () => {
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-              </motion.div>
+              </div>
             </Link>
           ))}
         </div>

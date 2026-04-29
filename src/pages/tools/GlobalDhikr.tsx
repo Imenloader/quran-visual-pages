@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { Users, Fingerprint, Globe, Sparkles, TrendingUp, Info } from "lucide-react";
 import QuranHeader from "@/components/QuranHeader";
@@ -127,9 +126,7 @@ const GlobalDhikr = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Global Counter Card */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+          <div
             className="bento-card !p-8 bg-gradient-to-br from-primary/10 to-accent/5 border-primary/20 relative overflow-hidden group"
           >
             <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform">
@@ -146,20 +143,15 @@ const GlobalDhikr = () => {
               </div>
 
               <div className="space-y-1">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={globalCount}
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    className="text-6xl font-bold tracking-tighter text-primary"
-                  >
-                    {isLoading ? (
-                      <span className="text-3xl text-muted-foreground animate-pulse">…</span>
-                    ) : (
-                      globalCount.toLocaleString()
-                    )}
-                  </motion.div>
-                </AnimatePresence>
+                <div
+                  className="text-6xl font-bold tracking-tighter text-primary"
+                >
+                  {isLoading ? (
+                    <span className="text-3xl text-muted-foreground animate-pulse">…</span>
+                  ) : (
+                    globalCount.toLocaleString()
+                  )}
+                </div>
                 <p className="text-xs text-muted-foreground font-medium">
                   {isAr ? "تسبيحة تمت حتى الآن" : "Praises performed so far"}
                 </p>
@@ -172,12 +164,10 @@ const GlobalDhikr = () => {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Personal Stats Card */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
+          <div
             className="bento-card !p-8 bg-card border-border/40 space-y-8"
           >
             <div className="flex items-center gap-3">
@@ -191,31 +181,21 @@ const GlobalDhikr = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={sessionCount}
-                    initial={{ scale: 1.3, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="text-3xl font-bold text-foreground"
-                  >
-                    {sessionCount}
-                  </motion.div>
-                </AnimatePresence>
+                <div
+                  className="text-3xl font-bold text-foreground"
+                >
+                  {sessionCount}
+                </div>
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
                   {isAr ? "هذه الجلسة" : "This Session"}
                 </p>
               </div>
               <div className="space-y-1">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={personalCount}
-                    initial={{ scale: 1.3, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="text-3xl font-bold text-foreground"
-                  >
-                    {personalCount}
-                  </motion.div>
-                </AnimatePresence>
+                <div
+                  className="text-3xl font-bold text-foreground"
+                >
+                  {personalCount}
+                </div>
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
                   {isAr ? "تسبيحاتك اليوم" : "Today's Total"}
                 </p>
@@ -230,23 +210,19 @@ const GlobalDhikr = () => {
                   : "Every praise you make increases the Ummah's balance and earns you reward, InshaAllah."}
               </p>
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* The Dhikr Button */}
         <div className="flex flex-col items-center justify-center py-12 space-y-12">
           <div className="relative group">
-            <motion.div
-              animate={{ scale: [1, 1.05, 1], opacity: [0.5, 0.8, 0.5] }}
-              transition={{ duration: 3, repeat: Infinity }}
-              className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full group-hover:bg-primary/40 transition-colors"
+            <div
+              className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full group-hover:bg-primary/40 transition-colors animate-pulse"
             />
 
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={handleDhikr}
-              className="relative w-64 h-64 rounded-full bg-gradient-to-br from-emerald-600 to-emerald-800 shadow-2xl flex flex-col items-center justify-center gap-3 border-[12px] border-white/10 group-active:border-white/20 transition-all px-4"
+              className="relative w-64 h-64 rounded-full bg-gradient-to-br from-emerald-600 to-emerald-800 shadow-2xl flex flex-col items-center justify-center gap-3 border-[12px] border-white/10 group-active:border-white/20 transition-all px-4 active:scale-95"
             >
               <Fingerprint className="w-14 h-14 text-white group-hover:scale-110 transition-transform shrink-0" />
               <div className="flex flex-col items-center gap-1 text-center">
@@ -260,19 +236,7 @@ const GlobalDhikr = () => {
                   {isAr ? dailyDhikr.meaning.ar : dailyDhikr.meaning.en}
                 </span>
               </div>
-
-              <AnimatePresence>
-                {sessionCount > 0 && (
-                  <motion.div
-                    key={sessionCount}
-                    initial={{ scale: 0.8, opacity: 1 }}
-                    animate={{ scale: 1.5, opacity: 0 }}
-                    exit={{ opacity: 0 }}
-                    className="absolute inset-0 rounded-full border-4 border-white/30"
-                  />
-                )}
-              </AnimatePresence>
-            </motion.button>
+            </button>
           </div>
 
           <div className="p-4 bg-muted/50 rounded-2xl border border-border/50 flex items-start gap-3 max-w-md mx-auto">

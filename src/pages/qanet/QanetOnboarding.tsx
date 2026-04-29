@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { Check, ChevronLeft, ChevronRight, Moon, Bell, AlertTriangle, Medal, Trophy } from 'lucide-react';
 import { useQanet } from './QanetContext';
 
@@ -21,59 +20,27 @@ export default function QanetOnboarding() {
     updateState({ hasCompletedOnboarding: true });
   };
 
-  const slideVariants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 100 : -100,
-      opacity: 0
-    }),
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1
-    },
-    exit: (direction: number) => ({
-      zIndex: 0,
-      x: direction < 0 ? 100 : -100,
-      opacity: 0
-    })
-  };
+
 
   return (
     <div className="fixed inset-0 z-[100] bg-[#0B132B] text-white flex flex-col font-naskh overflow-y-auto" dir={isArabic ? 'rtl' : 'ltr'}>
       {/* Top section with Moon */}
       <div className="pt-12 pb-6 flex flex-col items-center justify-center relative z-10">
-        <motion.div 
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1 }}
+        <div 
           className="w-32 h-32 md:w-48 md:h-48 rounded-full overflow-hidden mb-4 shadow-[0_0_50px_rgba(255,255,255,0.1)] relative"
         >
           <img src={moonImage} alt="Moon" className="w-full h-full object-cover mix-blend-screen" />
-        </motion.div>
-        <motion.h1 
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
+        </div>
+        <h1 
           className="text-3xl font-bold text-center !text-white font-naskh"
         >
           قانت
-        </motion.h1>
+        </h1>
       </div>
 
       {/* Main Content Area */}
       <div className="flex-1 relative z-10 w-full max-w-md mx-auto px-6 flex flex-col">
-        <AnimatePresence initial={false} custom={direction} mode="wait">
-          <motion.div
-            key={step}
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{
-              x: { type: "spring", stiffness: 300, damping: 30 },
-              opacity: { duration: 0.2 }
-            }}
+          <div
             className="flex-1 flex flex-col"
           >
             {step === 0 && <StepLanguage nextStep={nextStep} />}
@@ -82,8 +49,7 @@ export default function QanetOnboarding() {
             {step === 3 && <StepTarget nextStep={nextStep} />}
             {step === 4 && <StepLevels />}
             {step === 5 && <StepNotifications finish={finishOnboarding} />}
-          </motion.div>
-        </AnimatePresence>
+          </div>
       </div>
 
       {/* Bottom Navigation */}

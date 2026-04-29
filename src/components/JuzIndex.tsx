@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { X, BookOpen, Check } from "lucide-react";
 import { juzData, toArabicNumber } from "@/data/quranData";
-import { motion } from "motion/react";
 import { useHifzMastery } from "@/hooks/useHifzMastery";
 import MasteryBadge from "./MasteryBadge";
 
@@ -23,12 +22,8 @@ const JuzIndex = ({ onClose, currentJuz }: JuzIndexProps) => {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-md" onClick={onClose}>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60" onClick={onClose}>
+      <div
         className="bg-card border border-border rounded-3xl shadow-2xl w-[90vw] max-w-md max-h-[70vh] flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
@@ -64,7 +59,7 @@ const JuzIndex = ({ onClose, currentJuz }: JuzIndexProps) => {
                 } ${isCompleted ? "border-emerald-500/20" : ""}`}
               >
                 {/* Number circle */}
-                <div className={`flex items-center justify-center w-10 h-10 rounded-xl shrink-0 transition-transform group-hover:scale-110 relative ${
+                <div className={`flex items-center justify-center w-10 h-10 rounded-xl shrink-0 relative ${
                   currentJuz === juz.number ? "gradient-islamic" : (isCompleted ? "bg-emerald-500/10" : "bg-muted")
                 }`}>
                   {isCompleted ? (
@@ -101,7 +96,7 @@ const JuzIndex = ({ onClose, currentJuz }: JuzIndexProps) => {
           );
         })}
       </div>
-      </motion.div>
+      </div>
     </div>
   );
 };

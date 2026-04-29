@@ -278,7 +278,7 @@ const Hub = () => {
           <div className="lg:col-span-4 space-y-8">
             <ScrollReveal>
               <section className="bento-card !p-8 bg-card/40 backdrop-blur-2xl border border-border/40 shadow-islamic h-fit min-h-[300px]">
-                <Suspense fallback={<div className="h-[240px] flex items-center justify-center"><Loader2 className="animate-spin text-accent" /></div>}>
+                <Suspense fallback={<div className="h-[240px] flex items-center justify-center"><Loader2 className="text-accent" /></div>}>
                   <ReadingProgress />
                 </Suspense>
               </section>
@@ -300,7 +300,7 @@ const Hub = () => {
                     </div>
                     {downloadAllState === "downloading" && (
                       <div className="flex items-center gap-3 px-4 py-1.5 rounded-full bg-black/5 backdrop-blur-sm border border-black/5">
-                        <Loader2 className="size-[12px] animate-spin text-accent" />
+                        <Loader2 className="size-[12px] text-accent" />
                         <span className="text-[10px] font-bold tracking-widest uppercase text-accent">{t("hub.offline.downloading")}</span>
                       </div>
                     )}

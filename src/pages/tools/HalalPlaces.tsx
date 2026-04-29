@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { motion } from "motion/react";
 import { ChevronLeft, MapPin, Search, Utensils, Loader2, ExternalLink, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -97,11 +96,8 @@ const HalalPlaces = () => {
                 </div>
               ) : places.length > 0 ? (
                 places.map((place, idx) => (
-                  <motion.div
+                  <div
                     key={place.name + idx}
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: idx * 0.1 }}
                     className={`p-4 border rounded-2xl shadow-soft flex items-center justify-between group transition-colors ${
                       place.type === 'fallback' 
                         ? 'bg-accent/10 border-accent/30' 
@@ -138,7 +134,7 @@ const HalalPlaces = () => {
                         </div>
                       )}
                     </div>
-                  </motion.div>
+                  </div>
                 ))
               ) : !error && (
                 <p className="text-center text-muted-foreground text-sm font-naskh py-12">لا توجد نتائج حالياً</p>

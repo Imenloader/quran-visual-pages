@@ -1,13 +1,10 @@
 import { useState, useEffect } from "react";
-import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { toZonedTime } from "date-fns-tz";
 
-// Inline getCairoDate to avoid circular dependency
 const getCairoDate = (): Date => {
   return toZonedTime(new Date(), "Africa/Cairo");
 };
-
 
 const CairoClock = () => {
   const [time, setTime] = useState("");
@@ -32,10 +29,8 @@ const CairoClock = () => {
   }, [isAr]);
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="relative group mt-6"
+    <div 
+      className="relative group mt-6 transition-all duration-700 opacity-100 scale-100"
     >
       {/* Outer Glow */}
       <div className="absolute -inset-4 bg-gold/10 blur-[40px] rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-1000" />
@@ -43,12 +38,21 @@ const CairoClock = () => {
       {/* Main Container */}
       <div className="relative flex flex-col items-center bg-black/40 backdrop-blur-[20px] border border-gold/30 px-12 py-6 rounded-[2.5rem] shadow-[0_0_50px_rgba(212,175,55,0.15)] overflow-hidden">
         
-        {/* Animated Scanning Line */}
-        <motion.div 
-          animate={{ top: ["-100%", "200%"] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-          className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent z-0"
+        {/* Animated Scanning Line (Pure CSS) */}
+        <div 
+          className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent z-0 animate-scan"
+          style={{ 
+            animation: 'scan 4s linear infinite',
+            top: '-100%'
+          }}
         />
+
+        <style>{`
+          @keyframes scan {
+            0% { top: -10%; }
+            100% { top: 110%; }
+          }
+        `}</style>
 
         {/* Header Label */}
         <div className="flex items-center gap-2 mb-3 z-10">
@@ -88,7 +92,7 @@ const CairoClock = () => {
         <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-gold/40 rounded-bl-2xl" />
         <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-gold/40 rounded-br-2xl" />
       </div>
-    </motion.div>
+    </div>
   );
 };
 

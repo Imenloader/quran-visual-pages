@@ -12,9 +12,8 @@ import { Link } from "react-router-dom";
 import ScrollReveal from "@/components/ScrollReveal";
 import { normalizeArabic } from "@/lib/arabicUtils";
 import { applyTajweedColors } from "@/lib/tajweedParser";
-import { motion, AnimatePresence } from "motion/react";
-import { useNativeWidgets } from "@/hooks/useNativeWidgets";
 import { syncService } from "@/services/syncService";
+import { useNativeWidgets } from "@/hooks/useNativeWidgets";
 
 const BOOKMARK_KEY = "quran-bookmark";
 
@@ -168,41 +167,25 @@ function Index() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-16">
           
           {/* Hero Section - The "Heart" of the App */}
-          <motion.div 
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          <div 
             className="relative overflow-hidden rounded-[2rem] md:rounded-[3rem] bg-card/40 backdrop-blur-2xl border border-border/40 p-6 md:p-12 group shadow-islamic lg:col-span-2"
           >
-            {/* Animated Background Elements */}
+            {/* Background Elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <motion.div 
-                animate={{ 
-                  scale: [1, 1.2, 1],
-                  opacity: [0.05, 0.1, 0.05],
-                  rotate: [0, 5, 0]
-                }}
-                transition={{ duration: 20, repeat: Infinity }}
-                className="absolute -top-1/2 -right-1/4 w-[120%] h-[120%] bg-gold/20 rounded-full blur-[80px] md:blur-[120px]" 
-              />
+              <div className="absolute -top-1/2 -right-1/4 w-[120%] h-[120%] bg-gold/20 rounded-full blur-[80px] md:blur-[120px] opacity-10" />
               <div className="absolute inset-0 pattern-islamic opacity-[0.03] scale-150" />
             </div>
             
             <div className="relative z-10 h-full flex flex-col justify-between min-h-[300px] md:min-h-[350px]">
               <div>
-                <motion.div 
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="flex items-center gap-3 md:gap-4 mb-6 md:mb-10"
-                >
+                <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-10">
                   <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-accent/10 flex items-center justify-center text-accent shadow-inner">
                     <Sparkles size={20} strokeWidth={1.5} className="md:w-[22px] md:h-[22px]" />
                   </div>
                   <div className="flex flex-col">
                     <span className="text-[8px] md:text-[10px] font-bold text-accent uppercase tracking-[0.3em] md:tracking-[0.4em]">{t("index.hero.badge")}</span>
                   </div>
-                </motion.div>
+                </div>
                 
                 <h1 className="text-3xl sm:text-4xl md:text-7xl font-serif font-light mb-4 md:mb-8 text-primary leading-[1.1] tracking-tight">
                   {t("index.hero.title")}
@@ -218,36 +201,32 @@ function Index() {
               <div className="mt-8 md:mt-14 flex flex-col md:flex-row items-center gap-6 md:gap-8">
                 <div className="flex flex-col sm:flex-row items-center gap-4 md:gap-8 w-full md:w-auto">
                   {bookmark ? (
-                    <motion.button
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
+                    <button
                       onClick={handleResumeReading}
-                      className="group relative flex items-center gap-3 md:gap-4 bg-primary text-primary-foreground px-6 md:px-10 py-4 md:py-5 rounded-2xl md:rounded-[2.5rem] font-serif text-lg md:text-xl font-medium shadow-2xl hover:shadow-gold-glow transition-all duration-500 overflow-hidden w-full sm:w-auto justify-center"
+                      className="group relative flex items-center gap-3 md:gap-4 bg-primary text-primary-foreground px-6 md:px-10 py-4 md:py-5 rounded-2xl md:rounded-[2.5rem] font-serif text-lg md:text-xl font-medium shadow-2xl w-full sm:w-auto justify-center"
                     >
-                      <div className="absolute inset-0 bg-gradient-to-r from-gold/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-gold/20 to-transparent opacity-0 group-hover:opacity-100" />
                       <BookMarked size={20} strokeWidth={1.5} className="relative z-10 md:w-6 md:h-6" />
                       <span className="relative z-10">{t("index.hero.resume")}</span>
-                    </motion.button>
+                    </button>
                   ) : (
-                    <motion.button
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
+                    <button
                       onClick={() => setShowIndex(true)}
-                      className="group relative flex items-center gap-3 md:gap-4 bg-primary text-primary-foreground px-6 md:px-10 py-4 md:py-5 rounded-2xl md:rounded-[2.5rem] font-serif text-lg md:text-xl font-medium shadow-2xl hover:shadow-gold-glow transition-all duration-500 overflow-hidden w-full sm:w-auto justify-center"
+                      className="group relative flex items-center gap-3 md:gap-4 bg-primary text-primary-foreground px-6 md:px-10 py-4 md:py-5 rounded-2xl md:rounded-[2.5rem] font-serif text-lg md:text-xl font-medium shadow-2xl w-full sm:w-auto justify-center"
                     >
-                      <div className="absolute inset-0 bg-gradient-to-r from-gold/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-gold/20 to-transparent opacity-0 group-hover:opacity-100" />
                       <List size={20} strokeWidth={1.5} className="relative z-10 md:w-6 md:h-6" />
                       <span className="relative z-10">{t("index.hero.start")}</span>
-                    </motion.button>
+                    </button>
                   )}
 
                   {bookmark && (
                     <div className="flex flex-col gap-1 md:gap-2 text-center sm:text-right">
                       <div className="flex items-center justify-center sm:justify-start gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-accent" />
                         <span className="text-[8px] md:text-[10px] text-muted-foreground uppercase tracking-[0.2em] md:tracking-[0.3em] font-bold">{t("index.hero.lastRead")}</span>
                       </div>
-                      <span className="text-lg md:text-xl font-naskh font-bold text-primary group-hover:text-accent transition-colors">
+                      <span className="text-lg md:text-xl font-naskh font-bold text-primary group-hover:text-accent">
                         {bookmarkInfo?.juzName} • {bookmarkInfo?.detail}
                       </span>
                     </div>
@@ -267,19 +246,16 @@ function Index() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Verse of the Day Section */}
-          <motion.section
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+          <section
             className="relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-card/40 backdrop-blur-2xl border border-border/40 p-6 md:p-8 shadow-islamic group lg:col-span-1 flex flex-col justify-between min-h-[300px] md:min-h-full"
           >
             <div className="absolute inset-0 pattern-islamic opacity-[0.02] scale-150" />
             <div className="relative z-10 text-center space-y-4 md:space-y-6">
               <div className="flex flex-col items-center gap-2 md:gap-3">
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-accent/10 flex items-center justify-center text-accent shadow-inner group-hover:scale-110 transition-transform duration-500">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-accent/10 flex items-center justify-center text-accent shadow-inner">
                   <Sparkles size={20} strokeWidth={1.5} className="md:w-6 md:h-6" />
                 </div>
                 <span className="text-[8px] md:text-[10px] font-bold text-accent uppercase tracking-[0.3em] md:tracking-[0.4em]">{t("hub.verseOfDay")}</span>
@@ -307,52 +283,43 @@ function Index() {
                 عرض جميع آيات التدبر
               </Link>
             </div>
-          </motion.section>
+          </section>
         </div>
 
         {/* Search Results - Editorial Style */}
-        <AnimatePresence>
-          {surahResults.length > 0 && (
-            <motion.div 
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 40 }}
-              className="mb-24 space-y-16"
-            >
-              <div className="space-y-8">
-                <div className="flex items-center gap-4 px-2 ornament-border pb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
-                    <Sparkles size={24} strokeWidth={1.5} />
-                  </div>
-                  <h2 className="text-3xl font-serif font-medium text-primary">{t("index.juzSection.surahResults")}</h2>
+        {surahResults.length > 0 && (
+          <div className="mb-24 space-y-16">
+            <div className="space-y-8">
+              <div className="flex items-center gap-4 px-2 ornament-border pb-6">
+                <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
+                  <Sparkles size={24} strokeWidth={1.5} />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {surahResults.map((surah) => (
-                    <motion.button
-                      key={surah.number}
-                      whileHover={{ scale: 1.02, translateY: -5 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => handleSurahClick(surah)}
-                      className="flex items-center gap-6 p-6 rounded-[3rem] bg-card/60 backdrop-blur-md border border-border/40 hover:border-accent/40 hover:shadow-islamic transition-all text-right group relative overflow-hidden"
-                    >
-                      <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-[5rem] -mr-8 -mt-8 group-hover:bg-primary/10 transition-colors" />
-                      <div className="w-14 h-14 rounded-2xl bg-primary/5 flex items-center justify-center text-primary font-serif text-xl group-hover:bg-primary group-hover:text-white transition-all shadow-inner relative z-10">
-                        {i18n.language === "ar" ? toArabicNumber(surah.number) : surah.number}
-                      </div>
-                      <div className="flex-1 relative z-10">
-                        <div className="font-serif font-bold text-primary text-xl">{t("index.verseOfDay.surah")} {i18n.language === "ar" ? surah.name : surah.nameEn}</div>
-                        <div className="text-xs text-muted-foreground font-naskh mt-1">{t("index.hero.ayah")} {i18n.language === "ar" ? toArabicNumber(surah.startPage) : surah.startPage}</div>
-                      </div>
-                      <div className="w-10 h-10 rounded-full bg-muted/20 flex items-center justify-center text-muted-foreground group-hover:bg-accent group-hover:text-white transition-all relative z-10" aria-hidden="true">
-                        <ChevronLeft size={18} />
-                      </div>
-                    </motion.button>
-                  ))}
-                </div>
+                <h2 className="text-3xl font-serif font-medium text-primary">{t("index.juzSection.surahResults")}</h2>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {surahResults.map((surah) => (
+                  <button
+                    key={surah.number}
+                    onClick={() => handleSurahClick(surah)}
+                    className="flex items-center gap-6 p-6 rounded-[3rem] bg-card/60 backdrop-blur-md border border-border/40 hover:border-accent/40 hover:shadow-islamic transition-all text-right group relative overflow-hidden"
+                  >
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-[5rem] -mr-8 -mt-8 group-hover:bg-primary/10 transition-colors" />
+                    <div className="w-14 h-14 rounded-2xl bg-primary/5 flex items-center justify-center text-primary font-serif text-xl group-hover:bg-primary group-hover:text-white transition-all shadow-inner relative z-10">
+                      {i18n.language === "ar" ? toArabicNumber(surah.number) : surah.number}
+                    </div>
+                    <div className="flex-1 relative z-10">
+                      <div className="font-serif font-bold text-primary text-xl">{t("index.verseOfDay.surah")} {i18n.language === "ar" ? surah.name : surah.nameEn}</div>
+                      <div className="text-xs text-muted-foreground font-naskh mt-1">{t("index.hero.ayah")} {i18n.language === "ar" ? toArabicNumber(surah.startPage) : surah.startPage}</div>
+                    </div>
+                    <div className="w-10 h-10 rounded-full bg-muted/20 flex items-center justify-center text-muted-foreground group-hover:bg-accent group-hover:text-white transition-all relative z-10" aria-hidden="true">
+                      <ChevronLeft size={18} />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Juz Grid Section - Refined */}
         <div className="flex items-center justify-between mb-12 ornament-border pb-6">
@@ -419,9 +386,7 @@ function Index() {
         </div>
       </footer>
 
-      <AnimatePresence>
-        {showIndex && <JuzIndex onClose={() => setShowIndex(false)} />}
-      </AnimatePresence>
+      {showIndex && <JuzIndex onClose={() => setShowIndex(false)} />}
     </div>
   );
 };

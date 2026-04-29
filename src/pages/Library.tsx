@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -449,13 +448,8 @@ const Library = () => {
         )}
       </div>
 
-      {/* Internal Reader Modal */}
-      <AnimatePresence>
-        {isReaderOpen && selectedBook && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+      {isReaderOpen && selectedBook && (
+          <div 
             className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex flex-col"
           >
             <div className="h-16 flex items-center justify-between px-6 border-b border-white/10 bg-black/50">
@@ -502,9 +496,8 @@ const Library = () => {
                 title={selectedBook.title}
               />
             </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
     </div>
   );
 };

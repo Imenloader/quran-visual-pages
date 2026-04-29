@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { db } from "@/firebase";
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy } from "firebase/firestore";
 import { Library, Plus, Trash2, Edit2, ExternalLink, Search, Tag, Info, BookOpen } from "lucide-react";
@@ -107,9 +106,8 @@ const LibraryManager = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-4">
-        <AnimatePresence>
-          {isAdding && (
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bento-card !p-8 border-2 border-primary/30 space-y-6">
+        {isAdding && (
+          <div className="bento-card !p-8 border-2 border-primary/30 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input placeholder="العنوان بالعربية" value={formData.titleAr} onChange={e => setFormData({...formData, titleAr: e.target.value})} className="rounded-xl" />
                 <Input placeholder="Title in English" value={formData.titleEn} onChange={e => setFormData({...formData, titleEn: e.target.value})} className="rounded-xl" />
@@ -131,11 +129,11 @@ const LibraryManager = () => {
                 <Button variant="ghost" onClick={() => setIsAdding(false)} className="rounded-xl">إلغاء</Button>
                 <Button onClick={handleAdd} className="rounded-xl px-8">حفظ المورد</Button>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {items.map((item) => (
-            <motion.div key={item.docId} layout className="bento-card !p-4 flex items-center justify-between group">
+            <div key={item.docId} className="bento-card !p-4 flex items-center justify-between group">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                   <BookOpen size={24} />
@@ -153,9 +151,9 @@ const LibraryManager = () => {
                 <Button variant="ghost" size="icon" onClick={() => window.open(item.url, '_blank')} className="h-8 w-8 text-primary"><ExternalLink size={14} /></Button>
                 <Button variant="ghost" size="icon" onClick={() => handleDelete(item.docId!)} className="h-8 w-8 text-rose-500"><Trash2 size={14} /></Button>
               </div>
-            </motion.div>
+            </div>
           ))}
-        </AnimatePresence>
+
       </div>
     </div>
   );

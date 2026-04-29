@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { BookOpen, DownloadCloud, Headphones, Shield, Settings, Smartphone, WifiOff, Hand, Moon, Heart, ListMusic, Star, Maximize, Bell } from "lucide-react";
-import { motion } from "motion/react";
 import BackButton from "@/components/BackButton";
 
 const steps = [
@@ -87,34 +86,25 @@ const HowToUse = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-emerald-deep z-0" />
         
         {/* Atmospheric Elements */}
-        <motion.div 
-          animate={{ 
-            opacity: [0.1, 0.3, 0.1],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-1/2 -right-1/4 w-full h-full bg-gold/20 rounded-full blur-[120px] z-0" 
+        <div 
+          className="absolute -top-1/2 -right-1/4 w-full h-full bg-gold/20 rounded-full blur-[120px] z-0 animate-pulse" 
+          style={{ animationDuration: '10s' }}
         />
 
         <div className="relative z-10 container max-w-4xl mx-auto">
           <div className="flex justify-start mb-8">
             <BackButton variant="ghost" />
           </div>
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="flex items-center justify-center gap-4 mb-8"
+          <div
+            className="flex items-center justify-center gap-4 mb-8 transition-all duration-1000 opacity-100 translate-y-0"
           >
             <div className="h-px w-12 bg-gradient-to-l from-gold/50 to-transparent" />
             <span className="text-[10px] font-bold text-gold/80 uppercase tracking-[0.4em]">دليل المستخدم الشامل</span>
             <div className="h-px w-12 bg-gradient-to-r from-gold/50 to-transparent" />
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          <div
+            className="transition-all duration-1000 ease-out opacity-100 scale-100"
           >
             <div className="w-20 h-20 rounded-[2rem] bg-gold/20 backdrop-blur-md flex items-center justify-center mx-auto mb-8 border border-gold/30 shadow-gold-glow">
               <Hand size={32} className="text-gold" strokeWidth={1.5} />
@@ -128,14 +118,13 @@ const HowToUse = () => {
               تعرف على أسرار ومميزات التطبيق لتجعل من وردك اليومي رحلة إيمانية متكاملة وسهلة
             </p>
 
-            <motion.p 
-              animate={{ opacity: [0.3, 0.6, 0.3] }}
-              transition={{ duration: 4, repeat: Infinity }}
-              className="font-amiri text-gold text-3xl mt-10"
+            <p 
+              className="font-amiri text-gold text-3xl mt-10 animate-pulse"
+              style={{ animationDuration: '4s' }}
             >
               ﷽
-            </motion.p>
-          </motion.div>
+            </p>
+          </div>
         </div>
       </header>
 
@@ -143,12 +132,12 @@ const HowToUse = () => {
         {steps.map((step, i) => (
           <div
             key={i}
-            className="flex gap-4 bg-card border border-border rounded-2xl p-4 shadow-soft"
+            className="flex gap-4 bg-card border border-border rounded-2xl p-4 shadow-soft hover:shadow-md transition-shadow active:scale-98"
           >
             <div className="w-11 h-11 rounded-xl gradient-islamic flex items-center justify-center shrink-0 text-primary-foreground">
               {step.icon}
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 text-right">
               <h3 className="font-naskh text-sm font-bold text-foreground mb-1">{step.title}</h3>
               <p className="font-naskh text-xs text-muted-foreground/90 leading-relaxed">{step.desc}</p>
             </div>

@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { motion } from "motion/react";
 import { ChevronLeft, MapPin, Search, Navigation, Loader2, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -99,11 +98,8 @@ const MosqueFinder = () => {
                 </div>
               ) : mosques.length > 0 ? (
                 mosques.map((mosque, idx) => (
-                  <motion.div
+                  <div
                     key={mosque.name + idx}
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: idx * 0.1 }}
                     className={`p-4 border rounded-2xl shadow-soft flex items-center justify-between group transition-colors ${
                       mosque.type === 'fallback' 
                         ? 'bg-accent/10 border-accent/30' 
@@ -134,7 +130,7 @@ const MosqueFinder = () => {
                         </a>
                       )}
                     </div>
-                  </motion.div>
+                  </div>
                 ))
               ) : !error && (
                 <p className="text-center text-muted-foreground text-sm font-naskh py-12">لا توجد نتائج حالياً</p>

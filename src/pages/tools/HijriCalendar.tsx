@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { ChevronLeft, Calendar as CalendarIcon, Info, ChevronRight, Loader2, X, Star, Target, Check, Trash2, Plus, Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -289,33 +288,29 @@ const HijriCalendar = () => {
         </header>
 
         <div className="space-y-6">
-          <AnimatePresence mode="wait">
-            {currentHijri && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="p-8 bg-primary text-primary-foreground rounded-[2.5rem] shadow-islamic text-center space-y-4 relative overflow-hidden"
-              >
-                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-                  <CalendarIcon className="w-48 h-48" />
-                </div>
-                
-                <div className="relative z-10">
-                  <p className="text-sm font-naskh opacity-80 mb-2">{t("hijri.today", "اليوم")}</p>
-                  <div className="flex items-center justify-center gap-4 mb-4">
-                    <span className="text-5xl font-bold font-mono">{toArabicDigits(currentHijri.day)}</span>
-                    <div className="text-right">
-                      <p className="text-xl font-bold font-naskh">{currentHijri.month}</p>
-                      <p className="text-sm font-mono opacity-80">{toArabicDigits(currentHijri.year)} {i18n.language === 'ar' ? 'هـ' : 'AH'}</p>
-                    </div>
-                  </div>
-                  <div className="pt-4 border-t border-primary-foreground/20">
-                    <p className="text-sm font-naskh opacity-80">{format(new Date(), "EEEE d MMMM yyyy", { locale: i18n.language === 'ar' ? ar : undefined })}</p>
+          {currentHijri && (
+            <div 
+              className="p-8 bg-primary text-primary-foreground rounded-[2.5rem] shadow-islamic text-center space-y-4 relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+                <CalendarIcon className="w-48 h-48" />
+              </div>
+              
+              <div className="relative z-10">
+                <p className="text-sm font-naskh opacity-80 mb-2">{t("hijri.today", "اليوم")}</p>
+                <div className="flex items-center justify-center gap-4 mb-4">
+                  <span className="text-5xl font-bold font-mono">{toArabicDigits(currentHijri.day)}</span>
+                  <div className="text-right">
+                    <p className="text-xl font-bold font-naskh">{currentHijri.month}</p>
+                    <p className="text-sm font-mono opacity-80">{toArabicDigits(currentHijri.year)} {i18n.language === 'ar' ? 'هـ' : 'AH'}</p>
                   </div>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                <div className="pt-4 border-t border-primary-foreground/20">
+                  <p className="text-sm font-naskh opacity-80">{format(new Date(), "EEEE d MMMM yyyy", { locale: i18n.language === 'ar' ? ar : undefined })}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="bg-card border border-border rounded-3xl p-6 space-y-6 shadow-soft">
             <div className="flex items-center justify-between">
@@ -429,129 +424,121 @@ const HijriCalendar = () => {
       </div>
 
       {/* Day Details & Goals Modal */}
-      <AnimatePresence>
-        {selectedDay && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedDay(null)}
-              className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40"
-            />
-            <motion.div
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              className="fixed bottom-0 left-0 right-0 max-h-[85vh] overflow-y-auto bg-card border-t border-border rounded-t-[2.5rem] p-6 sm:p-8 z-50 shadow-2xl"
-            >
-              <div className="max-w-md mx-auto">
-                <div className="w-12 h-1.5 bg-muted rounded-full mx-auto mb-6" />
-                
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h3 className="text-2xl font-bold font-naskh text-primary">
-                      {toArabicDigits(selectedDay.date.hijri.day)} {i18n.language === 'ar' ? selectedDay.date.hijri.month.ar : selectedDay.date.hijri.month.en} {toArabicDigits(selectedDay.date.hijri.year)}
-                    </h3>
-                    <p className="text-sm text-muted-foreground font-mono">
-                      {selectedDay.date.gregorian.date}
-                    </p>
+      {selectedDay && (
+        <>
+          <div
+            onClick={() => setSelectedDay(null)}
+            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40"
+          />
+          <div
+            className="fixed bottom-0 left-0 right-0 max-h-[85vh] overflow-y-auto bg-card border-t border-border rounded-t-[2.5rem] p-6 sm:p-8 z-50 shadow-2xl"
+          >
+            <div className="max-w-md mx-auto">
+              <div className="w-12 h-1.5 bg-muted rounded-full mx-auto mb-6" />
+              
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-2xl font-bold font-naskh text-primary">
+                    {toArabicDigits(selectedDay.date.hijri.day)} {i18n.language === 'ar' ? selectedDay.date.hijri.month.ar : selectedDay.date.hijri.month.en} {toArabicDigits(selectedDay.date.hijri.year)}
+                  </h3>
+                  <p className="text-sm text-muted-foreground font-mono">
+                    {selectedDay.date.gregorian.date}
+                  </p>
+                </div>
+                <button onClick={() => setSelectedDay(null)} className="p-2 bg-muted hover:bg-muted/80 rounded-full transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Islamic Events */}
+              {selectedDay && getEnhancedHolidays(selectedDay, i18n.language).length > 0 && (
+                <div className="mb-8 space-y-3">
+                  <h4 className="text-sm font-bold font-naskh text-gold flex items-center gap-2">
+                    <Star className="w-4 h-4" />
+                    {t("hijri.events", "المناسبات الإسلامية")}
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {getEnhancedHolidays(selectedDay, i18n.language).map((holiday, idx) => (
+                      <span key={idx} className="px-4 py-2 bg-gold/10 border border-gold/20 text-gold-dark dark:text-gold-light text-sm rounded-2xl font-naskh">
+                        {holiday}
+                      </span>
+                    ))}
                   </div>
-                  <button onClick={() => setSelectedDay(null)} className="p-2 bg-muted hover:bg-muted/80 rounded-full transition-colors">
-                    <X className="w-5 h-5" />
+                </div>
+              )}
+
+              {/* Goals Section */}
+              <div className="space-y-4">
+                <h4 className="text-sm font-bold font-naskh text-foreground flex items-center gap-2">
+                  <Target className="w-4 h-4 text-primary" />
+                  {t("hijri.goals", "أهداف اليوم")}
+                </h4>
+                
+                <div className="space-y-2 max-h-[30vh] overflow-y-auto custom-scrollbar pr-2">
+                  {(goals[selectedDay.date.gregorian.date] || []).map(goal => (
+                    <div key={goal.id} className="flex items-center gap-3 p-3 bg-muted/30 rounded-2xl border border-border/50 group">
+                      <button 
+                        onClick={() => toggleGoal(selectedDay.date.gregorian.date, goal.id)}
+                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${goal.completed ? 'bg-primary border-primary text-primary-foreground' : 'border-muted-foreground/30 hover:border-primary/50'}`}
+                      >
+                        {goal.completed && <Check className="w-3.5 h-3.5" />}
+                      </button>
+                      <div className="flex flex-col flex-1">
+                        <span className={`text-sm font-naskh transition-all ${goal.completed ? 'line-through text-muted-foreground opacity-70' : 'text-foreground'}`}>
+                          {goal.text}
+                        </span>
+                        {goal.notifyTime && (
+                          <span className={`text-[10px] flex items-center gap-1 mt-1 ${goal.completed ? 'text-muted-foreground opacity-50' : 'text-primary/80'}`}>
+                            <Bell className="w-3 h-3" /> {goal.notifyTime}
+                          </span>
+                        )}
+                      </div>
+                      <button 
+                        onClick={() => deleteGoal(selectedDay.date.gregorian.date, goal.id)}
+                        className="p-2 text-destructive/50 hover:text-destructive hover:bg-destructive/10 rounded-xl transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                  
+                  {(!goals[selectedDay.date.gregorian.date] || goals[selectedDay.date.gregorian.date].length === 0) && (
+                    <div className="text-center py-8 bg-muted/20 rounded-2xl border border-border/30 border-dashed">
+                      <p className="text-sm text-muted-foreground font-naskh">
+                        {t("hijri.noGoals", "لا توجد أهداف لهذا اليوم. أضف هدفاً جديداً!")}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-2 pt-4">
+                  <input 
+                    type="text"
+                    value={newGoalText}
+                    onChange={(e) => setNewGoalText(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleAddGoal()}
+                    placeholder={t("hijri.addGoalPlaceholder", "أضف هدفاً جديداً...")}
+                    className="flex-1 bg-muted/50 border border-border rounded-2xl px-4 py-3 text-sm font-naskh focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                  />
+                  <input
+                    type="time"
+                    value={newGoalTime}
+                    onChange={(e) => setNewGoalTime(e.target.value)}
+                    className="w-[110px] bg-muted/50 border border-border rounded-2xl px-3 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                  />
+                  <button 
+                    onClick={handleAddGoal}
+                    disabled={!newGoalText.trim()}
+                    className="px-4 bg-primary text-primary-foreground rounded-2xl disabled:opacity-50 transition-all flex items-center justify-center hover:bg-primary/90 active:scale-95"
+                  >
+                    <Plus className="w-5 h-5" />
                   </button>
                 </div>
-
-                {/* Islamic Events */}
-                {selectedDay && getEnhancedHolidays(selectedDay, i18n.language).length > 0 && (
-                  <div className="mb-8 space-y-3">
-                    <h4 className="text-sm font-bold font-naskh text-gold flex items-center gap-2">
-                      <Star className="w-4 h-4" />
-                      {t("hijri.events", "المناسبات الإسلامية")}
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {getEnhancedHolidays(selectedDay, i18n.language).map((holiday, idx) => (
-                        <span key={idx} className="px-4 py-2 bg-gold/10 border border-gold/20 text-gold-dark dark:text-gold-light text-sm rounded-2xl font-naskh">
-                          {holiday}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Goals Section */}
-                <div className="space-y-4">
-                  <h4 className="text-sm font-bold font-naskh text-foreground flex items-center gap-2">
-                    <Target className="w-4 h-4 text-primary" />
-                    {t("hijri.goals", "أهداف اليوم")}
-                  </h4>
-                  
-                  <div className="space-y-2 max-h-[30vh] overflow-y-auto custom-scrollbar pr-2">
-                    {(goals[selectedDay.date.gregorian.date] || []).map(goal => (
-                      <div key={goal.id} className="flex items-center gap-3 p-3 bg-muted/30 rounded-2xl border border-border/50 group">
-                        <button 
-                          onClick={() => toggleGoal(selectedDay.date.gregorian.date, goal.id)}
-                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${goal.completed ? 'bg-primary border-primary text-primary-foreground' : 'border-muted-foreground/30 hover:border-primary/50'}`}
-                        >
-                          {goal.completed && <Check className="w-3.5 h-3.5" />}
-                        </button>
-                        <div className="flex flex-col flex-1">
-                          <span className={`text-sm font-naskh transition-all ${goal.completed ? 'line-through text-muted-foreground opacity-70' : 'text-foreground'}`}>
-                            {goal.text}
-                          </span>
-                          {goal.notifyTime && (
-                            <span className={`text-[10px] flex items-center gap-1 mt-1 ${goal.completed ? 'text-muted-foreground opacity-50' : 'text-primary/80'}`}>
-                              <Bell className="w-3 h-3" /> {goal.notifyTime}
-                            </span>
-                          )}
-                        </div>
-                        <button 
-                          onClick={() => deleteGoal(selectedDay.date.gregorian.date, goal.id)}
-                          className="p-2 text-destructive/50 hover:text-destructive hover:bg-destructive/10 rounded-xl transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                    
-                    {(!goals[selectedDay.date.gregorian.date] || goals[selectedDay.date.gregorian.date].length === 0) && (
-                      <div className="text-center py-8 bg-muted/20 rounded-2xl border border-border/30 border-dashed">
-                        <p className="text-sm text-muted-foreground font-naskh">
-                          {t("hijri.noGoals", "لا توجد أهداف لهذا اليوم. أضف هدفاً جديداً!")}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex gap-2 pt-4">
-                    <input 
-                      type="text"
-                      value={newGoalText}
-                      onChange={(e) => setNewGoalText(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleAddGoal()}
-                      placeholder={t("hijri.addGoalPlaceholder", "أضف هدفاً جديداً...")}
-                      className="flex-1 bg-muted/50 border border-border rounded-2xl px-4 py-3 text-sm font-naskh focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                    />
-                    <input
-                      type="time"
-                      value={newGoalTime}
-                      onChange={(e) => setNewGoalTime(e.target.value)}
-                      className="w-[110px] bg-muted/50 border border-border rounded-2xl px-3 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                    />
-                    <button 
-                      onClick={handleAddGoal}
-                      disabled={!newGoalText.trim()}
-                      className="px-4 bg-primary text-primary-foreground rounded-2xl disabled:opacity-50 transition-all flex items-center justify-center hover:bg-primary/90 active:scale-95"
-                    >
-                      <Plus className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
               </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

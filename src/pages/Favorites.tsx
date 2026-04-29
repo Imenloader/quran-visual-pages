@@ -8,7 +8,6 @@ import { juzData, toArabicNumber } from "@/data/quranData";
 import { ATHKAR_DATA } from "@/data/athkarData";
 import { useState, useMemo, useCallback } from "react";
 import ScrollReveal from "@/components/ScrollReveal";
-import { motion, AnimatePresence, Reorder } from "motion/react";
 import QuranHeader from "@/components/QuranHeader";
 import { toast } from "sonner";
 
@@ -187,14 +186,13 @@ const Favorites = () => {
             
             <div className="flex gap-2 p-1 overflow-x-auto no-scrollbar">
               {TABS.map(tab => (
-                <motion.button
+                <button
                   key={tab.key}
-                  whileTap={{ scale: 0.95 }}
                   onClick={() => {
                     setActiveTab(tab.key);
                     setSelectedCollectionId(null);
                   }}
-                  className={`flex items-center gap-3 px-6 py-3 rounded-2xl text-xs font-serif font-bold whitespace-nowrap transition-all ${
+                  className={`flex items-center gap-3 px-6 py-3 rounded-2xl text-xs font-serif font-bold whitespace-nowrap ${
                     activeTab === tab.key && !selectedCollectionId
                       ? "bg-emerald-deep text-gold shadow-lg" 
                       : "text-foreground/70 hover:bg-foreground/5"
@@ -207,7 +205,7 @@ const Favorites = () => {
                       activeTab === tab.key && !selectedCollectionId ? "bg-primary/10 text-gold" : "bg-foreground/5 text-foreground/40"
                     }`}>{toArabicNumber(counts[tab.key])}</span>
                   )}
-                </motion.button>
+                </button>
               ))}
             </div>
 
@@ -221,14 +219,13 @@ const Favorites = () => {
               </button>
               
               {collections.map(coll => (
-                <motion.button
+                <button
                   key={coll.id}
-                  whileTap={{ scale: 0.95 }}
                   onClick={() => {
                     setSelectedCollectionId(coll.id);
                     setActiveTab("all");
                   }}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ${
                     selectedCollectionId === coll.id
                       ? "bg-accent text-white shadow-md"
                       : "bg-primary/5 text-primary/60 hover:bg-primary/10"
@@ -236,7 +233,7 @@ const Favorites = () => {
                 >
                   <Bookmark size={12} />
                   <span>{coll.name}</span>
-                </motion.button>
+                </button>
               ))}
             </div>
           </div>
@@ -244,13 +241,8 @@ const Favorites = () => {
       </div>
 
       <main className="flex-1 container max-w-4xl mx-auto px-6 py-12 space-y-12 pb-32">
-        <AnimatePresence mode="wait">
           {favorites.length === 0 ? (
-            <motion.div 
-              key="empty"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+            <div 
               className="text-center py-24 space-y-8"
             >
               <div className="w-24 h-24 rounded-[2rem] bg-primary/5 flex items-center justify-center mx-auto border border-primary/5">
@@ -260,17 +252,12 @@ const Favorites = () => {
                 <h2 className="font-serif text-2xl font-bold text-primary">{t('favorites.emptyTitle')}</h2>
                 <p className="font-serif italic text-primary/70 text-lg max-w-xs mx-auto leading-relaxed">{t('favorites.emptySubtitle')}</p>
               </div>
-              <Link to="/" className="inline-flex h-14 px-10 rounded-2xl bg-emerald-deep text-gold font-serif text-lg font-bold shadow-xl hover:shadow-emerald-deep/20 transition-all items-center justify-center">
+              <Link to="/" className="inline-flex h-14 px-10 rounded-2xl bg-emerald-deep text-gold font-serif text-lg font-bold shadow-xl hover:bg-emerald-deep items-center justify-center">
                 {t('favorites.exploreNow')}
               </Link>
-            </motion.div>
+            </div>
           ) : (
-            <motion.div 
-              key={activeTab}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            <div 
               className="space-y-12"
             >
               {/* No search results */}
@@ -284,23 +271,19 @@ const Favorites = () => {
               )}
 
               {tajweedMode && favorites.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="mb-8"
-                >
+                <div className="mb-8">
                   <TajweedLegend />
-                </motion.div>
+                </div>
               )}
 
-              <Reorder.Group axis="y" values={filteredFavorites} onReorder={handleReorder} className="space-y-4">
+              <div className="space-y-4">
                 {filteredFavorites.map((item, idx) => {
                   const itemKey = `${item.type}-${item.id}-${idx}`;
                   
                   return (
-                    <Reorder.Item key={itemKey} value={item} className="relative group">
-                      <div className="flex items-center gap-4 bg-card/60 backdrop-blur-sm border border-border/5 rounded-[2rem] p-4 hover:bg-card hover:shadow-islamic transition-all">
-                        <div className="cursor-grab active:cursor-grabbing text-primary/20 hover:text-primary/40 transition-colors px-2">
+                    <div key={itemKey} className="relative group">
+                      <div className="flex items-center gap-4 bg-card/60 backdrop-blur-sm border border-border/5 rounded-[2rem] p-4 hover:bg-card shadow-soft transition-all">
+                        <div className="text-primary/20 px-2">
                           <GripVertical size={20} />
                         </div>
 
@@ -392,7 +375,7 @@ const Favorites = () => {
                           </div>
                         )}
 
-                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                        <div className="flex items-center gap-2">
                           <button
                             onClick={() => setEditingItem({ 
                               id: item.id, 
@@ -400,43 +383,35 @@ const Favorites = () => {
                               nickname: item.nickname || "",
                               collectionId: item.collectionId
                             })}
-                            className="w-9 h-9 rounded-xl bg-primary/5 text-primary/40 hover:text-accent hover:bg-accent/10 flex items-center justify-center transition-all"
+                            className="w-9 h-9 rounded-xl bg-primary/5 text-primary/40 hover:text-accent hover:bg-accent/10 flex items-center justify-center"
                             title="تعديل"
                           >
                             <Edit2 size={16} />
                           </button>
                           <button
                             onClick={() => toggleFavorite(item)}
-                            className="w-9 h-9 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shadow-sm"
+                            className="w-9 h-9 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center shadow-sm"
                             title={t('favorites.remove')}
                           >
                             <Trash2 size={16} />
                           </button>
                         </div>
                       </div>
-                    </Reorder.Item>
+                    </div>
                   );
                 })}
-              </Reorder.Group>
-            </motion.div>
+              </div>
+            </div>
           )}
-        </AnimatePresence>
 
         {/* Edit Nickname Modal */}
-        <AnimatePresence>
-          {editingItem && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[600] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+        {editingItem && (
+          <div
+            className="fixed inset-0 z-[600] bg-black/60 flex items-center justify-center p-4"
+          >
+            <div
+              className="w-full max-w-md bg-card rounded-[2.5rem] border border-border/20 shadow-2xl p-6 space-y-6"
             >
-              <motion.div
-                initial={{ scale: 0.9, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 20 }}
-                className="w-full max-w-md bg-card rounded-[2.5rem] border border-border/20 shadow-2xl p-6 space-y-6"
-              >
                 <div className="flex justify-between items-center">
                   <h3 className="text-xl font-serif font-bold text-primary">تعديل المسمى</h3>
                   <button onClick={() => setEditingItem(null)} className="p-2 hover:bg-primary/5 rounded-xl">
@@ -476,26 +451,18 @@ const Favorites = () => {
                   <Save size={20} />
                   حفظ التعديلات
                 </button>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+          </div>
+        )}
 
         {/* Add Collection Modal */}
-        <AnimatePresence>
-          {showAddCollection && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[600] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+        {showAddCollection && (
+          <div
+            className="fixed inset-0 z-[600] bg-black/60 flex items-center justify-center p-4"
+          >
+            <div
+              className="w-full max-w-md bg-card rounded-[2.5rem] border border-border/20 shadow-2xl p-6 space-y-6"
             >
-              <motion.div
-                initial={{ scale: 0.9, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 20 }}
-                className="w-full max-w-md bg-card rounded-[2.5rem] border border-border/20 shadow-2xl p-6 space-y-6"
-              >
                 <div className="flex justify-between items-center">
                   <h3 className="text-xl font-serif font-bold text-primary">إنشاء مجموعة جديدة</h3>
                   <button onClick={() => setShowAddCollection(false)} className="p-2 hover:bg-primary/5 rounded-xl">
@@ -521,10 +488,9 @@ const Favorites = () => {
                   <Plus size={20} />
                   إنشاء المجموعة
                 </button>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

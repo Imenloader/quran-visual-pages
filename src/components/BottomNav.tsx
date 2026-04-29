@@ -49,7 +49,7 @@ const BottomNav = () => {
   const handleNavClick = (path: string) => {
     triggerHaptic();
     if (location.pathname === path) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: "auto" });
     }
   };
 
@@ -68,13 +68,13 @@ const BottomNav = () => {
             setIsHidden(!isHidden);
             triggerHaptic();
           }}
-          className="w-10 h-6 rounded-t-xl bg-card/98 backdrop-blur-md md:backdrop-blur-xl border border-border/60 border-b-0 flex items-center justify-center text-primary hover:text-accent transition-all shadow-xl shadow-black/10 group transform-gpu"
+          className="w-10 h-6 rounded-t-xl bg-card/98 backdrop-blur-md md:backdrop-blur-xl border border-border/60 border-b-0 flex items-center justify-center text-primary shadow-xl shadow-black/10 group transform-gpu"
           aria-label={isHidden ? t("nav.showMenu") : t("nav.hideMenu")}
         >
           <div
             className={isHidden ? "" : "rotate-180"}
           >
-            <ChevronUp size={16} className="group-hover:scale-110 transition-transform drop-shadow-sm" />
+            <ChevronUp size={16} className="drop-shadow-sm" />
           </div>
         </button>
       </div>
@@ -97,10 +97,10 @@ const BottomNav = () => {
                       to={item.path}
                       onMouseEnter={() => preloadPage(item.path)}
                       onClick={() => handleNavClick(item.path)}
-                      className={`w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center transition-all shadow-islamic relative group z-20 ${
+                      className={`w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center shadow-islamic relative group z-20 ${
                         isActive 
                           ? "bg-accent text-accent-foreground shadow-accent/20" 
-                          : "bg-muted text-muted-foreground hover:text-accent hover:bg-muted/80"
+                          : "bg-muted text-muted-foreground"
                       }`}
                     >
                       <Icon className="size-[20px] md:size-[24px]" strokeWidth={isActive ? 2.5 : 2} />
@@ -122,10 +122,10 @@ const BottomNav = () => {
                     className="flex flex-col items-center py-1.5 md:py-2 px-0.5 md:px-1 min-w-[56px] md:min-w-[64px] group relative z-10"
                   >
                     <div 
-                      className={`w-9 h-9 md:w-11 md:h-11 rounded-xl md:rounded-2xl flex items-center justify-center transition-all duration-300 overflow-hidden ${
+                      className={`w-9 h-9 md:w-11 md:h-11 rounded-xl md:rounded-2xl flex items-center justify-center overflow-hidden ${
                         isActive
                           ? "bg-accent/15 text-accent shadow-sm"
-                          : "text-muted-foreground group-hover:text-primary group-hover:bg-muted"
+                          : "text-muted-foreground"
                       }`}
                     >
                       {item.isProfile && profile.avatar ? (
@@ -134,7 +134,7 @@ const BottomNav = () => {
                         <Icon className="size-[18px] md:size-[20px]" strokeWidth={1.5} />
                       )}
                     </div>
-                    <span className={`font-serif text-[8px] md:text-[9px] mt-1 md:mt-1.5 font-medium tracking-wider transition-colors ${
+                    <span className={`font-serif text-[8px] md:text-[9px] mt-1 md:mt-1.5 font-medium tracking-wider ${
                       isActive ? "text-primary" : "text-muted-foreground"
                     }`}>
                       {item.label}

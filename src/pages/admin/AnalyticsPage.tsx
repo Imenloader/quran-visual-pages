@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "motion/react";
 import { 
   BarChart3, 
   Users, 
@@ -65,7 +64,7 @@ const AnalyticsPage = () => {
       <div className="max-w-5xl mx-auto">
         <header className="flex items-center gap-4 mb-8">
           <BackButton />
-          <div>
+          <div className="text-right">
             <h1 className="text-2xl font-bold font-naskh">تحليلات المنصة</h1>
             <p className="text-xs text-muted-foreground">نظرة شاملة على أداء التطبيق ونشاط المستخدمين</p>
           </div>
@@ -81,10 +80,10 @@ const AnalyticsPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Leaderboard Section */}
           <div className="bg-card border border-border rounded-[2.5rem] p-8">
-            <h2 className="text-lg font-bold font-naskh mb-6">المتصدرون (الأكثر نقاطاً)</h2>
+            <h2 className="text-lg font-bold font-naskh mb-6 text-right">المتصدرون (الأكثر نقاطاً)</h2>
             <div className="space-y-4">
               {stats.topUsers.map((user, idx) => (
-                <div key={user.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl">
+                <div key={user.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl hover:bg-muted/50 transition-colors">
                   <div className="flex items-center gap-3">
                     <span className="w-6 h-6 rounded-full bg-accent text-accent-foreground text-[10px] flex items-center justify-center font-bold">{idx + 1}</span>
                     <span className="font-bold text-sm">{user.displayName || "مستخدم"}</span>
@@ -108,12 +107,12 @@ const AnalyticsPage = () => {
 };
 
 const AnalyticCard = ({ title, value, icon, color }: any) => (
-  <div className="p-6 bg-card border border-border rounded-3xl shadow-soft">
+  <div className="p-6 bg-card border border-border rounded-3xl shadow-soft hover:shadow-md transition-shadow active:scale-98">
     <div className={`w-10 h-10 rounded-xl bg-accent/5 ${color} flex items-center justify-center mb-4`}>
       {React.cloneElement(icon, { size: 20 })}
     </div>
-    <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">{title}</h3>
-    <p className="text-2xl font-bold text-foreground">{value}</p>
+    <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1 text-right">{title}</h3>
+    <p className="text-2xl font-bold text-foreground text-right">{value}</p>
   </div>
 );
 

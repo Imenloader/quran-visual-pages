@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { Calendar, CheckCircle2, Moon, Star, Bell, Info, ChevronRight, Clock, RotateCcw } from "lucide-react";
 import QuranHeader from "@/components/QuranHeader";
@@ -290,11 +289,8 @@ const FastingTracker = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {fastingDays.map((day, idx) => (
-                <motion.div 
+                <div 
                   key={idx}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
                   className={`bento-card !p-6 flex items-center justify-between group transition-all ${day.isCompleted ? "bg-emerald-500/5 border-emerald-500/30" : "hover:border-primary/30"}`}
                 >
                   <div className="flex items-center gap-4">
@@ -314,12 +310,12 @@ const FastingTracker = () => {
                   <Button 
                     variant={day.isCompleted ? "default" : "outline"}
                     size="icon"
-                    className={`rounded-xl shrink-0 ${day.isCompleted ? "bg-emerald-500 hover:bg-emerald-600" : ""}`}
+                    className={`rounded-xl shrink-0 ${day.isCompleted ? "bg-emerald-500 hover:bg-emerald-600" : ""} active:scale-95`}
                     onClick={() => toggleFast(day.date)}
                   >
                     <CheckCircle2 className="w-5 h-5" />
                   </Button>
-                </motion.div>
+                </div>
               ))}
             </div>
           )}

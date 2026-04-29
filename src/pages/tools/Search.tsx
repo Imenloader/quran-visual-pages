@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { Search as SearchIcon, History, X, Loader2, BookOpen } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -49,22 +48,24 @@ const Search = () => {
         const normalizedQuery = normalizeArabic(query);
         const encodedQuery = encodeURIComponent(query);
         
-        // 1. Search in Ayahs
-        const ayahPromise = fetchWithCache(`https://api.quran.com/api/v4/search?q=${encodedQuery}&size=20&language=ar`, { signal: controller.signal });
+        // 1. Search in Ayahs (Using AlQuran Cloud API which supports Arabic search better)
+        const ayahPromise = fetchWithCache(`https://api.alquran.cloud/v1/search/${encodedQuery}/all/ar`, { signal: controller.signal });
           
         // 2. Search in Surahs
         const surahPromise = fetchWithCache(`https://api.quran.com/api/v4/chapters?language=ar`, { signal: controller.signal });
 
         const [ayahData, surahData] = await Promise.all([ayahPromise, surahPromise]);
 
-        if (ayahData && ayahData.search && ayahData.search.results) {
-          setResults(ayahData.search.results.map((r: any) => ({
-            text: r.text.replace(/<[^>]*>?/gm, ''),
+        if (ayahData && ayahData.data && ayahData.data.matches) {
+          // Filter to only get Quran text (ignore tafsir/translations in 'all' edition)
+          const quranMatches = ayahData.data.matches.filter((m: any) => m.edition.type === 'quran');
+          setResults(quranMatches.map((r: any) => ({
+            text: r.text,
             surah: {
-              number: parseInt(r.verse_key.split(':')[0]),
-              name: r.verse_key
+              number: r.surah.number,
+              name: r.surah.name
             },
-            numberInSurah: parseInt(r.verse_key.split(':')[1])
+            numberInSurah: r.numberInSurah
           })));
         } else {
           setResults([]);
@@ -158,124 +159,112 @@ const Search = () => {
             </div>
           )}
 
-          <AnimatePresence mode="wait">
-            {loading ? (
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex flex-col items-center justify-center py-20 space-y-4"
-              >
-                <Loader2 className="w-10 h-10 text-primary animate-spin" />
-                <p className="text-sm text-muted-foreground font-naskh animate-pulse">{t("search.searching")}</p>
-              </motion.div>
-            ) : query && (results.length > 0 || surahResults.length > 0 || juzResults.length > 0) ? (
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="space-y-6"
-              >
-                {juzResults.length > 0 && (
-                  <div className="space-y-3">
-                    <p className="text-xs text-muted-foreground font-naskh px-2">{i18n.language === 'ar' ? 'نتائج الأجزاء' : 'Juz Matches'}: {juzResults.length}</p>
-                    <div className="grid grid-cols-1 gap-2">
-                      {juzResults.map((juz) => (
+          {loading ? (
+            <div 
+              className="flex flex-col items-center justify-center py-20 space-y-4"
+            >
+              <Loader2 className="w-10 h-10 text-primary animate-spin" />
+              <p className="text-sm text-muted-foreground font-naskh animate-pulse">{t("search.searching")}</p>
+            </div>
+          ) : query && (results.length > 0 || surahResults.length > 0 || juzResults.length > 0) ? (
+            <div 
+              className="space-y-6"
+            >
+              {juzResults.length > 0 && (
+                <div className="space-y-3">
+                  <p className="text-xs text-muted-foreground font-naskh px-2">{i18n.language === 'ar' ? 'نتائج الأجزاء' : 'Juz Matches'}: {juzResults.length}</p>
+                  <div className="grid grid-cols-1 gap-2">
+                    {juzResults.map((juz) => (
+                      <Link
+                        key={juz.number}
+                        to={`/juz/${juz.number}`}
+                        className="flex items-center justify-between p-4 bg-accent/5 border border-accent/10 rounded-2xl hover:bg-accent/10 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-accent text-white flex items-center justify-center text-xs font-bold">
+                            {juz.number}
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold font-naskh text-foreground">{juz.nameAr}</p>
+                            <p className="text-[10px] text-muted-foreground">{juz.nameEn}</p>
+                          </div>
+                        </div>
+                        <BookOpen className="w-4 h-4 text-accent" />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {surahResults.length > 0 && (
+                <div className="space-y-3">
+                  <p className="text-xs text-muted-foreground font-naskh px-2">{t("search.surahMatches")}: {surahResults.length}</p>
+                  <div className="grid grid-cols-1 gap-2">
+                    {surahResults.map((surah) => {
+                      const { juz, page } = getJuzAndPageForSurah(surah.number);
+                      return (
                         <Link
-                          key={juz.number}
-                          to={`/juz/${juz.number}`}
-                          className="flex items-center justify-between p-4 bg-accent/5 border border-accent/10 rounded-2xl hover:bg-accent/10 transition-colors"
+                          key={surah.number}
+                          to={`/juz/${juz}#page-${page}`}
+                          className="flex items-center justify-between p-4 bg-primary/5 border border-primary/10 rounded-2xl hover:bg-primary/10 transition-colors"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-accent text-white flex items-center justify-center text-xs font-bold">
-                              {juz.number}
+                            <div className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center text-xs font-bold">
+                              {surah.number}
                             </div>
                             <div className="text-right">
-                              <p className="font-bold font-naskh text-foreground">{juz.nameAr}</p>
-                              <p className="text-[10px] text-muted-foreground">{juz.nameEn}</p>
+                              <p className="font-bold font-naskh text-foreground">{surah.name}</p>
+                              <p className="text-[10px] text-muted-foreground">{surah.englishName}</p>
                             </div>
                           </div>
-                          <BookOpen className="w-4 h-4 text-accent" />
+                          <BookOpen className="w-4 h-4 text-primary" />
                         </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {surahResults.length > 0 && (
-                  <div className="space-y-3">
-                    <p className="text-xs text-muted-foreground font-naskh px-2">{t("search.surahMatches")}: {surahResults.length}</p>
-                    <div className="grid grid-cols-1 gap-2">
-                      {surahResults.map((surah) => {
-                        const { juz, page } = getJuzAndPageForSurah(surah.number);
-                        return (
-                          <Link
-                            key={surah.number}
-                            to={`/juz/${juz}#page-${page}`}
-                            className="flex items-center justify-between p-4 bg-primary/5 border border-primary/10 rounded-2xl hover:bg-primary/10 transition-colors"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center text-xs font-bold">
-                                {surah.number}
-                              </div>
-                              <div className="text-right">
-                                <p className="font-bold font-naskh text-foreground">{surah.name}</p>
-                                <p className="text-[10px] text-muted-foreground">{surah.englishName}</p>
-                              </div>
-                            </div>
-                            <BookOpen className="w-4 h-4 text-primary" />
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {results.length > 0 && (
-                  <div className="space-y-3">
-                    <p className="text-xs text-muted-foreground font-naskh px-2">{t("search.ayahMatches")}: {results.length}</p>
-                    {results.slice(0, 50).map((result, idx) => {
-                      const { juz, page } = getJuzAndPageForSurah(result.surah.number);
-                      return (
-                        <motion.div
-                          key={`${result.surah.number}-${result.numberInSurah}-${idx}`}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: idx * 0.02 }}
-                          className="p-4 bg-card border border-border rounded-2xl space-y-3"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-accent font-naskh bg-accent/5 px-2 py-1 rounded-lg">
-                              {result.surah.name} - {t("index.verseOfDay.ayah")} {result.numberInSurah}
-                            </span>
-                            <Link 
-                              to={`/juz/${juz}#page-${page}`}
-                              className="text-[10px] text-primary font-bold"
-                            >
-                              {t("search.openInQuran")}
-                            </Link>
-                          </div>
-                          <p className="text-sm font-naskh text-foreground leading-loose text-right">
-                            {tajweedMode ? applyTajweedColors(result.text) : result.text}
-                          </p>
-                        </motion.div>
                       );
                     })}
                   </div>
-                )}
-              </motion.div>
-            ) : query && query.length >= 2 ? (
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center py-20 space-y-4"
-              >
-                <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto text-muted-foreground/30">
-                  <SearchIcon className="w-8 h-8" />
                 </div>
-                <p className="text-sm text-muted-foreground font-naskh">{t("search.noResults", { query })}</p>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
+              )}
+
+              {results.length > 0 && (
+                <div className="space-y-3">
+                  <p className="text-xs text-muted-foreground font-naskh px-2">{t("search.ayahMatches")}: {results.length}</p>
+                  {results.slice(0, 50).map((result, idx) => {
+                    const { juz, page } = getJuzAndPageForSurah(result.surah.number);
+                    return (
+                      <div
+                        key={`${result.surah.number}-${result.numberInSurah}-${idx}`}
+                        className="p-4 bg-card border border-border rounded-2xl space-y-3"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-accent font-naskh bg-accent/5 px-2 py-1 rounded-lg">
+                            {result.surah.name} - {t("index.verseOfDay.ayah")} {result.numberInSurah}
+                          </span>
+                          <Link 
+                            to={`/juz/${juz}#page-${page}`}
+                            className="text-[10px] text-primary font-bold"
+                          >
+                            {t("search.openInQuran")}
+                          </Link>
+                        </div>
+                        <p className="text-sm font-naskh text-foreground leading-loose text-right">
+                          {tajweedMode ? applyTajweedColors(result.text) : result.text}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          ) : query && query.length >= 2 ? (
+            <div 
+              className="text-center py-20 space-y-4"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto text-muted-foreground/30">
+                <SearchIcon className="w-8 h-8" />
+              </div>
+              <p className="text-sm text-muted-foreground font-naskh">{t("search.noResults", { query })}</p>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

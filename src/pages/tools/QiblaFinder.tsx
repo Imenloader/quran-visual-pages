@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { Compass, Camera, CameraOff, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -127,13 +126,8 @@ const QiblaFinder = () => {
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-background to-background" />
           <div className="absolute top-0 left-0 w-full h-full pattern-islamic opacity-[0.03] scale-150" />
-          <motion.div 
-            animate={{ 
-              opacity: [0.1, 0.2, 0.1],
-              scale: [1, 1.1, 1],
-            }}
-            transition={{ duration: 10, repeat: Infinity }}
-            className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-gold/10 rounded-full blur-[100px]" 
+          <div 
+            className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-gold/10 rounded-full blur-[100px] animate-pulse" 
           />
         </div>
       )}
@@ -144,12 +138,12 @@ const QiblaFinder = () => {
         <div className="flex gap-2">
           <button 
             onClick={toggleAR}
-            className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm transition-all ${arMode ? "bg-primary text-white" : "bg-card/50 backdrop-blur-md border border-border/40 text-foreground"}`}
+            className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm transition-all ${arMode ? "bg-primary text-white" : "bg-card/50 backdrop-blur-md border border-border/40 text-foreground"} active:scale-95`}
           >
             {arMode ? <CameraOff size={20} /> : <Camera size={20} />}
           </button>
           <button 
-            className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm transition-all ${arMode ? "bg-white/10 text-white" : "bg-card/50 backdrop-blur-md border border-border/40 text-foreground"}`}
+            className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm transition-all ${arMode ? "bg-white/10 text-white" : "bg-card/50 backdrop-blur-md border border-border/40 text-foreground"} active:scale-95`}
           >
             <Info className="w-5 h-5" />
           </button>
@@ -158,24 +152,18 @@ const QiblaFinder = () => {
 
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center gap-6 sm:gap-12 w-full max-w-md px-4 sm:px-6 py-4">
         <div className="relative w-[80vw] max-w-[300px] aspect-square">
-          <AnimatePresence>
-            {isFacingQibla && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1.1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                className={`absolute inset-0 rounded-full blur-3xl ${arMode ? "bg-primary/40" : "bg-primary/20"}`}
-              />
-            )}
-          </AnimatePresence>
+          {isFacingQibla && (
+            <div
+              className={`absolute inset-0 rounded-full blur-3xl transition-opacity duration-500 opacity-100 scale-110 ${arMode ? "bg-primary/40" : "bg-primary/20"}`}
+            />
+          )}
 
           <div className={`absolute inset-0 rounded-full border-[12px] shadow-inner ${arMode ? "border-white/10" : "border-muted/20"}`} />
           <div className={`absolute inset-4 rounded-full border ${arMode ? "border-white/20" : "border-border/40"}`} />
           
-          <motion.div
-            animate={{ rotate: -heading }}
-            transition={{ type: "spring", stiffness: 50, damping: 20 }}
-            className="absolute inset-0 flex items-center justify-center"
+          <div
+            className="absolute inset-0 flex items-center justify-center transition-transform duration-500 ease-out"
+            style={{ transform: `rotate(${-heading}deg)` }}
           >
             <div className="w-full h-full relative p-8">
               <span className="absolute top-4 left-1/2 -translate-x-1/2 font-serif font-bold text-rose-500 text-xl">N</span>
@@ -183,12 +171,11 @@ const QiblaFinder = () => {
               <span className={`absolute left-4 top-1/2 -translate-y-1/2 font-serif font-bold text-xl ${arMode ? "text-white/40" : "text-foreground/40"}`}>W</span>
               <span className={`absolute right-4 top-1/2 -translate-y-1/2 font-serif font-bold text-xl ${arMode ? "text-white/40" : "text-foreground/40"}`}>E</span>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            animate={{ rotate: relativeQibla }}
-            transition={{ type: "spring", stiffness: 40, damping: 15 }}
-            className="absolute inset-0 flex items-center justify-center"
+          <div
+            className="absolute inset-0 flex items-center justify-center transition-transform duration-500 ease-out"
+            style={{ transform: `rotate(${relativeQibla}deg)` }}
           >
             <div className="relative w-full h-full flex items-center justify-center">
               <div className={`w-1.5 sm:w-2 h-[50%] rounded-full relative transition-colors duration-500 ${isFacingQibla ? "bg-primary" : arMode ? "bg-white/40" : "bg-gold/40"}`}>
@@ -197,7 +184,7 @@ const QiblaFinder = () => {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-background border-4 border-primary rounded-full z-20 shadow-md" />
         </div>

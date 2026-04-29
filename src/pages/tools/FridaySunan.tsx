@@ -10,7 +10,6 @@ import {
   ChevronLeft,
   Info
 } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import QuranHeader from "@/components/QuranHeader";
 import { Link } from "react-router-dom";
@@ -199,11 +198,8 @@ const FridaySunan = () => {
           </div>
           
           {sunan.map((item, index) => (
-            <motion.div
+            <div
               key={item.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
               onClick={() => toggleSunnah(item.id)}
               className={`group relative overflow-hidden rounded-3xl border-2 p-5 transition-all cursor-pointer ${
                 item.completed 
@@ -231,21 +227,14 @@ const FridaySunan = () => {
                   <Link
                     to="/juz/15#page-293"
                     onClick={(e) => e.stopPropagation()}
-                    className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center hover:bg-accent hover:text-white transition-all"
+                    className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center hover:bg-accent hover:text-white transition-all active:scale-95"
                     title="اقرأ الآن"
                   >
                     <BookOpen size={18} />
                   </Link>
                 )}
               </div>
-              
-              {item.completed && (
-                <motion.div
-                  layoutId="check-overlay"
-                  className="absolute inset-0 bg-primary/5 pointer-events-none"
-                />
-              )}
-            </motion.div>
+            </div>
           ))}
         </div>
 

@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { 
   Baby, 
@@ -198,7 +197,7 @@ const SeerahTimeline = () => {
       <QuranHeader 
         title={isAr ? "السيرة النبوية" : "Seerah Timeline"} 
         subtitle={isAr ? "رحلة عبر حياة خير البشر صلى الله عليه وسلم" : "A journey through the life of the best of mankind (PBUH)"}
-        variant="compact"
+        variant="compact" 
       />
 
       <div className="max-w-5xl mx-auto px-4 mt-12 relative">

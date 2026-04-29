@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { 
   Plus, 
   Search, 
@@ -191,12 +190,9 @@ const QuizManager = () => {
         </div>
       </div>
 
-      <AnimatePresence>
-        {showModal && (
+      {showModal && (
           <div className="fixed inset-0 z-[700] bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
+            <div 
               className="w-full max-w-2xl bg-card border border-border rounded-[2.5rem] p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
             >
               <div className="flex justify-between items-center mb-6">
@@ -247,10 +243,9 @@ const QuizManager = () => {
 
                 <button onClick={handleSave} className="w-full py-4 bg-accent text-accent-foreground rounded-2xl font-bold flex items-center justify-center gap-2"><Save size={18} /> حفظ السؤال</button>
               </div>
-            </motion.div>
+            </div>
           </div>
         )}
-      </AnimatePresence>
     </div>
   );
 };

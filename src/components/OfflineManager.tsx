@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { DownloadCloud, CheckCircle2, Loader2, Trash2, AlertCircle, Wifi, WifiOff } from "lucide-react";
 import { toast } from "sonner";
-import { motion } from "motion/react";
 import { toArabicNumber } from "@/data/quranData";
 import { useTranslation } from "react-i18next";
 import { offlineOrchestrator } from "@/services/offlineOrchestrator";
@@ -142,24 +141,21 @@ const OfflineManager: React.FC = () => {
       </div>
 
       <div className="relative h-3 bg-primary/5 rounded-full overflow-hidden">
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${(downloadedCount / TOTAL_PAGES) * 100}%` }}
-          className={`absolute inset-y-0 ${i18n.language === "ar" ? "right-0" : "left-0"} bg-accent shadow-accent-glow`}
+        <div
+          className={`absolute inset-y-0 ${i18n.language === "ar" ? "right-0" : "left-0"} bg-accent shadow-accent-glow transition-all duration-500`}
+          style={{ width: `${(downloadedCount / TOTAL_PAGES) * 100}%` }}
         />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {!isFullyDownloaded ? (
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+          <button
             onClick={downloadAllPages}
             disabled={isDownloading}
-            className={`h-14 rounded-2xl flex items-center justify-center gap-3 font-serif font-bold transition-all shadow-lg ${
+            className={`h-14 rounded-2xl flex items-center justify-center gap-3 font-serif font-bold transition-all shadow-lg active:scale-98 ${
               isDownloading
                 ? "bg-muted text-muted-foreground cursor-not-allowed"
-                : "bg-emerald-deep text-gold hover:shadow-emerald-deep/20"
+                : "bg-emerald-deep text-gold hover:shadow-emerald-deep/20 hover:scale-[1.01]"
             }`}
           >
             {isDownloading ? (
@@ -173,7 +169,7 @@ const OfflineManager: React.FC = () => {
                 {t("hub.offline.downloadAll")}
               </>
             )}
-          </motion.button>
+          </button>
         ) : (
           <div className="h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center gap-3 text-emerald-600 font-serif font-bold">
             <CheckCircle2 size={20} />
@@ -181,15 +177,13 @@ const OfflineManager: React.FC = () => {
           </div>
         )}
 
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+        <button
           onClick={() => setIsAlertOpen(true)}
-          className="h-14 rounded-2xl border-2 border-red-200 text-red-500 font-serif font-bold hover:bg-red-50 transition-all flex items-center justify-center gap-3"
+          className="h-14 rounded-2xl border-2 border-red-200 text-red-500 font-serif font-bold hover:bg-red-50 transition-all flex items-center justify-center gap-3 active:scale-98 hover:scale-[1.01]"
         >
           <Trash2 size={20} />
           {t("hub.offline.deleteData")}
-        </motion.button>
+        </button>
       </div>
 
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { 
   Heart, 
@@ -295,51 +294,45 @@ const SadaqahLogger = () => {
           </div>
 
           <div className="space-y-4">
-            <AnimatePresence mode="popLayout">
-              {entries.length > 0 ? (
-                entries.map((entry) => (
-                  <motion.div 
-                    key={entry.id}
-                    layout
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="bento-card !p-6 flex items-center justify-between group hover:border-rose-500/20 transition-all"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500">
-                        <Gift className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-bold font-naskh">{isAr ? entry.categoryAr : entry.categoryEn}</h4>
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-bold">
-                            {format(new Date(entry.date), 'dd MMM yyyy', { locale })}
-                          </span>
-                        </div>
-                        {entry.note && <p className="text-xs text-muted-foreground mt-1">{entry.note}</p>}
-                      </div>
+            {entries.length > 0 ? (
+              entries.map((entry) => (
+                <div 
+                  key={entry.id}
+                  className="bento-card !p-6 flex items-center justify-between group hover:border-rose-500/20 transition-all"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500">
+                      <Gift className="w-6 h-6" />
                     </div>
-                    <div className="flex items-center gap-6">
-                      <p className="text-xl font-bold text-rose-500">+{entry.amount.toLocaleString()} {isAr ? "ج.م" : "EGP"}</p>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="rounded-xl text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => removeEntry(entry.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-bold font-naskh">{isAr ? entry.categoryAr : entry.categoryEn}</h4>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-bold">
+                          {format(new Date(entry.date), 'dd MMM yyyy', { locale })}
+                        </span>
+                      </div>
+                      {entry.note && <p className="text-xs text-muted-foreground mt-1">{entry.note}</p>}
                     </div>
-                  </motion.div>
-                ))
-              ) : (
-                <div className="h-64 flex flex-col items-center justify-center text-center space-y-4 opacity-30">
-                  <HandHeart className="w-16 h-16" />
-                  <p className="font-medium">{isAr ? "لا يوجد سجل للصدقات بعد" : "No charity history yet"}</p>
+                  </div>
+                  <div className="flex items-center gap-6">
+                    <p className="text-xl font-bold text-rose-500">+{entry.amount.toLocaleString()} {isAr ? "ج.م" : "EGP"}</p>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="rounded-xl text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => removeEntry(entry.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-              )}
-            </AnimatePresence>
+              ))
+            ) : (
+              <div className="h-64 flex flex-col items-center justify-center text-center space-y-4 opacity-30">
+                <HandHeart className="w-16 h-16" />
+                <p className="font-medium">{isAr ? "لا يوجد سجل للصدقات بعد" : "No charity history yet"}</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

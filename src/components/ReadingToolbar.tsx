@@ -2,7 +2,6 @@ import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen, List, Moon, Sun, Info, 
 import { toArabicNumber } from "@/data/quranData";
 import ShareButton from "./ShareButton";
 import { useTheme } from "@/contexts/ThemeContext";
-import { motion } from "motion/react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Button } from "./ui/button";
@@ -86,15 +85,15 @@ const ReadingToolbar = ({
   };
 
   return (
-    <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md md:backdrop-blur-xl border-b border-border/40 shadow-soft transform-gpu">
+    <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md md:backdrop-blur-xl border-b border-border/40 shadow-soft transform-gpu transition-all">
       <div className="container max-w-5xl mx-auto px-2 md:px-4 py-1.5 md:py-3 flex items-center justify-between gap-1.5 md:gap-4">
         
         {/* Left: Navigation & Index */}
         <div className="flex items-center gap-1 md:gap-2">
-          <button onClick={(e) => { e.stopPropagation(); onToggleJuzIndex(); }} className="toolbar-btn !p-1.5 md:!p-2.5" title="فهرس الأجزاء">
+          <button onClick={(e) => { e.stopPropagation(); onToggleJuzIndex(); }} className="toolbar-btn !p-1.5 md:!p-2.5 transition-all active:scale-90" title="فهرس الأجزاء">
             <List className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); onTogglePageNav(); }} className="toolbar-btn !p-1.5 md:!p-2.5" title="الانتقال لصفحة">
+          <button onClick={(e) => { e.stopPropagation(); onTogglePageNav(); }} className="toolbar-btn !p-1.5 md:!p-2.5 transition-all active:scale-90" title="الانتقال لصفحة">
             <BookOpen className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
           </button>
           <div className="h-5 md:h-6 w-px bg-border/40 mx-0.5 md:mx-1 hidden xs:block" />
@@ -114,7 +113,7 @@ const ReadingToolbar = ({
         <div className="flex items-center gap-1 md:gap-2">
           <button
             onClick={(e) => { e.stopPropagation(); toggleReadingMode(); }}
-            className={`toolbar-btn !p-1.5 md:!p-2.5 ${readingMode === "text" ? "text-accent bg-accent/10" : ""}`}
+            className={`toolbar-btn !p-1.5 md:!p-2.5 transition-all active:scale-90 ${readingMode === "text" ? "text-accent bg-accent/10" : ""}`}
             title={readingMode === "text" ? "عرض الصور" : "عرض النص"}
           >
             {readingMode === "text" ? <FileImage className="size-[16px] md:size-[20px]" strokeWidth={1.5} /> : <Type className="size-[16px] md:size-[20px]" strokeWidth={1.5} />}
@@ -123,7 +122,7 @@ const ReadingToolbar = ({
           {readingMode === "text" && (
             <button
               onClick={(e) => { e.stopPropagation(); toggleTajweedMode(); }}
-              className={`toolbar-btn !p-1.5 md:!p-2.5 ${tajweedMode ? "text-emerald-500 bg-emerald-500/10" : ""}`}
+              className={`toolbar-btn !p-1.5 md:!p-2.5 transition-all active:scale-90 ${tajweedMode ? "text-emerald-500 bg-emerald-500/10" : ""}`}
               title="التجويد الملون"
             >
               <Sparkles className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
@@ -132,7 +131,7 @@ const ReadingToolbar = ({
 
           <button
             onClick={(e) => { e.stopPropagation(); onToggleSourceSelector(); }}
-            className="toolbar-btn !p-1.5 md:!p-2.5"
+            className="toolbar-btn !p-1.5 md:!p-2.5 transition-all active:scale-90"
             title="تغيير مصدر الصور"
           >
             <Server className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
@@ -145,7 +144,7 @@ const ReadingToolbar = ({
               size="icon"
               onClick={onToggleHifzMode}
               className={cn(
-                "h-8 w-8 md:h-10 md:w-10 rounded-xl transition-all",
+                "h-8 w-8 md:h-10 md:w-10 rounded-xl transition-all active:scale-90",
                 hifzMode ? "bg-accent text-white shadow-lg shadow-accent/20" : "text-primary hover:bg-accent/10"
               )}
               title={hifzMode ? "إيقاف وضع الحفظ" : "بدء وضع الحفظ (إخفاء الأسطر)"}
@@ -158,7 +157,7 @@ const ReadingToolbar = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 md:h-10 md:w-10 rounded-xl text-primary hover:bg-accent/10 transition-all"
+                  className="h-8 w-8 md:h-10 md:w-10 rounded-xl text-primary hover:bg-accent/10 transition-all active:scale-90"
                   title="اختبار الحفظ الذكي"
                 >
                   <GraduationCap className="w-5 h-5" />
@@ -190,7 +189,7 @@ const ReadingToolbar = ({
 
           <button
             onClick={(e) => { e.stopPropagation(); setAtmosphericBackground(!atmosphericBackground); }}
-            className={`toolbar-btn !p-1.5 md:!p-2.5 ${atmosphericBackground ? "text-amber-500 bg-amber-500/10" : ""}`}
+            className={`toolbar-btn !p-1.5 md:!p-2.5 transition-all active:scale-90 ${atmosphericBackground ? "text-amber-500 bg-amber-500/10" : ""}`}
             title="تأثيرات جوية"
           >
             <Wand2 className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
@@ -198,7 +197,7 @@ const ReadingToolbar = ({
 
           <button
             onClick={(e) => { e.stopPropagation(); toggleScrollDirection(); }}
-            className={`toolbar-btn !p-1.5 md:!p-2.5 ${scrollDirection === "horizontal" ? "text-accent bg-accent/10" : ""}`}
+            className={`toolbar-btn !p-1.5 md:!p-2.5 transition-all active:scale-90 ${scrollDirection === "horizontal" ? "text-accent bg-accent/10" : ""}`}
             title={scrollDirection === "horizontal" ? "التمرير الرأسي" : "التمرير الأفقي"}
           >
             {scrollDirection === "horizontal" ? <ArrowRightLeft className="size-[16px] md:size-[20px]" strokeWidth={1.5} /> : <ArrowDown className="size-[16px] md:size-[20px]" strokeWidth={1.5} />}
@@ -208,7 +207,7 @@ const ReadingToolbar = ({
             <button
               onClick={(e) => { e.stopPropagation(); onDownloadAudio(); }}
               disabled={isDownloadingAudio}
-              className={`toolbar-btn !p-1.5 md:!p-2.5 ${isDownloadingAudio ? "opacity-50" : ""}`}
+              className={`toolbar-btn !p-1.5 md:!p-2.5 transition-all active:scale-90 ${isDownloadingAudio ? "opacity-50" : ""}`}
               title="تحميل الصوت للتلاوة بدون إنترنت"
             >
               <DownloadCloud className={`size-[16px] md:size-[20px] ${isDownloadingAudio ? "animate-pulse" : ""}`} strokeWidth={1.5} />
@@ -216,13 +215,13 @@ const ReadingToolbar = ({
           )}
 
           <div className="hidden lg:flex items-center gap-1 bg-muted/30 rounded-2xl p-1">
-            <button onClick={(e) => { e.stopPropagation(); onZoomOut(); }} className="toolbar-btn !p-1.5" title="تصغير">
+            <button onClick={(e) => { e.stopPropagation(); onZoomOut(); }} className="toolbar-btn !p-1.5 transition-all active:scale-90" title="تصغير">
               <ZoomOut size={16} strokeWidth={1.5} />
             </button>
-            <button onClick={(e) => { e.stopPropagation(); onResetZoom(); }} className="px-2 text-[10px] font-serif font-bold text-primary/60">
+            <button onClick={(e) => { e.stopPropagation(); onResetZoom(); }} className="px-2 text-[10px] font-serif font-bold text-primary/60 hover:text-primary transition-colors">
               {toArabicNumber(zoom)}%
             </button>
-            <button onClick={(e) => { e.stopPropagation(); onZoomIn(); }} className="toolbar-btn !p-1.5" title="تكبير">
+            <button onClick={(e) => { e.stopPropagation(); onZoomIn(); }} className="toolbar-btn !p-1.5 transition-all active:scale-90" title="تكبير">
               <ZoomIn size={16} strokeWidth={1.5} />
             </button>
           </div>
@@ -231,7 +230,7 @@ const ReadingToolbar = ({
           
           <button
             onClick={(e) => { e.stopPropagation(); toggleTheme(); }}
-            className={`toolbar-btn !p-1.5 md:!p-2.5 ${theme !== "light" ? "text-accent bg-accent/10" : ""}`}
+            className={`toolbar-btn !p-1.5 md:!p-2.5 transition-all active:scale-90 ${theme !== "light" ? "text-accent bg-accent/10" : ""}`}
             title="تغيير المظهر"
           >
             {theme === "dark" ? <Moon className="size-[16px] md:size-[20px]" strokeWidth={1.5} /> : theme === "sepia" ? <Palette className="size-[16px] md:size-[20px]" strokeWidth={1.5} /> : <Sun className="size-[16px] md:size-[20px]" strokeWidth={1.5} />}
@@ -243,7 +242,7 @@ const ReadingToolbar = ({
           
           <button
             onClick={(e) => { e.stopPropagation(); onSaveBookmark(); }}
-            className={`toolbar-btn !p-1.5 md:!p-2.5 ${bookmarked ? "text-accent" : ""}`}
+            className={`toolbar-btn !p-1.5 md:!p-2.5 transition-all active:scale-90 ${bookmarked ? "text-accent" : ""}`}
             title="حفظ موضع القراءة"
           >
             <Bookmark className="size-[16px] md:size-[20px]" strokeWidth={1.5} fill={bookmarked ? "currentColor" : "none"} />

@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -61,10 +60,9 @@ const HajjGuide = () => {
               <span className="text-primary font-bold">{progress}%</span>
             </div>
             <div className="h-3 bg-muted rounded-full overflow-hidden">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
+              <div 
                 className="h-full bg-primary shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                style={{ width: `${progress}%` }}
               />
             </div>
           </div>
@@ -91,13 +89,8 @@ const HajjGuide = () => {
           ))}
         </div>
 
-        <AnimatePresence mode="wait">
-          {activeTab === "rituals" && (
-            <motion.div 
-              key="rituals"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+        {activeTab === "rituals" && (
+            <div 
               className="space-y-4"
             >
               {hajjSteps.map((step, idx) => (
@@ -134,9 +127,7 @@ const HajjGuide = () => {
                   </div>
                   
                   {selectedStep?.id === step.id && (
-                    <motion.div 
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
+                    <div 
                       className="mt-6 pt-6 border-t border-border space-y-4"
                     >
                       <div className="space-y-2">
@@ -157,19 +148,15 @@ const HajjGuide = () => {
                           {i18n.language === 'ar' ? step.dua : step.duaEn}
                         </p>
                       </div>
-                    </motion.div>
+                    </div>
                   )}
                 </div>
               ))}
-            </motion.div>
+            </div>
           )}
 
           {activeTab === "checklist" && (
-            <motion.div 
-              key="checklist"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+            <div 
               className="grid grid-cols-1 md:grid-cols-2 gap-4"
             >
               {packingChecklist.map((item, idx) => (
@@ -183,15 +170,11 @@ const HajjGuide = () => {
                   </span>
                 </div>
               ))}
-            </motion.div>
+            </div>
           )}
 
           {activeTab === "tips" && (
-            <motion.div 
-              key="tips"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+            <div 
               className="space-y-4"
             >
               {hajjTips.map((tip, idx) => (
@@ -205,15 +188,11 @@ const HajjGuide = () => {
                   </p>
                 </div>
               ))}
-            </motion.div>
+            </div>
           )}
 
           {activeTab === "tour" && (
-            <motion.div 
-              key="tour"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+            <div 
               className="space-y-6"
             >
               <div className="relative aspect-video rounded-3xl overflow-hidden group">
@@ -268,9 +247,8 @@ const HajjGuide = () => {
                   </button>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
       </div>
     </div>
   );

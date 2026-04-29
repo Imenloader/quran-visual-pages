@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { 
   CheckCircle2, 
@@ -163,10 +162,9 @@ const RoutineBuilder = () => {
               <span className="text-4xl font-bold text-primary">{isAr ? toArabicNumber(progress.toString()) : progress}%</span>
             </div>
             <div className="h-4 bg-muted rounded-full overflow-hidden p-1 border border-border/40">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                className="h-full bg-primary rounded-full shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+              <div 
+                className="h-full bg-primary rounded-full shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all duration-700"
+                style={{ width: `${progress}%` }}
               />
             </div>
           </div>
@@ -188,50 +186,44 @@ const RoutineBuilder = () => {
 
         {/* Habits List */}
         <div className="space-y-4">
-          <AnimatePresence mode="popLayout">
-            {habits.map((habit, idx) => (
-              <motion.div 
-                key={habit.id}
-                layout
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className={`bento-card !p-6 flex items-center justify-between group transition-all duration-300 ${habit.isCompleted ? "bg-primary/5 border-primary/30" : "hover:border-primary/20"}`}
-              >
-                <div className="flex items-center gap-6">
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-colors ${habit.isCompleted ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
-                    {getIcon(habit.icon)}
-                  </div>
-                  <div>
-                    <h4 className={`text-lg font-bold font-naskh transition-colors ${habit.isCompleted ? "text-primary line-through opacity-60" : "text-foreground"}`}>
-                      {isAr ? habit.nameAr : habit.nameEn}
-                    </h4>
-                    <p className="text-xs text-muted-foreground">
-                      {safeT("routine.dailyHabit")}
-                    </p>
-                  </div>
+          {habits.map((habit, idx) => (
+            <div 
+              key={habit.id}
+              className={`bento-card !p-6 flex items-center justify-between group transition-all duration-300 ${habit.isCompleted ? "bg-primary/5 border-primary/30" : "hover:border-primary/20"}`}
+            >
+              <div className="flex items-center gap-6">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-colors ${habit.isCompleted ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+                  {getIcon(habit.icon)}
                 </div>
-                
-                <div className="flex items-center gap-3">
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="rounded-xl text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => removeHabit(habit.id)}
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </Button>
-                  <Button 
-                    variant={habit.isCompleted ? "default" : "outline"}
-                    className={`h-12 w-12 rounded-xl p-0 ${habit.isCompleted ? "bg-primary hover:bg-primary/90" : "hover:border-primary hover:bg-primary/5"}`}
-                    onClick={() => toggleHabit(habit.id)}
-                  >
-                    <CheckCircle2 className={`w-6 h-6 ${habit.isCompleted ? "text-white" : "text-muted-foreground"}`} />
-                  </Button>
+                <div>
+                  <h4 className={`text-lg font-bold font-naskh transition-colors ${habit.isCompleted ? "text-primary line-through opacity-60" : "text-foreground"}`}>
+                    {isAr ? habit.nameAr : habit.nameEn}
+                  </h4>
+                  <p className="text-xs text-muted-foreground">
+                    {safeT("routine.dailyHabit")}
+                  </p>
                 </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="rounded-xl text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => removeHabit(habit.id)}
+                >
+                  <Trash2 className="w-5 h-5" />
+                </Button>
+                <Button 
+                  variant={habit.isCompleted ? "default" : "outline"}
+                  className={`h-12 w-12 rounded-xl p-0 ${habit.isCompleted ? "bg-primary hover:bg-primary/90" : "hover:border-primary hover:bg-primary/5"}`}
+                  onClick={() => toggleHabit(habit.id)}
+                >
+                  <CheckCircle2 className={`w-6 h-6 ${habit.isCompleted ? "text-white" : "text-muted-foreground"}`} />
+                </Button>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Motivation Quote */}

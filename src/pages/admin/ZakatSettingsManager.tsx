@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "motion/react";
 import { db } from "@/firebase";
 import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 import { Banknote, Save, TrendingUp, Info, Coins, Globe } from "lucide-react";

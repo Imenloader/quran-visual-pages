@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "motion/react";
 import { Wrench, Clock, AlertCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useSystem } from "@/contexts/SystemContext";
@@ -18,31 +17,24 @@ const MaintenancePage = () => {
       <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl translate-x-1/3 translate-y-1/3" />
 
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full space-y-8 relative z-10"
+      <div 
+        className="max-w-md w-full space-y-8 relative z-10 opacity-100 translate-y-0 transition-all duration-1000"
       >
         <div className="relative inline-block">
           <div className="w-24 h-24 rounded-3xl bg-primary/10 flex items-center justify-center text-primary mx-auto mb-4 relative overflow-hidden">
-             <motion.div
-               animate={{ 
-                 rotate: [0, 10, -10, 10, 0],
-                 y: [0, -5, 0]
-               }}
-               transition={{ duration: 4, repeat: Infinity }}
+             <div
+               className="animate-pulse"
+               style={{ animationDuration: '4s' }}
              >
                <Wrench size={48} strokeWidth={1.5} />
-             </motion.div>
+             </div>
              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent animate-shimmer" />
           </div>
-          <motion.div 
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="absolute -top-2 -right-2"
+          <div 
+            className="absolute -top-2 -right-2 animate-bounce"
           >
             <AlertCircle className="text-rose-500 w-8 h-8 fill-rose-500/10" />
-          </motion.div>
+          </div>
         </div>
 
         <div className="space-y-4">
@@ -76,16 +68,15 @@ const MaintenancePage = () => {
            </p>
            <div className="flex justify-center gap-2">
              {[1, 2, 3].map(i => (
-               <motion.div 
+               <div 
                  key={i}
-                 animate={{ opacity: [0.3, 1, 0.3] }}
-                 transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.3 }}
-                 className="w-1.5 h-1.5 rounded-full bg-primary"
+                 className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"
+                 style={{ animationDelay: `${i * 0.3}s` }}
                />
              ))}
            </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };

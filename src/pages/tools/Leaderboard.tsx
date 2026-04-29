@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { db } from "@/firebase";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { toArabicNumber } from "@/data/quranData";
-import { motion } from "motion/react";
 import QuranHeader from "@/components/QuranHeader";
 
 interface LeaderboardUser {
@@ -67,13 +66,11 @@ const Leaderboard: React.FC = () => {
       
       <main className="container-responsive py-8 space-y-8">
         <div className="text-center space-y-4">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
+          <div
             className="w-20 h-20 bg-gold/10 rounded-[2rem] flex items-center justify-center mx-auto text-gold shadow-lg"
           >
             <Trophy size={40} />
-          </motion.div>
+          </div>
           <h1 className="text-4xl font-serif font-bold text-primary">{isAr ? "لوحة المتصدرين" : "Global Leaderboard"}</h1>
           <p className="text-muted-foreground font-naskh">
             {isAr ? "نخبة من المتنافسين في الخيرات وطاعة الرحمن" : "The elite competitors in good deeds and worship"}
@@ -83,13 +80,13 @@ const Leaderboard: React.FC = () => {
         <div className="flex justify-center gap-4">
           <button
             onClick={() => setSortBy("points")}
-            className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${sortBy === "points" ? "bg-primary text-white shadow-lg" : "bg-card border border-border text-muted-foreground hover:bg-primary/5"}`}
+            className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${sortBy === "points" ? "bg-primary text-white shadow-lg" : "bg-card border border-border text-muted-foreground hover:bg-primary/5"} active:scale-95`}
           >
             {isAr ? "بالنقاط" : "By Points"}
           </button>
           <button
             onClick={() => setSortBy("totalJuzCompleted")}
-            className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${sortBy === "totalJuzCompleted" ? "bg-primary text-white shadow-lg" : "bg-card border border-border text-muted-foreground hover:bg-primary/5"}`}
+            className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${sortBy === "totalJuzCompleted" ? "bg-primary text-white shadow-lg" : "bg-card border border-border text-muted-foreground hover:bg-primary/5"} active:scale-95`}
           >
             {isAr ? "بالأجزاء المختومة" : "By Juz Completed"}
           </button>
@@ -115,10 +112,7 @@ const Leaderboard: React.FC = () => {
           ) : (
             <div className="divide-y divide-border/20">
               {filteredUsers.map((user, index) => (
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
+                <div
                   key={user.id}
                   className="flex items-center justify-between p-6 hover:bg-primary/5 transition-colors group"
                 >
@@ -172,7 +166,7 @@ const Leaderboard: React.FC = () => {
                       {sortBy === "points" ? (isAr ? "نقطة" : "Points") : (isAr ? "جزء" : "Juz")}
                     </span>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
           )}

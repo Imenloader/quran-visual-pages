@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import {
   X, Loader2, Volume2, Copy,
   Share2, Hash, Sparkles, AlertCircle,
@@ -130,130 +129,122 @@ const WordAnalysisPopup: React.FC<Props> = ({
   // ---------------- Render ----------------
 
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
 
-        {/* Overlay */}
-        <motion.div
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-          onClick={onClose}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        />
+      {/* Overlay */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
 
-        {/* Popup */}
-        <motion.div
-          className="relative w-full max-w-md bg-card rounded-2xl shadow-xl p-6 space-y-6 max-h-[85vh] overflow-y-auto"
-          dir="rtl"
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-        >
+      {/* Popup */}
+      <div
+        className="relative w-full max-w-md bg-card rounded-2xl shadow-xl p-6 space-y-6 max-h-[85vh] overflow-y-auto"
+        dir="rtl"
+      >
 
-          {/* Header */}
-          <div className="flex items-center justify-between border-b pb-4">
-            <h2 className="text-3xl font-quran text-primary">{word}</h2>
+        {/* Header */}
+        <div className="flex items-center justify-between border-b pb-4">
+          <h2 className="text-3xl font-quran text-primary">{word}</h2>
 
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={handleAudio}
-                className="p-2 hover:bg-muted rounded-full transition-colors"
-                title="استماع"
-              >
-                {isPlaying ? (
-                  <Loader2 className="animate-spin text-primary" size={20} />
-                ) : (
-                  <Volume2 className="text-muted-foreground hover:text-primary" size={20} />
-                )}
-              </button>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={handleAudio}
+              className="p-2 hover:bg-muted rounded-full transition-colors"
+              title="استماع"
+            >
+              {isPlaying ? (
+                <Loader2 className="animate-spin text-primary" size={20} />
+              ) : (
+                <Volume2 className="text-muted-foreground hover:text-primary" size={20} />
+              )}
+            </button>
 
-              <button 
-                onClick={onClose}
-                className="p-2 hover:bg-muted rounded-full transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
+            <button 
+              onClick={onClose}
+              className="p-2 hover:bg-muted rounded-full transition-colors"
+            >
+              <X size={20} />
+            </button>
           </div>
+        </div>
 
-          {/* Content */}
-          {error ? (
-            <div className="text-center py-10 space-y-4">
-              <AlertCircle className="mx-auto text-destructive" size={40} />
-              <p className="text-muted-foreground font-medium">تعذر تحميل البيانات. يرجى المحاولة لاحقاً.</p>
-            </div>
-          ) : isLoading ? (
-            <div className="flex flex-col items-center justify-center py-12 gap-4">
-              <Loader2 className="animate-spin text-primary" size={40} />
-              <p className="text-sm text-muted-foreground animate-pulse">جاري التحليل...</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
+        {/* Content */}
+        {error ? (
+          <div className="text-center py-10 space-y-4">
+            <AlertCircle className="mx-auto text-destructive" size={40} />
+            <p className="text-muted-foreground font-medium">تعذر تحميل البيانات. يرجى المحاولة لاحقاً.</p>
+          </div>
+        ) : isLoading ? (
+          <div className="flex flex-col items-center justify-center py-12 gap-4">
+            <Loader2 className="animate-spin text-primary" size={40} />
+            <p className="text-sm text-muted-foreground animate-pulse">جاري التحليل...</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
 
-              {/* Meaning */}
-              <Section title="معنى الكلمة">
-                {translating || loadingWordTafsir ? (
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Loader2 className="animate-spin" size={14} />
-                    <span className="text-sm">جاري البحث...</span>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <p className="text-xl font-bold text-foreground">
-                      {meaning || "غير متوفر"}
+            {/* Meaning */}
+            <Section title="معنى الكلمة">
+              {translating || loadingWordTafsir ? (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Loader2 className="animate-spin" size={14} />
+                  <span className="text-sm">جاري البحث...</span>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-xl font-bold text-foreground">
+                    {meaning || "غير متوفر"}
+                  </p>
+                  {wordTafsirData?.notes && (
+                    <p className="text-sm text-muted-foreground italic border-r-2 border-primary/20 pr-3 py-1 mt-2">
+                      {wordTafsirData.notes}
                     </p>
-                    {wordTafsirData?.notes && (
-                      <p className="text-sm text-muted-foreground italic border-r-2 border-primary/20 pr-3 py-1 mt-2">
-                        {wordTafsirData.notes}
-                      </p>
-                    )}
-                  </div>
-                )}
-              </Section>
+                  )}
+                </div>
+              )}
+            </Section>
 
-              {/* Meta */}
-              <div className="flex items-center justify-between pt-2">
-                <div className="flex gap-4 text-xs font-medium text-muted-foreground">
-                  <div className="flex items-center gap-1 bg-muted/50 px-2 py-1 rounded-lg">
-                    <Hash size={12} />
-                    <span>آية {toArabicNumber(ayahNumber)}</span>
-                  </div>
+            {/* Meta */}
+            <div className="flex items-center justify-between pt-2">
+              <div className="flex gap-4 text-xs font-medium text-muted-foreground">
+                <div className="flex items-center gap-1 bg-muted/50 px-2 py-1 rounded-lg">
+                  <Hash size={12} />
+                  <span>آية {toArabicNumber(ayahNumber)}</span>
+                </div>
 
-                  <div className="flex items-center gap-1 bg-muted/50 px-2 py-1 rounded-lg">
-                    <Sparkles size={12} />
-                    <span>
-                      جزء {analysis ? toArabicNumber(analysis.juz) : "..."}
-                    </span>
-                  </div>
+                <div className="flex items-center gap-1 bg-muted/50 px-2 py-1 rounded-lg">
+                  <Sparkles size={12} />
+                  <span>
+                    جزء {analysis ? toArabicNumber(analysis.juz) : "..."}
+                  </span>
                 </div>
               </div>
-
             </div>
-          )}
 
-          {/* Actions */}
-          <div className="flex gap-3 pt-4 border-t">
-            <button
-              onClick={handleShare}
-              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-primary-foreground font-bold hover:opacity-90 transition-opacity"
-            >
-              <Share2 size={18} />
-              مشاركة
-            </button>
-
-            <button
-              onClick={() => handleCopy(`${word} - ${meaning}`)}
-              className="p-3 border border-border bg-background rounded-xl hover:bg-muted transition-colors"
-              title="نسخ"
-            >
-              <Copy size={18} className="text-muted-foreground" />
-            </button>
           </div>
+        )}
 
-        </motion.div>
+        {/* Actions */}
+        <div className="flex gap-3 pt-4 border-t">
+          <button
+            onClick={handleShare}
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-primary-foreground font-bold hover:opacity-90 transition-opacity"
+          >
+            <Share2 size={18} />
+            مشاركة
+          </button>
+
+          <button
+            onClick={() => handleCopy(`${word} - ${meaning}`)}
+            className="p-3 border border-border bg-background rounded-xl hover:bg-muted transition-colors"
+            title="نسخ"
+          >
+            <Copy size={18} className="text-muted-foreground" />
+          </button>
+        </div>
+
       </div>
-    </AnimatePresence>
+    </div>
   );
 };
 

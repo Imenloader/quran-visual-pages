@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import { toArabicNumber } from '@/data/quranData';
-import { motion } from 'motion/react';
 import { TrendingUp, Calendar, BookOpen } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 
@@ -67,7 +66,7 @@ const ReadingProgress: React.FC = () => {
           <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
             <TrendingUp size={20} />
           </div>
-          <div>
+          <div className="text-right">
             <h3 className="font-serif text-lg text-primary leading-tight">{t("hub.readingActivity.title")}</h3>
             <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{t("hub.readingActivity.last7Days")}</p>
           </div>
@@ -104,7 +103,7 @@ const ReadingProgress: React.FC = () => {
             <Bar 
               dataKey="pages" 
               radius={[6, 6, 0, 0]}
-              animationDuration={1500}
+              isAnimationActive={false}
             >
               {data.map((entry, index) => (
                 <Cell 
@@ -118,23 +117,23 @@ const ReadingProgress: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="p-4 rounded-2xl bg-accent/5 border border-accent/10 flex items-center gap-3">
-          <Calendar size={18} className="text-accent" />
-          <div>
+        <div className="p-4 rounded-2xl bg-accent/5 border border-accent/10 flex items-center gap-3 justify-end">
+          <div className="text-right">
             <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{t("hub.readingActivity.dailyAverage")}</p>
             <p className="text-sm font-serif font-bold text-primary">
               {i18n.language === "ar" ? toArabicNumber(averagePages) : averagePages} {t("hub.readingActivity.pages")}
             </p>
           </div>
+          <Calendar size={18} className="text-accent" />
         </div>
-        <div className="p-4 rounded-2xl bg-accent/5 border border-accent/10 flex items-center gap-3">
-          <BookOpen size={18} className="text-accent" />
-          <div>
+        <div className="p-4 rounded-2xl bg-accent/5 border border-accent/10 flex items-center gap-3 justify-end">
+          <div className="text-right">
             <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{t("hub.readingActivity.mostReadDay")}</p>
             <p className="text-sm font-serif font-bold text-primary">
               {i18n.language === "ar" ? toArabicNumber(Math.max(...data.map(d => d.pages))) : Math.max(...data.map(d => d.pages))} {t("hub.readingActivity.pages")}
             </p>
           </div>
+          <BookOpen size={18} className="text-accent" />
         </div>
       </div>
     </div>

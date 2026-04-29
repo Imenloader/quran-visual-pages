@@ -1,13 +1,11 @@
 import React from "react";
 import { useHifzMastery } from "@/hooks/useHifzMastery";
-import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { Trophy, Target, BookOpen, ExternalLink, PlayCircle, Loader2, GraduationCap } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 import { getSurahByPage, toArabicNumber, getJuzByPage } from "@/data/quranData";
-import { SheetTitle, SheetDescription } from "./ui/sheet";
 
 interface HifzMasteryMapProps {
   onPageClick?: (page: number) => void;
@@ -74,11 +72,10 @@ const HifzMasteryMap: React.FC<HifzMasteryMapProps> = ({ onPageClick }) => {
             }
 
             return (
-              <motion.div
+              <div
                 key={pageNum}
-                whileHover={{ scale: 1.5, zIndex: 10 }}
                 onClick={() => setSelectedPage(pageNum)}
-                className={`aspect-square rounded-[2px] transition-colors cursor-pointer ${color}`}
+                className={`aspect-square rounded-[2px] transition-all cursor-pointer hover:scale-150 hover:z-10 relative ${color}`}
               />
             );
           })}
@@ -87,19 +84,16 @@ const HifzMasteryMap: React.FC<HifzMasteryMapProps> = ({ onPageClick }) => {
 
       {/* Page Detail Dialog */}
       <Dialog open={selectedPage !== null} onOpenChange={(open) => !open && setSelectedPage(null)}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 border-none bg-card/95 backdrop-blur-xl shadow-2xl">
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 border-none bg-card/95 backdrop-blur-xl shadow-2xl transition-all">
           {selectedPage && (() => {
             const surah = getSurahByPage(selectedPage);
             const mastery = masteryData[selectedPage];
             return (
               <div className="space-y-6">
                 <DialogHeader>
-                  <div className="flex items-center gap-4 mb-2">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-serif font-bold text-xl">
-                      {selectedPage}
-                    </div>
-                    <div>
-                      <DialogTitle className="text-right font-serif flex items-center gap-2">
+                  <div className="flex items-center gap-4 mb-2 justify-end">
+                    <div className="text-right">
+                      <DialogTitle className="text-right font-serif flex items-center gap-2 justify-end">
                         <GraduationCap className="text-accent" />
                         {isAr ? surah?.name : surah?.nameEn}
                       </DialogTitle>
@@ -107,15 +101,18 @@ const HifzMasteryMap: React.FC<HifzMasteryMapProps> = ({ onPageClick }) => {
                         {isAr ? `الصفحة ${toArabicNumber(selectedPage)}` : `Page ${selectedPage}`}
                       </DialogDescription>
                     </div>
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-serif font-bold text-xl">
+                      {selectedPage}
+                    </div>
                   </div>
                 </DialogHeader>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 rounded-3xl bg-primary/5 border border-primary/10">
+                  <div className="p-4 rounded-3xl bg-primary/5 border border-primary/10 text-right">
                     <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">
                       {isAr ? "مستوى الإتقان" : "Mastery Level"}
                     </p>
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 dir-rtl">
                       {[1, 2, 3].map(lvl => (
                         <div 
                           key={lvl} 
@@ -126,7 +123,7 @@ const HifzMasteryMap: React.FC<HifzMasteryMapProps> = ({ onPageClick }) => {
                       ))}
                     </div>
                   </div>
-                  <div className="p-4 rounded-3xl bg-primary/5 border border-primary/10">
+                  <div className="p-4 rounded-3xl bg-primary/5 border border-primary/10 text-right">
                     <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">
                       {isAr ? "آخر اختبار" : "Last Tested"}
                     </p>
@@ -138,7 +135,7 @@ const HifzMasteryMap: React.FC<HifzMasteryMapProps> = ({ onPageClick }) => {
 
                 <div className="flex flex-col gap-3">
                   <Button 
-                    className="h-14 rounded-2xl bg-accent hover:bg-accent/90 text-white gap-3 font-serif font-bold"
+                    className="h-14 rounded-2xl bg-accent hover:bg-accent/90 text-white gap-3 font-serif font-bold transition-all active:scale-95"
                     onClick={() => {
                       if (onPageClick) onPageClick(selectedPage);
                       else {
@@ -153,7 +150,7 @@ const HifzMasteryMap: React.FC<HifzMasteryMapProps> = ({ onPageClick }) => {
                   </Button>
                   <Button 
                     variant="outline"
-                    className="h-14 rounded-2xl border-primary/10 bg-primary/5 hover:bg-primary/10 text-primary gap-3 font-serif font-bold"
+                    className="h-14 rounded-2xl border-primary/10 bg-primary/5 hover:bg-primary/10 text-primary gap-3 font-serif font-bold transition-all active:scale-95"
                     onClick={() => {
                       const juz = getJuzByPage(selectedPage!);
                       navigate(`/juz/${juz}#page-${selectedPage}`);

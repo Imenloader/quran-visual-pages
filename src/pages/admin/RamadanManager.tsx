@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { db } from "@/firebase";
 import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
 import { Moon, Star, Save, Plus, Trash2, Info, CheckCircle2 } from "lucide-react";
@@ -65,15 +64,15 @@ const RamadanManager = () => {
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
           <BackButton />
-          <div>
+          <div className="text-right">
             <h1 className="text-3xl font-bold flex items-center gap-3">
               <Moon className="text-indigo-400" />
               إدارة محتوى رمضان
             </h1>
-            <p className="text-muted-foreground mt-1">تحديث الفضائل، الأحكام، والمهام اليومية</p>
+            <p className="text-muted-foreground mt-1 text-right">تحديث الفضائل، الأحكام، والمهام اليومية</p>
           </div>
         </div>
-        <Button onClick={handleSave} disabled={saving} className="rounded-xl gap-2 px-8">
+        <Button onClick={handleSave} disabled={saving} className="rounded-xl gap-2 px-8 active:scale-95 transition-transform">
           <Save size={18} />
           {saving ? "جاري الحفظ..." : "حفظ الكل"}
         </Button>
@@ -83,17 +82,20 @@ const RamadanManager = () => {
         {/* Virtues Section */}
         <div className="bento-card !p-8 space-y-6">
           <div className="flex justify-between items-center">
+            <Button variant="ghost" size="sm" onClick={() => addItem('virtues')} className="text-xs gap-1">
+              <Plus size={14} /> إضافة
+            </Button>
             <h3 className="font-bold flex items-center gap-2">
               <Star className="text-amber-500" size={18} />
               فضائل الشهر
             </h3>
-            <Button variant="ghost" size="sm" onClick={() => addItem('virtues')} className="text-xs gap-1">
-              <Plus size={14} /> إضافة
-            </Button>
           </div>
           <div className="space-y-3">
             {content.virtues.map((v, i) => (
               <div key={i} className="flex gap-2">
+                <Button variant="ghost" size="icon" onClick={() => removeItem('virtues', i)} className="text-rose-500 hover:bg-rose-500/10 shrink-0">
+                  <Trash2 size={16} />
+                </Button>
                 <Input 
                   value={v} 
                   onChange={e => {
@@ -101,12 +103,9 @@ const RamadanManager = () => {
                     updated[i] = e.target.value;
                     setContent({ ...content, virtues: updated });
                   }}
-                  className="rounded-xl"
+                  className="rounded-xl text-right"
                   placeholder="مثال: شهر الصبر والمواساة"
                 />
-                <Button variant="ghost" size="icon" onClick={() => removeItem('virtues', i)} className="text-rose-500 hover:bg-rose-500/10">
-                  <Trash2 size={16} />
-                </Button>
               </div>
             ))}
           </div>
@@ -115,17 +114,20 @@ const RamadanManager = () => {
         {/* Daily Tasks Section */}
         <div className="bento-card !p-8 space-y-6">
           <div className="flex justify-between items-center">
+            <Button variant="ghost" size="sm" onClick={() => addItem('dailyTasks')} className="text-xs gap-1">
+              <Plus size={14} /> إضافة
+            </Button>
             <h3 className="font-bold flex items-center gap-2">
               <CheckCircle2 className="text-emerald-500" size={18} />
               المهام الروحانية اليومية
             </h3>
-            <Button variant="ghost" size="sm" onClick={() => addItem('dailyTasks')} className="text-xs gap-1">
-              <Plus size={14} /> إضافة
-            </Button>
           </div>
           <div className="space-y-3">
             {content.dailyTasks.map((t, i) => (
               <div key={i} className="flex gap-2">
+                <Button variant="ghost" size="icon" onClick={() => removeItem('dailyTasks', i)} className="text-rose-500 hover:bg-rose-500/10 shrink-0">
+                  <Trash2 size={16} />
+                </Button>
                 <Input 
                   value={t} 
                   onChange={e => {
@@ -133,12 +135,9 @@ const RamadanManager = () => {
                     updated[i] = e.target.value;
                     setContent({ ...content, dailyTasks: updated });
                   }}
-                  className="rounded-xl"
+                  className="rounded-xl text-right"
                   placeholder="مثال: قراءة جزء من القرآن"
                 />
-                <Button variant="ghost" size="icon" onClick={() => removeItem('dailyTasks', i)} className="text-rose-500 hover:bg-rose-500/10">
-                  <Trash2 size={16} />
-                </Button>
               </div>
             ))}
           </div>
@@ -147,7 +146,7 @@ const RamadanManager = () => {
 
       <div className="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl flex gap-3 text-indigo-600">
         <Info className="shrink-0" />
-        <p className="text-xs leading-relaxed">
+        <p className="text-xs leading-relaxed text-right">
           نصيحة: تأكد من تحديث المهام اليومية قبل بداية شهر رمضان المبارك لضمان أفضل تجربة للمستخدمين.
         </p>
       </div>

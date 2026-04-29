@@ -8,7 +8,6 @@ import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import { SURAHS, type Surah } from "@/data/audioData";
 import { toast } from "sonner";
 import { normalizeArabic } from "@/lib/arabicUtils";
-import { motion, AnimatePresence } from "motion/react";
 import ScrollReveal from "@/components/ScrollReveal";
 import BackButton from "@/components/BackButton";
 
@@ -453,51 +452,11 @@ const Recitations = () => {
     <div className="min-h-screen bg-background flex flex-col selection:bg-gold/30 selection:text-gold">
       {/* Header */}
       <header className="relative overflow-hidden bg-emerald-deep min-h-[50vh] flex items-center justify-center">
-        {/* Animated Background Elements */}
+        {/* Static Background Elements */}
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(16,185,129,0.15),transparent_70%)]" />
-          <motion.div 
-            animate={{ 
-              scale: [1, 1.3, 1],
-              opacity: [0.2, 0.4, 0.2],
-              x: [0, 50, 0]
-            }}
-            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-[-20%] right-[-10%] w-[60%] h-[60%] bg-emerald/10 rounded-full blur-[120px]" 
-          />
-          <motion.div 
-            animate={{ 
-              scale: [1.3, 1, 1.3],
-              opacity: [0.1, 0.3, 0.1],
-              x: [0, -50, 0]
-            }}
-            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-[-20%] left-[-10%] w-[70%] h-[70%] bg-gold/5 rounded-full blur-[150px]" 
-          />
-          
-          {/* Floating Particles */}
-          {[...Array(25)].map((_, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 0 }}
-              animate={{ 
-                opacity: [0, 0.4, 0],
-                y: -200,
-                x: Math.sin(i) * 100
-              }}
-              transition={{ 
-                duration: 7 + Math.random() * 7, 
-                repeat: Infinity, 
-                delay: Math.random() * 7,
-                ease: "linear"
-              }}
-              className="absolute w-1 h-1 bg-gold/30 rounded-full"
-              style={{ 
-                left: `${Math.random() * 100}%`, 
-                top: `${80 + Math.random() * 20}%` 
-              }}
-            />
-          ))}
+          <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[60%] bg-emerald/10 rounded-full blur-[120px]" />
+          <div className="absolute bottom-[-20%] left-[-10%] w-[70%] h-[70%] bg-gold/5 rounded-full blur-[150px]" />
         </div>
 
         <div className="relative z-10 container max-w-4xl mx-auto px-6">
@@ -515,41 +474,30 @@ const Recitations = () => {
           </div>
 
           <div className="text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+            <div
               className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-muted/50 border border-border/40 backdrop-blur-md mb-8"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
               <span className="text-[10px] font-sans font-bold tracking-[0.2em] text-muted-foreground uppercase">{t("recitations.audioLibrary")}</span>
-            </motion.div>
+            </div>
             
-            <motion.p 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1 }}
+            <p 
               className="font-serif italic text-gold/80 text-2xl mb-6"
             >
               بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
-            </motion.p>
+            </p>
             
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+            <h1 
               className="text-6xl sm:text-8xl font-serif font-light text-white mb-8 tracking-tighter"
             >
               سماع <span className="italic font-light text-gold/80">التلاوات</span>
-            </motion.h1>
+            </h1>
             
-            <motion.p 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
+            <p 
               className="text-white font-naskh text-xl max-w-2xl mx-auto leading-relaxed"
             >
               رحلة إيمانية مع أعذب الأصوات وأشهر القراء في العالم الإسلامي
-            </motion.p>
+            </p>
           </div>
         </div>
 
@@ -596,11 +544,7 @@ const Recitations = () => {
 
       <main className="flex-1 container max-w-6xl mx-auto px-4 py-8">
         {activeTab === "playlists" ? (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-12"
-          >
+          <div className="space-y-12">
             {/* Preset playlists */}
             <section>
               <div className="flex items-center gap-3 mb-6">
@@ -613,9 +557,7 @@ const Recitations = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {PRESET_PLAYLISTS.map((preset, idx) => (
                   <ScrollReveal key={preset.id} index={idx}>
-                    <motion.button
-                      whileHover={{ y: -4 }}
-                      whileTap={{ scale: 0.98 }}
+                    <button
                       onClick={() => playPresetPlaylist(preset)}
                       className="group w-full flex items-center gap-5 bg-card/40 border border-border/40 rounded-2xl p-5 hover:bg-card hover:border-gold/30 transition-all text-right relative overflow-hidden"
                     >
@@ -635,14 +577,12 @@ const Recitations = () => {
                       <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center text-gold group-hover:bg-gold group-hover:text-black transition-all">
                         <Play size={18} fill="currentColor" />
                       </div>
-                    </motion.button>
+                    </button>
                   </ScrollReveal>
                 ))}
               </div>
               {!selectedReciter && (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
+                <div 
                   className="mt-6 p-4 rounded-xl bg-gold/5 border border-gold/10 flex items-center gap-3"
                 >
                   <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-gold shrink-0">
@@ -651,7 +591,7 @@ const Recitations = () => {
                   <p className="text-xs text-gold/90 font-naskh">
                     اختر قارئاً أولاً من تبويب "القراء والسور" لتشغيل القوائم الجاهزة بصوته المفضل
                   </p>
-                </motion.div>
+                </div>
               )}
             </section>
 
@@ -674,16 +614,14 @@ const Recitations = () => {
                     placeholder="اسم القائمة..."
                     className="bg-card/40 border border-border/40 rounded-xl px-4 py-2 text-sm font-naskh text-primary placeholder:text-primary/20 focus:outline-none focus:border-gold/50 transition-all w-40 sm:w-64"
                   />
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                  <button
                     onClick={handleCreatePlaylist}
                     disabled={!newPlaylistName.trim()}
                     aria-label={isArabic ? "إنشاء قائمة" : "Create Playlist"}
                     className="w-10 h-10 rounded-xl bg-gold text-black flex items-center justify-center disabled:opacity-30 transition-all shadow-lg shadow-gold/20"
                   >
                     <Plus size={20} />
-                  </motion.button>
+                  </button>
                 </div>
               </div>
 
@@ -698,8 +636,7 @@ const Recitations = () => {
               ) : (
                 <div className="grid grid-cols-1 gap-6">
                   {playlists.map(pl => (
-                    <motion.div 
-                      layout
+                    <div 
                       key={pl.id} 
                       className="group bg-card/40 border border-border/40 rounded-3xl overflow-hidden hover:border-border/60 transition-all"
                     >
@@ -714,43 +651,34 @@ const Recitations = () => {
                           </p>
                         </div>
                         <div className="flex items-center gap-3">
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
+                          <button
                             onClick={() => sharePlaylist(pl)}
                             aria-label={isArabic ? "مشاركة القائمة" : "Share Playlist"}
                             className="w-10 h-10 rounded-full bg-muted text-muted-foreground/40 hover:text-emerald hover:bg-emerald/10 transition-all flex items-center justify-center"
                             title="مشاركة القائمة"
                           >
                             <Share2 size={18} />
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
+                          </button>
+                          <button
                             onClick={() => playPlaylist(pl)}
                             disabled={pl.tracks.length === 0}
                             aria-label={isArabic ? "تشغيل القائمة" : "Play Playlist"}
                             className="w-12 h-12 rounded-full bg-gold text-black flex items-center justify-center disabled:opacity-30 transition-all shadow-lg shadow-gold/20"
                           >
                             <Play size={20} fill="currentColor" />
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
+                          </button>
+                          <button
                             onClick={() => { deletePlaylist(pl.id); toast.success("تم حذف القائمة"); }}
                             aria-label={isArabic ? "حذف القائمة" : "Delete Playlist"}
                             className="w-10 h-10 rounded-full bg-muted text-muted-foreground/40 hover:text-red-400 hover:bg-red-400/10 transition-all flex items-center justify-center"
                           >
                             <Trash2 size={18} />
-                          </motion.button>
+                          </button>
                         </div>
                       </div>
                       
-                      <AnimatePresence>
                         {pl.tracks.length > 0 && (
-                          <motion.div 
-                            initial={{ height: 0 }}
-                            animate={{ height: "auto" }}
+                          <div 
                             className="border-t border-border/40 max-h-80 overflow-y-auto custom-scrollbar"
                           >
                             {/* Playlist Search */}
@@ -778,9 +706,7 @@ const Recitations = () => {
                               .map((track, idx) => {
                                 const isCurrentlyPlaying = globalActivePlaylistName === pl.name && playlistQueueIndex === idx;
                                 return (
-                                  <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
+                                  <div
                                     key={`${track.surahId}-${track.reciterId}-${idx}`}
                                     className={`group/track flex items-center gap-4 px-6 py-4 text-right transition-all border-b border-border/10 last:border-0 ${
                                       dragPlaylistId === pl.id && dragOverIndex === idx ? "bg-gold/10" : 
@@ -836,9 +762,9 @@ const Recitations = () => {
                                     >
                                       {isCurrentlyPlaying && isPlaying && (
                                         <div className="flex items-end gap-0.5 h-3 shrink-0">
-                                          <motion.div animate={{ height: [2, 10, 4, 8, 2] }} transition={{ repeat: Infinity, duration: 0.6 }} className="w-0.5 bg-gold rounded-full" />
-                                          <motion.div animate={{ height: [6, 2, 10, 5, 6] }} transition={{ repeat: Infinity, duration: 0.8 }} className="w-0.5 bg-gold rounded-full" />
-                                          <motion.div animate={{ height: [9, 6, 2, 10, 9] }} transition={{ repeat: Infinity, duration: 0.7 }} className="w-0.5 bg-gold rounded-full" />
+                                          <div className="w-0.5 h-3 bg-gold rounded-full" />
+                                          <div className="w-0.5 h-2 bg-gold rounded-full" />
+                                          <div className="w-0.5 h-4 bg-gold rounded-full" />
                                         </div>
                                       )}
                                       <div className="flex-1 min-w-0">
@@ -847,40 +773,22 @@ const Recitations = () => {
                                       </div>
                                     </button>
                                     
-                                    <motion.button
-                                      whileHover={{ scale: 1.1 }}
-                                      whileTap={{ scale: 0.9 }}
-                                      onClick={() => removeTrack(pl.id, track.surahId, track.reciterId, track.moshafId)}
-                                      aria-label={isArabic ? "إزالة من القائمة" : "Remove from Playlist"}
-                                      className="w-8 h-8 rounded-lg text-primary/10 hover:text-red-400 hover:bg-red-400/10 transition-all flex items-center justify-center opacity-0 group-hover/track:opacity-100"
-                                    >
-                                      <X size={14} />
-                                    </motion.button>
-                                  </motion.div>
+                                  </div>
                                 );
                               })}
-                          </motion.div>
+                          </div>
                         )}
-                      </AnimatePresence>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               )}
             </section>
-          </motion.div>
+          </div>
         ) : (
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="space-y-4"
-          >
+          <div className="space-y-4">
             {/* Resume last played banner */}
             {lastPlayed && !currentSurah && (
-              <motion.button
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.98 }}
+              <button
                 onClick={resumeLastPlayed}
                 className="w-full mb-8 flex items-center gap-6 bg-card/40 border border-border/40 rounded-3xl p-6 text-right hover:bg-card/60 transition-all group shadow-xl relative overflow-hidden"
               >
@@ -900,14 +808,12 @@ const Recitations = () => {
                 <div className="w-12 h-12 rounded-full bg-gold flex items-center justify-center text-black shadow-lg shadow-gold/20 group-hover:scale-110 transition-transform relative z-10">
                   <Play size={24} fill="currentColor" />
                 </div>
-              </motion.button>
+              </button>
             )}
 
             {/* Reciter Selection */}
             {selectedReciter && !showReciters && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+              <div
                 onClick={() => setShowReciters(true)}
                 className="w-full mb-8 flex items-center gap-6 bg-card/40 border border-border/40 rounded-3xl p-6 hover:bg-card/60 transition-all shadow-xl group cursor-pointer relative overflow-hidden"
                 role="button"
@@ -931,9 +837,7 @@ const Recitations = () => {
                   {selectedMoshaf && <p className="text-xs text-primary/90 font-naskh truncate mt-1">{selectedMoshaf.name}</p>}
                 </div>
                 <div className="flex items-center gap-3 relative z-10">
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleFavorite({ type: "reciter", id: selectedReciter.id, name: selectedReciter.name });
@@ -947,19 +851,17 @@ const Recitations = () => {
                     title="تفضيل القارئ"
                   >
                     <Star size={18} fill={isFavorite("reciter", selectedReciter.id) ? "currentColor" : "none"} />
-                  </motion.button>
+                  </button>
                   <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground/20 group-hover:text-muted-foreground/60 transition-colors">
                     <ChevronDown size={20} />
                   </div>
                 </div>
-              </motion.div>
+              </div>
             )}
 
             {showReciters && (
               <div className="space-y-6">
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
+                <div 
                   className="relative group max-w-2xl mx-auto"
                 >
                   <Search size={20} className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground/40 group-focus-within:text-gold transition-colors" />
@@ -981,15 +883,13 @@ const Recitations = () => {
                       <X size={16} />
                     </button>
                   )}
-                </motion.div>
+                </div>
 
                 {loading ? (
                   <ReciterSkeleton />
                 ) : error ? (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="flex flex-col items-center justify-center py-20 gap-6 bg-red-500/5 border border-dashed border-red-500/20 rounded-[2rem] backdrop-blur-sm"
+                  <div 
+                    className="flex flex-col items-center justify-center py-20 gap-6 bg-red-500/5 border border-dashed border-red-500/20 rounded-[2rem]"
                   >
                     <div className="w-24 h-24 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/20 shadow-inner">
                       <X size={40} className="text-red-500/40" />
@@ -1004,12 +904,10 @@ const Recitations = () => {
                     >
                       إعادة المحاولة
                     </button>
-                  </motion.div>
+                  </div>
                 ) : filteredReciters.length === 0 ? (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="flex flex-col items-center justify-center py-20 gap-6 bg-muted/30 border border-dashed border-border/40 rounded-[2rem] backdrop-blur-sm"
+                  <div 
+                    className="flex flex-col items-center justify-center py-20 gap-6 bg-muted/30 border border-dashed border-border/40 rounded-[2rem]"
                   >
                     <div className="w-24 h-24 rounded-full bg-muted/20 flex items-center justify-center border border-border/40 shadow-inner">
                       <Search size={40} className="text-muted-foreground/20" />
@@ -1024,14 +922,12 @@ const Recitations = () => {
                     >
                       عرض الكل
                     </button>
-                  </motion.div>
+                  </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar mb-8">
                     {filteredReciters.map((reciter, idx) => (
                       <ScrollReveal key={reciter.id} index={idx}>
-                        <motion.div
-                          whileHover={{ y: -2 }}
-                          whileTap={{ scale: 0.98 }}
+                        <div
                           className={`flex items-center gap-5 bg-card border rounded-2xl p-5 hover:bg-muted/50 transition-all text-right group relative overflow-hidden ${
                             selectedReciter?.id === reciter.id 
                               ? "border-gold/50 bg-gold/5 shadow-lg shadow-gold/5" 
@@ -1051,9 +947,7 @@ const Recitations = () => {
                               <p className="text-[11px] text-muted-foreground/60 font-naskh truncate mt-1">{reciter.moshaf.length > 0 ? reciter.moshaf[0].name : ""}</p>
                             </div>
                           </button>
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
+                          <button
                             onClick={() => toggleFavorite({ type: "reciter", id: reciter.id, name: reciter.name })}
                             aria-label={isArabic ? "تفضيل القارئ" : "Favorite Reciter"}
                             className={`w-10 h-10 rounded-full flex items-center justify-center transition-all relative z-10 ${
@@ -1064,8 +958,8 @@ const Recitations = () => {
                             title="تفضيل القارئ"
                           >
                             <Star size={18} fill={isFavorite("reciter", reciter.id) ? "currentColor" : "none"} />
-                          </motion.button>
-                        </motion.div>
+                          </button>
+                        </div>
                       </ScrollReveal>
                     ))}
                   </div>
@@ -1075,15 +969,11 @@ const Recitations = () => {
 
             {/* Moshaf selection */}
             {selectedReciter && selectedReciter.moshaf.length > 1 && !showReciters && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
+              <div 
                 className="flex gap-3 mb-8 overflow-x-auto pb-4 custom-scrollbar"
               >
                 {selectedReciter.moshaf.map((m) => (
-                  <motion.button
-                    whileHover={{ y: -2 }}
-                    whileTap={{ scale: 0.95 }}
+                  <button
                     key={m.id}
                     onClick={() => setSelectedMoshaf(m)}
                     className={`shrink-0 px-6 py-3 rounded-2xl text-xs font-sans font-bold tracking-wider uppercase border transition-all shadow-lg ${
@@ -1093,22 +983,18 @@ const Recitations = () => {
                     }`}
                   >
                     {m.name}
-                  </motion.button>
+                  </button>
                 ))}
-              </motion.div>
+              </div>
             )}
 
             {/* Download all surahs button */}
             {selectedMoshaf && !showReciters && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
+              <div 
                 className="w-full mb-8 space-y-4"
               >
                 <div className="flex items-center gap-3">
-                  <motion.button
-                    whileHover={{ y: -2 }}
-                    whileTap={{ scale: 0.99 }}
+                  <button
                     onClick={dlState === "downloading" ? pauseDl : downloadAllSurahs}
                     className={`flex-1 flex items-center gap-6 border rounded-3xl p-6 transition-all shadow-xl relative overflow-hidden ${
                       dlState === "done" ? "bg-emerald/10 border-emerald/20"
@@ -1135,13 +1021,11 @@ const Recitations = () => {
                           : `${getAvailableSurahs().length} سورة • ${selectedReciter?.name}`}
                       </p>
                     </div>
-                  </motion.button>
+                  </button>
                   
                   {/* Bulk Add to Playlist */}
                   <div className="flex flex-col gap-2">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                    <button
                       onClick={() => {
                         if (playlists.length === 0) {
                           toast("لا توجد قوائم", { description: "أنشئ قائمة أولاً في تبويب القوائم" });
@@ -1159,39 +1043,31 @@ const Recitations = () => {
                       <span className="text-[8px] font-bold mt-1 uppercase">
                         {isArabic ? "إضافة الكل" : "Add All"}
                       </span>
-                    </motion.button>
+                    </button>
                     {dlState === "paused" && (
-                      <motion.button 
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
+                      <button 
                         onClick={cancelDl} 
                         aria-label={isArabic ? "إلغاء التحميل" : "Cancel Download"}
                         className="w-16 h-16 rounded-3xl border border-border/40 bg-card flex items-center justify-center text-muted-foreground/40 hover:text-red-400 hover:bg-red-400/10 hover:border-red-400/30 transition-all shadow-xl shrink-0" 
                         title="إلغاء التحميل"
                       >
                         <X size={24} />
-                      </motion.button>
+                      </button>
                     )}
                   </div>
                 </div>
 
-                <AnimatePresence>
-                  {(dlState === "downloading" || dlState === "paused") && (
-                    <motion.div 
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="w-full h-1.5 bg-muted rounded-full overflow-hidden shadow-inner"
-                    >
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${dlProgress}%` }}
-                        className="h-full bg-gold rounded-full shadow-[0_0_10px_rgba(212,175,55,0.5)]" 
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
+                {(dlState === "downloading" || dlState === "paused") && (
+                  <div 
+                    className="w-full h-1.5 bg-muted rounded-full overflow-hidden shadow-inner"
+                  >
+                    <div 
+                      className="h-full bg-gold rounded-full shadow-[0_0_10px_rgba(212,175,55,0.5)]" 
+                      style={{ width: `${dlProgress}%` }}
+                    />
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Surah list */}
@@ -1199,9 +1075,7 @@ const Recitations = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-32">
                 {getAvailableSurahs().map((surah, idx) => (
                   <ScrollReveal key={surah.id} index={idx}>
-                    <motion.div
-                      whileHover={{ y: -4, shadow: "0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)" }}
-                      whileTap={{ scale: 0.98 }}
+                    <div
                       className={`group flex items-center gap-5 bg-card border rounded-[2rem] p-5 hover:bg-muted/50 transition-all text-right shadow-xl relative overflow-hidden ${
                         currentSurah?.id === surah.id ? "border-gold/50 bg-gold/5 shadow-lg shadow-gold/5" : "border-border/40"
                       }`}
@@ -1214,9 +1088,9 @@ const Recitations = () => {
                         }`}>
                           {currentSurah?.id === surah.id && isPlaying ? (
                             <div className="flex items-end gap-1 h-5">
-                              <motion.div animate={{ height: [4, 20, 8, 16, 4] }} transition={{ repeat: Infinity, duration: 0.6 }} className="w-1 bg-current rounded-full" />
-                              <motion.div animate={{ height: [12, 4, 20, 10, 12] }} transition={{ repeat: Infinity, duration: 0.8 }} className="w-1 bg-current rounded-full" />
-                              <motion.div animate={{ height: [18, 12, 4, 20, 18] }} transition={{ repeat: Infinity, duration: 0.7 }} className="w-1 bg-current rounded-full" />
+                              <div className="w-1 h-5 bg-current rounded-full" />
+                              <div className="w-1 h-3 bg-current rounded-full" />
+                              <div className="w-1 h-4 bg-current rounded-full" />
                             </div>
                           ) : (
                             <span className="font-sans font-bold text-lg tracking-tighter">{surah.id}</span>
@@ -1243,9 +1117,7 @@ const Recitations = () => {
                       </button>
                       
                       <div className="flex items-center gap-2 relative z-10">
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
+                        <button
                           onClick={() => {
                             if (!selectedReciter || !selectedMoshaf) return;
                             toggleFavorite({
@@ -1262,191 +1134,165 @@ const Recitations = () => {
                           }`}
                         >
                           <Heart size={18} fill={selectedReciter && selectedMoshaf && isFavorite("recitation", surah.id, selectedReciter.id, selectedMoshaf.id) ? "currentColor" : "none"} />
-                        </motion.button>
+                        </button>
                         
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
+                        <button
                           onClick={() => setShowAddToPlaylist(surah)}
                           aria-label={isArabic ? "إضافة إلى قائمة" : "Add to Playlist"}
                           className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-muted-foreground/20 hover:text-gold hover:bg-gold/10 transition-all"
                         >
                           <Plus size={20} />
-                        </motion.button>
+                        </button>
                       </div>
-                    </motion.div>
+                    </div>
                   </ScrollReveal>
                 ))}
               </div>
             )}
-          </motion.div>
+          </div>
         )}
       </main>
 
       {/* Scroll to Top */}
-      <AnimatePresence>
-        {showScrollTop && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0.5, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.5, y: 20 }}
-            onClick={scrollToTop}
-            className="fixed bottom-24 left-6 z-40 w-12 h-12 rounded-2xl gradient-gold text-foreground shadow-lg flex items-center justify-center hover:scale-110 transition-transform active:scale-95"
-            aria-label="العودة للأعلى"
-          >
-            <ChevronDown className="rotate-180" size={24} />
-          </motion.button>
-        )}
-      </AnimatePresence>
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-24 left-6 z-40 w-12 h-12 rounded-2xl gradient-gold text-foreground shadow-lg flex items-center justify-center hover:scale-110 transition-transform active:scale-95"
+          aria-label="العودة للأعلى"
+        >
+          <ChevronDown className="rotate-180" size={24} />
+        </button>
+      )}
 
       {/* Add to Playlist Modal */}
-      <AnimatePresence>
-        {showAddToPlaylist && selectedReciter && selectedMoshaf && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md px-4" 
-            onClick={() => setShowAddToPlaylist(null)}
+      {showAddToPlaylist && selectedReciter && selectedMoshaf && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md px-4" 
+          onClick={() => setShowAddToPlaylist(null)}
+        >
+          <div 
+            className="bg-card border border-border/40 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden" 
+            onClick={e => e.stopPropagation()}
           >
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-card border border-border/40 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden" 
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="p-8 border-b border-border/10 bg-muted/30">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-gold/10 flex items-center justify-center text-gold">
-                    <FolderPlus size={24} />
-                  </div>
+            <div className="p-8 border-b border-border/10 bg-muted/30">
+              <div className="flex items-center justify-between mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-gold/10 flex items-center justify-center text-gold">
+                  <FolderPlus size={24} />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowCreateInModal(!showCreateInModal)}
+                    aria-label={isArabic ? "إنشاء قائمة جديدة" : "Create New Playlist"}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${showCreateInModal ? "bg-gold text-black" : "bg-muted text-muted-foreground/20 hover:text-gold"}`}
+                    title="إنشاء قائمة جديدة"
+                  >
+                    <Plus size={20} />
+                  </button>
+                  <button 
+                    onClick={() => setShowAddToPlaylist(null)} 
+                    aria-label={isArabic ? "إغلاق" : "Close"}
+                    className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground/20 hover:text-foreground transition-colors"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+              <h3 className="font-serif text-2xl text-foreground mb-2">أضف إلى <span className="italic text-gold">القائمة</span></h3>
+              <p className="font-naskh text-sm text-muted-foreground/60">سورة {showAddToPlaylist.name} بصوت {selectedReciter.name}</p>
+
+              {showCreateInModal && (
+                <div
+                  className="mt-6 overflow-hidden"
+                >
                   <div className="flex gap-2">
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => setShowCreateInModal(!showCreateInModal)}
-                      aria-label={isArabic ? "إنشاء قائمة جديدة" : "Create New Playlist"}
-                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${showCreateInModal ? "bg-gold text-black" : "bg-muted text-muted-foreground/20 hover:text-gold"}`}
-                      title="إنشاء قائمة جديدة"
+                    <input
+                      type="text"
+                      value={modalNewPlaylistName}
+                      onChange={(e) => setModalNewPlaylistName(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleCreatePlaylistInModal()}
+                      placeholder="اسم القائمة الجديدة..."
+                      className="flex-1 bg-card border border-border/40 rounded-xl px-4 py-2 text-sm font-naskh text-primary placeholder:text-primary/20 focus:outline-none focus:border-gold/50 transition-all"
+                      autoFocus
+                    />
+                    <button
+                      onClick={handleCreatePlaylistInModal}
+                      disabled={!modalNewPlaylistName.trim()}
+                      className="px-4 rounded-xl bg-gold text-black font-bold text-xs disabled:opacity-30 transition-all"
                     >
-                      <Plus size={20} />
-                    </motion.button>
-                    <motion.button 
-                      whileHover={{ scale: 1.1, rotate: 90 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => setShowAddToPlaylist(null)} 
-                      aria-label={isArabic ? "إغلاق" : "Close"}
-                      className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground/20 hover:text-foreground transition-colors"
-                    >
-                      <X size={20} />
-                    </motion.button>
+                      إنشاء
+                    </button>
                   </div>
                 </div>
-                <h3 className="font-serif text-2xl text-foreground mb-2">أضف إلى <span className="italic text-gold">القائمة</span></h3>
-                <p className="font-naskh text-sm text-muted-foreground/60">سورة {showAddToPlaylist.name} بصوت {selectedReciter.name}</p>
+              )}
+            </div>
 
-                <AnimatePresence>
-                  {showCreateInModal && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="mt-6 overflow-hidden"
+            <div className="p-6 max-h-[50vh] overflow-y-auto space-y-3 custom-scrollbar">
+              {playlists.length === 0 ? (
+                <div className="text-center py-12">
+                  <ListMusic size={48} className="mx-auto text-muted-foreground/10 mb-4" />
+                  <p className="text-sm text-muted-foreground/40 font-naskh">لا توجد قوائم مخصصة بعد</p>
+                  <p className="text-[10px] text-muted-foreground/20 font-sans font-bold tracking-widest uppercase mt-2">
+                    {isArabic ? "أنشئ واحدة في تبويب القوائم" : "Create one in the Playlists tab"}
+                  </p>
+                </div>
+              ) : (
+                playlists.map(pl => {
+                  const isIn = pl.tracks.some(
+                    t => t.surahId === showAddToPlaylist.id && t.reciterId === selectedReciter.id && t.moshafId === selectedMoshaf.id
+                  );
+                  return (
+                    <button
+                      key={pl.id}
+                      onClick={() => {
+                        if (isIn) {
+                          removeTrack(pl.id, showAddToPlaylist.id, selectedReciter.id, selectedMoshaf.id);
+                          toast.success("تمت الإزالة من القائمة");
+                        } else {
+                          addTrack(pl.id, {
+                            surahId: showAddToPlaylist.id, surahName: showAddToPlaylist.name,
+                            reciterId: selectedReciter.id, reciterName: selectedReciter.name,
+                            moshafId: selectedMoshaf.id, moshafServer: selectedMoshaf.server,
+                          });
+                          toast.success("تمت الإضافة إلى القائمة");
+                        }
+                      }}
+                      className={`w-full flex items-center gap-5 p-5 rounded-3xl border transition-all text-right shadow-xl ${
+                        isIn ? "border-gold/50 bg-gold/5" : "border-border/10 bg-muted/30 hover:bg-muted/50 hover:border-border/20"
+                      }`}
                     >
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={modalNewPlaylistName}
-                          onChange={(e) => setModalNewPlaylistName(e.target.value)}
-                          onKeyDown={(e) => e.key === "Enter" && handleCreatePlaylistInModal()}
-                          placeholder="اسم القائمة الجديدة..."
-                          className="flex-1 bg-card border border-border/40 rounded-xl px-4 py-2 text-sm font-naskh text-primary placeholder:text-primary/20 focus:outline-none focus:border-gold/50 transition-all"
-                          autoFocus
-                        />
-                        <button
-                          onClick={handleCreatePlaylistInModal}
-                          disabled={!modalNewPlaylistName.trim()}
-                          className="px-4 rounded-xl bg-gold text-black font-bold text-xs disabled:opacity-30 transition-all"
-                        >
-                          إنشاء
-                        </button>
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-inner transition-colors ${
+                        isIn ? "bg-gold text-black" : "bg-muted"
+                      }`}>
+                        {isIn ? <Check size={20} /> : pl.icon}
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              <div className="p-6 max-h-[50vh] overflow-y-auto space-y-3 custom-scrollbar">
-                {playlists.length === 0 ? (
-                  <div className="text-center py-12">
-                    <ListMusic size={48} className="mx-auto text-muted-foreground/10 mb-4" />
-                    <p className="text-sm text-muted-foreground/40 font-naskh">لا توجد قوائم مخصصة بعد</p>
-                    <p className="text-[10px] text-muted-foreground/20 font-sans font-bold tracking-widest uppercase mt-2">
-                      {isArabic ? "أنشئ واحدة في تبويب القوائم" : "Create one in the Playlists tab"}
-                    </p>
-                  </div>
-                ) : (
-                  playlists.map(pl => {
-                    const isIn = pl.tracks.some(
-                      t => t.surahId === showAddToPlaylist.id && t.reciterId === selectedReciter.id && t.moshafId === selectedMoshaf.id
-                    );
-                    return (
-                      <motion.button
-                        whileHover={{ scale: 1.02, x: -5 }}
-                        whileTap={{ scale: 0.98 }}
-                        key={pl.id}
-                        onClick={() => {
-                          if (isIn) {
-                            removeTrack(pl.id, showAddToPlaylist.id, selectedReciter.id, selectedMoshaf.id);
-                            toast.success("تمت الإزالة من القائمة");
-                          } else {
-                            addTrack(pl.id, {
-                              surahId: showAddToPlaylist.id, surahName: showAddToPlaylist.name,
-                              reciterId: selectedReciter.id, reciterName: selectedReciter.name,
-                              moshafId: selectedMoshaf.id, moshafServer: selectedMoshaf.server,
-                            });
-                            toast.success("تمت الإضافة إلى القائمة");
-                          }
-                        }}
-                        className={`w-full flex items-center gap-5 p-5 rounded-3xl border transition-all text-right shadow-xl ${
-                          isIn ? "border-gold/50 bg-gold/5" : "border-border/10 bg-muted/30 hover:bg-muted/50 hover:border-border/20"
-                        }`}
-                      >
-                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-inner transition-colors ${
-                          isIn ? "bg-gold text-black" : "bg-muted"
-                        }`}>
-                          {isIn ? <Check size={20} /> : pl.icon}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-naskh text-lg font-bold text-foreground">{pl.name}</p>
+                        <p className="text-[10px] font-sans font-bold tracking-widest text-muted-foreground/60 uppercase mt-0.5">
+                          {pl.tracks.length} {isArabic ? "تلاوة" : "Recitations"}
+                        </p>
+                      </div>
+                      {isIn && (
+                        <div className="w-8 h-8 rounded-full bg-emerald/10 text-emerald flex items-center justify-center">
+                          <Check size={16} />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-naskh text-lg font-bold text-foreground">{pl.name}</p>
-                          <p className="text-[10px] font-sans font-bold tracking-widest text-muted-foreground/60 uppercase mt-0.5">
-                            {pl.tracks.length} {isArabic ? "تلاوة" : "Recitations"}
-                          </p>
-                        </div>
-                        {isIn && (
-                          <div className="w-8 h-8 rounded-full bg-emerald/10 text-emerald flex items-center justify-center">
-                            <Check size={16} />
-                          </div>
-                        )}
-                      </motion.button>
-                    );
-                  })
-                )}
-              </div>
-              
-              <div className="p-8 bg-muted/30 border-t border-border/10">
-                <button
-                  onClick={() => setShowAddToPlaylist(null)}
-                  className="w-full py-4 rounded-2xl bg-muted text-muted-foreground/80 font-sans text-[10px] font-bold tracking-[0.2em] uppercase hover:bg-muted/80 hover:text-foreground transition-all"
-                >
-                  {isArabic ? "إغلاق" : "Close Modal"}
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                      )}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+            
+            <div className="p-8 bg-muted/30 border-t border-border/10">
+              <button
+                onClick={() => setShowAddToPlaylist(null)}
+                className="w-full py-4 rounded-2xl bg-muted text-muted-foreground/80 font-sans text-[10px] font-bold tracking-[0.2em] uppercase hover:bg-muted/80 hover:text-foreground transition-all"
+              >
+                {isArabic ? "إغلاق" : "Close Modal"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

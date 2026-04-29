@@ -5,7 +5,6 @@ import {
   ChevronDown, ChevronUp, Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "motion/react";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import { useTranslation } from "react-i18next";
 import { useAudioUnlock } from "@/hooks/useAudioUnlock";
@@ -27,7 +26,6 @@ import { LocalNotifications } from "@capacitor/local-notifications";
 
 import CairoClock from "@/components/CairoClock";
 
-// --- تم تحويل const إلى function لتفادي مشكلة الـ Initialization في الـ APK ---
 function CustomSelect({ 
   value, 
   onChange, 
@@ -58,39 +56,34 @@ function CustomSelect({
       {label && <label className="font-naskh text-sm font-bold text-foreground mb-2 block">{label}</label>}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-muted/50 backdrop-blur-sm border border-border/40 rounded-2xl px-4 py-3 text-sm font-naskh text-foreground flex items-center justify-between hover:bg-muted transition-all group"
+        className="w-full bg-muted/50 backdrop-blur-sm border border-border/40 rounded-2xl px-4 py-3 text-sm font-naskh text-foreground flex items-center justify-between hover:bg-muted transition-all group active:scale-98"
       >
         <span className="truncate">{selectedOption?.label || "اختر..."}</span>
         <ChevronDown size={16} className={`text-muted-foreground transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
       </button>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute z-[100] w-full mt-2 bg-card border border-border/40 rounded-2xl shadow-islamic overflow-hidden backdrop-blur-md"
-          >
-            <div className="max-h-60 overflow-y-auto py-2">
-              {options.map((opt) => (
-                <button
-                  key={opt.id}
-                  onClick={() => {
-                    onChange(opt.id);
-                    setIsOpen(false);
-                  }}
-                  className={`w-full text-right px-4 py-2.5 text-sm font-naskh transition-colors hover:bg-primary/10 ${
-                    value === opt.id ? "text-primary font-bold bg-primary/5" : "text-foreground"
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {isOpen && (
+        <div
+          className="absolute z-[100] w-full mt-2 bg-card border border-border/40 rounded-2xl shadow-islamic overflow-hidden transition-all duration-300 opacity-100 translate-y-0"
+        >
+          <div className="max-h-60 overflow-y-auto py-2">
+            {options.map((opt) => (
+              <button
+                key={opt.id}
+                onClick={() => {
+                  onChange(opt.id);
+                  setIsOpen(false);
+                }}
+                className={`w-full text-right px-4 py-2.5 text-sm font-naskh transition-colors hover:bg-primary/10 ${
+                  value === opt.id ? "text-primary font-bold bg-primary/5" : "text-foreground"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -140,30 +133,20 @@ function NextPrayerCountdown({
   ];
 
   return (
-    <section className="relative overflow-hidden bg-card border border-border/40 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 shadow-islamic group min-h-[200px] md:min-h-[240px] flex items-center">
+    <section className="relative overflow-hidden bg-card border border-border/40 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 shadow-islamic group min-h-[200px] md:min-h-[240px] flex items-center transition-all duration-500">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-gold/10 pointer-events-none" />
-      <div className="absolute top-0 right-0 w-60 h-60 md:w-80 md:h-80 bg-gold/15 rounded-full -mr-30 md:-mr-40 -mt-30 md:-mt-40 blur-[80px] md:blur-[120px] animate-pulse-slow" />
-      <div className="absolute bottom-0 left-0 w-60 h-60 md:w-80 md:h-80 bg-primary/15 rounded-full -ml-30 md:-ml-40 -mb-30 md:-mb-40 blur-[80px] md:blur-[120px] animate-pulse-slow" />
+      <div className="absolute top-0 right-0 w-60 h-60 md:w-80 md:h-80 bg-gold/15 rounded-full -mr-30 md:-mr-40 -mt-30 md:-mt-40 blur-[80px] md:blur-[120px]" />
+      <div className="absolute bottom-0 left-0 w-60 h-60 md:w-80 md:h-80 bg-primary/15 rounded-full -ml-30 md:-ml-40 -mb-30 md:-mb-40 blur-[80px] md:blur-[120px]" />
       
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(6)].map((_, i) => (
-          <motion.div
+          <div
             key={i}
-            initial={{ opacity: 0, y: Math.random() * 200 }}
-            animate={{ 
-              opacity: [0.1, 0.3, 0.1],
-              y: [0, -40, 0],
-              x: [0, Math.random() * 20 - 10, 0]
-            }}
-            transition={{ 
-              duration: 5 + Math.random() * 5,
-              repeat: Infinity,
-              delay: i * 0.5
-            }}
             className="absolute w-1 h-1 bg-gold/30 rounded-full"
             style={{ 
               left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`
+              top: `${Math.random() * 100}%`,
+              opacity: 0.1
             }}
           />
         ))}
@@ -174,16 +157,15 @@ function NextPrayerCountdown({
       
       <div className="flex flex-col md:flex-row items-center justify-between w-full gap-6 md:gap-8 relative z-10">
         <div className="flex items-center gap-4 md:gap-6">
-          <motion.div 
-            whileHover={{ scale: 1.05, rotate: 5 }}
-            className="w-16 h-16 md:w-24 md:h-24 rounded-2xl md:rounded-[2rem] gradient-islamic flex items-center justify-center text-3xl md:text-5xl shadow-2xl shadow-primary/30 border border-primary/10"
+          <div 
+            className="w-16 h-16 md:w-24 md:h-24 rounded-2xl md:rounded-[2rem] gradient-islamic flex items-center justify-center text-3xl md:text-5xl shadow-2xl shadow-primary/30 border border-primary/10 transition-transform active:scale-95"
           >
             {prayerIcon}
-          </motion.div>
-          <div>
-            <div className="flex items-center gap-2 mb-1 md:mb-2">
+          </div>
+          <div className="text-right">
+            <div className="flex items-center gap-2 mb-1 md:mb-2 justify-end">
               <span className="text-[8px] md:text-[10px] uppercase tracking-[0.2em] md:tracking-[0.4em] font-bold text-accent drop-shadow-sm">الصلاة القادمة</span>
-              <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-accent animate-ping" />
+              <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-accent" />
             </div>
             <h2 className="font-serif text-2xl md:text-4xl font-bold text-foreground mb-0.5 md:mb-1 tracking-tight">
               {PRAYER_NAMES[prayerName]}
@@ -204,16 +186,14 @@ function NextPrayerCountdown({
                 </div>
               )}
               <div className="flex flex-col items-center">
-                <motion.div 
-                  whileHover={{ y: -5 }}
-                  className="w-14 h-14 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-card/40 backdrop-blur-xl border border-primary/10 flex items-center justify-center shadow-2xl relative group/unit overflow-hidden"
+                <div 
+                  className="w-14 h-14 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-card/40 border border-primary/10 flex items-center justify-center shadow-2xl relative group/unit overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
                   <span className="font-mono text-2xl md:text-4xl font-bold text-primary tabular-nums drop-shadow-md relative z-10">
                     {unit.value}
                   </span>
-                  <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gold/40 to-transparent scale-x-0 group-hover/unit:scale-x-100 transition-transform duration-500" />
-                </motion.div>
+                </div>
                 <span className={`text-[8px] md:text-[11px] font-bold text-muted-foreground uppercase tracking-[0.1em] md:tracking-[0.2em] mt-2 md:mt-3 ${isAr ? "font-naskh" : ""}`}>
                   {unit.label}
                 </span>
@@ -226,7 +206,6 @@ function NextPrayerCountdown({
   );
 }
 
-// تم تحويلها أيضاً لـ function
 export default function PrayerTimes() {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === "ar";
@@ -338,69 +317,56 @@ export default function PrayerTimes() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-24 transition-opacity duration-500 opacity-100">
       <QuranHeader 
         title={t("prayerTimes.title")} 
         variant="compact"
         showBack
       >
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mt-8"
-        >
+        <div className="mt-8">
           <Suspense fallback={<div className="h-32 flex items-center justify-center"><Loader2 className="animate-spin text-white" /></div>}>
             <CairoClock />
           </Suspense>
-        </motion.div>
+        </div>
 
         {settings.cityName && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="flex items-center gap-3 bg-primary/5 backdrop-blur-md border border-primary/10 px-6 py-3 rounded-full shadow-xl mt-6 mx-auto w-fit"
+          <div 
+            className="flex items-center gap-3 bg-primary/5 border border-primary/10 px-6 py-3 rounded-full shadow-xl mt-6 mx-auto w-fit"
           >
             <MapPin size={16} className="text-gold" />
             <span className="font-naskh text-white text-sm tracking-wide">
               {settings.cityName}
             </span>
-            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-          </motion.div>
+            <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+          </div>
         )}
       </QuranHeader>
 
       <main className="container max-w-2xl mx-auto px-4 py-6 space-y-5">
-        <AnimatePresence>
-          {isAdhanPlaying && (
-            <motion.div
-              initial={{ opacity: 0, y: 50, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 50, scale: 0.9 }}
-              className="bg-destructive/90 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between border border-white/20"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                  <Volume2 className="animate-pulse" size={20} />
-                </div>
-                <div>
-                  <p className="font-naskh font-bold text-sm">الأذان يعمل الآن</p>
-                  <p className="text-[10px] opacity-80">يمكنك إيقافه من هنا أو بالضغط على الإشعار</p>
-                </div>
+        {isAdhanPlaying && (
+          <div
+            className="bg-destructive/90 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between border border-white/20 transition-all duration-300 opacity-100 translate-y-0"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                <Volume2 size={20} />
               </div>
-              <button
-                onClick={stopAdhan}
-                className="bg-white text-destructive px-6 py-2 rounded-xl font-naskh text-sm font-bold hover:bg-white/90 transition-all shadow-lg"
-              >
-                إيقاف
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <div className="text-right">
+                <p className="font-naskh font-bold text-sm">الأذان يعمل الآن</p>
+                <p className="text-[10px] opacity-80">يمكنك إيقافه من هنا أو بالضغط على الإشعار</p>
+              </div>
+            </div>
+            <button
+              onClick={stopAdhan}
+              className="bg-white text-destructive px-6 py-2 rounded-xl font-naskh text-sm font-bold hover:bg-white/90 transition-all shadow-lg active:scale-95"
+            >
+              إيقاف
+            </button>
+          </div>
+        )}
 
         {!settings.latitude ? (
-          <section className="bg-card border border-border rounded-2xl p-6 text-center shadow-soft">
+          <section className="bg-card border border-border rounded-2xl p-6 text-center shadow-soft transition-all">
             <div className="w-16 h-16 rounded-full gradient-islamic flex items-center justify-center mx-auto mb-4">
               <MapPin size={28} className="text-primary-foreground" />
             </div>
@@ -411,7 +377,7 @@ export default function PrayerTimes() {
             <button
               onClick={detectLocation}
               disabled={locationLoading}
-              className="w-full py-3 rounded-xl gradient-islamic text-primary-foreground font-naskh text-sm font-bold hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-3 rounded-xl gradient-islamic text-primary-foreground font-naskh text-sm font-bold hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50 active:scale-98"
             >
               {locationLoading ? (
                 <Loader2 size={18} className="animate-spin" />
@@ -436,9 +402,8 @@ export default function PrayerTimes() {
               />
             )}
 
-            <section className="bg-card border border-border rounded-2xl overflow-hidden shadow-soft">
+            <section className="bg-card border border-border rounded-2xl overflow-hidden shadow-soft transition-all">
               <div className="flex items-center justify-between px-5 py-3 border-b border-border">
-                <h2 className="font-naskh text-base font-bold text-foreground">مواقيت اليوم</h2>
                 <button
                   onClick={() => {
                     if (settings.latitude && settings.longitude) {
@@ -446,11 +411,12 @@ export default function PrayerTimes() {
                     }
                   }}
                   aria-label={isAr ? "تحديث المواقيت" : "Refresh prayer times"}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-muted-foreground hover:text-foreground transition-colors active:scale-90"
                   title="تحديث"
                 >
                   <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
                 </button>
+                <h2 className="font-naskh text-base font-bold text-foreground">مواقيت اليوم</h2>
               </div>
 
               {loading ? (
@@ -469,56 +435,74 @@ export default function PrayerTimes() {
                     const isEditing = editingPrayer === prayer;
 
                     return (
-                      <motion.div
+                      <div
                         key={prayer}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: prayerOrder.indexOf(prayer) * 0.05 }}
-                        className={`group relative flex items-center gap-4 md:gap-6 px-6 md:px-8 py-5 md:py-7 transition-all duration-500 border-b border-border/40 last:border-0 ${
+                        className={`group relative flex items-center gap-4 md:gap-6 px-6 md:px-8 py-5 md:py-7 border-b border-border/40 last:border-0 transition-colors ${
                           isNext 
-                            ? "bg-primary/[0.03] shadow-[inset_0_0_40px_rgba(var(--primary),0.05)]" 
+                            ? "bg-primary/[0.03]" 
                             : "hover:bg-muted/30"
                         }`}
                       >
                         <div className="absolute left-10 md:left-12 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-border/40 to-transparent" />
                         
-                        <div className={`relative z-10 w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl flex items-center justify-center text-2xl md:text-3xl shadow-xl transition-all duration-700 ${
-                          isNext 
-                            ? "bg-primary text-white scale-110 shadow-primary/40 rotate-3 ring-4 ring-primary/10" 
-                            : "bg-card border border-border/40 text-muted-foreground group-hover:bg-muted group-hover:scale-105 group-hover:-rotate-2"
-                        }`}>
-                          {prayerIcons[prayer]}
-                          {isNext && (
-                            <div className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-gold rounded-full border-2 border-white animate-bounce" />
+                        <div className="flex flex-col gap-1 md:gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-x-4 group-hover:translate-x-0 relative z-10">
+                          {prayer !== "Sunrise" && (
+                            <>
+                              <button
+                                onClick={() => {
+                                  testPrayerNotification(prayer);
+                                  toast.success(`تم إرسال تنبيه تجريبي لصلاة ${PRAYER_NAMES[prayer]}`);
+                                }}
+                                aria-label={isAr ? `تجربة تنبيه ${PRAYER_NAMES[prayer]}` : `Test notification for ${prayer}`}
+                                className="w-8 h-8 md:w-9 md:h-9 rounded-lg md:rounded-xl bg-gold/10 text-gold hover:bg-gold hover:text-white transition-all flex items-center justify-center shadow-sm active:scale-90"
+                                title="تجربة الإشعار"
+                              >
+                                <Bell size={14} className="md:w-4 md:h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleSpeakPrayer(prayer)}
+                                aria-label={isAr ? `نطق وقت ${PRAYER_NAMES[prayer]}` : `Speak time for ${prayer}`}
+                                className="w-8 h-8 md:w-9 md:h-9 rounded-lg md:rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all flex items-center justify-center shadow-sm active:scale-90"
+                                title="نطق اسم الصلاة"
+                              >
+                                <Volume2 size={14} className="md:w-4 md:h-4" />
+                              </button>
+                            </>
                           )}
+                          <button
+                            onClick={() => handleEditPrayer(prayer)}
+                            aria-label={isAr ? `تعديل وقت ${PRAYER_NAMES[prayer]}` : `Edit time for ${prayer}`}
+                            className="w-8 h-8 md:w-9 md:h-9 rounded-lg md:rounded-xl bg-muted text-muted-foreground hover:bg-foreground hover:text-white transition-all flex items-center justify-center shadow-sm active:scale-90"
+                            title="تعديل يدوي"
+                          >
+                            <Edit3 size={14} className="md:w-4 md:h-4" />
+                          </button>
                         </div>
-                        
-                        <div className="flex-1 min-w-0 relative z-10">
-                          <div className="flex items-center gap-2 md:gap-3 mb-1 md:mb-1.5">
+
+                        <div className="text-right flex-1 min-w-0 relative z-10 flex flex-col items-end">
+                          <div className="flex items-center gap-2 md:gap-3 mb-1 md:mb-1.5 justify-end">
+                            {isNext && (
+                              <div 
+                                className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-0.5 md:py-1 rounded-full bg-primary text-white text-[8px] md:text-[10px] font-bold shadow-lg shadow-primary/20"
+                              >
+                                <span className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-white" />
+                                {isAr ? "الصلاة القادمة" : "Next"}
+                              </div>
+                            )}
                             <p className={`font-serif text-xl md:text-2xl font-bold transition-colors tracking-tight ${
                               isNext ? "text-primary" : "text-foreground"
                             }`}>
                               {PRAYER_NAMES[prayer]}
                             </p>
-                            {isNext && (
-                              <motion.div 
-                                initial={{ scale: 0.8, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-0.5 md:py-1 rounded-full bg-primary text-white text-[8px] md:text-[10px] font-bold shadow-lg shadow-primary/20"
-                              >
-                                <span className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-white animate-pulse" />
-                                {isAr ? "الصلاة القادمة" : "Next"}
-                              </motion.div>
-                            )}
                           </div>
-                          <div className="flex items-center gap-1.5 md:gap-2 text-primary/70 font-serif italic text-xs md:text-sm opacity-70">
-                            <Clock size={12} className="text-gold/60 md:w-3.5 md:h-3.5" />
+                          <div className="flex items-center gap-1.5 md:gap-2 text-primary/70 font-serif italic text-xs md:text-sm opacity-70 justify-end">
                             <span>{formatTime(times[prayer], settings.timeFormat)}</span>
+                            <Clock size={12} className="text-gold/60 md:w-3.5 md:h-3.5" />
                           </div>
                           {isOverridden && (
                             <button
                               onClick={() => resetOverride(prayer)}
-                              className="mt-1.5 md:mt-2 flex items-center gap-1 md:gap-1.5 text-[8px] md:text-[10px] text-gold font-serif font-bold hover:underline bg-gold/5 px-2 py-0.5 rounded-full w-fit"
+                              className="mt-1.5 md:mt-2 flex items-center gap-1 md:gap-1.5 text-[8px] md:text-[10px] text-gold font-serif font-bold hover:underline bg-gold/5 px-2 py-0.5 rounded-full w-fit justify-end"
                             >
                               <RefreshCw size={8} className="md:w-2.5 md:h-2.5" />
                               {isAr ? "معدّل يدوياً • إعادة ضبط" : "Modified • Reset"}
@@ -528,157 +512,118 @@ export default function PrayerTimes() {
 
                         {isEditing ? (
                           <div className="flex items-center gap-2 md:gap-3 relative z-10">
+                            <button 
+                              onClick={() => setEditingPrayer(null)} 
+                              aria-label={isAr ? "إلغاء" : "Cancel"}
+                              className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-muted text-muted-foreground flex items-center justify-center hover:bg-destructive hover:text-white transition-colors active:scale-90"
+                            >
+                              <X size={16} className="md:w-5 md:h-5" />
+                            </button>
+                            <button 
+                              onClick={saveEdit} 
+                              aria-label={isAr ? "حفظ" : "Save"}
+                              className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-110 transition-transform active:scale-90"
+                            >
+                              <Check size={16} className="md:w-5 md:h-5" />
+                            </button>
                             <input
                               type="time"
                               value={editValue}
                               onChange={(e) => setEditValue(e.target.value)}
-                              className="text-xs md:text-sm font-serif bg-card border-2 border-primary/20 rounded-lg md:rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-foreground w-24 md:w-32 focus:ring-4 focus:ring-primary/10 outline-none transition-all"
+                              className="text-xs md:text-sm font-serif bg-card border-2 border-primary/20 rounded-lg md:rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-foreground w-24 md:w-32 focus:ring-4 focus:ring-primary/10 outline-none transition-all text-right"
                               autoFocus
                             />
-                            <button 
-                              onClick={saveEdit} 
-                              aria-label={isAr ? "حفظ" : "Save"}
-                              className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-110 transition-transform"
-                            >
-                              <Check size={16} className="md:w-5 md:h-5" />
-                            </button>
-                            <button 
-                              onClick={() => setEditingPrayer(null)} 
-                              aria-label={isAr ? "إلغاء" : "Cancel"}
-                              className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-muted text-muted-foreground flex items-center justify-center hover:bg-destructive hover:text-white transition-colors"
-                            >
-                              <X size={16} className="md:w-5 md:h-5" />
-                            </button>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-4 md:gap-6 relative z-10">
-                            <div className="text-right">
-                              <span className={`font-mono text-2xl md:text-3xl font-bold tabular-nums transition-colors tracking-tighter ${
-                                isNext ? "text-primary drop-shadow-sm" : "text-foreground/80"
-                              }`}>
-                                {formatTime(times[prayer], settings.timeFormat)}
-                              </span>
-                            </div>
-                            
-                            <div className="flex flex-col gap-1 md:gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
-                              {prayer !== "Sunrise" && (
-                                <>
-                                  <button
-                                    onClick={() => {
-                                      testPrayerNotification(prayer);
-                                      toast.success(`تم إرسال تنبيه تجريبي لصلاة ${PRAYER_NAMES[prayer]}`);
-                                    }}
-                                    aria-label={isAr ? `تجربة تنبيه ${PRAYER_NAMES[prayer]}` : `Test notification for ${prayer}`}
-                                    className="w-8 h-8 md:w-9 md:h-9 rounded-lg md:rounded-xl bg-gold/10 text-gold hover:bg-gold hover:text-white transition-all flex items-center justify-center shadow-sm"
-                                    title="تجربة الإشعار"
-                                  >
-                                    <Bell size={14} className="md:w-4 md:h-4" />
-                                  </button>
-                                  <button
-                                    onClick={() => handleSpeakPrayer(prayer)}
-                                    aria-label={isAr ? `نطق وقت ${PRAYER_NAMES[prayer]}` : `Speak time for ${prayer}`}
-                                    className="w-8 h-8 md:w-9 md:h-9 rounded-lg md:rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all flex items-center justify-center shadow-sm"
-                                    title="نطق اسم الصلاة"
-                                  >
-                                    <Volume2 size={14} className="md:w-4 md:h-4" />
-                                  </button>
-                                </>
-                              )}
-                              <button
-                                onClick={() => handleEditPrayer(prayer)}
-                                aria-label={isAr ? `تعديل وقت ${PRAYER_NAMES[prayer]}` : `Edit time for ${prayer}`}
-                                className="w-8 h-8 md:w-9 md:h-9 rounded-lg md:rounded-xl bg-muted text-muted-foreground hover:bg-foreground hover:text-white transition-all flex items-center justify-center shadow-sm"
-                                title="تعديل يدوي"
-                              >
-                                <Edit3 size={14} className="md:w-4 md:h-4" />
-                              </button>
-                            </div>
+                          <div className={`relative z-10 w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl flex items-center justify-center text-2xl md:text-3xl shadow-xl transition-all duration-700 ${
+                            isNext 
+                              ? "bg-primary text-white scale-110 shadow-primary/40 rotate-3 ring-4 ring-primary/10" 
+                              : "bg-card border border-border/40 text-muted-foreground group-hover:bg-muted group-hover:scale-105 group-hover:-rotate-2"
+                          }`}>
+                            {prayerIcons[prayer]}
+                            {isNext && (
+                              <div className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-gold rounded-full border-2 border-white animate-bounce" />
+                            )}
                           </div>
                         )}
-                      </motion.div>
+                      </div>
                     );
                   })}
                 </div>
               ) : null}
             </section>
 
-            <section className="bg-card border border-border rounded-2xl p-5 shadow-soft space-y-4">
-              {settings.notificationsEnabled && (
-                Capacitor.isNativePlatform() ? (
-                  // Native Permission Check could be added here if needed, 
-                  // but usually we check it in handleEnableNotifications
-                  null
-                ) : (
-                  (window as unknown as { Notification: typeof Notification }).Notification && 
-                  (window as unknown as { Notification: typeof Notification }).Notification.permission !== "granted" && (
-                    <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-3">
-                      <BellOff size={18} className="text-destructive shrink-0" />
-                      <div className="flex-1">
-                        <p className="text-[11px] text-destructive font-naskh font-bold">إذن التنبيهات مطلوب</p>
-                        <p className="text-[10px] text-destructive font-naskh">التنبيهات مفعلة ولكن المتصفح يمنعها. يرجى تفعيل الإذن.</p>
-                      </div>
-                      <button 
-                        onClick={handleEnableNotifications}
-                        className="px-3 py-1 bg-destructive text-white text-[10px] font-naskh rounded-lg font-bold"
-                      >
-                        تفعيل الإذن
-                      </button>
-                    </div>
-                  )
-                )
-              )}
-              
+            <section className="bg-card border border-border rounded-2xl p-5 shadow-soft space-y-4 transition-all">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl gradient-gold flex items-center justify-center">
-                  <Bell size={18} className="text-foreground" />
+                <button
+                  onClick={handleEnableNotifications}
+                  className={`w-12 h-7 rounded-full transition-all relative active:scale-95 ${
+                    settings.notificationsEnabled ? "bg-accent" : "bg-muted border border-border"
+                  }`}
+                >
+                  <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-card shadow-sm transition-all ${
+                    settings.notificationsEnabled ? (isAr ? "right-0.5" : "left-0.5") : (isAr ? "left-0.5" : "right-0.5")
+                  }`} />
+                </button>
+                <div className="flex items-center gap-2 mr-auto">
+                  {settings.notificationsEnabled && (
+                      <button
+                        onClick={() => {
+                          unlockAudio();
+                          testPrayerNotification("Dhuhr");
+                          toast.success(`تم إرسال تنبيه تجريبي لصلاة الظهر`);
+                        }}
+                        className="px-3 py-1 bg-gold/10 border border-gold/20 text-gold text-[10px] font-naskh rounded-lg font-bold hover:bg-gold/20 flex items-center gap-1.5 active:scale-95"
+                        title="تجربة التنبيه"
+                      >
+                        <Sparkles size={12} />
+                        تجربة
+                      </button>
+                  )}
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 text-right">
                   <h2 className="font-naskh text-sm font-bold text-foreground">تنبيه الأذان</h2>
                   <p className="text-[11px] text-primary/70 font-naskh">إشعار مع صوت الأذان عند كل صلاة</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  {settings.notificationsEnabled && (
-                    <button
-                      onClick={() => {
-                        unlockAudio();
-                        testPrayerNotification("Dhuhr");
-                        toast.success(`تم إرسال تنبيه تجريبي لصلاة الظهر`);
-                      }}
-                      className="px-3 py-1 bg-gold/10 border border-gold/20 text-gold text-[10px] font-naskh rounded-lg font-bold hover:bg-gold/20 transition-all flex items-center gap-1.5"
-                      title="تجربة التنبيه"
-                    >
-                      <Sparkles size={12} className="animate-pulse" />
-                      تجربة
-                    </button>
-                  )}
-                  <button
-                    onClick={handleEnableNotifications}
-                    className={`w-12 h-7 rounded-full transition-all relative ${
-                      settings.notificationsEnabled ? "bg-accent" : "bg-muted border border-border"
-                    }`}
-                  >
-                    <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-card shadow-sm transition-all ${
-                      settings.notificationsEnabled ? "left-0.5" : "left-[calc(100%-1.625rem)]"
-                    }`} />
-                  </button>
+                <div className="w-10 h-10 rounded-xl gradient-gold flex items-center justify-center">
+                  <Bell size={18} className="text-foreground" />
                 </div>
               </div>
 
+              {settings.notificationsEnabled && !Capacitor.isNativePlatform() && (
+                (window as unknown as { Notification: typeof Notification }).Notification && 
+                (window as unknown as { Notification: typeof Notification }).Notification.permission !== "granted" && (
+                  <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-3 transition-all">
+                    <button 
+                      onClick={handleEnableNotifications}
+                      className="px-3 py-1 bg-destructive text-white text-[10px] font-naskh rounded-lg font-bold active:scale-95"
+                    >
+                      تفعيل الإذن
+                    </button>
+                    <div className="flex-1 text-right">
+                      <p className="text-[11px] text-destructive font-naskh font-bold">إذن التنبيهات مطلوب</p>
+                      <p className="text-[10px] text-destructive font-naskh">التنبيهات مفعلة ولكن المتصفح يمنعها. يرجى تفعيل الإذن.</p>
+                    </div>
+                    <BellOff size={18} className="text-destructive shrink-0" />
+                  </div>
+                )
+              )}
+              
               {!isAudioUnlocked && (
-                <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex flex-col gap-3">
-                  <div className="flex items-center gap-3">
-                    <Volume2 size={20} className="text-amber-600 shrink-0" />
-                    <div className="flex-1">
+                <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex flex-col gap-3 transition-all">
+                  <div className="flex items-center gap-3 justify-end">
+                    <div className="flex-1 text-right">
                       <p className="text-xs text-amber-700 font-bold font-naskh">تفعيل صوت الأذان</p>
                       <p className="text-[10px] text-amber-600 font-naskh leading-tight">
                         تتطلب المتصفحات تفاعلاً من المستخدم لتشغيل الصوت. اضغط على الزر أدناه لضمان عمل الأذان.
                       </p>
                     </div>
+                    <Volume2 size={20} className="text-amber-600 shrink-0" />
                   </div>
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="w-full h-9 rounded-xl border-amber-500/30 text-amber-700 hover:bg-amber-500 hover:text-white transition-all text-[10px] font-bold"
+                    className="w-full h-9 rounded-xl border-amber-500/30 text-amber-700 hover:bg-amber-500 hover:text-white transition-all text-[10px] font-bold active:scale-98"
                     onClick={() => {
                       unlockAudio();
                       toast.success("تم تفعيل الصوت بنجاح");
@@ -690,32 +635,25 @@ export default function PrayerTimes() {
               )}
             </section>
 
-            <section className="bg-card border-2 border-primary/20 rounded-[2.5rem] p-8 shadow-islamic relative z-30">
+            <section className="bg-card border-2 border-primary/20 rounded-[2.5rem] p-8 shadow-islamic relative z-30 transition-all">
               <div className="absolute inset-0 overflow-hidden rounded-[2.5rem] pointer-events-none">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl" />
               </div>
               
-              <div className="flex items-center gap-4 mb-8 relative z-10">
-                <div className="w-14 h-14 rounded-2xl gradient-islamic flex items-center justify-center shadow-primary/20 shadow-lg">
-                  <Volume2 size={24} className="text-white" />
-                </div>
-                <div>
+              <div className="flex items-center gap-4 mb-8 relative z-10 justify-end">
+                <div className="text-right">
                   <h2 className="font-serif text-xl font-bold text-foreground">صوت الأذان</h2>
                   <p className="text-xs text-primary/70 font-serif italic">اختر المؤذن المفضل للتنبيهات</p>
+                </div>
+                <div className="w-14 h-14 rounded-2xl gradient-islamic flex items-center justify-center shadow-primary/20 shadow-lg">
+                  <Volume2 size={24} className="text-white" />
                 </div>
               </div>
  
               <div className="flex items-center gap-3 relative z-10">
-                <div className="flex-1">
-                  <CustomSelect
-                    value={settings.adhanSound}
-                    onChange={(val) => updateSettings({ adhanSound: val as string })}
-                    options={ADHAN_SOUNDS}
-                  />
-                </div>
                 <button
                   onClick={() => handlePreview(settings.adhanSound)}
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all active:scale-90 ${
                     playingAdhan === settings.adhanSound 
                       ? "bg-primary text-gold shadow-lg" 
                       : "bg-muted text-muted-foreground hover:bg-primary/20 hover:text-primary"
@@ -724,24 +662,32 @@ export default function PrayerTimes() {
                 >
                   {playingAdhan === settings.adhanSound ? <VolumeX size={20} /> : <Volume2 size={20} />}
                 </button>
+                <div className="flex-1">
+                  <CustomSelect
+                    value={settings.adhanSound}
+                    onChange={(val) => updateSettings({ adhanSound: val as string })}
+                    options={ADHAN_SOUNDS}
+                  />
+                </div>
               </div>
             </section>
 
             <button
               onClick={() => setShowSettings(!showSettings)}
-              className="w-full flex items-center gap-3 bg-card border border-border rounded-2xl p-5 shadow-soft hover:border-accent/40 transition-all"
+              className="w-full flex items-center gap-3 bg-card border border-border rounded-2xl p-5 shadow-soft hover:border-accent/40 transition-all active:scale-98"
             >
-              <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
-                <Settings size={18} className="text-muted-foreground" />
-              </div>
+              <ChevronDown size={16} className={`text-muted-foreground transition-transform duration-300 ${showSettings ? "rotate-180" : ""}`} />
               <div className="flex-1 text-right">
                 <h2 className="font-naskh text-sm font-bold text-foreground">إعدادات متقدمة</h2>
                 <p className="text-[11px] text-primary/70 font-naskh">طريقة الحساب والموقع</p>
               </div>
+              <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
+                <Settings size={18} className="text-muted-foreground" />
+              </div>
             </button>
 
             {showSettings && (
-              <section className="bg-card border border-border rounded-2xl p-5 shadow-soft space-y-4">
+              <section className="bg-card border border-border rounded-2xl p-5 shadow-soft space-y-4 transition-all duration-300 opacity-100 translate-y-0">
                 <div className="space-y-4">
                   <div>
                     <CustomSelect
@@ -754,25 +700,24 @@ export default function PrayerTimes() {
 
                   <div className="p-4 bg-muted/50 rounded-2xl border border-border/50 space-y-3">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-naskh text-sm font-bold text-foreground">تنبيه قبل الصلاة</p>
-                        <p className="text-[10px] text-muted-foreground font-naskh">تنبيه إضافي قبل موعد الأذان ببضع دقائق</p>
-                      </div>
                       <button
                         onClick={() => updateSettings({ prePrayerNotification: !settings.prePrayerNotification })}
-                        className={`w-10 h-6 rounded-full transition-all relative ${
+                        className={`w-10 h-6 rounded-full transition-all relative active:scale-95 ${
                           settings.prePrayerNotification ? "bg-accent" : "bg-muted-foreground/20"
                         }`}
                       >
                         <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-card shadow-sm transition-all ${
-                          settings.prePrayerNotification ? "left-0.5" : "left-[calc(100%-1.375rem)]"
+                          settings.prePrayerNotification ? (isAr ? "right-0.5" : "left-0.5") : (isAr ? "left-0.5" : "right-0.5")
                         }`} />
                       </button>
+                      <div className="text-right">
+                        <p className="font-naskh text-sm font-bold text-foreground">تنبيه قبل الصلاة</p>
+                        <p className="text-[10px] text-muted-foreground font-naskh">تنبيه إضافي قبل موعد الأذان ببضع دقائق</p>
+                      </div>
                     </div>
                     
                     {settings.prePrayerNotification && (
-                      <div className="flex items-center gap-2 pt-2 border-t border-border/30">
-                        <span className="text-[11px] font-naskh text-muted-foreground">قبل الأذان بـ:</span>
+                      <div className="flex items-center gap-2 pt-2 border-t border-border/30 justify-end transition-all opacity-100">
                         <div className="w-32">
                           <CustomSelect
                             value={settings.prePrayerMinutes}
@@ -780,12 +725,13 @@ export default function PrayerTimes() {
                             options={[5, 10, 15, 20, 30].map(m => ({ id: m, label: `${m} دقائق` }))}
                           />
                         </div>
+                        <span className="text-[11px] font-naskh text-muted-foreground">قبل الأذان بـ:</span>
                       </div>
                     )}
                   </div>
 
                   <div>
-                    <label className="font-naskh text-sm font-bold text-foreground mb-3 block">تفعيل التنبيهات لـ:</label>
+                    <label className="font-naskh text-sm font-bold text-foreground mb-3 block text-right">تفعيل التنبيهات لـ:</label>
                     <div className="grid grid-cols-3 gap-2">
                       {(Object.keys(PRAYER_NAMES) as (keyof PrayerTimesData)[]).map((prayer) => (
                         <button
@@ -797,7 +743,7 @@ export default function PrayerTimes() {
                               : [...current, prayer];
                             updateSettings({ enabledPrayers: next });
                           }}
-                          className={`py-2 px-1 rounded-xl border-2 transition-all font-naskh text-[11px] ${
+                          className={`py-2 px-1 rounded-xl border-2 transition-all font-naskh text-[11px] active:scale-95 ${
                             settings.enabledPrayers.includes(prayer)
                               ? "border-primary bg-primary/5 text-primary font-bold"
                               : "border-border text-muted-foreground hover:bg-muted"
@@ -811,11 +757,11 @@ export default function PrayerTimes() {
                 </div>
 
                 <div>
-                  <label className="font-naskh text-sm font-bold text-foreground mb-2 block">نظام الوقت</label>
+                  <label className="font-naskh text-sm font-bold text-foreground mb-2 block text-right">نظام الوقت</label>
                   <div className="flex gap-2">
                     <button
                       onClick={() => updateSettings({ timeFormat: "12h" })}
-                      className={`flex-1 py-2 rounded-xl border-2 transition-all font-naskh text-sm ${
+                      className={`flex-1 py-2 rounded-xl border-2 transition-all font-naskh text-sm active:scale-98 ${
                         settings.timeFormat === "12h"
                           ? "border-primary bg-primary/5 text-primary font-bold"
                           : "border-border text-muted-foreground hover:bg-muted"
@@ -825,7 +771,7 @@ export default function PrayerTimes() {
                     </button>
                     <button
                       onClick={() => updateSettings({ timeFormat: "24h" })}
-                      className={`flex-1 py-2 rounded-xl border-2 transition-all font-naskh text-sm ${
+                      className={`flex-1 py-2 rounded-xl border-2 transition-all font-naskh text-sm active:scale-98 ${
                         settings.timeFormat === "24h"
                           ? "border-primary bg-primary/5 text-primary font-bold"
                           : "border-border text-muted-foreground hover:bg-muted"
@@ -837,44 +783,44 @@ export default function PrayerTimes() {
                 </div>
 
                 <div>
-                  <label className="font-naskh text-sm font-bold text-foreground mb-2 block">الموقع</label>
+                  <label className="font-naskh text-sm font-bold text-foreground mb-2 block text-right">الموقع</label>
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 bg-muted border border-border rounded-xl px-4 py-2.5">
+                    <button
+                      onClick={detectLocation}
+                      disabled={locationLoading}
+                      className="w-10 h-10 rounded-xl border border-border bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 active:scale-90"
+                    >
+                      {locationLoading ? <Loader2 size={16} className="animate-spin" /> : <MapPin size={16} />}
+                    </button>
+                    <div className="flex-1 bg-muted border border-border rounded-xl px-4 py-2.5 text-right">
                       <p className="text-sm font-naskh text-foreground">{settings.cityName || "غير محدد"}</p>
                       <p className="text-[10px] text-muted-foreground font-naskh">
                         {settings.latitude?.toFixed(4)}, {settings.longitude?.toFixed(4)}
                       </p>
                     </div>
-                    <button
-                      onClick={detectLocation}
-                      disabled={locationLoading}
-                      className="w-10 h-10 rounded-xl border border-border bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
-                    >
-                      {locationLoading ? <Loader2 size={16} className="animate-spin" /> : <MapPin size={16} />}
-                    </button>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
-                  <div>
+                  <div className="text-right">
                     <label className="font-naskh text-[11px] text-muted-foreground mb-1 block">خط العرض</label>
                     <input
                       type="number"
                       step="0.001"
                       value={settings.latitude || ""}
                       onChange={(e) => updateSettings({ latitude: parseFloat(e.target.value) || null })}
-                      className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm font-naskh text-foreground"
+                      className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm font-naskh text-foreground text-right"
                       placeholder="مثال: 30.044"
                     />
                   </div>
-                  <div>
+                  <div className="text-right">
                     <label className="font-naskh text-[11px] text-muted-foreground mb-1 block">خط الطول</label>
                     <input
                       type="number"
                       step="0.001"
                       value={settings.longitude || ""}
                       onChange={(e) => updateSettings({ longitude: parseFloat(e.target.value) || null })}
-                      className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm font-naskh text-foreground"
+                      className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm font-naskh text-foreground text-right"
                       placeholder="مثال: 31.235"
                     />
                   </div>

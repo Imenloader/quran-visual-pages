@@ -101,9 +101,8 @@ const QuranHeader = ({
         {children}
       </div>
 
-      {/* bottom transition */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 md:h-48 bg-gradient-to-t from-background via-background/60 to-transparent z-20 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 right-0 h-16 md:h-24 backdrop-blur-[2px] md:backdrop-blur-sm z-10 pointer-events-none hidden sm:block" />
+      {/* bottom transition - refined to be less aggressive with semi-transparent cards */}
+      <div className="absolute bottom-0 left-0 right-0 h-16 md:h-24 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
     </header>
   );
 };

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { 
   Plus, 
   Edit2, 
@@ -188,9 +187,7 @@ const AthkarManager = () => {
         )}
       </div>
 
-      {/* Full Screen Edit Modal */}
-      <AnimatePresence>
-        {showModal && (
+      {showModal && (
           <div className="fixed inset-0 z-[700] bg-background flex flex-col p-4 md:p-8 overflow-hidden">
             <div className="max-w-5xl mx-auto w-full flex flex-col h-full">
               <header className="flex justify-between items-center mb-8 shrink-0">
@@ -312,7 +309,6 @@ const AthkarManager = () => {
             </div>
           </div>
         )}
-      </AnimatePresence>
     </div>
   );
 };

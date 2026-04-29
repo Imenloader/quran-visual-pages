@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { 
   Users, 
   Plus, 
@@ -177,7 +176,6 @@ const ReadingCircles = () => {
       });
       setShowCreateModal(false);
       navigate(`/reading-circles?id=${docRef.id}`); // Corrected route
-      // Wait, I should probably add a route in App.tsx for this.
     } catch (e) {
       toast.error(isAr ? "فشل إنشاء الحلقة" : "Failed to create circle");
     }
@@ -273,7 +271,7 @@ const ReadingCircles = () => {
                     <button
                       key={circle.id}
                       onClick={() => navigate(`/reading-circles?id=${circle.id}`)}
-                      className="p-5 bg-card border border-border/40 rounded-3xl flex items-center justify-between hover:border-primary/30 hover:bg-primary/5 transition-all group shadow-sm"
+                      className="p-5 bg-card border border-border/40 rounded-3xl flex items-center justify-between hover:border-primary/30 hover:bg-primary/5 transition-all group shadow-sm active:scale-98"
                     >
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-primary/5 rounded-2xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
@@ -311,7 +309,7 @@ const ReadingCircles = () => {
                     <button onClick={() => {
                        navigator.clipboard.writeText(window.location.href);
                        toast.success(isAr ? "تم نسخ رابط الدعوة" : "Invite link copied");
-                    }} className="p-3 bg-accent/10 text-accent rounded-2xl">
+                    }} className="p-3 bg-accent/10 text-accent rounded-2xl active:scale-95 transition-transform">
                       <Share2 size={20} />
                     </button>
                  </div>
@@ -332,10 +330,9 @@ const ReadingCircles = () => {
                           </span>
                         </div>
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                           <motion.div 
-                             initial={{ width: 0 }}
-                             animate={{ width: `${(member.currentAyah / currentCircle.totalAyahs) * 100}%` }}
-                             className={`h-full rounded-full ${member.uid === user.uid ? "bg-accent" : "bg-primary/40"}`}
+                           <div 
+                             className={`h-full rounded-full transition-all duration-700 ${member.uid === user.uid ? "bg-accent" : "bg-primary/40"}`}
+                             style={{ width: `${(member.currentAyah / currentCircle.totalAyahs) * 100}%` }}
                            />
                         </div>
                       </div>
@@ -370,39 +367,37 @@ const ReadingCircles = () => {
       </div>
 
       {/* Create Modal */}
-      <AnimatePresence>
-        {showCreateModal && (
-          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowCreateModal(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="relative bg-card border border-border w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl space-y-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold font-naskh text-primary">{isAr ? "إنشاء حلقة جديدة" : "New Reading Circle"}</h3>
-                  <button onClick={() => setShowCreateModal(false)} className="p-2 rounded-xl hover:bg-muted"><X size={20} /></button>
-                </div>
-                
-                <div className="space-y-4">
-                   <div className="space-y-2">
-                     <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">{isAr ? "اسم الحلقة" : "Circle Name"}</label>
-                     <input value={newCircleTitle} onChange={e => setNewCircleTitle(e.target.value)} placeholder={isAr ? "مثلاً: حلقة سورة البقرة" : "e.g. Al-Baqarah Study"} className="w-full p-4 bg-muted/50 border border-border rounded-2xl focus:ring-2 ring-primary/20 outline-none font-naskh" />
-                   </div>
+      {showCreateModal && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+           <div onClick={() => setShowCreateModal(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+           <div className="relative bg-card border border-border w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl space-y-6 transition-all scale-100 opacity-100">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold font-naskh text-primary">{isAr ? "إنشاء حلقة جديدة" : "New Reading Circle"}</h3>
+                <button onClick={() => setShowCreateModal(false)} className="p-2 rounded-xl hover:bg-muted"><X size={20} /></button>
+              </div>
+              
+              <div className="space-y-4">
+                 <div className="space-y-2">
+                   <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">{isAr ? "اسم الحلقة" : "Circle Name"}</label>
+                   <input value={newCircleTitle} onChange={e => setNewCircleTitle(e.target.value)} placeholder={isAr ? "مثلاً: حلقة سورة البقرة" : "e.g. Al-Baqarah Study"} className="w-full p-4 bg-muted/50 border border-border rounded-2xl focus:ring-2 ring-primary/20 outline-none font-naskh" />
+                 </div>
 
-                   <div className="space-y-2">
-                     <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">{isAr ? "اختر السورة" : "Select Surah"}</label>
-                     <select value={selectedSurah} onChange={e => setSelectedSurah(Number(e.target.value))} className="w-full p-4 bg-muted/50 border border-border rounded-2xl focus:ring-2 ring-primary/20 outline-none font-naskh appearance-none">
-                       {surahData.map(s => (
-                         <option key={s.number} value={s.number}>{isAr ? s.name : s.englishName}</option>
-                       ))}
-                     </select>
-                   </div>
-                </div>
+                 <div className="space-y-2">
+                   <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">{isAr ? "اختر السورة" : "Select Surah"}</label>
+                   <select value={selectedSurah} onChange={e => setSelectedSurah(Number(e.target.value))} className="w-full p-4 bg-muted/50 border border-border rounded-2xl focus:ring-2 ring-primary/20 outline-none font-naskh appearance-none">
+                     {surahData.map(s => (
+                       <option key={s.number} value={s.number}>{isAr ? s.name : s.englishName}</option>
+                     ))}
+                   </select>
+                 </div>
+              </div>
 
-                <button onClick={createCircle} className="w-full py-4 bg-primary text-white rounded-2xl font-bold font-naskh shadow-lg">
-                  {isAr ? "تأكيد الإنشاء" : "Confirm Creation"}
-                </button>
-             </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+              <button onClick={createCircle} className="w-full py-4 bg-primary text-white rounded-2xl font-bold font-naskh shadow-lg active:scale-95 transition-transform">
+                {isAr ? "تأكيد الإنشاء" : "Confirm Creation"}
+              </button>
+           </div>
+        </div>
+      )}
 
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>

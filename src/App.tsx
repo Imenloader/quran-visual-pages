@@ -20,7 +20,6 @@ import MaintenanceGuard from "./contexts/MaintenanceGuard";
 import { useSystem } from "./contexts/SystemContext";
 import { useUser } from "./contexts/UserContext";
 import { AlertTriangle } from "lucide-react";
-
 import { useTranslation } from "react-i18next";
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { useKhatmaNotifications } from "./hooks/useKhatmaNotifications";

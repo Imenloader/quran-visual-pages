@@ -3,7 +3,6 @@ import { ChevronRight, Eye, EyeOff, CheckCircle2, RotateCcw, BookOpen, Search, T
 import { useTranslation } from "react-i18next";
 import { surahIndex, toArabicNumber } from "@/data/quranData";
 import { dailyVerses } from "@/data/dailyVersesData";
-import { motion, AnimatePresence } from "motion/react";
 import QuranHeader from "@/components/QuranHeader";
 import { useUser } from "@/contexts/UserContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -119,12 +118,10 @@ const Memorization: React.FC = () => {
               {filteredSurahs.map(surah => {
                 const masteredCount = progress[surah.number]?.masteredAyahs.length || 0;
                 return (
-                  <motion.button
+                  <button
                     key={surah.number}
-                    whileHover={{ y: -4 }}
-                    whileTap={{ scale: 0.98 }}
                     onClick={() => startSurah(surah)}
-                    className="p-6 rounded-[2rem] bg-card border border-border/40 hover:border-primary/30 transition-all text-right flex items-center justify-between group"
+                    className="p-6 rounded-[2rem] bg-card border border-border/40 hover:border-primary/30 transition-all text-right flex items-center justify-between group active:scale-98"
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary font-serif font-bold group-hover:bg-primary group-hover:text-white transition-all">
@@ -138,7 +135,7 @@ const Memorization: React.FC = () => {
                       </div>
                     </div>
                     <ChevronRight size={20} className="text-primary/20 group-hover:text-primary transition-colors" />
-                  </motion.button>
+                  </button>
                 );
               })}
             </div>
@@ -170,9 +167,8 @@ const Memorization: React.FC = () => {
                 </div>
               ) : (
                 ayahs.map((ayah, idx) => (
-                  <motion.div
+                  <div
                     key={idx}
-                    layout
                     className="p-8 rounded-[2rem] bg-card border border-border/40 space-y-6 relative overflow-hidden group"
                   >
                     <div className="flex items-center justify-between mb-4">
@@ -205,7 +201,7 @@ const Memorization: React.FC = () => {
                     >
                       {ayah.text}
                     </div>
-                  </motion.div>
+                  </div>
                 ))
               )}
             </div>

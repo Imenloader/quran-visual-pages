@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { motion } from "motion/react";
 import { BookOpen, Clock, Info, Bell, BellOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -177,9 +176,7 @@ const KhatmaPlanner = () => {
             </div>
 
             {notificationsEnabled && (
-              <motion.div 
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
+              <div 
                 className="space-y-3 overflow-hidden"
               >
                 <label className="text-[10px] font-bold font-naskh text-muted-foreground uppercase tracking-widest">
@@ -191,7 +188,7 @@ const KhatmaPlanner = () => {
                   onChange={(e) => setReminderTime(e.target.value)}
                   className="w-full p-4 bg-muted/50 rounded-2xl border border-border/50 text-foreground font-mono focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
-              </motion.div>
+              </div>
             )}
 
             <button 
@@ -204,7 +201,7 @@ const KhatmaPlanner = () => {
         </div>
 
         <div className="p-4 bg-accent/5 rounded-2xl border border-accent/10 flex gap-3 items-start">
-          <Info className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+          <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
           <p className="text-[10px] text-muted-foreground font-naskh leading-relaxed">
             {i18n.language === 'ar' 
               ? "يعتمد التقدير الزمني على متوسط سرعة القراءة (دقيقتان لكل صفحة). يمكنك تعديل الخطة في أي وقت حسب ظروفك."

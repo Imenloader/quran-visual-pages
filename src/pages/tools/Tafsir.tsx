@@ -1,6 +1,5 @@
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { BookOpen, Search, Info, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -183,38 +182,26 @@ const Tafsir = () => {
             <FontSizeAdjuster context="tafsir" min={14} max={40} />
           </div>
 
-          <AnimatePresence mode="wait">
-            {loading ? (
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex items-center justify-center py-12"
-              >
-                <Loader2 className="w-8 h-8 text-primary animate-spin" />
-              </motion.div>
-            ) : (
-              <motion.div
-                key={`${selectedSurah}-${selectedAyah}`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-4"
-              >
-                <div className="p-6 bg-primary/5 border border-primary/10 rounded-3xl">
-                  <p className="text-lg font-naskh text-primary text-center leading-loose mb-4">
-                    {tajweedMode ? applyTajweedColors(ayahText) : ayahText}
-                  </p>
-                  <div className="h-px bg-primary/10 w-full mb-4" />
-                  <p 
-                    className="font-naskh text-foreground leading-relaxed text-right"
-                    style={{ fontSize: `${fontSizes.tafsir || 18}px` }}
-                  >
-                    {tafsir}
-                  </p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="p-6 bg-primary/5 border border-primary/10 rounded-3xl">
+                <p className="text-lg font-naskh text-primary text-center leading-loose mb-4">
+                  {tajweedMode ? applyTajweedColors(ayahText) : ayahText}
+                </p>
+                <div className="h-px bg-primary/10 w-full mb-4" />
+                <p 
+                  className="font-naskh text-foreground leading-relaxed text-right"
+                  style={{ fontSize: `${fontSizes.tafsir || 18}px` }}
+                >
+                  {tafsir}
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="p-4 bg-muted/50 rounded-2xl border border-border/50 flex items-start gap-3">
             <Info className="w-5 h-5 text-accent shrink-0 mt-0.5" />

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { db } from "@/firebase";
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy } from "firebase/firestore";
 import { Plus, Trash2, Edit2, Save, X, Search, History, Star, Info, Calendar } from "lucide-react";
@@ -128,9 +127,8 @@ const SeerahManager = () => {
       </div>
 
       <div className="space-y-6">
-        <AnimatePresence>
-          {isAdding && (
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bento-card !p-8 border-2 border-primary/30 space-y-6">
+        {isAdding && (
+          <div className="bento-card !p-8 border-2 border-primary/30 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Input placeholder="السنة (مثلاً: 1 هـ)" value={formData.year} onChange={e => setFormData({...formData, year: e.target.value})} className="rounded-xl" />
                 <Input placeholder="العنوان بالعربية" value={formData.titleAr} onChange={e => setFormData({...formData, titleAr: e.target.value})} className="rounded-xl font-bold" />
@@ -148,11 +146,11 @@ const SeerahManager = () => {
                 <Button variant="ghost" onClick={() => setIsAdding(false)} className="rounded-xl">إلغاء</Button>
                 <Button onClick={handleAdd} className="rounded-xl px-8">حفظ الحدث</Button>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {events.map((event) => (
-            <motion.div key={event.docId} layout className="bento-card !p-6 flex gap-6 group">
+            <div key={event.docId} className="bento-card !p-6 flex gap-6 group">
               <div className="w-24 h-24 shrink-0 rounded-2xl bg-primary/10 flex flex-col items-center justify-center text-primary border border-primary/20">
                 <Calendar size={20} className="mb-1" />
                 <span className="font-bold text-lg">{event.year}</span>
@@ -186,9 +184,9 @@ const SeerahManager = () => {
                   </>
                 )}
               </div>
-            </motion.div>
+            </div>
           ))}
-        </AnimatePresence>
+
       </div>
     </div>
   );

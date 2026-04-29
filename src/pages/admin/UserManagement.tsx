@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { db } from "@/firebase";
 import { collection, getDocs, updateDoc, doc, query, orderBy, limit, where } from "firebase/firestore";
 import { Users, Search, Shield, User, Mail, Calendar, ShieldCheck, Star } from "lucide-react";
@@ -89,13 +88,9 @@ const UserManagement = () => {
         {loading ? (
           [...Array(6)].map((_, i) => <div key={i} className="h-40 bg-muted/20 animate-pulse rounded-2xl" />)
         ) : (
-          <AnimatePresence>
-            {filteredUsers.map((u) => (
-              <motion.div 
+            filteredUsers.map((u) => (
+              <div 
                 key={u.id}
-                layout
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
                 className="bento-card !p-5 space-y-4 group border border-border/40 relative overflow-hidden"
               >
                 <div className="flex justify-between items-start">
@@ -130,9 +125,8 @@ const UserManagement = () => {
                     {u.joinedDate?.toDate ? format(u.joinedDate.toDate(), 'MMM yyyy', { locale: ar }) : "تاريخ غير معروف"}
                   </div>
                 </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+              </div>
+            ))
         )}
       </div>
     </div>

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { db } from "@/firebase";
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy, limit } from "firebase/firestore";
 import { Plus, Trash2, Edit2, Save, X, Search, Quote, Scroll, Info, CheckCircle } from "lucide-react";
@@ -122,9 +121,8 @@ const HadithManager = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-6">
-        <AnimatePresence>
-          {isAdding && (
-            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bento-card !p-8 border-2 border-primary/30 space-y-6">
+        {isAdding && (
+          <div className="bento-card !p-8 border-2 border-primary/30 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Input placeholder="الراوي (مثلاً: أبو هريرة)" value={formData.narrator} onChange={e => setFormData({...formData, narrator: e.target.value})} className="rounded-xl" />
                 <Input placeholder="المصدر (مثلاً: صحيح البخاري)" value={formData.source} onChange={e => setFormData({...formData, source: e.target.value})} className="rounded-xl" />
@@ -135,11 +133,11 @@ const HadithManager = () => {
                 <Button variant="ghost" onClick={() => setIsAdding(false)} className="rounded-xl">إلغاء</Button>
                 <Button onClick={handleAdd} className="rounded-xl px-8">حفظ الحديث</Button>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {hadiths.map((h) => (
-            <motion.div key={h.docId} layout className="bento-card !p-6 space-y-4 group">
+            <div key={h.docId} className="bento-card !p-6 space-y-4 group">
               {editingId === h.docId ? (
                 <div className="space-y-4">
                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -170,9 +168,9 @@ const HadithManager = () => {
                   <p className="text-xs text-muted-foreground italic">الراوي: {h.narrator}</p>
                 </div>
               )}
-            </motion.div>
+            </div>
           ))}
-        </AnimatePresence>
+
       </div>
     </div>
   );

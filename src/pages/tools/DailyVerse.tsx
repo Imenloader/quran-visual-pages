@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { Share2, Heart, BookOpen, Quote, RefreshCw, Copy, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -39,16 +38,17 @@ const DailyVerse = () => {
   };
 
   useEffect(() => {
-    setVerse(getDailyVerse());
+    const daily = getDailyVerse();
+    setVerse(daily);
     
     // Check if liked from local storage
     const likedVerses = JSON.parse(localStorage.getItem("liked-verses") || "[]");
-    const currentVerse = getDailyVerse();
-    setIsLiked(likedVerses.some((v: DailyVerseData) => v.text === currentVerse.text));
+    setIsLiked(likedVerses.some((v: DailyVerseData) => v.text === daily.text));
   }, []);
 
   const handleRefresh = () => {
-    setVerse(getDailyVerse(true));
+    const random = getDailyVerse(true);
+    setVerse(random);
     setIsLiked(false);
   };
 
@@ -125,37 +125,31 @@ const DailyVerse = () => {
         </header>
 
         <div className="space-y-8">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={verse.text}
-              initial={{ y: 30, opacity: 0, scale: 0.95 }}
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ y: -30, opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="relative p-10 md:p-14 bg-card border border-border rounded-[3.5rem] shadow-islamic text-center space-y-10 overflow-hidden group"
-            >
-              <div className="absolute top-0 left-0 p-8 opacity-[0.05] pointer-events-none transition-transform duration-700 group-hover:scale-110">
-                <Quote className="w-40 h-40 text-primary" />
+          <div
+            key={verse.text}
+            className="relative p-10 md:p-14 bg-card border border-border rounded-[3.5rem] shadow-islamic text-center space-y-10 overflow-hidden group"
+          >
+            <div className="absolute top-0 left-0 p-8 opacity-[0.05] pointer-events-none transition-transform duration-700 group-hover:scale-110">
+              <Quote className="w-40 h-40 text-primary" />
+            </div>
+            
+            <div className="relative z-10 space-y-10">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-[1.5rem] bg-primary/10 text-primary mb-4 rotate-3 group-hover:rotate-0 transition-transform duration-500">
+                <BookOpen className="w-8 h-8" />
               </div>
               
-              <div className="relative z-10 space-y-10">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-[1.5rem] bg-primary/10 text-primary mb-4 rotate-3 group-hover:rotate-0 transition-transform duration-500">
-                  <BookOpen className="w-8 h-8" />
-                </div>
-                
-                <p className="text-3xl md:text-4xl font-bold font-naskh text-foreground leading-[1.6] px-2">
-                  {tajweedMode ? applyTajweedColors(verse.text) : verse.text}
+              <p className="text-3xl md:text-4xl font-bold font-naskh text-foreground leading-[1.6] px-2">
+                {tajweedMode ? applyTajweedColors(verse.text) : verse.text}
+              </p>
+              
+              <div className="space-y-2 pt-6 border-t border-border/50">
+                <p className="text-xl font-bold font-naskh text-primary">سورة {verse.surah}</p>
+                <p className="text-sm text-muted-foreground font-mono tracking-widest uppercase">
+                  {i18n.language === 'ar' ? `الآية ${verse.number}` : `Ayah ${verse.number}`}
                 </p>
-                
-                <div className="space-y-2 pt-6 border-t border-border/50">
-                  <p className="text-xl font-bold font-naskh text-primary">سورة {verse.surah}</p>
-                  <p className="text-sm text-muted-foreground font-mono tracking-widest uppercase">
-                    {i18n.language === 'ar' ? `الآية ${verse.number}` : `Ayah ${verse.number}`}
-                  </p>
-                </div>
               </div>
-            </motion.div>
-          </AnimatePresence>
+            </div>
+          </div>
 
           <div className="flex items-center justify-center gap-6">
             <button 
@@ -180,10 +174,7 @@ const DailyVerse = () => {
             </button>
           </div>
 
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
+          <div 
             className="p-8 bg-muted/30 backdrop-blur-sm rounded-[2.5rem] border border-border/50 space-y-4 relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -translate-y-12 translate-x-12" />
@@ -194,7 +185,7 @@ const DailyVerse = () => {
             <p className="text-sm text-muted-foreground font-naskh leading-relaxed text-right">
               {verse.tafsir}
             </p>
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>

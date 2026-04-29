@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { db } from "@/firebase";
 import { collection, getDocs, deleteDoc, doc, query, orderBy, limit } from "firebase/firestore";
 import { Trash2, Search, Book, User, Calendar, AlertCircle, RefreshCw } from "lucide-react";
@@ -64,12 +63,12 @@ const KhatmaModeration = () => {
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
           <BackButton />
-          <div>
+          <div className="text-right">
             <h1 className="text-3xl font-bold flex items-center gap-3">
               <Book className="text-emerald-500" />
               إدارة الختمات الجماعية
             </h1>
-            <p className="text-muted-foreground mt-1">مراقبة وحذف الختمات العامة في التطبيق</p>
+            <p className="text-muted-foreground mt-1 text-right">مراقبة وحذف الختمات العامة في التطبيق</p>
           </div>
         </div>
         <Button variant="outline" onClick={fetchKhatmas} disabled={loading} className="rounded-xl gap-2">
@@ -78,11 +77,11 @@ const KhatmaModeration = () => {
         </Button>
       </div>
 
-      <div className="relative max-w-md">
+      <div className="relative max-w-md ml-auto">
         <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
         <Input 
           placeholder="بحث عن ختمة أو مستخدم..." 
-          className="pr-10 rounded-xl"
+          className="pr-10 rounded-xl text-right"
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
@@ -94,41 +93,36 @@ const KhatmaModeration = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <AnimatePresence>
-            {filteredKhatmas.map((k) => (
-              <motion.div 
-                key={k.id}
-                layout
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="bento-card !p-5 flex justify-between items-center group border border-border/40"
-              >
-                <div className="space-y-2">
-                  <h3 className="font-bold text-lg">{k.title || "بدون عنوان"}</h3>
-                  <div className="flex flex-wrap gap-3 text-xs text-muted-foreground font-medium">
-                    <span className="flex items-center gap-1"><User size={12} /> {k.createdBy?.slice(0, 8)}...</span>
-                    <span className="flex items-center gap-1"><Calendar size={12} /> {k.createdAt?.toDate ? format(k.createdAt.toDate(), 'dd MMM yyyy', { locale: ar }) : "تاريخ غير متوفر"}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${k.status === 'completed' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>
-                      {k.status === 'completed' ? 'مكتملة' : 'جارية'}
-                    </span>
-                    <span className="text-[10px] bg-muted px-2 py-0.5 rounded-full font-bold">
-                      {k.participants?.length || 0} مشارك
-                    </span>
-                  </div>
+          {filteredKhatmas.map((k) => (
+            <div 
+              key={k.id}
+              className="bento-card !p-5 flex justify-between items-center group border border-border/40 hover:shadow-md transition-all active:scale-98"
+            >
+              <div className="space-y-2 text-right">
+                <h3 className="font-bold text-lg">{k.title || "بدون عنوان"}</h3>
+                <div className="flex flex-wrap gap-3 text-xs text-muted-foreground font-medium justify-end">
+                  <span className="flex items-center gap-1"><User size={12} /> {k.createdBy?.slice(0, 8)}...</span>
+                  <span className="flex items-center gap-1"><Calendar size={12} /> {k.createdAt?.toDate ? format(k.createdAt.toDate(), 'dd MMM yyyy', { locale: ar }) : "تاريخ غير متوفر"}</span>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={() => handleDelete(k.id)}
-                  className="rounded-xl text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Trash2 size={18} />
-                </Button>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+                <div className="flex items-center gap-2 justify-end">
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${k.status === 'completed' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>
+                    {k.status === 'completed' ? 'مكتملة' : 'جارية'}
+                  </span>
+                  <span className="text-[10px] bg-muted px-2 py-0.5 rounded-full font-bold">
+                    {k.participants?.length || 0} مشارك
+                  </span>
+                </div>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => handleDelete(k.id)}
+                className="rounded-xl text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 sm:opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <Trash2 size={18} />
+              </Button>
+            </div>
+          ))}
 
           {filteredKhatmas.length === 0 && (
             <div className="col-span-full py-20 text-center text-muted-foreground space-y-4">

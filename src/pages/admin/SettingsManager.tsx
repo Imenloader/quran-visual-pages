@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "motion/react";
 import { 
   Settings, 
   Shield, 
@@ -74,7 +73,7 @@ const SettingsManager = () => {
         <header className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <BackButton />
-            <div>
+            <div className="text-right">
               <h1 className="text-2xl font-bold font-naskh">إعدادات النظام</h1>
               <p className="text-xs text-muted-foreground">
                 التحكم في الخصائص العامة للمنصة
@@ -99,19 +98,12 @@ const SettingsManager = () => {
         <div className="space-y-6">
           {/* Access Control */}
           <section className="bg-card border border-border rounded-[2.5rem] p-8 space-y-6">
-            <h2 className="text-lg font-bold font-naskh flex items-center gap-2">
-              <Shield className="w-5 h-5 text-accent" />
+            <h2 className="text-lg font-bold font-naskh flex items-center justify-end gap-2 text-right">
               التحكم في الوصول
+              <Shield className="w-5 h-5 text-accent" />
             </h2>
 
             <div className="flex items-center justify-between p-4 bg-muted/20 rounded-2xl">
-              <div className="flex-1">
-                <p className="font-bold text-sm">وضع الصيانة</p>
-                <p className="text-[10px] text-muted-foreground">
-                  عند تفعيله، لن يتمكن المستخدمون من استخدام التطبيق
-                </p>
-              </div>
-
               <button
                 onClick={() =>
                   setConfig({
@@ -125,21 +117,26 @@ const SettingsManager = () => {
                     : "bg-muted-foreground/30"
                 }`}
               >
-                <motion.div
-                  animate={{
-                    x: config.maintenanceMode ? (isAr ? -24 : 24) : 0,
-                  }}
-                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                  className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm"
+                <div
+                  className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all duration-300 ${
+                    config.maintenanceMode 
+                      ? (isAr ? "left-1" : "left-7") 
+                      : (isAr ? "left-7" : "left-1")
+                  }`}
                 />
               </button>
+
+              <div className="flex-1 text-right">
+                <p className="font-bold text-sm">وضع الصيانة</p>
+                <p className="text-[10px] text-muted-foreground">
+                  عند تفعيله، لن يتمكن المستخدمون من استخدام التطبيق
+                </p>
+              </div>
             </div>
 
             {config.maintenanceMode && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                className="space-y-4 pt-2"
+              <div
+                className="space-y-4 pt-2 transition-all duration-500 opacity-100 h-auto"
               >
                 <textarea
                   value={(config as any).maintenanceMessageAr || ""}
@@ -149,17 +146,18 @@ const SettingsManager = () => {
                       maintenanceMessageAr: e.target.value,
                     } as any)
                   }
-                  className="w-full bg-muted/50 border border-border rounded-xl p-3 text-sm font-naskh"
+                  className="w-full bg-muted/50 border border-border rounded-xl p-3 text-sm font-naskh text-right"
+                  placeholder="رسالة الصيانة بالعربية..."
                 />
-              </motion.div>
+              </div>
             )}
           </section>
 
           {/* Download Links */}
           <section className="bg-card border border-border rounded-[2.5rem] p-8 space-y-6">
-            <h2 className="text-lg font-bold font-naskh flex items-center gap-2">
-              <Download className="w-5 h-5 text-accent" />
+            <h2 className="text-lg font-bold font-naskh flex items-center justify-end gap-2 text-right">
               روابط تحميل التطبيق
+              <Download className="w-5 h-5 text-accent" />
             </h2>
 
             <input
@@ -171,14 +169,14 @@ const SettingsManager = () => {
                   appDirectDownloadUrl: e.target.value,
                 })
               }
-              className="w-full bg-muted/50 border border-border rounded-xl p-3 text-sm"
+              className="w-full bg-muted/50 border border-border rounded-xl p-3 text-sm text-right"
               placeholder="APK URL"
             />
           </section>
 
-          {/* ✅ FIXED EMPTY SECTION */}
           <section className="bg-card border border-border rounded-[2.5rem] p-8 space-y-6">
-            <h2 className="text-lg font-bold">إعدادات إضافية</h2>
+            <h2 className="text-lg font-bold text-right">إعدادات إضافية</h2>
+            <p className="text-xs text-muted-foreground text-right">سيتم إضافة المزيد من الخصائص لاحقاً</p>
           </section>
         </div>
       </div>

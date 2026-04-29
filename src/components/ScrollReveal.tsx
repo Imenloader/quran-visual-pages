@@ -1,5 +1,4 @@
 import { ReactNode } from "react";
-import { motion } from "motion/react";
 
 interface ScrollRevealProps {
   children: ReactNode;

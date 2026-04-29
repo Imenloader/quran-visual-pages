@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -25,7 +24,7 @@ const RamadanSectionLayout: React.FC<RamadanSectionLayoutProps> = ({
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-24 transition-opacity duration-500 opacity-100">
       <QuranHeader 
         title={title} 
         subtitle={subtitle} 
@@ -34,10 +33,10 @@ const RamadanSectionLayout: React.FC<RamadanSectionLayoutProps> = ({
 
       <div className="max-w-4xl mx-auto px-4 mt-8 space-y-8">
         <ScrollReveal>
-          <div className={`relative overflow-hidden rounded-[2.5rem] ${color} p-8 md:p-12 text-white shadow-xl`}>
+          <div className={`relative overflow-hidden rounded-[2.5rem] ${color} p-8 md:p-12 text-white shadow-xl transition-all duration-500`}>
             <div className="absolute inset-0 pattern-islamic opacity-10" />
             <div className="relative z-10 flex flex-col items-center text-center space-y-6">
-              <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/30">
+              <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/30 transition-transform hover:scale-110">
                 {icon}
               </div>
               <div className="space-y-2">

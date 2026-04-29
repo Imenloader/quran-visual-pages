@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { db } from "@/firebase";
 import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 import { Sparkles, Save, Plus, Trash2, Info, CheckSquare, List } from "lucide-react";
@@ -77,12 +76,9 @@ const FridaySunanManager = () => {
         </div>
 
         <div className="space-y-3">
-          <AnimatePresence>
             {sunan.map((item, i) => (
-              <motion.div 
+              <div 
                 key={i} 
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
                 className="flex gap-2"
               >
                 <div className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center text-xs font-bold shrink-0">
@@ -97,9 +93,9 @@ const FridaySunanManager = () => {
                 <Button variant="ghost" size="icon" onClick={() => removeItem(i)} className="text-rose-500 hover:bg-rose-500/10">
                   <Trash2 size={16} />
                 </Button>
-              </motion.div>
+              </div>
             ))}
-          </AnimatePresence>
+
 
           {sunan.length === 0 && (
             <div className="text-center py-10 opacity-30">

@@ -35,17 +35,17 @@ export default function QanetHome() {
         <div className="flex gap-2">
           <button
             onClick={() => navigate('/juz/1')}
-            className="flex items-center gap-1.5 px-3 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary text-[11px] font-bold hover:bg-primary/20 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary text-[11px] font-bold"
           >
             <BookOpen size={14} />
-            اقرأ القرآن
+            {isArabic ? 'اقرأ القرآن' : 'Read Quran'}
           </button>
           <button
             onClick={() => navigate('/qiyam')}
-            className="flex items-center gap-1.5 px-3 py-2 bg-accent/10 border border-accent/20 rounded-full text-accent text-[11px] font-bold hover:bg-accent/20 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 bg-accent/10 border border-accent/20 rounded-full text-accent text-[11px] font-bold"
           >
             <Flame size={14} />
-            ١٠٠ آية
+            {isArabic ? '١٠٠ آية' : '100 Aya'}
           </button>
         </div>
         <div className="flex items-center gap-3">
@@ -80,7 +80,7 @@ export default function QanetHome() {
       {/* Stats Grid */}
       <div className="space-y-4">
         {/* Top Streak Card */}
-        <div className="bg-card rounded-[2.5rem] p-8 border border-border flex shadow-soft group hover:shadow-islamic transition-all">
+        <div className="bg-card rounded-[2.5rem] p-8 border border-border flex shadow-soft group">
           <div className="flex-1 flex flex-col justify-center gap-1 border-l border-border pl-6">
             <div className="flex items-center gap-2 justify-end mb-1">
               <Flame size={24} className="text-orange-500" />
@@ -97,7 +97,7 @@ export default function QanetHome() {
 
         {/* Bottom Two Cards */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-card rounded-[2rem] p-6 border border-border flex flex-col items-center justify-center gap-3 text-center shadow-soft hover:shadow-islamic transition-all">
+          <div className="bg-card rounded-[2rem] p-6 border border-border flex flex-col items-center justify-center gap-3 text-center shadow-soft">
             <div className={`text-xl font-bold ${
               avgLevel === 'muqantar' ? 'text-purple-500' :
               avgLevel === 'qanet' ? 'text-emerald-500' :
@@ -109,7 +109,7 @@ export default function QanetHome() {
             <p className="text-muted-foreground text-xs font-bold">متوسط الحالة</p>
           </div>
 
-          <div className="bg-card rounded-[2rem] p-6 border border-border flex flex-col justify-center shadow-soft hover:shadow-islamic transition-all">
+          <div className="bg-card rounded-[2rem] p-6 border border-border flex flex-col justify-center shadow-soft">
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-1">
                 <FlameKindling size={18} className="text-blue-500" />
@@ -149,7 +149,7 @@ export default function QanetHome() {
               ))}
               <button 
                 onClick={() => navigate('/qanet/history')}
-                className="w-full py-2 text-primary text-xs font-bold hover:underline"
+                className="w-full py-2 text-primary text-xs font-bold"
               >
                 عرض الكل
               </button>
@@ -163,7 +163,7 @@ export default function QanetHome() {
       {/* FAB */}
       <button
         onClick={() => setIsLogModalOpen(true)}
-        className="fixed bottom-24 right-6 w-14 h-14 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full flex items-center justify-center shadow-islamic z-50 transition-all active:scale-95"
+        className="fixed bottom-24 right-6 w-14 h-14 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-islamic z-50"
       >
         <Plus size={28} />
       </button>

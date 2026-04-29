@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { db } from "@/firebase";
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy, writeBatch } from "firebase/firestore";
 import { Plus, Trash2, Edit2, Save, X, Search, BookOpen, Scroll, Video, MessageSquare } from "lucide-react";
@@ -181,13 +180,10 @@ const ProphetStoriesManager = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-6">
-        <AnimatePresence>
-          {isAdding && (
-            <motion.div 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bento-card !p-8 border-dashed border-2 border-primary/30 space-y-6"
-            >
+        {isAdding && (
+          <div 
+            className="bento-card !p-8 border-dashed border-2 border-primary/30 space-y-6"
+          >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-4">
                   <Input placeholder="اسم النبي بالعربية" value={formData.nameAr} onChange={e => setFormData({...formData, nameAr: e.target.value})} className="rounded-xl h-12 text-lg font-bold" />
@@ -204,11 +200,11 @@ const ProphetStoriesManager = () => {
                 <Button variant="ghost" onClick={() => setIsAdding(false)} className="rounded-xl px-8">إلغاء</Button>
                 <Button onClick={handleAdd} className="rounded-xl px-8">حفظ القصة</Button>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {stories.map((story) => (
-            <motion.div key={story.docId} layout className="bento-card !p-6 relative group">
+            <div key={story.docId} className="bento-card !p-6 relative group">
               {editingId === story.docId ? (
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -246,7 +242,7 @@ const ProphetStoriesManager = () => {
                   </div>
                 </div>
               )}
-            </motion.div>
+            </div>
           ))}
 
           {stories.length === 0 && !loading && (
@@ -260,7 +256,7 @@ const ProphetStoriesManager = () => {
               </button>
             </div>
           )}
-        </AnimatePresence>
+
       </div>
     </div>
   );

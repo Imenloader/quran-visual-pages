@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { CheckCircle2, Circle, Calendar, Trophy, Flame, MinusCircle, PlusCircle, Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { format, subDays } from "date-fns";
@@ -145,105 +144,97 @@ const PrayerTracker = () => {
           ))}
         </div>
 
-        <AnimatePresence mode="wait">
-          {activeTab === "today" ? (
-            <motion.div
-              key="today"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 10 }}
-              className="bg-card border border-border rounded-3xl p-6 space-y-3 shadow-soft"
-            >
-              <h2 className="font-bold font-naskh text-foreground mb-2">
-                {isAr ? "الصلوات الخمس" : "Five Daily Prayers"}
+        {activeTab === "today" ? (
+          <div
+            key="today"
+            className="bg-card border border-border rounded-3xl p-6 space-y-3 shadow-soft"
+          >
+            <h2 className="font-bold font-naskh text-foreground mb-2">
+              {isAr ? "الصلوات الخمس" : "Five Daily Prayers"}
+            </h2>
+            {PRAYERS.map(prayer => {
+              const isCompleted = history[today]?.includes(prayer.id);
+              return (
+                <button
+                  key={prayer.id}
+                  onClick={() => togglePrayer(prayer.id)}
+                  className={`w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${
+                    isCompleted
+                      ? "border-primary bg-primary/5 text-primary"
+                      : "border-border text-muted-foreground hover:bg-muted active:scale-98"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    {isCompleted
+                      ? <CheckCircle2 className="w-6 h-6" />
+                      : <Circle className="w-6 h-6" />}
+                    <span className="font-bold font-naskh">
+                      {isAr ? prayer.nameAr : prayer.nameEn}
+                    </span>
+                  </div>
+                  {isCompleted && (
+                    <span className="text-[10px] font-bold uppercase tracking-widest">
+                      {isAr ? "تمت" : "Done"}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div
+            key="qada"
+            className="space-y-3"
+          >
+            <div className="flex items-start gap-3 p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
+              <Info className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+              <p className="text-xs text-muted-foreground font-naskh leading-relaxed">
+                {isAr
+                  ? "سجّل عدد صلوات القضاء المتبقية عليك وتابع تقدمك في أدائها."
+                  : "Track the number of makeup prayers you owe and your progress repaying them."}
+              </p>
+            </div>
+            <div className="bg-card border border-border rounded-3xl p-6 space-y-4 shadow-soft">
+              <h2 className="font-bold font-naskh text-foreground">
+                {isAr ? "صلوات القضاء" : "Makeup Prayers"}
               </h2>
               {PRAYERS.map(prayer => {
-                const isCompleted = history[today]?.includes(prayer.id);
+                const count = qada[prayer.id] || 0;
                 return (
-                  <button
-                    key={prayer.id}
-                    onClick={() => togglePrayer(prayer.id)}
-                    className={`w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${
-                      isCompleted
-                        ? "border-primary bg-primary/5 text-primary"
-                        : "border-border text-muted-foreground hover:bg-muted"
-                    }`}
-                  >
+                  <div key={prayer.id} className="flex items-center justify-between py-2 border-b border-border/40 last:border-0">
+                    <span className="font-bold font-naskh text-foreground">
+                      {isAr ? prayer.nameAr : prayer.nameEn}
+                    </span>
                     <div className="flex items-center gap-3">
-                      {isCompleted
-                        ? <CheckCircle2 className="w-6 h-6" />
-                        : <Circle className="w-6 h-6" />}
-                      <span className="font-bold font-naskh">
-                        {isAr ? prayer.nameAr : prayer.nameEn}
+                      <button
+                        onClick={() => adjustQada(prayer.id, -1)}
+                        disabled={count === 0}
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all disabled:opacity-30"
+                      >
+                        <MinusCircle className="w-5 h-5" />
+                      </button>
+                      <span className={`w-10 text-center font-bold text-lg ${count > 0 ? "text-primary" : "text-muted-foreground"}`}>
+                        {count}
                       </span>
+                      <button
+                        onClick={() => adjustQada(prayer.id, 1)}
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all"
+                      >
+                        <PlusCircle className="w-5 h-5" />
+                      </button>
                     </div>
-                    {isCompleted && (
-                      <span className="text-[10px] font-bold uppercase tracking-widest">
-                        {isAr ? "تمت" : "Done"}
-                      </span>
-                    )}
-                  </button>
+                  </div>
                 );
               })}
-            </motion.div>
-          ) : (
-            <motion.div
-              key="qada"
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              className="space-y-3"
-            >
-              <div className="flex items-start gap-3 p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
-                <Info className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                <p className="text-xs text-muted-foreground font-naskh leading-relaxed">
-                  {isAr
-                    ? "سجّل عدد صلوات القضاء المتبقية عليك وتابع تقدمك في أدائها."
-                    : "Track the number of makeup prayers you owe and your progress repaying them."}
-                </p>
-              </div>
-              <div className="bg-card border border-border rounded-3xl p-6 space-y-4 shadow-soft">
-                <h2 className="font-bold font-naskh text-foreground">
-                  {isAr ? "صلوات القضاء" : "Makeup Prayers"}
-                </h2>
-                {PRAYERS.map(prayer => {
-                  const count = qada[prayer.id] || 0;
-                  return (
-                    <div key={prayer.id} className="flex items-center justify-between py-2 border-b border-border/40 last:border-0">
-                      <span className="font-bold font-naskh text-foreground">
-                        {isAr ? prayer.nameAr : prayer.nameEn}
-                      </span>
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => adjustQada(prayer.id, -1)}
-                          disabled={count === 0}
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all disabled:opacity-30"
-                        >
-                          <MinusCircle className="w-5 h-5" />
-                        </button>
-                        <span className={`w-10 text-center font-bold text-lg ${count > 0 ? "text-primary" : "text-muted-foreground"}`}>
-                          {count}
-                        </span>
-                        <button
-                          onClick={() => adjustQada(prayer.id, 1)}
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all"
-                        >
-                          <PlusCircle className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-                {totalQada > 0 && (
-                  <div className="pt-2 flex justify-between items-center text-sm font-bold">
-                    <span className="text-muted-foreground font-naskh">{isAr ? "الإجمالي" : "Total"}</span>
-                    <span className="text-primary">{totalQada} {isAr ? "صلاة" : "prayers"}</span>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              {totalQada > 0 && (
+                <div className="pt-2 flex justify-between items-center text-sm font-bold">
+                  <span className="text-muted-foreground font-naskh">{isAr ? "الإجمالي" : "Total"}</span>
+                  <span className="text-primary">{totalQada} {isAr ? "صلاة" : "prayers"}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="p-4 bg-muted/50 rounded-2xl border border-border/50 text-center">
           <p className="text-xs text-muted-foreground font-naskh">

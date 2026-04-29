@@ -6,7 +6,7 @@ const SplashScreen: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(false);
-    }, 3000); // Show for 3 seconds
+    }, 10); // Show for 10ms
 
     return () => clearTimeout(timer);
   }, []);

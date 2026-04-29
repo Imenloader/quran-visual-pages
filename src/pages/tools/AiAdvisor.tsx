@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { Sparkles, Send, Brain, Heart, Sun, Moon, Cloud, Loader2, Info } from "lucide-react";
 import QuranHeader from "@/components/QuranHeader";
@@ -88,9 +87,7 @@ const AiAdvisor = () => {
         </header>
 
         {messages.length === 0 ? (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+          <div 
             className="flex-1 flex flex-col items-center justify-center text-center space-y-8 py-12"
           >
             <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center shadow-xl border border-white/10">
@@ -107,55 +104,47 @@ const AiAdvisor = () => {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 w-full">
               {moods.map((mood) => (
-                <motion.button
+                <button
                   key={mood.id}
-                  whileHover={{ y: -4, scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                   onClick={() => handleMoodSelect(mood.id)}
-                  className={`p-6 rounded-[2rem] ${mood.color} border border-border/40 flex flex-col items-center gap-3 transition-all group`}
+                  className={`p-6 rounded-[2rem] ${mood.color} border border-border/40 flex flex-col items-center gap-3 transition-all group active:scale-95`}
                 >
                   <div className="w-12 h-12 rounded-2xl bg-white/50 dark:bg-black/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                     {mood.icon}
                   </div>
                   <span className="text-sm font-bold font-naskh">{isAr ? mood.labelAr : mood.labelEn}</span>
-                </motion.button>
+                </button>
               ))}
             </div>
-          </motion.div>
+          </div>
         ) : (
           <div className="flex-1 flex flex-col space-y-6 mb-8 overflow-y-auto min-h-[400px]">
-            <AnimatePresence initial={false}>
-              {messages.map((msg, idx) => (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  <div className={`max-w-[85%] p-6 rounded-3xl shadow-sm ${
-                    msg.role === "user" 
-                      ? "bg-primary text-primary-foreground rounded-tr-none" 
-                      : "bg-card border border-border/40 rounded-tl-none font-naskh leading-loose text-lg"
-                  }`}>
-                    {msg.content.split('\n').map((line, i) => (
-                      <p key={i} className={i > 0 ? "mt-2" : ""}>{line}</p>
-                    ))}
-                  </div>
-                </motion.div>
-              ))}
-              {isLoading && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="flex justify-start"
-                >
-                  <div className="bg-muted/50 p-4 rounded-full flex items-center gap-3 px-6 border border-border/20">
-                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                    <span className="text-xs font-bold tracking-widest text-muted-foreground uppercase">Advisor is thinking...</span>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {messages.map((msg, idx) => (
+              <div
+                key={idx}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+              >
+                <div className={`max-w-[85%] p-6 rounded-3xl shadow-sm ${
+                  msg.role === "user" 
+                    ? "bg-primary text-primary-foreground rounded-tr-none" 
+                    : "bg-card border border-border/40 rounded-tl-none font-naskh leading-loose text-lg"
+                }`}>
+                  {msg.content.split('\n').map((line, i) => (
+                    <p key={i} className={i > 0 ? "mt-2" : ""}>{line}</p>
+                  ))}
+                </div>
+              </div>
+            ))}
+            {isLoading && (
+              <div
+                className="flex justify-start"
+              >
+                <div className="bg-muted/50 p-4 rounded-full flex items-center gap-3 px-6 border border-border/20">
+                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                  <span className="text-xs font-bold tracking-widest text-muted-foreground uppercase">Advisor is thinking...</span>
+                </div>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
         )}

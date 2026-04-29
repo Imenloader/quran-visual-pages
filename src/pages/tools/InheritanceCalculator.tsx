@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { Calculator, Info, User, Users, Heart, AlertCircle, ArrowRight } from "lucide-react";
 import QuranHeader from "@/components/QuranHeader";
@@ -188,7 +187,7 @@ const InheritanceCalculator = () => {
                 <Label className="text-sm font-bold">{isAr ? "هل يوجد زوج/زوجة؟" : "Is there a Spouse?"}</Label>
                 <Button 
                   variant={hasSpouse ? "default" : "outline"} 
-                  className="w-full h-12 rounded-xl"
+                  className="w-full h-12 rounded-xl active:scale-95"
                   onClick={() => setHasSpouse(!hasSpouse)}
                 >
                   {hasSpouse ? (isAr ? "نعم" : "Yes") : (isAr ? "لا" : "No")}
@@ -218,14 +217,14 @@ const InheritanceCalculator = () => {
                 <div className="flex gap-2">
                   <Button 
                     variant={hasFather ? "default" : "outline"} 
-                    className="flex-1 h-12 rounded-xl text-xs"
+                    className="flex-1 h-12 rounded-xl text-xs active:scale-95"
                     onClick={() => setHasFather(!hasFather)}
                   >
                     {isAr ? "الأب" : "Father"}
                   </Button>
                   <Button 
                     variant={hasMother ? "default" : "outline"} 
-                    className="flex-1 h-12 rounded-xl text-xs"
+                    className="flex-1 h-12 rounded-xl text-xs active:scale-95"
                     onClick={() => setHasMother(!hasMother)}
                   >
                     {isAr ? "الأم" : "Mother"}
@@ -234,7 +233,7 @@ const InheritanceCalculator = () => {
               </div>
             </div>
 
-            <Button className="w-full h-14 rounded-2xl text-lg gap-2" onClick={calculateInheritance}>
+            <Button className="w-full h-14 rounded-2xl text-lg gap-2 active:scale-95" onClick={calculateInheritance}>
               <Calculator className="w-5 h-5" />
               {isAr ? "احسب التوزيع" : "Calculate Distribution"}
             </Button>
@@ -253,9 +252,7 @@ const InheritanceCalculator = () => {
         {/* Results Section */}
         <div className="space-y-6">
           {results ? (
-            <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
+            <div 
               className="space-y-6"
             >
               <h3 className="text-xl font-bold font-naskh px-2">{isAr ? "نتائج التوزيع" : "Distribution Results"}</h3>
@@ -289,12 +286,12 @@ const InheritanceCalculator = () => {
                     <div 
                       key={idx}
                       style={{ width: `${res.percentage}%` }}
-                      className={`h-full ${idx % 2 === 0 ? "bg-primary" : "bg-emerald-500"}`}
+                      className={`h-full ${idx % 2 === 0 ? "bg-primary" : "bg-emerald-500"} transition-all duration-700`}
                     />
                   ))}
                 </div>
               </div>
-            </motion.div>
+            </div>
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-center p-12 space-y-4 opacity-40">
               <Calculator className="w-20 h-20 text-muted-foreground" />

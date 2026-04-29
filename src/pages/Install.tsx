@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { DownloadCloud, Smartphone, Share, MoreVertical, Plus, ArrowRight, CheckCircle2, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
-import { motion } from "motion/react";
 import BackButton from "@/components/BackButton";
 
 interface BeforeInstallPromptEvent extends Event {
@@ -55,34 +54,25 @@ const Install = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-emerald-deep z-0" />
         
         {/* Atmospheric Elements */}
-        <motion.div 
-          animate={{ 
-            opacity: [0.1, 0.3, 0.1],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-1/2 -right-1/4 w-full h-full bg-gold/20 rounded-full blur-[120px] z-0" 
+        <div 
+          className="absolute -top-1/2 -right-1/4 w-full h-full bg-gold/20 rounded-full blur-[120px] z-0 animate-pulse" 
+          style={{ animationDuration: '10s' }}
         />
 
         <div className="relative z-10 container max-w-4xl mx-auto">
           <div className="flex justify-start mb-8">
             <BackButton variant="ghost" />
           </div>
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="flex items-center justify-center gap-4 mb-8"
+          <div
+            className="flex items-center justify-center gap-4 mb-8 transition-all duration-1000 opacity-100 translate-y-0"
           >
             <div className="h-px w-12 bg-gradient-to-l from-gold/50 to-transparent" />
             <span className="text-[10px] font-bold text-gold/80 uppercase tracking-[0.4em]">تثبيت التطبيق الذكي</span>
             <div className="h-px w-12 bg-gradient-to-r from-gold/50 to-transparent" />
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          <div
+            className="transition-all duration-1000 ease-out opacity-100 scale-100"
           >
             <div className="w-20 h-20 rounded-[2rem] bg-gold/20 backdrop-blur-md flex items-center justify-center mx-auto mb-8 border border-gold/30 shadow-gold-glow">
               <Smartphone size={32} className="text-gold" strokeWidth={1.5} />
@@ -96,14 +86,13 @@ const Install = () => {
               احصل على تجربة قراءة متكاملة وسريعة حتى بدون اتصال بالإنترنت، لتكون آيات الله معك في كل وقت وحين
             </p>
 
-            <motion.p 
-              animate={{ opacity: [0.3, 0.6, 0.3] }}
-              transition={{ duration: 4, repeat: Infinity }}
-              className="font-amiri text-gold text-3xl mt-10"
+            <p 
+              className="font-amiri text-gold text-3xl mt-10 animate-pulse"
+              style={{ animationDuration: '4s' }}
             >
               ﷽
-            </motion.p>
-          </motion.div>
+            </p>
+          </div>
         </div>
       </header>
 
@@ -206,7 +195,7 @@ const Step = ({ number, icon, children }: { number: number; icon: React.ReactNod
 );
 
 const Feature = ({ icon, title, desc }: { icon: string; title: string; desc: string }) => (
-  <div className="flex flex-col items-center text-center p-3 rounded-lg bg-muted/50">
+  <div className="flex flex-col items-center text-center p-3 rounded-lg bg-muted/50 transition-all hover:bg-muted active:scale-95">
     <span className="text-2xl mb-1">{icon}</span>
     <span className="font-bold font-naskh text-sm">{title}</span>
     <span className="text-xs text-muted-foreground font-naskh">{desc}</span>

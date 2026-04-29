@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -160,13 +159,11 @@ const Ramadan = () => {
           <section className="relative overflow-hidden rounded-[3rem] bg-gradient-to-br from-emerald-deep to-primary p-8 md:p-12 text-white shadow-2xl border border-white/10">
             <div className="absolute inset-0 pattern-islamic opacity-10" />
             <div className="relative z-10 flex flex-col items-center text-center space-y-8">
-              <motion.div
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 4, repeat: Infinity }}
+              <div
                 className="w-20 h-20 rounded-full bg-gold/20 flex items-center justify-center border border-gold/30"
               >
                 <Moon className="w-10 h-10 text-gold fill-gold" />
-              </motion.div>
+              </div>
 
               <div className="space-y-2">
                 <h2 className="text-3xl md:text-5xl font-serif font-bold text-white drop-shadow-lg">

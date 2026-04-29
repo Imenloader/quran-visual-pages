@@ -6,7 +6,6 @@ import { normalizeArabic } from "@/lib/arabicUtils";
 import { DownloadCloud, Check, Loader2, Wifi, WifiOff, Heart, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { useFavorites } from "@/hooks/useFavorites";
-import { motion } from "motion/react";
 
 interface JuzCardProps {
   juz: JuzInfo;
@@ -174,53 +173,26 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
       onPointerLeave={handlePointerUp}
       onClick={handleClick}
     >
-      <motion.div 
-        whileHover={{ y: -8, scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        className={`relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] border bg-card p-6 md:p-8 transition-all duration-500 hover:shadow-islamic select-none ${
+      <div 
+        className={`relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] border bg-card p-6 md:p-8 select-none ${
           isBookmarked ? "border-accent shadow-gold-glow" : isCompleted ? "border-emerald-500/50" : "border-border/60 hover:border-primary/40"
         }`}
       >
         {/* Completion Pulsing Border */}
         {isCompleted && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ 
-              opacity: [0.1, 0.3, 0.1],
-              scale: [1, 1.01, 1]
-            }}
-            transition={{ 
-              duration: 3, 
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="absolute inset-0 rounded-[2rem] md:rounded-[2.5rem] border-2 border-emerald-500 pointer-events-none z-10"
-          />
+          <div className="absolute inset-0 rounded-[2rem] md:rounded-[2.5rem] border-2 border-emerald-500 pointer-events-none z-10 opacity-20" />
         )}
 
         {/* In-Progress Pulsing Border */}
         {readingProgress > 0 && !isCompleted && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ 
-              opacity: [0.2, 0.5, 0.2],
-              scale: [1, 1.01, 1]
-            }}
-            transition={{ 
-              duration: 4, 
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="absolute inset-0 rounded-[2rem] md:rounded-[2.5rem] border-2 border-gold pointer-events-none z-10"
-          />
+          <div className="absolute inset-0 rounded-[2rem] md:rounded-[2.5rem] border-2 border-gold pointer-events-none z-10 opacity-30" />
         )}
 
         {/* Reading Progress Bar */}
         <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-muted/20 z-20">
-          <motion.div 
-            initial={{ width: 0 }}
-            animate={{ width: `${readingProgress}%` }}
-            className={`h-full transition-colors duration-500 ${isCompleted ? "bg-emerald-500" : "bg-accent"}`}
+          <div 
+            className={`h-full transition-colors ${isCompleted ? "bg-emerald-500" : "bg-accent"}`}
+            style={{ width: `${readingProgress}%` }}
           />
         </div>
 
@@ -257,7 +229,7 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
             }`}
           >
             {downloadState === "downloading" ? (
-              <Loader2 size={14} className="animate-spin md:w-4 md:h-4" />
+              <Loader2 size={14} className="md:w-4 md:h-4" />
             ) : downloadState === "done" ? (
               <Check size={14} className="md:w-4 md:h-4" />
             ) : (
@@ -269,7 +241,7 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
         {/* Juz Number Circle */}
         <div className="relative flex items-center justify-center w-20 h-20 md:w-24 md:h-24 mx-auto mb-6 md:mb-8">
           <svg
-            className={`absolute inset-0 w-20 h-20 md:w-24 md:h-24 -rotate-90 transition-opacity duration-500 ${longPressing ? "opacity-100" : "opacity-0"}`}
+            className={`absolute inset-0 w-20 h-20 md:w-24 md:h-24 -rotate-90 transition-opacity ${longPressing ? "opacity-100" : "opacity-0"}`}
             viewBox="0 0 96 96"
           >
             <circle cx="48" cy="48" r="44" fill="none" stroke="hsl(var(--accent))" strokeWidth="2" strokeOpacity="0.1" />
@@ -280,15 +252,14 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
               strokeDasharray={`${2 * Math.PI * 44}`}
               strokeDashoffset={`${2 * Math.PI * 44}`}
               strokeLinecap="round"
-              className={longPressing ? "animate-long-press-ring" : ""}
             />
           </svg>
-          <div className={`flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-[2rem] bg-primary text-primary-foreground transition-all duration-500 shadow-lg ${longPressing ? "scale-90" : "group-hover:scale-105"} ${isCompleted ? "bg-emerald-600" : ""}`}>
+          <div className={`flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-[2rem] bg-primary text-primary-foreground transition-all shadow-lg ${isCompleted ? "bg-emerald-600" : ""}`}>
             <span className="text-2xl md:text-3xl font-bold font-serif">
               {juz.number}
             </span>
             {isCompleted && (
-              <div className="absolute -top-2 -right-2 w-6 h-6 md:w-8 md:h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg border-2 border-card animate-in zoom-in duration-500">
+              <div className="absolute -top-2 -right-2 w-6 h-6 md:w-8 md:h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg border-2 border-card">
                 <Check size={14} strokeWidth={3} className="md:w-5 md:h-5" />
               </div>
             )}
@@ -356,15 +327,13 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
         {/* Download Progress Bar */}
         {downloadState === "downloading" && (
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted overflow-hidden">
-            <motion.div 
+            <div 
               className="h-full bg-accent" 
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.3 }}
+              style={{ width: `${progress}%` }}
             />
           </div>
         )}
-      </motion.div>
+      </div>
     </Link>
   );
 };

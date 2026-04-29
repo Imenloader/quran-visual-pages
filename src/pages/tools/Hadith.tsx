@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { 
   BookOpen, 
   Search, 
@@ -247,7 +246,7 @@ const Hadith = () => {
           </div>
           <button
             onClick={() => setShowBookSelector(!showBookSelector)}
-            className="flex items-center justify-center gap-2 px-6 py-4 bg-primary text-primary-foreground rounded-2xl font-bold hover:shadow-lg transition-all"
+            className="flex items-center justify-center gap-2 px-6 py-4 bg-primary text-primary-foreground rounded-2xl font-bold hover:shadow-lg transition-all active:scale-95"
           >
             <Filter size={20} />
             <span>{selectedBookName}</span>
@@ -257,38 +256,31 @@ const Hadith = () => {
         </div>
 
         {/* Book Selector Grid */}
-        <AnimatePresence>
-          {showBookSelector && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 bg-muted/30 rounded-3xl border border-border/40">
-                {books.map((book) => (
-                  <button
-                    key={book.id}
-                    onClick={() => {
-                      setSelectedBook(book.id);
-                      setShowBookSelector(false);
-                    }}
-                    className={`p-4 rounded-xl text-center transition-all border ${
-                      selectedBook === book.id 
-                        ? "bg-primary text-primary-foreground border-primary shadow-md" 
-                        : "bg-card hover:bg-muted border-border/40"
-                    }`}
-                  >
-                    <div className="font-bold text-sm mb-1">{book.name}</div>
-                    <div className="text-[10px] opacity-60">
-                      {toArabicNumber(book.available)} حديث
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {showBookSelector && (
+          <div className="overflow-hidden">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 bg-muted/30 rounded-3xl border border-border/40">
+              {books.map((book) => (
+                <button
+                  key={book.id}
+                  onClick={() => {
+                    setSelectedBook(book.id);
+                    setShowBookSelector(false);
+                  }}
+                  className={`p-4 rounded-xl text-center transition-all border ${
+                    selectedBook === book.id 
+                      ? "bg-primary text-primary-foreground border-primary shadow-md" 
+                      : "bg-card hover:bg-muted border-border/40"
+                  }`}
+                >
+                  <div className="font-bold text-sm mb-1">{book.name}</div>
+                  <div className="text-[10px] opacity-60">
+                    {toArabicNumber(book.available)} حديث
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Hadith List */}
         <div className="space-y-6">
@@ -300,10 +292,7 @@ const Hadith = () => {
           ) : filteredHadiths.length > 0 ? (
             <>
               {filteredHadiths.map((hadith, idx) => (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
+                <div
                   key={`${selectedBook}-${hadith.number}`}
                   className="bento-card !p-8 space-y-6 group relative overflow-hidden"
                 >
@@ -379,7 +368,7 @@ const Hadith = () => {
                   >
                     {hadith.arab}
                   </p>
-                </motion.div>
+                </div>
               ))}
 
               {hadiths.length < totalAvailable && (
@@ -387,7 +376,7 @@ const Hadith = () => {
                   <button
                     onClick={handleLoadMore}
                     disabled={loadingMore}
-                    className="flex items-center gap-3 px-8 py-4 bg-muted hover:bg-muted/80 rounded-2xl font-bold transition-all disabled:opacity-50"
+                    className="flex items-center gap-3 px-8 py-4 bg-muted hover:bg-muted/80 rounded-2xl font-bold transition-all disabled:opacity-50 active:scale-95"
                   >
                     {loadingMore ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
@@ -407,103 +396,96 @@ const Hadith = () => {
           )}
         </div>
       </div>
+
       {/* Dorar Verification Modal */}
-      <AnimatePresence>
-        {isModalOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 bg-black/60 backdrop-blur-sm"
+      {isModalOpen && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 bg-black/60 backdrop-blur-sm"
+        >
+          <div 
+            className="bg-card w-full max-w-5xl h-[85vh] rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden border border-border"
           >
-            <motion.div 
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="bg-card w-full max-w-5xl h-[85vh] rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden border border-border"
-            >
-              {/* Modal Header */}
-              <div className="px-6 py-4 border-b border-border flex flex-col gap-4 bg-card/50 backdrop-blur-md">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                      <Shield size={20} />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg">
-                        {i18n.language === 'ar' ? "التحقق من صحة الحديث" : "Verify Hadith Authenticity"}
-                      </h3>
-                      <p className="text-xs text-muted-foreground">
-                        {i18n.language === 'ar' ? "بواسطة موقع الدرر السنية" : "Powered by Dorar.net"}
-                      </p>
-                    </div>
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-border flex flex-col gap-4 bg-card/50 backdrop-blur-md">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                    <Shield size={20} />
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button 
-                      onClick={() => window.open(dorarUrl, '_blank')}
-                      className="p-2 rounded-xl hover:bg-muted transition-colors text-foreground/70 hover:text-foreground"
-                      title={i18n.language === 'ar' ? "فتح في نافذة جديدة" : "Open in new window"}
-                    >
-                      <ExternalLink size={20} />
-                    </button>
-                    <button 
-                      onClick={() => setIsModalOpen(false)}
-                      className="p-2 rounded-xl hover:bg-muted transition-colors text-foreground/70 hover:text-foreground"
-                    >
-                      <X size={20} />
-                    </button>
+                  <div>
+                    <h3 className="font-bold text-lg">
+                      {i18n.language === 'ar' ? "التحقق من صحة الحديث" : "Verify Hadith Authenticity"}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      {i18n.language === 'ar' ? "بواسطة موقع الدرر السنية" : "Powered by Dorar.net"}
+                    </p>
                   </div>
                 </div>
-
-                {/* Search Query Editor */}
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-colors">
-                    <Search size={16} />
-                  </div>
-                  <input 
-                    type="text" 
-                    value={searchTerms}
-                    onChange={(e) => {
-                      setSearchTerms(e.target.value);
-                      updateDorarUrl(e.target.value);
-                    }}
-                    className="w-full bg-muted/50 border border-border rounded-xl py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                    placeholder={i18n.language === 'ar' ? "عدل نص البحث هنا إذا لم تظهر نتائج..." : "Edit search text if no results appear..."}
-                  />
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => window.open(dorarUrl, '_blank')}
+                    className="p-2 rounded-xl hover:bg-muted transition-colors text-foreground/70 hover:text-foreground"
+                    title={i18n.language === 'ar' ? "فتح في نافذة جديدة" : "Open in new window"}
+                  >
+                    <ExternalLink size={20} />
+                  </button>
+                  <button 
+                    onClick={() => setIsModalOpen(false)}
+                    className="p-2 rounded-xl hover:bg-muted transition-colors text-foreground/70 hover:text-foreground"
+                  >
+                    <X size={20} />
+                  </button>
                 </div>
               </div>
 
-              {/* Modal Content - Iframe */}
-              <div className="flex-1 bg-white relative">
-                <iframe 
-                  src={dorarUrl} 
-                  className="w-full h-full border-none"
-                  title="Dorar Verification"
-                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+              {/* Search Query Editor */}
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-colors">
+                  <Search size={16} />
+                </div>
+                <input 
+                  type="text" 
+                  value={searchTerms}
+                  onChange={(e) => {
+                    setSearchTerms(e.target.value);
+                    updateDorarUrl(e.target.value);
+                  }}
+                  className="w-full bg-muted/50 border border-border rounded-xl py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  placeholder={i18n.language === 'ar' ? "عدل نص البحث هنا إذا لم تظهر نتائج..." : "Edit search text if no results appear..."}
                 />
-                
-                {/* Loading Indicator for Iframe */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
-                  <Loader2 className="w-12 h-12 animate-spin text-primary" />
-                </div>
               </div>
+            </div>
 
-              {/* Modal Footer */}
-              <div className="px-6 py-4 border-t border-border bg-muted/30 flex justify-between items-center">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
-                  {i18n.language === 'ar' ? "تنبيه: النتائج تظهر من موقع خارجي" : "Note: Results are from an external site"}
-                </p>
-                <button 
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-6 py-2 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-opacity"
-                >
-                  {i18n.language === 'ar' ? "إغلاق" : "Close"}
-                </button>
+            {/* Modal Content - Iframe */}
+            <div className="flex-1 bg-white relative">
+              <iframe 
+                src={dorarUrl} 
+                className="w-full h-full border-none"
+                title="Dorar Verification"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+              />
+              
+              {/* Loading Indicator for Iframe */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
+                <Loader2 className="w-12 h-12 animate-spin text-primary" />
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 border-t border-border bg-muted/30 flex justify-between items-center">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
+                {i18n.language === 'ar' ? "تنبيه: النتائج تظهر من موقع خارجي" : "Note: Results are from an external site"}
+              </p>
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="px-6 py-2 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-opacity"
+              >
+                {i18n.language === 'ar' ? "إغلاق" : "Close"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

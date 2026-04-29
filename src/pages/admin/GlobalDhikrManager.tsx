@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "motion/react";
 import { db } from "@/firebase";
 import { doc, getDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { Sparkles, RefreshCw, Save, Target, TrendingUp, AlertTriangle } from "lucide-react";

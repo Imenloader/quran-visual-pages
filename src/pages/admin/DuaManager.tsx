@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { 
   Plus, 
   Search, 
@@ -237,13 +236,9 @@ const DuaManager = () => {
         </div>
       </div>
 
-      {/* Add/Edit Modal */}
-      <AnimatePresence>
-        {showAddModal && (
+      {showAddModal && (
           <div className="fixed inset-0 z-[700] bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
+            <div 
               className="w-full max-w-2xl bg-card border border-border rounded-[2.5rem] p-8 shadow-2xl overflow-y-auto max-h-[90vh]"
             >
               <div className="flex justify-between items-center mb-6">
@@ -340,10 +335,9 @@ const DuaManager = () => {
                   حفظ الدعاء في قاعدة البيانات
                 </button>
               </div>
-            </motion.div>
+            </div>
           </div>
         )}
-      </AnimatePresence>
     </div>
   );
 };

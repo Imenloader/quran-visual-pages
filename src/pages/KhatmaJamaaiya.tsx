@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { 
   Users, 
   Plus, 
@@ -602,7 +601,7 @@ const KhatmaJamaaiya = () => {
               setIsReading(false);
             }}
             disabled={actionLoading}
-            className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-bold font-naskh shadow-2xl flex items-center justify-center gap-3 active:scale-95 transition-transform"
+            className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-bold font-naskh shadow-2xl flex items-center justify-center gap-3"
           >
             <CheckCircle2 size={20} />
             {isAr ? "أتممت القراءة بحمد الله" : "Completed Reading"}
@@ -686,7 +685,7 @@ const KhatmaJamaaiya = () => {
                 disabled={actionLoading}
                 className="p-6 bg-card border border-border rounded-3xl shadow-islamic hover:shadow-lg transition-all text-center space-y-4 group"
               >
-                <div className="w-12 h-12 bg-emerald-500/10 text-emerald-500 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 bg-emerald-500/10 text-emerald-500 rounded-2xl flex items-center justify-center mx-auto">
                   <Globe size={24} />
                 </div>
                 <div>
@@ -704,7 +703,7 @@ const KhatmaJamaaiya = () => {
                 disabled={actionLoading}
                 className="p-6 bg-card border border-border rounded-3xl shadow-islamic hover:shadow-lg transition-all text-center space-y-4 group"
               >
-                <div className="w-12 h-12 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center mx-auto">
                   <Lock size={24} />
                 </div>
                 <div>
@@ -752,7 +751,7 @@ const KhatmaJamaaiya = () => {
                           <div className="text-left">
                             <p className="text-[10px] font-bold text-primary">{toArabicNumber(comp)}%</p>
                           </div>
-                          <ChevronRight size={16} className="text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                          <ChevronRight size={16} className="text-muted-foreground transition-transform" />
                         </div>
                       </button>
                     );
@@ -794,7 +793,7 @@ const KhatmaJamaaiya = () => {
                           <div className="text-left">
                             <p className="text-[10px] font-bold text-emerald-500">{toArabicNumber(comp)}%</p>
                           </div>
-                          <ChevronRight size={16} className="text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                          <ChevronRight size={16} className="text-muted-foreground transition-transform" />
                         </div>
                       </button>
                     );
@@ -804,511 +803,322 @@ const KhatmaJamaaiya = () => {
             )}
           </div>
         ) : (
-          <div className="space-y-6">
-            {/* Active Khatma View */}
-            <div className="bg-card border border-border rounded-[2.5rem] p-6 shadow-islamic space-y-6 relative overflow-hidden">
-              {currentKhatma.status === 'completed' && (
-                <div className="absolute inset-0 bg-emerald-500/10 backdrop-blur-[2px] flex items-center justify-center z-10">
-                  <motion.div 
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="bg-white p-8 rounded-[2rem] shadow-2xl text-center space-y-4 max-w-[90%]"
-                  >
-                    <Trophy className="w-16 h-16 text-amber-500 mx-auto animate-bounce" />
-                    <h2 className="text-2xl font-bold font-naskh text-emerald-600">
-                      {isAr ? "تمت الختمة بنجاح!" : "Khatma Completed!"}
-                    </h2>
-                    <p className="text-sm text-muted-foreground font-naskh leading-relaxed">
-                      {isAr 
-                        ? "تقبل الله منا ومنكم صالح الأعمال. هنيئاً لكم ختم كتاب الله."
-                        : "May Allah accept from us and you. Congratulations on completing the Book of Allah."}
-                    </p>
-                    <div className="p-4 bg-emerald-50 rounded-2xl text-emerald-800 text-xs font-naskh leading-loose italic">
-                      "اللهم ارحمني بالقرآن واجعله لي إماما ونورا وهدى ورحمة، اللهم ذكرني منه ما نسيت وعلمني منه ما جهلت وارزقني تلاوته آناء الليل وأطراف النهار واجعله لي حجة يا رب العالمين"
-                    </div>
-                    <button 
-                      onClick={() => navigate("/khatma-jamaaiya")}
-                      className="w-full py-3 bg-emerald-500 text-white rounded-xl font-bold font-naskh"
-                    >
-                      {isAr ? "العودة للرئيسية" : "Back to Home"}
-                    </button>
-                  </motion.div>
-                </div>
-              )}
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
-                    <BookOpen className="text-primary" size={24} />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold font-naskh text-foreground">{currentKhatma.title}</h2>
-                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-naskh">
-                      {currentKhatma.type === 'public' ? <Globe size={12} /> : <Lock size={12} />}
-                      <span>{currentKhatma.type === 'public' ? (isAr ? "عامة" : "Public") : (isAr ? "خاصة" : "Private")}</span>
-                      <span>•</span>
-                      <span>{isAr ? `منذ ${new Date(currentKhatma.createdAt?.toMillis()).toLocaleDateString('ar-EG')}` : `Since ${new Date(currentKhatma.createdAt?.toMillis()).toLocaleDateString()}`}</span>
-                    </div>
-                  </div>
+          <div className="space-y-8">
+            {/* Khatma Progress Header */}
+            <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-islamic space-y-6 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-[5rem] -mr-8 -mt-8" />
+              
+              <div className="flex items-center justify-between relative z-10">
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-bold font-naskh text-foreground">{currentKhatma.title}</h2>
+                  <p className="text-xs text-muted-foreground font-naskh">
+                    {currentKhatma.type === 'public' ? (isAr ? "ختمة عامة" : "Public Khatma") : (isAr ? "ختمة خاصة" : "Private Khatma")}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  {userPortion && (
-                    <button 
-                      onClick={() => setShowQuitConfirm(true)}
-                      disabled={actionLoading}
-                      className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-                      title={isAr ? "انسحاب من الجزء" : "Quit Portion"}
-                    >
-                      <LogOut size={18} />
-                    </button>
-                  )}
-                  {currentKhatma.createdBy === user.uid && currentKhatma.type === 'private' && (
-                    <button 
-                      onClick={() => setShowDeleteConfirm(true)}
-                      disabled={actionLoading}
-                      className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center text-destructive hover:bg-destructive/20 transition-colors"
-                      title={isAr ? "حذف الختمة" : "Delete Khatma"}
-                    >
-                      <Plus className="rotate-45" size={18} />
-                    </button>
-                  )}
-                  <button 
+                  <button
                     onClick={shareKhatma}
-                    className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors"
+                    className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-primary"
                   >
                     <Share2 size={18} />
                   </button>
+                  {currentKhatma.createdBy === user.uid && (
+                    <button
+                      onClick={() => setShowDeleteConfirm(true)}
+                      className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center text-destructive"
+                    >
+                      <X size={18} />
+                    </button>
+                  )}
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs font-naskh font-bold">
-                  <span className="text-muted-foreground">{isAr ? "نسبة الإنجاز" : "Completion"}</span>
-                  <span className="text-primary">{toArabicNumber(progress)}%</span>
+              <div className="space-y-3">
+                <div className="flex justify-between items-end">
+                  <span className="text-sm font-bold text-primary font-naskh">{toArabicNumber(progress)}%</span>
+                  <span className="text-[10px] text-muted-foreground font-naskh">
+                    {isAr ? "إجمالي الإنجاز" : "Overall Progress"}
+                  </span>
                 </div>
-                <div className="h-3 bg-muted rounded-full overflow-hidden">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progress}%` }}
-                    className="h-full bg-primary"
+                <div className="h-3 bg-muted rounded-full overflow-hidden border border-border/50">
+                  <div 
+                    className="h-full bg-primary transition-all duration-1000"
+                    style={{ width: `${progress}%` }}
                   />
                 </div>
               </div>
 
-              {userPortion ? (
-                <div className="p-4 bg-primary/5 border border-primary/20 rounded-2xl space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                        <Clock className="text-primary animate-pulse" size={20} />
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-muted-foreground font-naskh uppercase tracking-widest">{isAr ? "مهمتك الحالية" : "Your Current Task"}</p>
-                        <p className="text-sm font-bold font-naskh text-foreground">{juzNames[parseInt(userPortion.index) - 1]}</p>
-                      </div>
-                    </div>
+              {/* Stats & Current User Info */}
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border/40">
+                <div className="bg-primary/5 rounded-2xl p-4 text-center space-y-1">
+                  <p className="text-2xl font-bold text-primary">{toArabicNumber(Object.values(currentKhatma.portions).filter(p => p.status === 'completed').length)}</p>
+                  <p className="text-[10px] text-muted-foreground font-naskh">{isAr ? "أجزاء تمت قراءتها" : "Portions Completed"}</p>
+                </div>
+                <div className="bg-emerald-500/5 rounded-2xl p-4 text-center space-y-1">
+                  <p className="text-2xl font-bold text-emerald-600">{toArabicNumber(Object.values(currentKhatma.portions).filter(p => p.status === 'claimed').length)}</p>
+                  <p className="text-[10px] text-muted-foreground font-naskh">{isAr ? "قيد القراءة حالياً" : "Currently Reading"}</p>
+                </div>
+              </div>
+
+              {userPortion && (
+                <div className="bg-primary text-primary-foreground rounded-2xl p-6 flex items-center justify-between shadow-lg relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gold/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative z-10 space-y-1">
+                    <p className="text-[10px] opacity-80 font-naskh">{isAr ? "جزءك الحالي" : "Your current portion"}</p>
+                    <h3 className="text-xl font-bold font-naskh">{juzNames[parseInt(userPortion.index) - 1]}</h3>
+                  </div>
+                  <div className="flex items-center gap-3 relative z-10">
+                    <button
+                      onClick={() => setShowQuitConfirm(true)}
+                      className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+                      title={isAr ? "انسحاب من الجزء" : "Quit Portion"}
+                    >
+                      <LogOut size={18} />
+                    </button>
                     <button
                       onClick={() => setIsReading(true)}
-                      className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold font-naskh shadow-md active:scale-95 transition-transform flex items-center gap-2"
+                      className="px-6 py-2 bg-white text-primary rounded-xl font-bold font-naskh shadow-sm active:scale-95 transition-transform"
                     >
-                      <BookMarked size={14} />
                       {isAr ? "ابدأ القراءة" : "Start Reading"}
                     </button>
                   </div>
-                  <div className="flex items-start gap-2 p-2 bg-amber-500/5 rounded-lg border border-amber-500/10">
-                    <AlertCircle size={12} className="text-amber-500 shrink-0 mt-0.5" />
-                    <p className="text-[9px] text-amber-700 font-naskh leading-tight">
-                      {isAr 
-                        ? "يرجى إكمال القراءة خلال 3 ساعات، وإلا سيتم إتاحة الجزء لمتطوع آخر لضمان استمرار الختمة."
-                        : "Please complete reading within 3 hours, otherwise the portion will be released for others."}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="p-4 bg-muted/30 rounded-2xl flex items-center gap-3">
-                  <Info size={18} className="text-muted-foreground" />
-                  <p className="text-[11px] text-muted-foreground font-naskh leading-relaxed">
-                    {isAr 
-                      ? "اختر جزءاً متاحاً من القائمة أدناه لتبدأ القراءة وتساهم في الختمة."
-                      : "Choose an available portion from the list below to start reading."}
-                  </p>
                 </div>
               )}
+            </div>
+
+            {/* Portions Grid */}
             <div className="space-y-4">
-              <h3 className="text-sm font-bold font-naskh text-foreground px-2 flex items-center gap-2">
-                <BookOpen size={16} className="text-primary" />
-                {isAr ? "أجزاء المصحف" : "Quran Portions"}
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {Object.entries(currentKhatma.portions)
-                  .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
-                  .filter(([index, portion]) => {
-                    // Restricted Visibility: Only show assigned Juz if user has one
-                    if (userPortion) {
-                      return index === userPortion.index;
-                    }
-                    return true;
-                  })
-                  .map(([index, portion]) => (
-                    <div 
+              <div className="flex items-center justify-between px-2">
+                <h3 className="text-sm font-bold font-naskh text-foreground flex items-center gap-2">
+                  <Clock size={16} className="text-primary" />
+                  {isAr ? "أجزاء الختمة" : "Khatma Portions"}
+                </h3>
+                <div className="flex gap-4">
+                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-naskh">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                    {isAr ? "مكتمل" : "Completed"}
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-naskh">
+                    <div className="w-2 h-2 rounded-full bg-amber-500" />
+                    {isAr ? "قيد القراءة" : "Reading"}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3">
+                {Object.entries(currentKhatma.portions).map(([index, portion]) => {
+                  const isAvailable = portion.status === 'available';
+                  const isMyPortion = portion.claimedBy === user.uid;
+                  const isClaimedByOthers = portion.status === 'claimed' && !isMyPortion;
+                  const isCompleted = portion.status === 'completed';
+
+                  return (
+                    <div
                       key={index}
                       className={`p-4 rounded-2xl border transition-all flex items-center justify-between ${
-                        portion.status === 'completed' 
-                          ? "bg-emerald-500/5 border-emerald-500/20 opacity-80" 
-                          : portion.status === 'claimed'
-                          ? "bg-amber-500/5 border-amber-500/20"
-                          : "bg-card border-border hover:border-primary/30"
+                        isCompleted ? "bg-emerald-50/50 border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-900/50" :
+                        isClaimedByOthers ? "bg-amber-50/50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-900/50" :
+                        isMyPortion ? "bg-primary/5 border-primary shadow-sm" :
+                        "bg-card border-border hover:border-primary/30"
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold font-mono ${
-                          portion.status === 'completed' ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"
+                      <div className="flex items-center gap-4">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold font-naskh ${
+                          isCompleted ? "bg-emerald-500 text-white" :
+                          isClaimedByOthers ? "bg-amber-500 text-white" :
+                          isMyPortion ? "bg-primary text-white" :
+                          "bg-muted text-muted-foreground"
                         }`}>
                           {toArabicNumber(index)}
                         </div>
                         <div>
-                          <p className="text-xs font-bold font-naskh text-foreground">{juzNames[parseInt(index) - 1]}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            {portion.claimedBy && (
-                              <div className="flex items-center gap-1.5 px-1.5 py-0.5 rounded-full bg-primary/5 border border-primary/10">
-                                {portion.claimedByAvatar ? (
-                                  <img src={portion.claimedByAvatar} className="w-4 h-4 rounded-full" alt="" />
-                                ) : (
-                                  <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
-                                    <UserIcon size={8} className="text-primary" />
-                                  </div>
-                                )}
-                                <span className="text-[8px] font-bold text-primary/70">{portion.claimedByName}</span>
-                              </div>
-                            )}
-                            <p className="text-[9px] text-muted-foreground font-naskh">
-                              {portion.status === 'completed' 
-                                ? (isAr ? "تمت القراءة" : "Completed")
-                                : portion.status === 'claimed'
-                                ? (isAr ? "قيد القراءة" : "Claimed")
-                                : (isAr ? "متاح" : "Available")}
-                            </p>
-                          </div>
+                          <h4 className={`text-sm font-bold font-naskh ${isCompleted ? "text-emerald-700 dark:text-emerald-400" : "text-foreground"}`}>
+                            {juzNames[parseInt(index) - 1]}
+                          </h4>
+                          <p className="text-[10px] text-muted-foreground font-naskh">
+                            {isCompleted ? (isAr ? `أتمّه: ${portion.claimedByName}` : `Completed by: ${portion.claimedByName}`) :
+                             isClaimedByOthers ? (isAr ? `يقرأه: ${portion.claimedByName}` : `Reading: ${portion.claimedByName}`) :
+                             isMyPortion ? (isAr ? "جزءك الحالي" : "Your current portion") :
+                             (isAr ? "متاح للقراءة" : "Available to read")}
+                          </p>
                         </div>
                       </div>
-                      
-                      {portion.status === 'available' && !userPortion && !hasCompletedInThisKhatma && (
+
+                      {isAvailable && !userPortion && !hasCompletedInThisKhatma && (
                         <button
                           onClick={() => claimPortion(index)}
                           disabled={actionLoading}
-                          className="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                          title={isAr ? "حجز الجزء" : "Claim Portion"}
+                          className="px-5 py-2 bg-primary text-primary-foreground rounded-xl text-[10px] font-bold font-naskh hover:bg-primary/90 transition-all"
                         >
-                          <Plus size={20} />
+                          {isAr ? "احجز الجزء" : "Claim Portions"}
                         </button>
                       )}
 
-                      {portion.status === 'completed' && (
-                        <CheckCircle2 size={18} className="text-emerald-500" />
-                      )}
-
-                      {portion.status === 'claimed' && (
-                        <Clock size={16} className="text-amber-500 animate-pulse" />
+                      {isCompleted && (
+                        <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                          <CheckCircle2 size={18} />
+                        </div>
                       )}
                     </div>
-                  ))}
+                  );
+                })}
               </div>
-            </div>
-            
-            {/* Leaderboard Section */}
-              <div className="mt-12 space-y-4">
-                <h3 className="text-sm font-bold font-naskh text-foreground px-2 flex items-center gap-2">
-                  <Trophy size={16} className="text-gold" />
-                  {isAr ? "لوحة المتصدرين (لهذه الختمة)" : "Khatma Leaderboard"}
-                </h3>
-                <div className="bg-card border border-border rounded-[2.5rem] p-6 shadow-islamic overflow-hidden">
-                  <div className="space-y-4">
-                    {Object.values(currentKhatma.portions)
-                      .filter(p => p.status === 'completed')
-                      .reduce((acc, curr) => {
-                        const name = curr.claimedByName || (isAr ? "مستخدم" : "User");
-                        const existing = acc.find(a => a.name === name);
-                        if (existing) {
-                          existing.count++;
-                        } else {
-                          acc.push({ name, avatar: curr.claimedByAvatar, count: 1 });
-                        }
-                        return acc;
-                      }, [] as { name: string, avatar?: string | null, count: number }[])
-                      .sort((a, b) => b.count - a.count)
-                      .map((participant, i) => (
-                        <div key={participant.name} className="flex items-center justify-between p-3 rounded-2xl bg-primary/5 border border-primary/10">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold ${i === 0 ? "bg-gold text-white" : "bg-muted text-muted-foreground"}`}>
-                              {toArabicNumber(i + 1)}
-                            </div>
-                            {participant.avatar ? (
-                              <img src={participant.avatar} className="w-8 h-8 rounded-full" alt="" />
-                            ) : (
-                              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                                <UserIcon size={16} className="text-primary" />
-                              </div>
-                            )}
-                            <span className="text-xs font-bold font-naskh">{participant.name}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-primary">{toArabicNumber(participant.count)}</span>
-                            <span className="text-[10px] text-muted-foreground font-naskh">{isAr ? "أجزاء" : "Juz"}</span>
-                          </div>
-                        </div>
-                      ))}
-                    {Object.values(currentKhatma.portions).filter(p => p.status === 'completed').length === 0 && (
-                      <div className="text-center py-6 text-muted-foreground font-naskh text-xs">
-                        {isAr ? "لا يوجد منجزات بعد. كن أول من يختم جزءاً!" : "No progress yet. Be the first to complete a portion!"}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-              
-              {userPortion && (
-                <div className="p-6 bg-muted/20 rounded-3xl border border-dashed border-border text-center space-y-4">
-                  <div className="space-y-2">
-                    <Lock className="w-8 h-8 text-muted-foreground/30 mx-auto" />
-                    <p className="text-xs text-muted-foreground font-naskh">
-                      {isAr 
-                        ? "تم إخفاء باقي الأجزاء للتركيز على مهمتك الحالية." 
-                        : "Other portions are hidden to help you focus on your task."}
-                    </p>
-                  </div>
-                  
-                  {/* Allow going back if it's a private khatma or just to see other khatmas, 
-                      but user requested "only after finishing". 
-                      However, we should provide a way to leave if they really want to, 
-                      maybe with a warning. But I will stick to the request.
-                  */}
-                  <button
-                    onClick={() => {
-                      setCurrentKhatma(null);
-                      setSearchParams({});
-                    }}
-                    className="text-[10px] text-primary font-bold font-naskh underline underline-offset-4 opacity-60 hover:opacity-100 transition-opacity"
-                  >
-                    {isAr ? "العودة لقائمة الختمات" : "Back to Khatmas List"}
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         )}
       </div>
 
-      {/* Create Modal */}
-      <AnimatePresence>
-        {showCreateModal && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowCreateModal(false)}
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-sm bg-card border border-border rounded-[2.5rem] p-8 shadow-2xl space-y-6"
-            >
-              <div className="text-center space-y-2">
-                <h3 className="text-xl font-bold font-naskh text-foreground">
-                  {isAr ? "إنشاء ختمة جديدة" : "Create New Khatma"}
-                </h3>
-                <p className="text-xs text-muted-foreground font-naskh">
-                  {isAr ? "أدخل اسماً لختمتك الخاصة" : "Enter a name for your private Khatma"}
-                </p>
+      {/* Create Khatma Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-background/60 backdrop-blur-md"
+            onClick={() => setShowCreateModal(false)}
+          />
+          <div className="relative bg-card border border-border w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl space-y-6">
+            <div className="text-center space-y-2">
+              <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto text-primary">
+                <Plus size={32} />
               </div>
+              <h3 className="text-xl font-bold font-naskh text-foreground">{isAr ? "إنشاء ختمة جديدة" : "Create New Khatma"}</h3>
+              <p className="text-[10px] text-muted-foreground font-naskh">
+                {isAr ? "سيتم حجز جزء عشوائي لك فور الإنشاء" : "A random portion will be assigned to you upon creation"}
+              </p>
+            </div>
 
-              <input 
-                type="text"
-                value={newKhatmaTitle}
-                onChange={(e) => setNewKhatmaTitle(e.target.value)}
-                placeholder={isAr ? "مثلاً: ختمة العائلة" : "e.g. Family Khatma"}
-                className="w-full p-4 bg-muted/50 rounded-2xl border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 font-naskh text-center"
-                autoFocus
-              />
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowCreateModal(false)}
-                  className="flex-1 py-3 bg-muted text-muted-foreground rounded-xl font-bold font-naskh"
-                >
-                  {isAr ? "إلغاء" : "Cancel"}
-                </button>
-                <button
-                  onClick={() => createKhatma('private')}
-                  disabled={actionLoading || !newKhatmaTitle.trim()}
-                  className="flex-1 py-3 bg-primary text-primary-foreground rounded-xl font-bold font-naskh shadow-islamic disabled:opacity-50"
-                >
-                  {actionLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (isAr ? "إنشاء" : "Create")}
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* Delete Confirmation Modal */}
-      <AnimatePresence>
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowDeleteConfirm(false)}
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-sm bg-card border border-border rounded-[2.5rem] p-8 shadow-2xl space-y-6"
-            >
-              <div className="text-center space-y-2">
-                <div className="w-16 h-16 bg-destructive/10 text-destructive rounded-full flex items-center justify-center mx-auto mb-2">
-                  <AlertCircle size={32} />
-                </div>
-                <h3 className="text-xl font-bold font-naskh text-foreground">
-                  {isAr ? "حذف الختمة" : "Delete Khatma"}
-                </h3>
-                <p className="text-xs text-muted-foreground font-naskh">
-                  {isAr 
-                    ? "هل أنت متأكد من حذف هذه الختمة؟ لا يمكن التراجع عن هذا الإجراء." 
-                    : "Are you sure you want to delete this Khatma? This action cannot be undone."}
-                </p>
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 py-3 bg-muted text-muted-foreground rounded-xl font-bold font-naskh"
-                >
-                  {isAr ? "إلغاء" : "Cancel"}
-                </button>
-                <button
-                  onClick={deleteKhatma}
-                  disabled={actionLoading}
-                  className="flex-1 py-3 bg-destructive text-white rounded-xl font-bold font-naskh shadow-lg disabled:opacity-50"
-                >
-                  {actionLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (isAr ? "حذف" : "Delete")}
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* Share Modal with QR Code */}
-      <AnimatePresence>
-        {showShareModal && currentKhatma && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowShareModal(false)}
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-sm bg-card border border-border rounded-[2.5rem] p-8 shadow-2xl space-y-6 text-center"
-            >
-              <div className="space-y-2">
-                <h3 className="text-xl font-bold font-naskh text-foreground">
-                  {isAr ? "مشاركة الختمة" : "Share Khatma"}
-                </h3>
-                <p className="text-xs text-muted-foreground font-naskh">
-                  {isAr ? "امسح الرمز أو انسخ الرابط" : "Scan QR code or copy link"}
-                </p>
-              </div>
-
-              <div className="bg-white p-4 rounded-3xl mx-auto w-fit shadow-sm">
-                <QRCodeSVG 
-                  value={window.location.href} 
-                  size={200}
-                  level="H"
-                  includeMargin={false}
-                  className="rounded-xl"
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-foreground font-naskh px-1">
+                  {isAr ? "عنوان الختمة" : "Khatma Title"}
+                </label>
+                <input
+                  type="text"
+                  value={newKhatmaTitle}
+                  onChange={(e) => setNewKhatmaTitle(e.target.value)}
+                  placeholder={isAr ? "مثال: ختمة العائلة" : "e.g. Family Khatma"}
+                  className="w-full px-4 py-3 bg-muted border-2 border-transparent focus:border-primary/30 rounded-xl outline-none text-sm font-naskh transition-all"
                 />
               </div>
 
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => createKhatma('public')}
+                  disabled={actionLoading}
+                  className="py-4 bg-emerald-500 text-white rounded-2xl font-bold font-naskh shadow-lg flex flex-col items-center gap-1 hover:bg-emerald-600 transition-colors"
+                >
+                  <Globe size={20} />
+                  <span className="text-xs">{isAr ? "ختمة عامة" : "Public"}</span>
+                </button>
+                <button
+                  onClick={() => createKhatma('private')}
+                  disabled={actionLoading}
+                  className="py-4 bg-amber-500 text-white rounded-2xl font-bold font-naskh shadow-lg flex flex-col items-center gap-1 hover:bg-amber-600 transition-colors"
+                >
+                  <Lock size={20} />
+                  <span className="text-xs">{isAr ? "ختمة خاصة" : "Private"}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirm Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-background/60 backdrop-blur-md" onClick={() => setShowDeleteConfirm(false)} />
+          <div className="relative bg-card border border-border w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl text-center space-y-6">
+            <div className="w-16 h-16 bg-destructive/10 rounded-2xl flex items-center justify-center mx-auto text-destructive">
+              <AlertCircle size={32} />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold font-naskh text-foreground">{isAr ? "حذف الختمة" : "Delete Khatma"}</h3>
+              <p className="text-sm text-muted-foreground font-naskh leading-relaxed">
+                {isAr ? "هل أنت متأكد من حذف هذه الختمة؟ لا يمكن التراجع عن هذا الإجراء." : "Are you sure you want to delete this Khatma? This action cannot be undone."}
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="py-3 bg-muted text-foreground rounded-xl font-bold font-naskh"
+              >
+                {isAr ? "إلغاء" : "Cancel"}
+              </button>
+              <button
+                onClick={deleteKhatma}
+                disabled={actionLoading}
+                className="py-3 bg-destructive text-white rounded-xl font-bold font-naskh shadow-lg"
+              >
+                {isAr ? "حذف" : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quit Confirm Modal */}
+      {showQuitConfirm && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-background/60 backdrop-blur-md" onClick={() => setShowQuitConfirm(false)} />
+          <div className="relative bg-card border border-border w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl text-center space-y-6">
+            <div className="w-16 h-16 bg-amber-500/10 rounded-2xl flex items-center justify-center mx-auto text-amber-600">
+              <LogOut size={32} />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold font-naskh text-foreground">{isAr ? "الانسحاب من الجزء" : "Quit Portion"}</h3>
+              <p className="text-sm text-muted-foreground font-naskh leading-relaxed">
+                {isAr ? "هل تريد الانسحاب من قراءة هذا الجزء؟ سيصبح متاحاً للآخرين." : "Do you want to quit reading this portion? It will become available for others."}
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setShowQuitConfirm(false)}
+                className="py-3 bg-muted text-foreground rounded-xl font-bold font-naskh"
+              >
+                {isAr ? "إلغاء" : "Cancel"}
+              </button>
+              <button
+                onClick={quitKhatma}
+                disabled={actionLoading}
+                className="py-3 bg-amber-500 text-white rounded-xl font-bold font-naskh shadow-lg"
+              >
+                {isAr ? "انسحاب" : "Quit"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Share Modal (QR) */}
+      {showShareModal && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-background/60 backdrop-blur-md" onClick={() => setShowShareModal(false)} />
+          <div className="relative bg-card border border-border w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl text-center space-y-6">
+            <h3 className="text-xl font-bold font-naskh text-foreground">{isAr ? "مشاركة الختمة" : "Share Khatma"}</h3>
+            <div className="bg-white p-4 rounded-3xl inline-block shadow-inner">
+              <QRCodeSVG value={window.location.href} size={200} />
+            </div>
+            <p className="text-[10px] text-muted-foreground font-naskh leading-relaxed px-4">
+              {isAr ? "امسح الكود للانضمام للختمة أو انسخ الرابط أدناه" : "Scan the QR code to join or copy the link below"}
+            </p>
+            <div className="space-y-3">
               <button
                 onClick={copyToClipboard}
-                className="w-full py-4 bg-primary/10 text-primary rounded-xl font-bold font-naskh hover:bg-primary/20 transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-bold font-naskh shadow-islamic flex items-center justify-center gap-3"
               >
-                <Share2 className="w-5 h-5" />
-                {isAr ? "نسخ الرابط" : "Copy Link"}
+                <Share2 size={18} />
+                {isAr ? "نسخ رابط الختمة" : "Copy Link"}
               </button>
-
               <button
                 onClick={() => setShowShareModal(false)}
-                className="w-full py-3 text-muted-foreground hover:bg-muted rounded-xl font-bold font-naskh transition-all"
+                className="w-full py-3 text-muted-foreground font-bold font-naskh"
               >
                 {isAr ? "إغلاق" : "Close"}
               </button>
-            </motion.div>
+            </div>
           </div>
-        )}
-      </AnimatePresence>
-
-      {/* Quit Confirmation Modal */}
-      <AnimatePresence>
-        {showQuitConfirm && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowQuitConfirm(false)}
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-sm bg-card border border-border rounded-[2.5rem] p-8 shadow-2xl space-y-6"
-            >
-              <div className="text-center space-y-2">
-                <div className="w-16 h-16 bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <LogOut size={32} />
-                </div>
-                <h3 className="text-xl font-bold font-naskh text-foreground">
-                  {isAr ? "انسحاب من الجزء" : "Quit Portion"}
-                </h3>
-                <p className="text-xs text-muted-foreground font-naskh">
-                  {isAr 
-                    ? "هل أنت متأكد من الانسحاب من هذا الجزء؟ سيتم إتاحته لمتطوع آخر." 
-                    : "Are you sure you want to quit this portion? It will be released for another volunteer."}
-                </p>
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowQuitConfirm(false)}
-                  className="flex-1 py-3 bg-muted text-muted-foreground rounded-xl font-bold font-naskh"
-                >
-                  {isAr ? "إلغاء" : "Cancel"}
-                </button>
-                <button
-                  onClick={quitKhatma}
-                  disabled={actionLoading}
-                  className="flex-1 py-3 bg-amber-500 text-white rounded-xl font-bold font-naskh shadow-lg disabled:opacity-50"
-                >
-                  {actionLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (isAr ? "انسحاب" : "Quit")}
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 };

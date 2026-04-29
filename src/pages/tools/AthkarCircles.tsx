@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { db, auth } from "@/firebase";
 import { collection, doc, onSnapshot, updateDoc, setDoc, deleteDoc, serverTimestamp, arrayUnion, arrayRemove } from "firebase/firestore";
 import { toArabicNumber } from "@/data/quranData";
-import { motion, AnimatePresence } from "motion/react";
 import QuranHeader from "@/components/QuranHeader";
 import { toast } from "sonner";
 import { useSearchParams } from "react-router-dom";
@@ -153,7 +152,7 @@ const AthkarCircles: React.FC = () => {
               <button
                 onClick={createCircle}
                 disabled={loading || !newCircleName}
-                className="w-full h-14 bg-primary text-white rounded-2xl font-bold font-naskh shadow-lg hover:shadow-primary/20 transition-all disabled:opacity-50"
+                className="w-full h-14 bg-primary text-white rounded-2xl font-bold font-naskh shadow-lg hover:shadow-primary/20 transition-all disabled:opacity-50 active:scale-95"
               >
                 {isAr ? "إنشاء حلقة جديدة" : "Create New Circle"}
               </button>
@@ -171,7 +170,7 @@ const AthkarCircles: React.FC = () => {
                   <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{isAr ? "حلقة نشطة الآن" : "Active Circle Now"}</p>
                 </div>
               </div>
-              <button onClick={shareCircle} className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg">
+              <button onClick={shareCircle} className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg active:scale-95">
                 <Share2 size={20} />
               </button>
             </div>
@@ -187,21 +186,18 @@ const AthkarCircles: React.FC = () => {
                  </p>
                  
                  <div className="mt-8 h-3 bg-muted rounded-full overflow-hidden">
-                   <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${(currentCircle.current / currentCircle.target) * 100}%` }}
-                    className="h-full bg-emerald-500 shadow-emerald-500/20 shadow-lg"
+                   <div 
+                    className="h-full bg-emerald-500 shadow-emerald-500/20 shadow-lg transition-all duration-500"
+                    style={{ width: `${(currentCircle.current / currentCircle.target) * 100}%` }}
                    />
                  </div>
 
-                 <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.9 }}
+                 <button
                   onClick={increment}
-                  className="mt-12 w-32 h-32 rounded-full bg-primary text-white text-4xl font-bold shadow-2xl hover:shadow-primary/40 flex items-center justify-center mx-auto"
+                  className="mt-12 w-32 h-32 rounded-full bg-primary text-white text-4xl font-bold shadow-2xl hover:shadow-primary/40 flex items-center justify-center mx-auto transition-transform active:scale-90"
                  >
                    +1
-                 </motion.button>
+                 </button>
                </div>
             </div>
 

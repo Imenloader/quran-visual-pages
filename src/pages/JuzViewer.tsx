@@ -17,7 +17,6 @@ import { useTranslation } from "react-i18next";
 import { useAudioPlayer, getAudioUrl } from "@/contexts/AudioPlayerContext";
 import { audioDownloadService } from "@/services/audioDownloadService";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useUser } from "@/contexts/UserContext";
 import { syncService } from "@/services/syncService";
@@ -651,8 +650,8 @@ function JuzViewer() {
 
   if (!isLoaded) return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
-      <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-      <p className="text-muted-foreground font-serif italic animate-pulse">جاري تحميل إعداداتك الخاصة...</p>
+      <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full" />
+      <p className="text-muted-foreground font-serif italic">جاري تحميل إعداداتك الخاصة...</p>
     </div>
   );
 
@@ -686,23 +685,18 @@ function JuzViewer() {
       <div className="fixed inset-0 pattern-islamic opacity-[0.01] pointer-events-none" />
       
       <div className={`fixed right-4 md:right-8 z-[120] flex flex-col gap-3 md:gap-4 transition-all duration-500 ${isFullscreen ? (showControls ? "bottom-6 md:bottom-8 opacity-100" : "bottom-6 md:bottom-8 opacity-0 pointer-events-none") : "bottom-24 md:bottom-32 opacity-100"}`}>
-        <AnimatePresence>
           {scrollDirection === "vertical" && progress > 10 && (
-            <motion.button
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.5 }}
+            <button
               onClick={(e) => {
                 e.stopPropagation();
                 scrollToPage(pages[0]);
               }}
-              className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-primary text-primary-foreground shadow-2xl flex items-center justify-center hover:scale-110 active:scale-90 transition-all"
+              className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-primary text-primary-foreground shadow-2xl flex items-center justify-center"
               title={t("common.backToTop")}
             >
               <ChevronUp className="size-[20px] md:size-[28px]" />
-            </motion.button>
+            </button>
           )}
-        </AnimatePresence>
         
         {isFullscreen && showControls && (
           <button
@@ -710,7 +704,7 @@ function JuzViewer() {
               e.stopPropagation();
               toggleFullscreen();
             }}
-            className="w-10 h-10 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 bg-primary text-gold border border-primary/10"
+            className="w-10 h-10 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center bg-primary text-gold border border-primary/10"
             title="الخروج من ملء الشاشة"
           >
             <Minimize className="size-[18px] md:size-[24px]" />
@@ -723,7 +717,7 @@ function JuzViewer() {
               e.stopPropagation();
               toggleFullscreen();
             }}
-            className="w-10 h-10 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 bg-muted/90 backdrop-blur-md text-primary border border-border/40"
+            className="w-10 h-10 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center bg-muted/90 backdrop-blur-md text-primary border border-border/40"
             title="وضع ملء الشاشة"
           >
             <Maximize className="size-[18px] md:size-[24px]" />
@@ -731,10 +725,10 @@ function JuzViewer() {
         )}
       </div>
 
-      <div className={`transition-[opacity,transform] duration-700 ease-[0.16, 1, 0.3, 1] transform-gpu ${isFullscreen && !showControls ? "opacity-0 pointer-events-none -translate-y-full fixed top-0 left-0 right-0 z-[150]" : isFullscreen ? "fixed top-0 left-0 right-0 z-[150] opacity-100 pointer-events-auto" : "relative z-20"}`}>
+      <div className={`${isFullscreen && !showControls ? "opacity-0 pointer-events-none fixed top-0 left-0 right-0 z-[150]" : isFullscreen ? "fixed top-0 left-0 right-0 z-[150] opacity-100 pointer-events-auto" : "relative z-20"}`}>
         {!isFullscreen && <QuranHeader title={juz.nameAr} showBack />}
         {isFullscreen && (
-          <div className="bg-emerald-deep/95 backdrop-blur-md border-b border-border/40 px-4 py-3 flex items-center justify-between">
+          <div className="bg-emerald-deep/95 border-b border-border/40 px-4 py-3 flex items-center justify-between">
             <BackButton variant="ghost" />
             <h2 className="text-white font-serif text-xl">{juz.nameAr}</h2>
             <div className="w-10" />
@@ -795,11 +789,9 @@ function JuzViewer() {
       )}
 
       <Suspense fallback={null}>
-        <AnimatePresence>
-          {showSourceSelector && (
-            <SourceSelector onClose={() => setShowSourceSelector(false)} />
-          )}
-        </AnimatePresence>
+        {showSourceSelector && (
+          <SourceSelector onClose={() => setShowSourceSelector(false)} />
+        )}
       </Suspense>
 
       {/* --- التعديل هنا: استخدام Suspense حول KhatmaCelebration --- */}
@@ -871,17 +863,13 @@ function JuzViewer() {
           {readingMode === "image" ? (
             scrollDirection === "vertical" ? (
               pages.map((page) => (
-                <motion.div
+                <div
                   key={page}
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true, margin: "200px" }}
-                  transition={{ duration: 0.5 }}
                   ref={(el) => { 
                     if (el) pageRefs.current[page] = el;
                   }}
                   id={`page-${page}`}
-                  className={`relative rounded-[1.5rem] md:rounded-[2rem] border border-border/40 bg-card shadow-islamic transition-all duration-500 w-full group min-h-[600px] md:min-h-[900px] ${currentPage === page ? "ring-2 ring-accent/20" : ""}`}
+                  className={`relative rounded-[1.5rem] md:rounded-[2rem] border border-border/40 bg-card shadow-islamic w-full group min-h-[600px] md:min-h-[900px] ${currentPage === page ? "ring-2 ring-accent/20" : ""}`}
                 >
                   {hifzMode && (
                     <div className="sticky top-4 md:top-6 z-30 flex justify-end px-4 md:px-6 pointer-events-none">
@@ -997,124 +985,111 @@ function JuzViewer() {
                       )}
                     </div>
                   )}
-                </motion.div>
+                </div>
               ))
             ) : (
-              <div className="w-full flex flex-col items-center perspective-1000">
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div
-                    key={currentPage}
-                    initial={{ opacity: 0, rotateY: 90, x: 100 }}
-                    animate={{ opacity: 1, rotateY: 0, x: 0 }}
-                    exit={{ opacity: 0, rotateY: -90, x: -100 }}
-                    transition={{ 
-                      duration: 0.6, 
-                      ease: [0.16, 1, 0.3, 1]
-                    }}
-                    style={{ transformStyle: "preserve-3d" }}
-                    className="relative rounded-[2.5rem] md:rounded-[3rem] border border-border/40 bg-card shadow-2xl w-full overflow-hidden"
-                  >
-                    <div className="relative">
-                      {hifzMode && (
-                        <div className="absolute top-4 right-4 md:top-6 md:right-6 z-30 flex flex-col gap-2">
-                          <div className="flex flex-col gap-1 bg-background/80 backdrop-blur-xl p-1 rounded-2xl border border-border/20 shadow-2xl">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                togglePageHidden(currentPage);
-                              }}
-                              title={isPageHidden(currentPage) ? "إظهار الصفحة" : "إخفاء الصفحة"}
-                              className={`p-2 rounded-xl transition-all ${isPageHidden(currentPage) ? "bg-primary text-primary-foreground" : "hover:bg-accent/10 text-primary"}`}
-                            >
-                              {isPageHidden(currentPage) ? <Eye size={16} /> : <EyeOff size={16} />}
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                hideAllLines(currentPage);
-                              }}
-                              title="إخفاء الأسطر"
-                              className="p-2 rounded-xl hover:bg-accent/10 text-primary transition-all"
-                            >
-                              <Square size={16} />
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                showAllLines(currentPage);
-                              }}
-                              title="إظهار الأسطر"
-                              className="p-2 rounded-xl hover:bg-accent/10 text-primary transition-all"
-                            >
-                              <LayoutList size={16} />
-                            </button>
-                          </div>
+              <div className="w-full flex flex-col items-center">
+                <div key={currentPage}>                <div className="relative rounded-[2.5rem] md:rounded-[3rem] border border-border/40 bg-card shadow-2xl w-full overflow-hidden">
+                  <div className="relative">
+                    {hifzMode && (
+                      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-30 flex flex-col gap-2">
+                        <div className="flex flex-col gap-1 bg-background/80 backdrop-blur-xl p-1 rounded-2xl border border-border/20 shadow-2xl">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              togglePageHidden(currentPage);
+                            }}
+                            title={isPageHidden(currentPage) ? "إظهار الصفحة" : "إخفاء الصفحة"}
+                            className={`p-2 rounded-xl transition-all ${isPageHidden(currentPage) ? "bg-primary text-primary-foreground" : "hover:bg-accent/10 text-primary"}`}
+                          >
+                            {isPageHidden(currentPage) ? <Eye size={16} /> : <EyeOff size={16} />}
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              hideAllLines(currentPage);
+                            }}
+                            title="إخفاء الأسطر"
+                            className="p-2 rounded-xl hover:bg-accent/10 text-primary transition-all"
+                          >
+                            <Square size={16} />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              showAllLines(currentPage);
+                            }}
+                            title="إظهار الأسطر"
+                            className="p-2 rounded-xl hover:bg-accent/10 text-primary transition-all"
+                          >
+                            <LayoutList size={16} />
+                          </button>
                         </div>
-                      )}
-
-                      <div className={`transition-all duration-1000 ease-out ${isPageHidden(currentPage) ? "blur-3xl opacity-5 grayscale scale-95" : "blur-0 opacity-100 scale-100"}`}>
-                        <LazyImage
-                          key={getImageUrl(currentPage)}
-                          src={getImageUrl(currentPage)}
-                          alt={`صفحة ${currentPage} من المصحف الشريف`}
-                          className="quran-page-img w-full h-auto"
-                          priority={true}
-                          onLoad={() => handleImageLoad(currentPage)}
-                          onError={() => handleImageError(currentPage)}
-                        />
                       </div>
+                    )}
 
-                      {hifzMode && !isPageHidden(currentPage) && (
-                        <div className="absolute inset-0 flex flex-col pointer-events-none z-20">
-                          {Array.from({ length: 15 }).map((_, i) => (
-                            <div
-                              key={i}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleLineHidden(currentPage, i);
-                              }}
-                              className={`flex-1 w-full transition-all duration-500 cursor-pointer pointer-events-auto ${
-                                isLineHidden(currentPage, i) 
-                                  ? "bg-card backdrop-blur-2xl border-y border-border/10 shadow-inner" 
-                                  : "bg-transparent hover:bg-accent/5"
-                              }`}
-                            >
-                              {isLineHidden(currentPage, i) && (
-                                <div className="w-full h-full flex items-center justify-center opacity-30">
-                                  <div className="w-12 h-0.5 bg-accent/50 rounded-full" />
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      
-                      {isPageHidden(currentPage) && (
-                        <div 
-                          className="absolute inset-0 flex items-center justify-center cursor-pointer z-10"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            togglePageHidden(currentPage);
-                          }}
-                        >
-                          <div className="bg-muted/60 backdrop-blur-xl p-6 rounded-3xl border border-border/40 shadow-2xl flex flex-col items-center gap-3">
-                            <RefreshCw className="w-10 h-10 text-accent animate-spin-slow" />
-                            <p className="text-primary font-serif italic text-sm">{t("juzViewer.clickToReview")}</p>
+                    <div className={`${isPageHidden(currentPage) ? "blur-3xl opacity-5 grayscale scale-95" : "blur-0 opacity-100 scale-100"}`}>
+                      <LazyImage
+                        key={getImageUrl(currentPage)}
+                        src={getImageUrl(currentPage)}
+                        alt={`صفحة ${currentPage} من المصحف الشريف`}
+                        className="quran-page-img w-full h-auto"
+                        priority={true}
+                        onLoad={() => handleImageLoad(currentPage)}
+                        onError={() => handleImageError(currentPage)}
+                      />
+                    </div>
+
+                    {hifzMode && !isPageHidden(currentPage) && (
+                      <div className="absolute inset-0 flex flex-col pointer-events-none z-20">
+                        {Array.from({ length: 15 }).map((_, i) => (
+                          <div
+                            key={i}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleLineHidden(currentPage, i);
+                            }}
+                            className={`flex-1 w-full transition-all duration-500 cursor-pointer pointer-events-auto ${
+                              isLineHidden(currentPage, i) 
+                                ? "bg-card backdrop-blur-2xl border-y border-border/10 shadow-inner" 
+                                : "bg-transparent hover:bg-accent/5"
+                            }`}
+                          >
+                            {isLineHidden(currentPage, i) && (
+                              <div className="w-full h-full flex items-center justify-center opacity-30">
+                                <div className="w-12 h-0.5 bg-accent/50 rounded-full" />
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      )}
-                    </div>
-                    <div className="absolute top-6 left-6 z-10 flex flex-col items-center gap-1">
-                      <div className="w-10 h-10 rounded-2xl bg-primary/20 backdrop-blur-md text-primary flex items-center justify-center font-serif text-sm shadow-sm border border-primary/10">
-                        {currentPage}
+                        ))}
                       </div>
-                      <span className={cn("text-[9px] px-2 py-0.5 rounded-full border uppercase tracking-wide", getPageBadgeLabel(currentPage).className)}>
-                        {getPageBadgeLabel(currentPage).text}
-                      </span>
+                    )}
+                    
+                    {isPageHidden(currentPage) && (
+                      <div 
+                        className="absolute inset-0 flex items-center justify-center cursor-pointer z-10"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          togglePageHidden(currentPage);
+                        }}
+                      >
+                        <div className="bg-muted/60 backdrop-blur-xl p-6 rounded-3xl border border-border/40 shadow-2xl flex flex-col items-center gap-3">
+                          <RefreshCw className="w-10 h-10 text-accent" />
+                          <p className="text-primary font-serif italic text-sm">{t("juzViewer.clickToReview")}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="absolute top-6 left-6 z-10 flex flex-col items-center gap-1">
+                    <div className="w-10 h-10 rounded-2xl bg-primary/20 backdrop-blur-md text-primary flex items-center justify-center font-serif text-sm shadow-sm border border-primary/10">
+                      {currentPage}
                     </div>
-                  </motion.div>
-                </AnimatePresence>
-                
+                    <span className={cn("text-[9px] px-2 py-0.5 rounded-full border uppercase tracking-wide", getPageBadgeLabel(currentPage).className)}>
+                      {getPageBadgeLabel(currentPage).text}
+                    </span>
+                  </div>
+                </div>
+
                 <div className="flex items-center gap-8 mt-8">
                   <button 
                     onClick={handlePrevPage}
@@ -1135,20 +1110,17 @@ function JuzViewer() {
                   </button>
                 </div>
               </div>
+              </div>
             )
           ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="w-full bg-card rounded-[2.5rem] border border-border/40 shadow-islamic overflow-hidden"
-            >
+            <div className="w-full bg-card rounded-[2.5rem] border border-border/40 shadow-islamic overflow-hidden">
               <QuranTextViewer 
                 juzNumber={num} 
                 hifzMode={hifzMode} 
                 initialVerseKey={currentVerseKey}
                 onVerseInView={handleVerseInView}
               />
-            </motion.div>
+            </div>
           )}
         </div>
       </main>
@@ -1167,27 +1139,20 @@ function JuzViewer() {
         </div>
       )}
 
-      <AnimatePresence>
-        {isFullscreen && showControls && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[150] flex items-center gap-4"
-          >
-            {currentPage > 0 && (
-              <div className="h-12 md:h-14 px-6 rounded-full bg-primary/90 backdrop-blur-xl border border-primary/10 flex items-center gap-3 shadow-2xl">
-                <span className="text-[8px] md:text-[10px] font-bold text-gold uppercase tracking-widest">الصفحة</span>
-                <span className="font-serif text-lg md:text-xl font-medium text-white">{toArabicNumber(currentPage.toString())}</span>
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {isFullscreen && showControls && (
+        <div 
+          className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[150] flex items-center gap-4"
+        >
+          {currentPage > 0 && (
+            <div className="h-12 md:h-14 px-6 rounded-full bg-primary/90 border border-primary/10 flex items-center gap-3 shadow-2xl">
+              <span className="text-[8px] md:text-[10px] font-bold text-gold uppercase tracking-widest">الصفحة</span>
+              <span className="font-serif text-lg md:text-xl font-medium text-white">{toArabicNumber(currentPage.toString())}</span>
+            </div>
+          )}
+        </div>
+      )}
 
-      <AnimatePresence>
-        {showJuzIndex && <JuzIndex onClose={() => setShowJuzIndex(false)} currentJuz={num} />}
-      </AnimatePresence>
+      {showJuzIndex && <JuzIndex onClose={() => setShowJuzIndex(false)} currentJuz={num} />}
 
       <div className={cn(
         "fixed left-0 right-0 z-[130] px-4 pointer-events-none flex justify-center transition-all duration-700 ease-[0.16, 1, 0.3, 1]",

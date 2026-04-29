@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "@/contexts/ThemeContext";
-import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { Loader2, AlertCircle, RefreshCw, BookOpen, GraduationCap, Sparkles, Share2, Info, Play, Pause, SkipBack, SkipForward, Music, Settings2, Volume2, Heart, Check } from "lucide-react";
 import { juzData, toArabicNumber } from "@/data/quranData";
@@ -180,7 +179,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
         return (
           <span 
             key={i} 
-            className="text-accent font-serif font-bold hover:scale-110 inline-block transition-transform ml-1"
+            className="text-accent font-serif font-bold inline-block ml-1"
           >
             {word}{" "}
           </span>
@@ -211,8 +210,6 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
       const dayIndex = history.findIndex((h: { date: string; pages: number }) => h.date === today);
       if (dayIndex >= 0) {
         // We only increment if it's a new "session" or just once per page view
-        // For simplicity, let's just track that they read something today
-        // A better way would be to track page turns
       } else {
         history.push({ date: today, pages: 1 });
         localStorage.setItem("quran-reading-history-daily", JSON.stringify(history));
@@ -292,33 +289,31 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="w-full max-w-5xl mx-auto px-4 md:px-8 py-16 font-quran text-center relative"
+    <div
+      className="w-full max-w-5xl mx-auto px-4 md:px-8 py-16 font-quran text-center relative transition-opacity duration-500 opacity-100"
       dir="rtl"
     >
       {hifzMode && (
         <div className="mb-12 flex flex-col items-center gap-4 sticky top-24 z-30">
           <div className="px-6 py-3 rounded-2xl bg-accent/10 backdrop-blur-md border border-accent/20 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-accent text-white flex items-center justify-center">
-              <GraduationCap size={20} />
-            </div>
             <div className="text-right">
               <p className="text-sm font-bold text-primary">وضع التحفيظ مفعل</p>
               <p className="text-[10px] text-muted-foreground">انقر على الآيات لإخفائها أو إظهارها</p>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-accent text-white flex items-center justify-center">
+              <GraduationCap size={20} />
             </div>
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => setHiddenVerses(new Set(versesData.map((_, i) => i)))}
-              className="px-4 py-1.5 rounded-full bg-card border border-border text-xs font-serif hover:bg-accent/5 transition-all"
+              className="px-4 py-1.5 rounded-full bg-card border border-border text-xs font-serif hover:bg-accent/5 transition-all active:scale-95"
             >
               إخفاء الكل
             </button>
             <button
               onClick={() => setHiddenVerses(new Set())}
-              className="px-4 py-1.5 rounded-full bg-card border border-border text-xs font-serif hover:bg-accent/5 transition-all"
+              className="px-4 py-1.5 rounded-full bg-card border border-border text-xs font-serif hover:bg-accent/5 transition-all active:scale-95"
             >
               إظهار الكل
             </button>
@@ -421,21 +416,8 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
           <SheetHeader className="text-right pb-6 border-b border-border/40">
             <div className="flex items-center justify-between">
               <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    if (selectedVerse) {
-                      playAyah(selectedVerse.surahNumber, selectedVerse.ayahNumber, currentJuz || undefined);
-                    }
-                  }}
-                  className="p-2 rounded-full hover:bg-accent/10 text-accent transition-colors"
-                >
-                  <Play size={18} />
-                </button>
-                <button
-                  onClick={() => setShowShareCard(true)}
-                  className="p-2 rounded-full hover:bg-accent/10 text-accent transition-colors"
-                >
-                  <Share2 size={18} />
+                <button className="p-2 rounded-full hover:bg-accent/10 text-accent transition-colors">
+                  <Info size={18} />
                 </button>
                 <div className="relative">
                   <button
@@ -450,19 +432,35 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
                     <Heart size={18} fill={selectedVerse && isFavorite("verse", selectedVerse.fullKey) ? "currentColor" : "none"} />
                   </button>
 
-                  <AnimatePresence>
-                    {showCollections && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.9 }}
-                        className="absolute bottom-full right-0 mb-2 w-48 bg-card border border-border/40 rounded-2xl shadow-2xl overflow-hidden z-[100]"
-                      >
-                        <div className="p-3 border-b border-border/10 bg-muted/30">
-                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{t("favorites.addToCollection") || "أضف إلى مجموعة"}</p>
-                        </div>
-                        <div className="max-h-48 overflow-y-auto">
+                  {showCollections && (
+                    <div
+                      className="absolute bottom-full right-0 mb-2 w-48 bg-card border border-border/40 rounded-2xl shadow-2xl overflow-hidden z-[100] transition-all duration-300 opacity-100 scale-100"
+                    >
+                      <div className="p-3 border-b border-border/10 bg-muted/30">
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider text-right">{t("favorites.addToCollection") || "أضف إلى مجموعة"}</p>
+                      </div>
+                      <div className="max-h-48 overflow-y-auto">
+                        <button
+                          onClick={() => {
+                            if (selectedVerse) {
+                              toggleFavorite({
+                                type: "verse", id: selectedVerse.fullKey,
+                                surahNumber: selectedVerse.surahNumber,
+                                verseNumber: selectedVerse.ayahNumber,
+                                surahName: selectedVerse.surahName,
+                                text: selectedVerse.text
+                              });
+                              setShowCollections(false);
+                            }
+                          }}
+                          className="w-full px-4 py-3 text-right text-xs font-serif hover:bg-accent/5 flex items-center justify-between transition-colors"
+                        >
+                          {!selectedVerse?.collectionId && <Check size={12} />}
+                          <span>الكل</span>
+                        </button>
+                        {collections.map(col => (
                           <button
+                            key={col.id}
                             onClick={() => {
                               if (selectedVerse) {
                                 toggleFavorite({
@@ -470,47 +468,39 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
                                   surahNumber: selectedVerse.surahNumber,
                                   verseNumber: selectedVerse.ayahNumber,
                                   surahName: selectedVerse.surahName,
-                                  text: selectedVerse.text
+                                  text: selectedVerse.text,
+                                  collectionId: col.id
                                 });
                                 setShowCollections(false);
                               }
                             }}
-                            className="w-full px-4 py-3 text-right text-xs font-serif hover:bg-accent/5 flex items-center justify-between"
+                            className="w-full px-4 py-3 text-right text-xs font-serif hover:bg-accent/5 flex items-center justify-between border-t border-border/5 transition-colors"
                           >
-                            <span>الكل</span>
-                            {!selectedVerse?.collectionId && <Check size={12} />}
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: col.color }} />
+                              <span>{col.name}</span>
+                            </div>
                           </button>
-                          {collections.map(col => (
-                            <button
-                              key={col.id}
-                              onClick={() => {
-                                if (selectedVerse) {
-                                  toggleFavorite({
-                                    type: "verse", id: selectedVerse.fullKey,
-                                    surahNumber: selectedVerse.surahNumber,
-                                    verseNumber: selectedVerse.ayahNumber,
-                                    surahName: selectedVerse.surahName,
-                                    text: selectedVerse.text,
-                                    collectionId: col.id
-                                  });
-                                  setShowCollections(false);
-                                }
-                              }}
-                              className="w-full px-4 py-3 text-right text-xs font-serif hover:bg-accent/5 flex items-center justify-between border-t border-border/5"
-                            >
-                              <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: col.color }} />
-                                <span>{col.name}</span>
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <button className="p-2 rounded-full hover:bg-accent/10 text-accent transition-colors">
-                  <Info size={18} />
+                <button
+                  onClick={() => setShowShareCard(true)}
+                  className="p-2 rounded-full hover:bg-accent/10 text-accent transition-colors"
+                >
+                  <Share2 size={18} />
+                </button>
+                <button
+                  onClick={() => {
+                    if (selectedVerse) {
+                      playAyah(selectedVerse.surahNumber, selectedVerse.ayahNumber, currentJuz || undefined);
+                    }
+                  }}
+                  className="p-2 rounded-full hover:bg-accent/10 text-accent transition-colors"
+                >
+                  <Play size={18} />
                 </button>
               </div>
               <SheetTitle className="font-serif text-2xl text-primary">
@@ -542,11 +532,11 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
                   </p>
                 </div>
                 <div className="space-y-4">
-                  <h4 className="font-serif font-bold text-lg text-accent flex items-center gap-2">
-                    <div className="w-1.5 h-6 bg-accent rounded-full" />
+                  <h4 className="font-serif font-bold text-lg text-accent flex items-center gap-2 justify-end">
                     تفسير الآية:
+                    <div className="w-1.5 h-6 bg-accent rounded-full" />
                   </h4>
-                  <p className="text-lg md:text-xl font-naskh leading-loose text-primary/90 text-justify">
+                  <p className="text-lg md:text-xl font-naskh leading-loose text-primary/90 text-right">
                     {tafsirContent}
                   </p>
                 </div>
@@ -556,25 +546,23 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
         </SheetContent>
       </Sheet>
 
-      <AnimatePresence>
-        {showShareCard && selectedVerse && (
-          <VerseShareCard
-            verse={selectedVerse}
-            translation={tafsirContent || undefined}
-            onClose={() => setShowShareCard(false)}
-          />
-        )}
-        {selectedWord && (
-          <WordAnalysisPopup
-            word={selectedWord.word}
-            surahNumber={selectedWord.verse.surahNumber}
-            ayahNumber={selectedWord.verse.ayahNumber}
-            wordIndex={selectedWord.index}
-            onClose={() => setSelectedWord(null)}
-          />
-        )}
-      </AnimatePresence>
-    </motion.div>
+      {showShareCard && selectedVerse && (
+        <VerseShareCard
+          verse={selectedVerse}
+          translation={tafsirContent || undefined}
+          onClose={() => setShowShareCard(false)}
+        />
+      )}
+      {selectedWord && (
+        <WordAnalysisPopup
+          word={selectedWord.word}
+          surahNumber={selectedWord.verse.surahNumber}
+          ayahNumber={selectedWord.verse.ayahNumber}
+          wordIndex={selectedWord.index}
+          onClose={() => setSelectedWord(null)}
+        />
+      )}
+    </div>
   );
 };
 

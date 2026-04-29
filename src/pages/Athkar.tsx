@@ -5,7 +5,6 @@ import { ATHKAR_DATA, type AthkarCategory } from "@/data/athkarData";
 import { useFavorites } from "@/hooks/useFavorites";
 import { toArabicNumber } from "@/data/quranData";
 import ScrollReveal from "@/components/ScrollReveal";
-import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 import BackButton from "@/components/BackButton";
 import { useEffect } from "react";
@@ -163,51 +162,11 @@ const Athkar = () => {
     <div className="min-h-screen bg-background flex flex-col selection:bg-accent/20">
       {/* Immersive Header */}
       <header className="relative overflow-hidden bg-emerald-deep min-h-[50vh] flex items-center justify-center">
-        {/* Animated Background Elements */}
+        {/* Background Elements */}
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(16,185,129,0.15),transparent_70%)]" />
-          <motion.div 
-            animate={{ 
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.5, 0.3],
-              rotate: [0, 90, 0]
-            }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-emerald/10 rounded-full blur-[100px]" 
-          />
-          <motion.div 
-            animate={{ 
-              scale: [1.2, 1, 1.2],
-              opacity: [0.2, 0.4, 0.2],
-              rotate: [0, -90, 0]
-            }}
-            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-            className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-gold/5 rounded-full blur-[120px]" 
-          />
-          
-          {/* Floating Particles */}
-          {[...Array(20)].map((_, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 0 }}
-              animate={{ 
-                opacity: [0, 0.5, 0],
-                y: -150,
-                x: Math.sin(i) * 50
-              }}
-              transition={{ 
-                duration: 5 + Math.random() * 5, 
-                repeat: Infinity, 
-                delay: Math.random() * 5,
-                ease: "linear"
-              }}
-              className="absolute w-1 h-1 bg-gold/40 rounded-full"
-              style={{ 
-                left: `${Math.random() * 100}%`, 
-                top: `${80 + Math.random() * 20}%` 
-              }}
-            />
-          ))}
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-emerald/10 rounded-full blur-[100px] opacity-30" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-gold/5 rounded-full blur-[120px] opacity-20" />
         </div>
 
         <div className="relative z-10 container max-w-4xl mx-auto px-6">
@@ -224,7 +183,7 @@ const Athkar = () => {
               </Link>
               <button 
                 onClick={resetCounters}
-                className="h-12 px-6 rounded-full bg-gold/10 backdrop-blur-md flex items-center gap-3 text-xs font-sans font-bold tracking-widest text-gold hover:bg-gold/20 transition-all border border-gold/20 uppercase"
+                className="h-12 px-6 rounded-full bg-gold/10 backdrop-blur-md flex items-center gap-3 text-xs font-sans font-bold tracking-widest text-gold border border-gold/20 uppercase"
               >
                 <span>{t("athkar.resetCounters")}</span>
               </button>
@@ -232,37 +191,26 @@ const Athkar = () => {
           </div>
 
           <div className="text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+            <div
               className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10 backdrop-blur-md mb-8"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-gold" />
               <span className="text-[10px] font-sans font-bold tracking-[0.2em] text-white/80 uppercase">{t("athkar.spiritualFortress")}</span>
-            </motion.div>
+            </div>
             
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
+            <h1 
               className="text-6xl sm:text-8xl font-serif font-light text-white mb-8 tracking-tighter"
             >
               {t("athkar.title").split('&')[0]} <span className="italic font-light text-gold/80">&</span> {t("athkar.title").split('&')[1]}
-            </motion.h1>
+            </h1>
             
-            <motion.p 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
+            <p 
               className="text-white/80 font-serif italic text-xl max-w-2xl mx-auto leading-relaxed mb-12"
             >
               {t("athkar.subtitle")}
-            </motion.p>
+            </p>
 
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+            <div 
               className="flex items-center justify-center gap-12"
             >
               <div className="flex flex-col items-center">
@@ -274,7 +222,7 @@ const Athkar = () => {
                 <span className="text-4xl font-serif text-gold mb-1">{isArabic ? toArabicNumber(totalAthkar) : totalAthkar}</span>
                 <span className="text-[10px] font-sans font-bold text-white/60 uppercase tracking-[0.3em]">{t("athkar.remembrances")}</span>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
 
@@ -284,11 +232,7 @@ const Athkar = () => {
 
       <main className="flex-1 container max-w-4xl mx-auto px-6 -mt-12 pb-32 relative z-20">
         {/* Search - Exquisite Style */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
+        <div>
           {/* Search & Stats Bar */}
           <div className="flex flex-col md:flex-row gap-4 items-center mb-12">
             <div className="relative flex-1 w-full">
@@ -312,30 +256,22 @@ const Athkar = () => {
             
             <FontSizeAdjuster context="athkar" />
           </div>
-        </motion.div>
+        </div>
 
         {tajweedMode && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mb-12"
-          >
+          <div className="mb-12">
             <TajweedLegend />
-          </motion.div>
+          </div>
         )}
 
         {isSearching && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mb-8 px-4"
-          >
+          <div className="mb-8 px-4">
             <span className="text-xs font-serif italic text-primary/80">
               {filteredData.length > 0
                 ? t("athkar.resultsFound", { count: toArabicNumber(filteredData.reduce((s, c) => s + c.athkar.length, 0)), sections: toArabicNumber(filteredData.length) })
                 : t("athkar.noResults", { query: searchQuery })}
             </span>
-          </motion.div>
+          </div>
         )}
 
         <div className="grid grid-cols-1 gap-6">
@@ -343,21 +279,18 @@ const Athkar = () => {
             const isExpanded = isSearching || expandedCategories.includes(category.id);
             return (
               <ScrollReveal key={category.id} index={idx}>
-                <motion.div 
-                  layout
-                  className={`group rounded-[2.5rem] overflow-hidden transition-all duration-500 ${isExpanded ? "bg-card shadow-islamic ring-1 ring-primary/5" : "bg-card/60 hover:bg-card shadow-soft hover:shadow-islamic"}`}
+                <div 
+                  className={`group rounded-[2.5rem] overflow-hidden ${isExpanded ? "bg-card shadow-islamic ring-1 ring-primary/5" : "bg-card/60 shadow-soft"}`}
                 >
                   <button
                     onClick={() => toggleCategory(category.id)}
-                    className="w-full flex items-center gap-6 px-6 py-8 text-right transition-all"
+                    className="w-full flex items-center gap-6 px-6 py-8 text-right"
                   >
-                    <motion.div 
-                      whileHover={{ scale: 1.05, rotate: 5 }}
-                      whileTap={{ scale: 0.95 }}
+                    <div 
                       className="w-16 h-16 rounded-[1.5rem] bg-primary text-gold flex items-center justify-center shrink-0 shadow-lg border border-primary/10"
                     >
                       {ICON_MAP[category.iconName] || <BookOpen size={28} strokeWidth={1.5} />}
-                    </motion.div>
+                    </div>
                     
                         <div className="flex-1 min-w-0">
                           <h3 className="font-serif text-xl font-bold text-primary group-hover:text-accent transition-colors">{category.title}</h3>
@@ -366,128 +299,108 @@ const Athkar = () => {
                           </p>
                         </div>
 
-                    <motion.div
-                      animate={{ rotate: isExpanded ? 180 : 0 }}
-                      className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary/20 group-hover:text-primary/40 transition-colors"
+                    <div
+                      className={`w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary/20 ${isExpanded ? "rotate-180" : ""}`}
                     >
                       <ChevronDown size={20} strokeWidth={1.5} />
-                    </motion.div>
+                    </div>
                   </button>
 
-                  <AnimatePresence initial={false}>
-                    {isExpanded && (
-                      <motion.div 
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                        className="overflow-hidden"
-                      >
-                        <div className="px-6 pb-8 space-y-6">
-                          <div className="h-px w-full bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
-                          
-                          {category.athkar.map((dhikr, dIdx) => {
-                            const currentCount = counters[dhikr.id] || 0;
-                            const isDone = dhikr.count > 0 && currentCount >= dhikr.count;
-                            return (
-                              <motion.div 
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: dIdx * 0.05 }}
-                                key={dhikr.id} 
-                                className={`relative p-8 rounded-[2rem] border transition-all duration-500 ${isDone ? "bg-emerald-deep/5 border-emerald-deep/10" : "bg-primary/5 border-primary/5 hover:bg-primary/[0.07]"}`}
+                  {isExpanded && (
+                    <div className="overflow-hidden">
+                      <div className="px-6 pb-8 space-y-6">
+                        <div className="h-px w-full bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
+                        
+                        {category.athkar.map((dhikr, dIdx) => {
+                          const currentCount = counters[dhikr.id] || 0;
+                          const isDone = dhikr.count > 0 && currentCount >= dhikr.count;
+                          return (
+                            <div 
+                              key={dhikr.id} 
+                              className={`relative p-8 rounded-[2rem] border ${isDone ? "bg-emerald-deep/5 border-emerald-deep/10" : "bg-primary/5 border-primary/5"}`}
+                            >
+                              <p 
+                                className="font-quran leading-[1.8] text-primary text-center mb-8 selection:bg-accent/20"
+                                style={{ fontSize: `${fontSizes.athkar || 22}px` }}
                               >
-                                <p 
-                                  className="font-quran leading-[1.8] text-primary text-center mb-8 selection:bg-accent/20"
-                                  style={{ fontSize: `${fontSizes.athkar || 22}px` }}
-                                >
-                                  {tajweedMode ? applyTajweedColors(dhikr.text) : dhikr.text}
-                                </p>
-                                
-                                {dhikr.virtue && (
-                                  <div className="flex items-start gap-4 mb-8 p-6 rounded-2xl bg-accent/5 border border-accent/10 relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-12 h-12 ornament-border opacity-10 pointer-events-none" />
-                                    <span className="text-accent shrink-0 mt-1">
-                                      <BookOpen size={18} strokeWidth={1.5} />
-                                    </span>
-                                    <p className="text-sm font-serif italic text-accent leading-relaxed">
-                                      {dhikr.virtue}
-                                    </p>
-                                  </div>
-                                )}
-
-                                <div className="flex flex-wrap items-center justify-between gap-6">
-                                  <div className="flex items-center gap-4">
-                                    {dhikr.count > 0 && (
-                                      <motion.button
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        onClick={() => incrementCounter(dhikr.id)}
-                                        className={`h-12 min-w-[120px] px-6 rounded-2xl text-sm font-serif font-bold transition-all flex items-center justify-center gap-3 shadow-sm ${
-                                          isDone
-                                            ? "bg-emerald-deep text-white"
-                                            : "bg-accent text-accent-foreground hover:shadow-lg"
-                                        }`}
-                                      >
-                                        {isDone ? (
-                                          <>
-                                            <Check size={18} strokeWidth={2} />
-                                            <span>{t("athkar.done")}</span>
-                                          </>
-                                        ) : (
-                                          <div className="flex items-center gap-2">
-                                            <span className="text-lg">{isArabic ? toArabicNumber(currentCount) : currentCount}</span>
-                                            <span className="text-muted-foreground">/</span>
-                                            <span>{isArabic ? toArabicNumber(dhikr.count) : dhikr.count}</span>
-                                          </div>
-                                        )}
-                                      </motion.button>
-                                    )}
-                                    <span className="px-4 py-2 rounded-xl bg-primary/5 text-[10px] font-bold text-primary/70 uppercase tracking-widest border border-primary/5">
-                                      {dhikr.reference}
-                                    </span>
-                                  </div>
-                                  
-                                  <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-card/80 shadow-soft border border-primary/5">
-                                    <motion.button
-                                      whileHover={{ scale: 1.1 }}
-                                      whileTap={{ scale: 0.9 }}
-                                      onClick={() => toggleFavorite({ type: "dhikr", id: dhikr.id, categoryId: category.id })}
-                                      className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isFavorite("dhikr", dhikr.id) ? "text-red-500 bg-red-50" : "text-primary/60 hover:bg-primary/5"}`}
-                                      title="إضافة للمفضلة"
-                                    >
-                                      <Heart size={18} strokeWidth={1.5} fill={isFavorite("dhikr", dhikr.id) ? "currentColor" : "none"} />
-                                    </motion.button>
-                                    
-                                    <motion.button 
-                                      whileHover={{ scale: 1.1 }}
-                                      whileTap={{ scale: 0.9 }}
-                                      onClick={() => copyText(dhikr.text, dhikr.id)} 
-                                      className="w-10 h-10 rounded-xl flex items-center justify-center text-primary/60 hover:bg-primary/5 transition-all" 
-                                      title="نسخ"
-                                    >
-                                      {copiedId === dhikr.id ? <Check size={18} className="text-accent" strokeWidth={2} /> : <Copy size={18} strokeWidth={1.5} />}
-                                    </motion.button>
-                                    
-                                    <motion.button 
-                                      whileHover={{ scale: 1.1 }}
-                                      whileTap={{ scale: 0.9 }}
-                                      onClick={() => shareWhatsApp(dhikr.text, dhikr.reference)} 
-                                      className="w-10 h-10 rounded-xl flex items-center justify-center text-primary/60 hover:bg-primary/5 transition-all" 
-                                      title="مشاركة"
-                                    >
-                                      <Share2 size={18} strokeWidth={1.5} />
-                                    </motion.button>
-                                  </div>
+                                {tajweedMode ? applyTajweedColors(dhikr.text) : dhikr.text}
+                              </p>
+                              
+                              {dhikr.virtue && (
+                                <div className="flex items-start gap-4 mb-8 p-6 rounded-2xl bg-accent/5 border border-accent/10 relative overflow-hidden">
+                                  <div className="absolute top-0 right-0 w-12 h-12 ornament-border opacity-10 pointer-events-none" />
+                                  <span className="text-accent shrink-0 mt-1">
+                                    <BookOpen size={18} strokeWidth={1.5} />
+                                  </span>
+                                  <p className="text-sm font-serif italic text-accent leading-relaxed">
+                                    {dhikr.virtue}
+                                  </p>
                                 </div>
-                              </motion.div>
-                            );
-                          })}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
+                              )}
+
+                              <div className="flex flex-wrap items-center justify-between gap-6">
+                                <div className="flex items-center gap-4">
+                                  {dhikr.count > 0 && (
+                                    <button
+                                      onClick={() => incrementCounter(dhikr.id)}
+                                      className={`h-12 min-w-[120px] px-6 rounded-2xl text-sm font-serif font-bold flex items-center justify-center gap-3 shadow-sm ${
+                                        isDone
+                                          ? "bg-emerald-deep text-white"
+                                          : "bg-accent text-accent-foreground"
+                                      }`}
+                                    >
+                                      {isDone ? (
+                                        <>
+                                          <Check size={18} strokeWidth={2} />
+                                          <span>{t("athkar.done")}</span>
+                                        </>
+                                      ) : (
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-lg">{isArabic ? toArabicNumber(currentCount) : currentCount}</span>
+                                          <span className="text-muted-foreground">/</span>
+                                          <span>{isArabic ? toArabicNumber(dhikr.count) : dhikr.count}</span>
+                                        </div>
+                                      )}
+                                    </button>
+                                  )}
+                                  <span className="px-4 py-2 rounded-xl bg-primary/5 text-[10px] font-bold text-primary/70 uppercase tracking-widest border border-primary/5">
+                                    {dhikr.reference}
+                                  </span>
+                                </div>
+                                
+                                <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-card/80 shadow-soft border border-primary/5">
+                                  <button
+                                    onClick={() => toggleFavorite({ type: "dhikr", id: dhikr.id, categoryId: category.id })}
+                                    className={`w-10 h-10 rounded-xl flex items-center justify-center ${isFavorite("dhikr", dhikr.id) ? "text-red-500 bg-red-50" : "text-primary/60"}`}
+                                    title="إضافة للمفضلة"
+                                  >
+                                    <Heart size={18} strokeWidth={1.5} fill={isFavorite("dhikr", dhikr.id) ? "currentColor" : "none"} />
+                                  </button>
+                                  
+                                  <button 
+                                    onClick={() => copyText(dhikr.text, dhikr.id)} 
+                                    className="w-10 h-10 rounded-xl flex items-center justify-center text-primary/60" 
+                                    title="نسخ"
+                                  >
+                                    {copiedId === dhikr.id ? <Check size={18} className="text-accent" strokeWidth={2} /> : <Copy size={18} strokeWidth={1.5} />}
+                                  </button>
+                                  
+                                  <button 
+                                    onClick={() => shareWhatsApp(dhikr.text, dhikr.reference)} 
+                                    className="w-10 h-10 rounded-xl flex items-center justify-center text-primary/60" 
+                                    title="مشاركة"
+                                  >
+                                    <Share2 size={18} strokeWidth={1.5} />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </ScrollReveal>
             );
           })}

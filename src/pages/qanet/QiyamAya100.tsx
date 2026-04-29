@@ -59,12 +59,12 @@ export default function QiyamAya100() {
       <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border p-4 flex items-center justify-between">
         <button 
           onClick={() => navigate(-1)}
-          className="p-2 hover:bg-muted rounded-full transition-colors"
+          className="p-2 bg-muted/50 rounded-full"
         >
           <ChevronRight className="w-6 h-6" />
         </button>
         <h1 className="text-xl font-bold text-primary">مئة آية</h1>
-        <button className="p-2 hover:bg-muted rounded-full transition-colors">
+        <button className="p-2 bg-muted/50 rounded-full">
           <Share2 className="w-5 h-5 text-muted-foreground" />
         </button>
       </div>

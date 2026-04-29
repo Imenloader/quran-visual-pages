@@ -1,4 +1,3 @@
-import { motion, AnimatePresence } from "motion/react";
 import QuranHeader from "@/components/QuranHeader";
 import { Book, Info, Sparkles, Star, Heart, Bookmark, List, Search, BookOpen, Shield, Zap, Mic2, Music, Volume2, Headphones, Play, Eye, EyeOff } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -104,26 +103,22 @@ const Tajweed = () => {
       <QuranHeader title="أحكام التجويد" showBack />
       
       <main className="container max-w-5xl mx-auto px-6 mt-12">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div 
           className="text-center mb-16"
         >
           <div className="w-24 h-24 bg-accent/10 rounded-[2.5rem] flex items-center justify-center text-accent mx-auto mb-6 shadow-inner relative overflow-hidden">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            <div
               className="absolute inset-0 opacity-10"
             >
               <div className="w-full h-full pattern-islamic" />
-            </motion.div>
+            </div>
             <BookOpen size={48} strokeWidth={1.5} className="relative z-10" />
           </div>
           <h1 className="text-4xl md:text-5xl font-serif font-light mb-4 text-primary tracking-tight">دليل أحكام التجويد</h1>
           <p className="text-muted-foreground font-naskh text-lg max-w-2xl mx-auto leading-relaxed">
             تعلم قواعد التجويد الأساسية لتحسين تلاوتك للقرآن الكريم وإتقان مخارج الحروف والصفات.
           </p>
-        </motion.div>
+        </div>
 
         {/* Interactive Practice Section */}
         <ScrollReveal index={0}>
@@ -173,22 +168,16 @@ const Tajweed = () => {
                   {PRACTICE_VERSES[activeVerse].surah}
                 </div>
                 
-                <motion.div
+                <div
                   key={activeVerse + (showHighlights ? '-h' : '-n')}
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
                   className="text-3xl md:text-5xl font-naskh text-primary leading-[2] md:leading-[2.5] text-right"
                   dir="rtl"
                 >
                   {renderHighlightedText(PRACTICE_VERSES[activeVerse])}
-                </motion.div>
+                </div>
 
-                <AnimatePresence>
                   {showHighlights && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
+                    <div
                       className="mt-12 flex flex-wrap justify-center gap-3"
                     >
                       {PRACTICE_VERSES[activeVerse].highlights.map((h, i) => (
@@ -198,9 +187,8 @@ const Tajweed = () => {
                           <span className="text-xs font-naskh text-muted-foreground">{h.rule}</span>
                         </div>
                       ))}
-                    </motion.div>
+                    </div>
                   )}
-                </AnimatePresence>
               </div>
             </div>
           </section>
@@ -221,8 +209,7 @@ const Tajweed = () => {
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-[5rem] -mr-16 -mt-16 transition-transform group-hover:scale-110" />
                   
                   <div className="flex items-center gap-6 mb-10 relative z-10">
-                    <motion.div 
-                      whileHover={{ scale: 1.1, rotate: 5 }}
+                    <div 
                       className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg ${
                         section.color === 'emerald' ? 'bg-primary/10 text-primary' :
                         section.color === 'blue' ? 'bg-blue-500/10 text-blue-600' :
@@ -231,7 +218,7 @@ const Tajweed = () => {
                       }`}
                     >
                       {section.icon}
-                    </motion.div>
+                    </div>
                     <div className={`${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
                       <h2 className="text-3xl font-serif font-medium text-primary">{section.title}</h2>
                       <p className="text-base text-muted-foreground font-naskh mt-1">{section.description}</p>
@@ -240,9 +227,8 @@ const Tajweed = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
                     {section.rules.map((rule, rIdx) => (
-                      <motion.div 
+                      <div 
                         key={rIdx}
-                        whileHover={{ y: -5 }}
                         className="p-8 rounded-[2.5rem] bg-background/40 border border-border/20 hover:border-accent/40 transition-all group/rule shadow-sm hover:shadow-md flex flex-col"
                       >
                         <div className="flex items-center justify-between mb-4">
@@ -267,7 +253,7 @@ const Tajweed = () => {
                             </div>
                           </div>
                         )}
-                      </motion.div>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -277,10 +263,7 @@ const Tajweed = () => {
         </div>
 
         {/* Tips Section */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
+        <div 
           className="mt-24 p-12 rounded-[4rem] gradient-islamic text-primary-foreground relative overflow-hidden shadow-2xl group"
         >
           <div className="absolute inset-0 pattern-islamic opacity-[0.07] group-hover:scale-110 transition-transform duration-1000" />
@@ -288,13 +271,11 @@ const Tajweed = () => {
           <div className="absolute -top-24 -left-24 w-64 h-64 bg-gold/5 rounded-full blur-3xl" />
           
           <div className="relative z-10 flex flex-col md:flex-row items-center gap-12">
-            <motion.div 
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            <div 
               className="w-28 h-28 rounded-[2.5rem] bg-primary/10 backdrop-blur-md flex items-center justify-center text-gold shrink-0 shadow-2xl border border-primary/10"
             >
               <Info size={56} strokeWidth={1} />
-            </motion.div>
+            </div>
             <div className="space-y-6 text-center md:text-right">
               <h3 className="text-3xl font-serif font-medium">نصيحة للمتعلم</h3>
               <p className="font-naskh text-xl leading-relaxed opacity-90">
@@ -307,7 +288,7 @@ const Tajweed = () => {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </main>
     </div>
   );

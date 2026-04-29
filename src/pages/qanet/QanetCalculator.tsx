@@ -151,7 +151,7 @@ export default function QanetCalculator() {
         <button
           onClick={calculateLastThird}
           disabled={lastThird.loading}
-          className="w-full bg-card border border-border rounded-[2rem] p-6 flex items-center justify-between hover:bg-muted/50 transition-all text-right shadow-soft group"
+          className="w-full bg-card border border-border rounded-[2rem] p-6 flex items-center justify-between text-right shadow-soft group"
         >
           <div className="flex-1">
             {lastThird.time ? (
@@ -176,9 +176,9 @@ export default function QanetCalculator() {
               </div>
             )}
           </div>
-          <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+          <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
             {lastThird.loading ? (
-              <Loader2 size={20} className="text-primary animate-spin" />
+              <Loader2 size={20} className="text-primary" />
             ) : (
               <Moon size={20} className="text-primary" />
             )}
@@ -191,13 +191,13 @@ export default function QanetCalculator() {
           <div className="flex bg-muted rounded-2xl p-1.5">
             <button
               onClick={() => setMode('target')}
-              className={`flex-1 py-3 rounded-xl font-bold text-[11px] transition-all ${mode === 'target' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`flex-1 py-3 rounded-xl font-bold text-[11px] ${mode === 'target' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'}`}
             >
               الآيات المستهدفة
             </button>
             <button
               onClick={() => setMode('range')}
-              className={`flex-1 py-3 rounded-xl font-bold text-[11px] transition-all ${mode === 'range' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`flex-1 py-3 rounded-xl font-bold text-[11px] ${mode === 'range' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'}`}
             >
               نطاق مخصص
             </button>
@@ -211,31 +211,31 @@ export default function QanetCalculator() {
                   <button
                     key={val}
                     onClick={() => setTarget(val)}
-                    className={`flex-1 py-3 rounded-2xl border-2 font-bold transition-all ${target === val ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/50 border-transparent text-muted-foreground hover:bg-muted'}`}
+                    className={`flex-1 py-3 rounded-2xl border-2 font-bold ${target === val ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/50 border-transparent text-muted-foreground'}`}
                   >
                     {val}
                   </button>
                 ))}
                 <button
                   onClick={() => setShowCustomInput(!showCustomInput)}
-                  className={`w-14 rounded-2xl flex items-center justify-center transition-all border-2 ${showCustomInput ? 'bg-primary border-primary text-primary-foreground' : 'bg-muted/50 border-transparent text-muted-foreground hover:bg-muted'}`}
+                  className={`w-14 rounded-2xl flex items-center justify-center border-2 ${showCustomInput ? 'bg-primary border-primary text-primary-foreground' : 'bg-muted/50 border-transparent text-muted-foreground'}`}
                 >
                   <Edit2 size={18} />
                 </button>
               </div>
               {showCustomInput && (
-                <div className="relative mt-4 animate-in fade-in slide-in-from-top-2 duration-300" dir="rtl">
+                <div className="relative mt-4" dir="rtl">
                   <input
                     type="number"
                     min="0"
                     value={customTarget}
                     onChange={e => setCustomTarget(Math.max(0, Number(e.target.value)).toString())}
                     placeholder={isArabic ? "أدخل عدد الآيات" : "Enter ayah count"}
-                    className="w-full bg-muted border-2 border-border focus:border-primary outline-none rounded-2xl py-4 pr-4 pl-24 text-foreground text-right font-bold transition-all"
+                    className="w-full bg-muted border-2 border-border focus:border-primary outline-none rounded-2xl py-4 pr-4 pl-24 text-foreground text-right font-bold"
                   />
                   <button 
                     onClick={() => { setTarget(Math.max(0, Number(customTarget)) || 10); setShowCustomInput(false); }} 
-                    className="absolute left-2 top-2 bottom-2 px-6 bg-primary text-primary-foreground rounded-xl font-bold text-xs hover:brightness-110 transition-all active:scale-95 shadow-sm"
+                    className="absolute left-2 top-2 bottom-2 px-6 bg-primary text-primary-foreground rounded-xl font-bold text-xs shadow-sm"
                   >
                     {isArabic ? "تأكيد" : "Confirm"}
                   </button>
@@ -308,7 +308,7 @@ export default function QanetCalculator() {
 
         {/* Results Card */}
         <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-islamic space-y-8 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+          <div className="absolute inset-0 bg-primary/5 opacity-0 pointer-events-none" />
           
           <div className="flex items-center justify-between text-center relative z-10">
             <div className="flex-1">
@@ -316,7 +316,7 @@ export default function QanetCalculator() {
               <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-wider">الآية {startAyah}</p>
             </div>
             <div className="px-4">
-              <ArrowLeft className="text-primary/30 w-6 h-6 animate-pulse" />
+              <ArrowLeft className="text-primary/30 w-6 h-6" />
             </div>
             <div className="flex-1">
               <h4 className="font-bold mb-1 text-primary text-xl font-naskh">

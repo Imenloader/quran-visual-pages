@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Download, Share2, X, Sparkles, MoonStar, Loader2, LayoutGrid, Smartphone, Check } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
 import { toArabicNumber } from '@/data/quranData';
 import { useTheme } from '@/contexts/ThemeContext';
 import { toast } from 'sonner';
@@ -98,10 +97,7 @@ const VerseShareCard: React.FC<VerseShareCardProps> = ({ verse, translation, onC
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+    <div 
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md"
     >
       <div className="w-full max-w-2xl bg-card rounded-[3rem] border border-border/40 overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh]">
@@ -110,26 +106,20 @@ const VerseShareCard: React.FC<VerseShareCardProps> = ({ verse, translation, onC
         <div className="flex-1 bg-muted/30 p-6 flex items-center justify-center relative overflow-hidden">
           <div className="absolute inset-0 pattern-islamic opacity-5 pointer-events-none" />
           
-          <AnimatePresence mode="wait">
-            <motion.div 
-              key={`${selectedTheme}-${selectedLayout}`}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.05 }}
-              className={cn(
-                "relative shadow-2xl transition-all duration-500 rounded-2xl overflow-hidden border-2 border-white/10",
-                selectedLayout === 'square' ? "aspect-square w-full max-w-[320px]" : "aspect-[9/16] h-full max-h-[450px]"
-              )}
-            >
-              {blobUrl ? (
-                <img src={blobUrl} alt="Preview" className="w-full h-full object-cover" />
-              ) : (
-                <div className={cn("w-full h-full flex items-center justify-center", themes[selectedTheme])}>
-                  <Loader2 className="w-8 h-8 animate-spin opacity-50" />
-                </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
+          <div 
+            className={cn(
+              "relative shadow-2xl transition-all duration-500 rounded-2xl overflow-hidden border-2 border-white/10",
+              selectedLayout === 'square' ? "aspect-square w-full max-w-[320px]" : "aspect-[9/16] h-full max-h-[450px]"
+            )}
+          >
+            {blobUrl ? (
+              <img src={blobUrl} alt="Preview" className="w-full h-full object-cover" />
+            ) : (
+              <div className={cn("w-full h-full flex items-center justify-center", themes[selectedTheme])}>
+                <Loader2 className="w-8 h-8 animate-spin opacity-50" />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Controls Section */}
@@ -213,7 +203,7 @@ const VerseShareCard: React.FC<VerseShareCardProps> = ({ verse, translation, onC
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

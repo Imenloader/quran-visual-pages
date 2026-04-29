@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { db } from "@/firebase";
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy, writeBatch } from "firebase/firestore";
 import { Plus, Trash2, Edit2, Save, X, Search, Heart as LucideHeart, Info, Volume2 } from "lucide-react";
@@ -153,13 +152,10 @@ const NamesOfAllahManager = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <AnimatePresence>
-          {isAdding && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bento-card !p-6 border-dashed border-2 border-primary/30 space-y-4"
-            >
+        {isAdding && (
+          <div 
+            className="bento-card !p-6 border-dashed border-2 border-primary/30 space-y-4"
+          >
               <h3 className="font-bold flex items-center gap-2">
                 <Plus className="text-primary" size={16} />
                 اسم جديد
@@ -178,11 +174,11 @@ const NamesOfAllahManager = () => {
                   <Button variant="ghost" onClick={() => setIsAdding(false)} className="rounded-xl">إلغاء</Button>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {names.map((n: any) => (
-            <motion.div key={n.docId} layout className="bento-card !p-6 space-y-4 relative group">
+            <div key={n.docId} className="bento-card !p-6 space-y-4 relative group">
               {editingId === n.docId ? (
                 <div className="space-y-3">
                   <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="rounded-xl" />
@@ -219,7 +215,7 @@ const NamesOfAllahManager = () => {
                   <p className="text-[10px] text-muted-foreground line-clamp-2">{n.description.ar}</p>
                 </>
               )}
-            </motion.div>
+            </div>
           ))}
 
           {names.length === 0 && !loading && (
@@ -233,7 +229,7 @@ const NamesOfAllahManager = () => {
               </button>
             </div>
           )}
-        </AnimatePresence>
+
       </div>
 
       <div className="mt-12 space-y-4">

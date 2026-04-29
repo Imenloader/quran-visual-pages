@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { useNotifications } from "@/hooks/useNotifications";
 import { usePeriodicReminders } from "@/hooks/usePeriodicReminders";
 import { Slider } from "@/components/ui/slider";
-import { motion, AnimatePresence } from "motion/react";
 import ScrollReveal from "@/components/ScrollReveal";
 import { toArabicNumber, juzData } from "@/data/quranData";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -55,7 +54,6 @@ const Profile = () => {
         if (persisted) {
           setIsPersistent(true);
         } else if (navigator.storage.persist) {
-          // Attempt to enable persistent storage by default
           try {
             const granted = await navigator.storage.persist();
             setIsPersistent(granted);
@@ -92,13 +90,11 @@ const Profile = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error(t("profile.invalidFileType") || "Please select an image file");
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error(t("profile.fileTooLarge") || "File size must be less than 5MB");
       return;
@@ -111,11 +107,8 @@ const Profile = () => {
     }
 
     setIsUploadingAvatar(true);
-    console.log("Starting avatar conversion to Base64...");
-
     try {
       const reader = new FileReader();
-      
       const base64Promise = new Promise<string>((resolve, reject) => {
         reader.onload = () => resolve(reader.result as string);
         reader.onerror = (error) => reject(error);
@@ -123,18 +116,16 @@ const Profile = () => {
       });
 
       const base64String = await base64Promise;
-      console.log("Conversion complete, saving to profile...");
-
       await updateProfile({ avatar: base64String });
       toast.success(t("profile.avatarUploaded") || "Profile picture updated successfully!");
     } catch (error) {
       console.error("Avatar processing error:", error);
       toast.error(t("profile.uploadFailed") || "Failed to process profile picture");
     } finally {
-      console.log("Avatar process finished.");
       setIsUploadingAvatar(false);
     }
   };
+
   const { settings: notifSettings, updateSettings: updateNotif, permissionState, requestPermission, testNotification, isSupported } = useNotifications();
   const { getSettings: getPeriodicSettings, updateSettings: updatePeriodicSettings } = usePeriodicReminders();
   const [periodicSettings, setPeriodicSettings] = useState(getPeriodicSettings());
@@ -217,7 +208,6 @@ const Profile = () => {
         const totalPages = juz.endPage - juz.startPage + 1;
         const juzHistory = history[i] || { pagesRead: 0, completed: false, visitedPages: [] };
         
-        // Ensure pagesRead is accurate if visitedPages exists
         const pagesRead = juzHistory.visitedPages?.length || juzHistory.pagesRead || 0;
         const progress = Math.min(100, (pagesRead / totalPages) * 100);
         
@@ -310,23 +300,16 @@ const Profile = () => {
           <div className="flex justify-between items-center mb-12">
             <BackButton variant="ghost" />
             
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={() => setIsSettingsOpen(true)}
               className="px-3 py-1.5 rounded-full bg-gold/20 backdrop-blur-md flex items-center gap-2 text-gold hover:bg-gold/30 transition-all border border-gold/20 shadow-gold-glow"
             >
               <Wand2 size={16} strokeWidth={1.5} />
               <span className="text-[10px] font-bold uppercase tracking-widest">{t("profile.settings")}</span>
-            </motion.button>
+            </button>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="flex flex-col items-center"
-          >
+          <div className="flex flex-col items-center">
             <div className="relative mb-8 group">
               {/* Level Ring */}
               <svg className="absolute -inset-4 w-[calc(100%+2rem)] h-[calc(100%+2rem)] -rotate-90 pointer-events-none">
@@ -339,10 +322,7 @@ const Profile = () => {
                   strokeWidth="4"
                   className="text-white/5"
                 />
-                <motion.circle
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: levelProgress / 100 }}
-                  transition={{ duration: 1.5, ease: "easeOut" }}
+                <circle
                   cx="50%"
                   cy="50%"
                   r="48%"
@@ -350,7 +330,8 @@ const Profile = () => {
                   stroke="var(--gold)"
                   strokeWidth="4"
                   strokeLinecap="round"
-                  className="drop-shadow-[0_0_8px_rgba(212,175,55,0.5)]"
+                  className="drop-shadow-[0_0_8px_rgba(212,175,55,0.5)] transition-all duration-1000"
+                  style={{ strokeDasharray: "301.59", strokeDashoffset: `${301.59 * (1 - levelProgress / 100)}` }}
                 />
               </svg>
 
@@ -361,23 +342,17 @@ const Profile = () => {
                   <User className="size-16 md:size-20" strokeWidth={1.5} />
                 )}
                 <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
+                  <button
                     onClick={() => setIsEditingProfile(true)}
                     className="p-3 rounded-full bg-gold text-emerald-deep shadow-lg"
                   >
                     <Palette size={20} />
-                  </motion.button>
+                  </button>
                 </div>
               </div>
-              <motion.div 
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 5, repeat: Infinity }}
-                className="absolute -bottom-2 -right-2 w-12 h-12 rounded-full bg-gold flex items-center justify-center text-emerald-deep shadow-xl border-4 border-emerald-deep z-20"
-              >
+              <div className="absolute -bottom-2 -right-2 w-12 h-12 rounded-full bg-gold flex items-center justify-center text-emerald-deep shadow-xl border-4 border-emerald-deep z-20">
                 <Trophy size={20} />
-              </motion.div>
+              </div>
             </div>
             
             <h1 className="text-3xl md:text-5xl font-serif font-bold text-white mb-2 tracking-tight">
@@ -392,7 +367,7 @@ const Profile = () => {
                 {toArabicNumber(profile.points)} {t("profile.points")}
               </span>
             </div>
-          </motion.div>
+          </div>
         </div>
       </header>
 
@@ -437,7 +412,7 @@ const Profile = () => {
             </button>
           </ScrollReveal>
         )}
-        {/* Stats Grid */}
+        
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <ScrollReveal index={0}>
             <div className="bg-card/80 backdrop-blur-2xl rounded-2xl p-4 border border-border/20 text-center space-y-1 group hover:bg-card transition-all">
@@ -504,7 +479,6 @@ const Profile = () => {
           </ScrollReveal>
         </div>
 
-        {/* Level Progress */}
         <ScrollReveal index={3}>
           <section className="bg-card/80 backdrop-blur-2xl rounded-3xl p-6 shadow-islamic border border-border/20 space-y-4">
             <div className="flex justify-between items-end">
@@ -518,10 +492,9 @@ const Profile = () => {
             </div>
             
             <div className="h-3 w-full bg-primary/5 rounded-full overflow-hidden border border-primary/5 p-0.5">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: `${levelProgress}%` }}
-                className="h-full bg-gradient-to-r from-emerald-500 via-gold to-emerald-500 bg-[length:200%_100%] animate-shimmer rounded-full shadow-gold-glow"
+              <div 
+                className="h-full bg-gradient-to-r from-emerald-500 via-gold to-emerald-500 bg-[length:200%_100%] animate-shimmer rounded-full shadow-gold-glow transition-all duration-1000"
+                style={{ width: `${levelProgress}%` }}
               />
             </div>
             
@@ -532,7 +505,6 @@ const Profile = () => {
           </section>
         </ScrollReveal>
 
-        {/* Badges & Achievements */}
         <ScrollReveal index={4}>
           <section className="bg-card/80 backdrop-blur-2xl rounded-3xl p-6 shadow-islamic border border-border/20 space-y-6">
             <div className="flex items-center justify-between">
@@ -576,13 +548,11 @@ const Profile = () => {
                   }`}>
                     {badge.icon}
                     {badge.earned && (
-                      <motion.div 
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
+                      <div 
                         className="absolute -top-1 -right-1 w-5 h-5 bg-gold text-emerald-deep rounded-full flex items-center justify-center border-2 border-white dark:border-black"
                       >
                         <Check size={10} strokeWidth={4} />
-                      </motion.div>
+                      </div>
                     )}
                   </div>
                   <span className={`text-[8px] font-bold uppercase tracking-widest text-center ${badge.earned ? "text-primary" : "text-muted-foreground"}`}>
@@ -595,53 +565,44 @@ const Profile = () => {
         </ScrollReveal>
 
         {/* Badge Detail Modal */}
-        <AnimatePresence>
-          {selectedBadge && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedBadge(null)}
-              className="fixed inset-0 z-[700] bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+        {selectedBadge && (
+          <div
+            onClick={() => setSelectedBadge(null)}
+            className="fixed inset-0 z-[700] bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-sm bg-card rounded-[2.5rem] border border-border/20 shadow-2xl p-8 text-center space-y-6 relative overflow-hidden"
             >
-              <motion.div
-                initial={{ scale: 0.9, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 20 }}
-                onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-sm bg-card rounded-[2.5rem] border border-border/20 shadow-2xl p-8 text-center space-y-6 relative overflow-hidden"
+              <div className="absolute inset-0 pattern-islamic opacity-[0.03] pointer-events-none" />
+              
+              <div className={`w-20 h-20 mx-auto rounded-3xl flex items-center justify-center border-2 shadow-xl ${
+                selectedBadge.earned ? `${selectedBadge.bg} ${selectedBadge.color.replace('text-', 'border-').replace('500', '500/30')}` : "bg-muted/50 border-border/20 grayscale"
+              }`}>
+                {selectedBadge.icon && React.cloneElement(selectedBadge.icon as React.ReactElement, { size: 40 })}
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-2xl font-serif font-bold text-primary">{selectedBadge.label}</h3>
+                <div className="inline-flex px-3 py-1 rounded-full bg-primary/5 text-[10px] font-bold uppercase tracking-widest text-primary/60">
+                  {selectedBadge.earned ? (isAr ? "مكتمل" : "EARNED") : (isAr ? "قيد التقدم" : "IN PROGRESS")}
+                </div>
+              </div>
+
+              <p className="text-sm text-primary/70 font-serif italic leading-relaxed">
+                {selectedBadge.desc}
+              </p>
+
+              <button 
+                onClick={() => setSelectedBadge(null)}
+                className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-serif font-bold hover:opacity-90 transition-opacity"
               >
-                <div className="absolute inset-0 pattern-islamic opacity-[0.03] pointer-events-none" />
-                
-                <div className={`w-20 h-20 mx-auto rounded-3xl flex items-center justify-center border-2 shadow-xl ${
-                  selectedBadge.earned ? `${selectedBadge.bg} ${selectedBadge.color.replace('text-', 'border-').replace('500', '500/30')}` : "bg-muted/50 border-border/20 grayscale"
-                }`}>
-                  {selectedBadge.icon && React.cloneElement(selectedBadge.icon as React.ReactElement, { size: 40 })}
-                </div>
+                {isAr ? "إغلاق" : "Close"}
+              </button>
+            </div>
+          </div>
+        )}
 
-                <div className="space-y-2">
-                  <h3 className="text-2xl font-serif font-bold text-primary">{selectedBadge.label}</h3>
-                  <div className="inline-flex px-3 py-1 rounded-full bg-primary/5 text-[10px] font-bold uppercase tracking-widest text-primary/60">
-                    {selectedBadge.earned ? (isAr ? "مكتمل" : "EARNED") : (isAr ? "قيد التقدم" : "IN PROGRESS")}
-                  </div>
-                </div>
-
-                <p className="text-sm text-primary/70 font-serif italic leading-relaxed">
-                  {selectedBadge.desc}
-                </p>
-
-                <button 
-                  onClick={() => setSelectedBadge(null)}
-                  className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-serif font-bold hover:opacity-90 transition-opacity"
-                >
-                  {isAr ? "إغلاق" : "Close"}
-                </button>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Daily Quests */}
         <ScrollReveal index={5}>
           <section className="bg-card/80 backdrop-blur-2xl rounded-3xl p-6 shadow-islamic border border-border/20 space-y-6">
             <div className="flex items-center justify-between">
@@ -696,9 +657,6 @@ const Profile = () => {
           </section>
         </ScrollReveal>
 
-
-
-        {/* Quick Actions - Game Menu Style */}
         <div className="grid grid-cols-1 gap-3">
           <ScrollReveal index={6}>
             <button
@@ -739,708 +697,670 @@ const Profile = () => {
       </main>
 
       {/* Experience Guide Modal */}
-      <AnimatePresence>
-        {isExpGuideOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[600] bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+      {isExpGuideOpen && (
+        <div
+          className="fixed inset-0 z-[600] bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+        >
+          <div
+            className="w-full max-w-lg bg-card rounded-[2.5rem] border border-border/20 shadow-2xl p-6 md:p-8 space-y-6 relative overflow-hidden"
           >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="w-full max-w-lg bg-card rounded-[2.5rem] border border-border/20 shadow-2xl p-6 md:p-8 space-y-6 relative overflow-hidden"
-            >
-              <div className="absolute inset-0 pattern-islamic opacity-[0.03] pointer-events-none" />
-              
-              <div className="flex justify-between items-center relative z-10">
-                <div className={`${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                  <h3 className="text-2xl font-serif font-bold text-primary">{t("profile.expGuide.title")}</h3>
-                  <p className="text-xs text-primary/60 font-serif italic">{t("profile.expGuide.subtitle")}</p>
-                </div>
-                <button onClick={() => setIsExpGuideOpen(false)} className="p-2 rounded-xl hover:bg-primary/5 transition-colors">
-                  <X size={20} />
-                </button>
+            <div className="absolute inset-0 pattern-islamic opacity-[0.03] pointer-events-none" />
+            
+            <div className="flex justify-between items-center relative z-10">
+              <div className={`${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                <h3 className="text-2xl font-serif font-bold text-primary">{t("profile.expGuide.title")}</h3>
+                <p className="text-xs text-primary/60 font-serif italic">{t("profile.expGuide.subtitle")}</p>
               </div>
+              <button onClick={() => setIsExpGuideOpen(false)} className="p-2 rounded-xl hover:bg-primary/5 transition-colors">
+                <X size={20} />
+              </button>
+            </div>
 
-              <div className="space-y-6 relative z-10 custom-scrollbar max-h-[60vh] overflow-y-auto pr-2">
-                <div className="space-y-3">
-                  <h4 className={`text-sm font-serif font-bold text-gold ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t("profile.expGuide.howToEarn")}</h4>
-                  <div className="grid grid-cols-1 gap-2">
-                    {[
-                      { label: t("profile.expGuide.dailyLogin"), points: 100, icon: <Calendar size={16} /> },
-                      { label: t("profile.expGuide.juzRead"), points: 3000, icon: <Trophy size={16} /> },
-                      { label: t("profile.expGuide.pageRead"), points: 150, icon: <BookOpen size={16} /> },
-                      { label: t("profile.expGuide.ayahRead"), points: 10, icon: <Sparkles size={16} /> },
-                      { label: t("profile.expGuide.athkarCount"), points: 2, icon: <RotateCcw size={16} /> },
-                      { label: isAr ? "إكمال المهام اليومية" : "Daily Quest Completion", points: 500, icon: <Check size={16} /> },
-                    ].map((item, i) => (
-
-                      <div key={i} className="flex items-center justify-between p-3 rounded-2xl bg-primary/5 border border-primary/5">
-                        <div className="flex items-center gap-3">
-                          <div className="text-primary/40">{item.icon}</div>
-                          <span className="text-sm font-serif text-primary">{item.label}</span>
-                        </div>
-                        <span className="text-sm font-serif font-bold text-gold">+{toArabicNumber(item.points)}</span>
+            <div className="space-y-6 relative z-10 custom-scrollbar max-h-[60vh] overflow-y-auto pr-2">
+              <div className="space-y-3">
+                <h4 className={`text-sm font-serif font-bold text-gold ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t("profile.expGuide.howToEarn")}</h4>
+                <div className="grid grid-cols-1 gap-2">
+                  {[
+                    { label: t("profile.expGuide.dailyLogin"), points: 100, icon: <Calendar size={16} /> },
+                    { label: t("profile.expGuide.juzRead"), points: 3000, icon: <Trophy size={16} /> },
+                    { label: t("profile.expGuide.pageRead"), points: 150, icon: <BookOpen size={16} /> },
+                    { label: t("profile.expGuide.ayahRead"), points: 10, icon: <Sparkles size={16} /> },
+                    { label: t("profile.expGuide.athkarCount"), points: 2, icon: <RotateCcw size={16} /> },
+                    { label: isAr ? "إكمال المهام اليومية" : "Daily Quest Completion", points: 500, icon: <Check size={16} /> },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 rounded-2xl bg-primary/5 border border-primary/5">
+                      <div className="flex items-center gap-3">
+                        <div className="text-primary/40">{item.icon}</div>
+                        <span className="text-sm font-serif text-primary">{item.label}</span>
                       </div>
-                    ))}
-                  </div>
+                      <span className="text-sm font-serif font-bold text-gold">+{toArabicNumber(item.points)}</span>
+                    </div>
+                  ))}
                 </div>
+              </div>
 
-                <div className="space-y-3">
-                  <h4 className={`text-sm font-serif font-bold text-gold ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t("profile.expGuide.levels")}</h4>
-                  <p className={`text-xs text-primary/70 leading-relaxed font-serif italic ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                    {t("profile.expGuide.levelsDesc")}
-                  </p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {Array.from({ length: 20 }).map((_, i) => (
-                      <div key={i} className={`p-2 rounded-xl border flex items-center gap-2 ${level === i + 1 ? "bg-gold/10 border-gold/30" : "bg-primary/5 border-primary/5 opacity-60"}`}>
-                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold ${level === i + 1 ? "bg-gold text-emerald-deep" : "bg-primary/10 text-primary"}`}>
-                          {toArabicNumber(i + 1)}
-                        </div>
-                        <span className="text-[10px] font-serif font-bold text-primary truncate">{t(`profile.levels.${i + 1}`)}</span>
+              <div className="space-y-3">
+                <h4 className={`text-sm font-serif font-bold text-gold ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t("profile.expGuide.levels")}</h4>
+                <p className={`text-xs text-primary/70 leading-relaxed font-serif italic ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                  {t("profile.expGuide.levelsDesc")}
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {Array.from({ length: 20 }).map((_, i) => (
+                    <div key={i} className={`p-2 rounded-xl border flex items-center gap-2 ${level === i + 1 ? "bg-gold/10 border-gold/30" : "bg-primary/5 border-primary/5 opacity-60"}`}>
+                      <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold ${level === i + 1 ? "bg-gold text-emerald-deep" : "bg-primary/10 text-primary"}`}>
+                        {toArabicNumber(i + 1)}
                       </div>
-                    ))}
-                  </div>
+                      <span className="text-[10px] font-serif font-bold text-primary truncate">{t(`profile.levels.${i + 1}`)}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
+            </div>
 
-              <div className="pt-2 relative z-10">
-                <button
-                  onClick={() => setIsExpGuideOpen(false)}
-                  className="w-full py-3 rounded-xl bg-emerald-deep text-gold font-serif font-bold text-base shadow-lg shadow-emerald-deep/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                >
-                  {t("profile.exit")}
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <div className="pt-2 relative z-10">
+              <button
+                onClick={() => setIsExpGuideOpen(false)}
+                className="w-full py-3 rounded-xl bg-emerald-deep text-gold font-serif font-bold text-base shadow-lg shadow-emerald-deep/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                {t("profile.exit")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Settings Overlay - Game Style */}
-      <AnimatePresence mode="wait">
-        {isSettingsOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[500] bg-black/60 backdrop-blur-md flex items-center justify-center p-4 md:p-8"
-          >
-            <div className="w-full max-w-3xl h-[75vh] bg-card rounded-3xl border border-border/20 shadow-2xl overflow-hidden flex flex-col md:flex-row relative">
-              <div className="absolute inset-0 pattern-islamic opacity-[0.02] pointer-events-none" />
+      {isSettingsOpen && (
+        <div
+          className="fixed inset-0 z-[500] bg-black/60 backdrop-blur-md flex items-center justify-center p-4 md:p-8"
+        >
+          <div className="w-full max-w-3xl h-[75vh] bg-card rounded-3xl border border-border/20 shadow-2xl overflow-hidden flex flex-col md:flex-row relative">
+            <div className="absolute inset-0 pattern-islamic opacity-[0.02] pointer-events-none" />
+            
+            {/* Sidebar Categories */}
+            <div className={`w-full md:w-48 bg-primary/5 border-b md:border-b-0 ${i18n.language === 'ar' ? 'md:border-l' : 'md:border-r'} border-border/20 p-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-x-visible no-scrollbar relative z-10`}>
+              <div className={`hidden md:block mb-4 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                <h2 className="text-lg font-serif font-bold text-primary">{t("profile.settings")}</h2>
+                <p className="text-[8px] font-bold text-primary/70 uppercase tracking-widest mt-0.5">{t("profile.controlMenu")}</p>
+              </div>
               
-              {/* Sidebar Categories */}
-              <div className={`w-full md:w-48 bg-primary/5 border-b md:border-b-0 ${i18n.language === 'ar' ? 'md:border-l' : 'md:border-r'} border-border/20 p-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-x-visible no-scrollbar relative z-10`}>
-                <div className={`hidden md:block mb-4 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                  <h2 className="text-lg font-serif font-bold text-primary">{t("profile.settings")}</h2>
-                  <p className="text-[8px] font-bold text-primary/70 uppercase tracking-widest mt-0.5">{t("profile.controlMenu")}</p>
-                </div>
-                
-                  {SETTINGS_CATEGORIES.map(cat => {
-                    const Icon = cat.icon;
-                    return (
-                      <button
-                        key={cat.id}
-                        onClick={() => setActiveCategory(cat.id as "appearance" | "notifications" | "language" | "account" | "offline" | "update")}
-                        className={`flex items-center gap-2 px-2 py-2 rounded-xl transition-all whitespace-nowrap md:w-full ${
-                          activeCategory === cat.id
-                            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                            : "text-primary/60 hover:bg-primary/5 hover:text-primary"
-                        }`}
-                      >
-                        <Icon size={16} />
-                        <span className="font-serif font-bold text-[11px]">{cat.label}</span>
-                      </button>
-                    );
-                  })}
-
-                <div className="mt-auto hidden md:block">
+              {SETTINGS_CATEGORIES.map(cat => {
+                const Icon = cat.icon;
+                return (
                   <button
-                    onClick={() => setIsSettingsOpen(false)}
-                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-red-500 hover:bg-red-500/5 transition-all w-full ${i18n.language === 'ar' ? 'flex-row' : 'flex-row-reverse justify-end'}`}
+                    key={cat.id}
+                    onClick={() => setActiveCategory(cat.id as "appearance" | "notifications" | "language" | "account" | "offline" | "update")}
+                    className={`flex items-center gap-2 px-2 py-2 rounded-xl transition-all whitespace-nowrap md:w-full ${
+                      activeCategory === cat.id
+                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                        : "text-primary/60 hover:bg-primary/5 hover:text-primary"
+                    }`}
                   >
-                    <X size={16} />
-                    <span className="font-serif font-bold text-xs">{t("profile.exit")}</span>
+                    <Icon size={16} />
+                    <span className="font-serif font-bold text-[11px]">{cat.label}</span>
                   </button>
-                </div>
+                );
+              })}
+
+              <div className="mt-auto hidden md:block">
+                <button
+                  onClick={() => setIsSettingsOpen(false)}
+                  className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-red-500 hover:bg-red-500/5 transition-all w-full ${i18n.language === 'ar' ? 'flex-row' : 'flex-row-reverse justify-end'}`}
+                >
+                  <X size={16} />
+                  <span className="font-serif font-bold text-xs">{t("profile.exit")}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Content Area */}
+            <div className="flex-1 overflow-y-auto p-3 md:p-4 relative z-10 custom-scrollbar">
+              <div className="md:hidden flex justify-between items-center mb-3">
+                <h2 className="text-sm font-serif font-bold text-primary">
+                  {SETTINGS_CATEGORIES.find(c => c.id === activeCategory)?.label}
+                </h2>
+                <button onClick={() => setIsSettingsOpen(false)} className="p-1 rounded-lg bg-primary/5 text-primary">
+                  <X size={12} />
+                </button>
               </div>
 
-              {/* Content Area */}
-              <div className="flex-1 overflow-y-auto p-3 md:p-4 relative z-10 custom-scrollbar">
-                <div className="md:hidden flex justify-between items-center mb-3">
-                  <h2 className="text-sm font-serif font-bold text-primary">
-                    {SETTINGS_CATEGORIES.find(c => c.id === activeCategory)?.label}
-                  </h2>
-                  <button onClick={() => setIsSettingsOpen(false)} className="p-1 rounded-lg bg-primary/5 text-primary">
-                    <X size={12} />
-                  </button>
-                </div>
+              <div className="space-y-5">
+                {activeCategory === "language" && (
+                  <section className="space-y-2">
+                    <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                      <h3 className="text-sm font-serif font-bold text-primary">{t("profile.appLanguage")}</h3>
+                      <p className="text-[8px] text-primary/70">{t("profile.chooseLanguage")}</p>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                      {[
+                        { id: "ar", label: "العربية", sub: "اللغة الأم" },
+                        { id: "en", label: "English", sub: "International" },
+                      ].map(lang => (
+                        <button
+                          key={lang.id}
+                          onClick={() => i18n.changeLanguage(lang.id)}
+                          className={`p-2 rounded-xl border-2 transition-all group ${i18n.language === 'ar' ? 'text-right' : 'text-left'} ${
+                            i18n.language === lang.id
+                              ? "border-accent bg-accent/5 text-primary shadow-lg"
+                              : "border-primary/5 bg-primary/5 text-primary/40 hover:border-accent/30"
+                          }`}
+                        >
+                          <p className="text-xs font-serif font-bold mb-0.5">{lang.label}</p>
+                          <p className="text-[6px] font-bold uppercase tracking-widest opacity-50">{lang.sub}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+                )}
 
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeCategory}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="space-y-5"
-                  >
-                    {activeCategory === "language" && (
-                      <section className="space-y-2">
-                        <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                          <h3 className="text-sm font-serif font-bold text-primary">{t("profile.appLanguage")}</h3>
-                          <p className="text-[8px] text-primary/70">{t("profile.chooseLanguage")}</p>
+                {activeCategory === "offline" && (
+                  <section className="space-y-4">
+                    <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                      <h3 className="text-sm font-serif font-bold text-primary">{t("profile.offlineManagement") || (isAr ? "إدارة المحتوى" : "Content Management")}</h3>
+                      <p className="text-[8px] text-primary/70">{t("hub.offline.manageDesc") || (isAr ? "إدارة المحتوى والمساحة التخزينية" : "Manage offline content and storage")}</p>
+                    </div>
+                    <OfflineManager />
+
+                    <div className="p-4 rounded-2xl bg-primary/5 border border-primary/5 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className={`${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                          <h4 className="text-xs font-bold font-serif text-primary">
+                            {isAr ? "التخزين الدائم (في ذاكرة الهاتف)" : "Persistent Storage (Phone Memory)"}
+                          </h4>
+                          <p className="text-[9px] text-primary/60 font-serif">
+                            {isAr 
+                              ? "منع النظام من حذف الصفحات والأصوات المحملة تلقائياً" 
+                              : "Prevent system from auto-deleting downloaded pages and audio"}
+                          </p>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                        <button
+                          onClick={togglePersistence}
+                          className={`w-11 h-6 rounded-full transition-all flex items-center p-1 shadow-inner ${
+                            isPersistent ? "bg-emerald-deep justify-end" : "bg-primary/10 justify-start"
+                          }`}
+                        >
+                          <div 
+                            className={`w-4 h-4 rounded-full bg-white shadow-lg transition-all duration-300 ${isPersistent ? "" : ""}`} 
+                          />
+                        </button>
+                      </div>
+                      <div className={`p-2 rounded-lg bg-gold/10 border border-gold/20 flex gap-2 ${isAr ? 'flex-row-reverse' : 'flex-row'}`}>
+                        <AlertCircle className="w-3.5 h-3.5 text-gold shrink-0 mt-0.5" />
+                        <p className="text-[8px] text-primary/80 font-serif leading-relaxed">
+                          {isAr 
+                            ? "هذه الخاصية تطلب من المتصفح والاندرويد اعتبار بيانات التطبيق أساسية وعدم حذفها لتوفير المساحة. سيتم تخزين البيانات في مجلد التطبيق الخاص بجهازك."
+                            : "This feature asks the browser and Android to treat app data as essential. Data is stored in the app's private folder on your device."}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="pt-4 border-t border-border/40">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
+                          <Music className="w-5 h-5" />
+                        </div>
+                        <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                          <h3 className="text-sm font-bold font-serif text-foreground">{t("recitations.audioLibrary") || "مكتبة التلاوات"}</h3>
+                          <p className="text-[10px] text-muted-foreground font-serif">{t("hub.offline.audioDesc") || "إدارة تحميل التلاوات للاستماع بدون اتصال"}</p>
+                        </div>
+                      </div>
+                      <AudioDownloadManager />
+                    </div>
+                  </section>
+                )}
+
+                {activeCategory === "update" && (
+                  <section className="space-y-3">
+                    <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                      <h3 className="text-sm font-serif font-bold text-primary">{t("settings.update.system") || (isAr ? "تحديثات النظام" : "App Updates")}</h3>
+                      <p className="text-[8px] text-primary/70">{t("settings.update.info")}</p>
+                    </div>
+                    <UpdateManager />
+                  </section>
+                )}
+
+                {activeCategory === "appearance" && (
+                  <section className="space-y-4">
+                    <div className="space-y-2">
+                      <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                        <h3 className="text-sm font-serif font-bold text-primary">{t("profile.appTheme")}</h3>
+                        <p className="text-[8px] text-primary/70">{t("profile.chooseTheme")}</p>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+                        {THEME_OPTIONS.map(opt => {
+                          const Icon = opt.icon;
+                          return (
+                            <button
+                              key={opt.id}
+                              onClick={() => setTheme(opt.id)}
+                              className={`flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all ${
+                                theme === opt.id
+                                  ? "border-accent bg-accent/5 shadow-lg"
+                                  : "border-primary/5 bg-primary/5 hover:border-accent/30"
+                              }`}
+                            >
+                              <div className={`w-7 h-7 rounded-full ${opt.preview} border-2 border-card shadow-md flex items-center justify-center text-primary`}>
+                                <Icon size={14} />
+                              </div>
+                              <span className="font-serif font-bold text-[9px] text-primary">{opt.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                        <h3 className="text-sm font-serif font-bold text-primary">{t("profile.fontSize")}</h3>
+                        <p className="text-[8px] text-primary/70">{t("profile.adjustFontSize")}</p>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                        {FONT_SIZES.map(size => (
+                          <button
+                            key={size.id}
+                            onClick={() => setFontSize(size.value)}
+                            className={`p-2 rounded-xl border-2 transition-all font-serif font-bold text-[9px] ${
+                              fontSize === size.value
+                                ? "border-accent bg-accent/5 text-primary shadow-lg"
+                                : "border-primary/5 bg-primary/5 text-primary/40 hover:border-accent/30"
+                            }`}
+                          >
+                            {size.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </section>
+                )}
+
+                {activeCategory === "notifications" && (
+                  <section className="space-y-4">
+                    <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                      <h3 className="text-sm font-serif font-bold text-primary">{t("profile.notifReminders")}</h3>
+                      <p className="text-[8px] text-primary/70">{t("profile.manageReminders")}</p>
+                    </div>
+                    
+                    {!isSupported ? (
+                      <div className="p-3 rounded-2xl bg-red-500/5 border border-red-500/20 text-red-500 text-center">
+                        <p className="font-serif font-bold text-[10px]">{t("profile.notifNotSupported")}</p>
+                      </div>
+                    ) : (
+                      <>
+                        {permissionState !== "granted" && (
+                          <div className="p-4 rounded-2xl bg-destructive/10 border border-destructive/20 flex items-center gap-3">
+                            <BellOff size={20} className="text-destructive shrink-0" />
+                            <div className="flex-1">
+                              <p className="text-[11px] text-destructive font-serif font-bold">{t("profile.notifPermissionRequired")}</p>
+                              <p className="text-[10px] text-destructive/80 font-serif">{t("profile.notifPermissionDesc")}</p>
+                            </div>
+                            <button 
+                              onClick={() => requestPermission()}
+                              className="px-3 py-1.5 bg-destructive text-white text-[10px] font-serif rounded-xl font-bold hover:scale-105 transition-all shadow-lg shadow-destructive/20"
+                            >
+                              {t("profile.enableNotif")}
+                            </button>
+                          </div>
+                        )}
+
+                        <div className="space-y-2">
                           {[
-                            { id: "ar", label: "العربية", sub: "اللغة الأم" },
-                            { id: "en", label: "English", sub: "International" },
-                          ].map(lang => (
-                            <button
-                              key={lang.id}
-                              onClick={() => i18n.changeLanguage(lang.id)}
-                              className={`p-2 rounded-xl border-2 transition-all group ${i18n.language === 'ar' ? 'text-right' : 'text-left'} ${
-                                i18n.language === lang.id
-                                  ? "border-accent bg-accent/5 text-primary shadow-lg"
-                                  : "border-primary/5 bg-primary/5 text-primary/40 hover:border-accent/30"
-                              }`}
-                            >
-                              <p className="text-xs font-serif font-bold mb-0.5">{lang.label}</p>
-                              <p className="text-[6px] font-bold uppercase tracking-widest opacity-50">{lang.sub}</p>
-                            </button>
-                          ))}
-                        </div>
-                      </section>
-                    )}
-
-                    {activeCategory === "offline" && (
-                      <section className="space-y-4">
-                        <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                          <h3 className="text-sm font-serif font-bold text-primary">{t("profile.offlineManagement") || (isAr ? "إدارة المحتوى" : "Content Management")}</h3>
-                          <p className="text-[8px] text-primary/70">{t("hub.offline.manageDesc") || (isAr ? "إدارة المحتوى والمساحة التخزينية" : "Manage offline content and storage")}</p>
-                        </div>
-                        <OfflineManager />
-
-                        {/* Persistent Storage Toggle */}
-                        <div className="p-4 rounded-2xl bg-primary/5 border border-primary/5 space-y-3">
-                          <div className="flex items-center justify-between">
-                            <div className={`${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                              <h4 className="text-xs font-bold font-serif text-primary">
-                                {isAr ? "التخزين الدائم (في ذاكرة الهاتف)" : "Persistent Storage (Phone Memory)"}
-                              </h4>
-                              <p className="text-[9px] text-primary/60 font-serif">
-                                {isAr 
-                                  ? "منع النظام من حذف الصفحات والأصوات المحملة تلقائياً" 
-                                  : "Prevent system from auto-deleting downloaded pages and audio"}
-                              </p>
-                            </div>
-                            <button
-                              onClick={togglePersistence}
-                              className={`w-11 h-6 rounded-full transition-all flex items-center p-1 shadow-inner ${
-                                isPersistent ? "bg-emerald-deep justify-end" : "bg-primary/10 justify-start"
-                              }`}
-                            >
-                              <motion.div 
-                                layout
-                                className="w-4 h-4 rounded-full bg-white shadow-lg" 
-                              />
-                            </button>
-                          </div>
-                          <div className={`p-2 rounded-lg bg-gold/10 border border-gold/20 flex gap-2 ${isAr ? 'flex-row-reverse' : 'flex-row'}`}>
-                            <AlertCircle className="w-3.5 h-3.5 text-gold shrink-0 mt-0.5" />
-                            <p className="text-[8px] text-primary/80 font-serif leading-relaxed">
-                              {isAr 
-                                ? "هذه الخاصية تطلب من المتصفح والاندرويد اعتبار بيانات التطبيق أساسية وعدم حذفها لتوفير المساحة. سيتم تخزين البيانات في مجلد التطبيق الخاص بجهازك."
-                                : "This feature asks the browser and Android to treat app data as essential. Data is stored in the app's private folder on your device."}
-                            </p>
-                          </div>
-                        </div>
-                        
-                        {/* Audio Download Manager Section */}
-                        <div className="pt-4 border-t border-border/40">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
-                              <Music className="w-5 h-5" />
-                            </div>
-                            <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                              <h3 className="text-sm font-bold font-serif text-foreground">{t("recitations.audioLibrary") || "مكتبة التلاوات"}</h3>
-                              <p className="text-[10px] text-muted-foreground font-serif">{t("hub.offline.audioDesc") || "إدارة تحميل التلاوات للاستماع بدون اتصال"}</p>
-                            </div>
-                          </div>
-                          <AudioDownloadManager />
-                        </div>
-                      </section>
-                    )}
-
-                    {activeCategory === "update" && (
-                      <section className="space-y-3">
-                        <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                          <h3 className="text-sm font-serif font-bold text-primary">{t("settings.update.system") || (isAr ? "تحديثات النظام" : "App Updates")}</h3>
-                          <p className="text-[8px] text-primary/70">{t("settings.update.info")}</p>
-                        </div>
-                        <UpdateManager />
-                      </section>
-                    )}
-
-                    {activeCategory === "appearance" && (
-                      <section className="space-y-4">
-                        <div className="space-y-2">
-                          <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                            <h3 className="text-sm font-serif font-bold text-primary">{t("profile.appTheme")}</h3>
-                            <p className="text-[8px] text-primary/70">{t("profile.chooseTheme")}</p>
-                          </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
-                              {THEME_OPTIONS.map(opt => {
-                                const Icon = opt.icon;
-                                return (
-                                  <button
-                                    key={opt.id}
-                                    onClick={() => setTheme(opt.id)}
-                                    className={`flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all ${
-                                      theme === opt.id
-                                        ? "border-accent bg-accent/5 shadow-lg"
-                                        : "border-primary/5 bg-primary/5 hover:border-accent/30"
-                                    }`}
-                                  >
-                                    <div className={`w-7 h-7 rounded-full ${opt.preview} border-2 border-card shadow-md flex items-center justify-center text-primary`}>
-                                      <Icon size={14} />
-                                    </div>
-                                    <span className="font-serif font-bold text-[9px] text-primary">{opt.label}</span>
-                                  </button>
-                                );
-                              })}
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                            <h3 className="text-sm font-serif font-bold text-primary">{t("profile.fontSize")}</h3>
-                            <p className="text-[8px] text-primary/70">{t("profile.adjustFontSize")}</p>
-                          </div>
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-                            {FONT_SIZES.map(size => (
+                            { id: "athkarMorning", label: t("profile.athkarMorning"), timeKey: "athkarMorningTime" as const },
+                            { id: "athkarEvening", label: t("profile.athkarEvening"), timeKey: "athkarEveningTime" as const },
+                            { id: "quranReading", label: t("profile.quranReading"), timeKey: "quranReadingTime" as const },
+                            { id: "dailyVerse", label: isAr ? "آية اليوم" : "Daily Verse", timeKey: "dailyVerseTime" as const },
+                          ].map((item) => (
+                            <div key={item.id} className="flex items-center justify-between p-3 rounded-2xl bg-primary/5 border border-primary/5 group hover:bg-primary/10 transition-all border-b-primary/10">
+                              <div className={`${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                                <p className="font-serif text-[12px] font-bold text-primary">{item.label}</p>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <Clock size={10} className="text-primary/40" />
+                                  <input
+                                    type="time"
+                                    value={notifSettings[item.timeKey]}
+                                    onChange={(e) => updateNotif({ [item.timeKey]: e.target.value })}
+                                    className="text-[9px] font-bold font-serif text-primary/70 bg-transparent outline-none cursor-pointer hover:text-gold transition-colors"
+                                  />
+                                </div>
+                              </div>
                               <button
-                                key={size.id}
-                                onClick={() => setFontSize(size.value)}
-                                className={`p-2 rounded-xl border-2 transition-all font-serif font-bold text-[9px] ${
-                                  fontSize === size.value
-                                    ? "border-accent bg-accent/5 text-primary shadow-lg"
-                                    : "border-primary/5 bg-primary/5 text-primary/40 hover:border-accent/30"
+                                onClick={() => updateNotif({ [item.id]: !notifSettings[item.id as keyof typeof notifSettings] })}
+                                className={`w-11 h-6 rounded-full transition-all flex items-center p-1 shadow-inner ${
+                                  notifSettings[item.id as keyof typeof notifSettings] ? "bg-emerald-deep justify-end" : "bg-primary/10 justify-start"
                                 }`}
                               >
-                                {size.label}
+                                <div 
+                                  className={`w-4 h-4 rounded-full bg-white shadow-lg transition-all duration-300`} 
+                                />
                               </button>
-                            ))}
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="space-y-3 pt-4 border-t border-primary/5">
+                          <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                            <h4 className="text-[11px] font-serif font-bold text-primary">{t("profile.periodicReminders")}</h4>
+                            <p className="text-[8px] text-primary/70">{t("profile.periodicRemindersDesc")}</p>
                           </div>
-                        </div>
-                      </section>
-                    )}
 
-                    {activeCategory === "notifications" && (
-                      <section className="space-y-4">
-                        <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                          <h3 className="text-sm font-serif font-bold text-primary">{t("profile.notifReminders")}</h3>
-                          <p className="text-[8px] text-primary/70">{t("profile.manageReminders")}</p>
-                        </div>
-                        
-                        {!isSupported ? (
-                          <div className="p-3 rounded-2xl bg-red-500/5 border border-red-500/20 text-red-500 text-center">
-                            <p className="font-serif font-bold text-[10px]">{t("profile.notifNotSupported")}</p>
-                          </div>
-                        ) : (
-                          <>
-                            {permissionState !== "granted" && (
-                              <div className="p-4 rounded-2xl bg-destructive/10 border border-destructive/20 flex items-center gap-3">
-                                <BellOff size={20} className="text-destructive shrink-0" />
-                                <div className="flex-1">
-                                  <p className="text-[11px] text-destructive font-serif font-bold">{t("profile.notifPermissionRequired")}</p>
-                                  <p className="text-[10px] text-destructive/80 font-serif">{t("profile.notifPermissionDesc")}</p>
-                                </div>
-                                <button 
-                                  onClick={() => requestPermission()}
-                                  className="px-3 py-1.5 bg-destructive text-white text-[10px] font-serif rounded-xl font-bold hover:scale-105 transition-all shadow-lg shadow-destructive/20"
-                                >
-                                  {t("profile.enableNotif")}
-                                </button>
-                              </div>
-                            )}
-
-                            <div className="space-y-2">
-                              {[
-                                { id: "athkarMorning", label: t("profile.athkarMorning"), timeKey: "athkarMorningTime" as const },
-                                { id: "athkarEvening", label: t("profile.athkarEvening"), timeKey: "athkarEveningTime" as const },
-                                { id: "quranReading", label: t("profile.quranReading"), timeKey: "quranReadingTime" as const },
-                                { id: "dailyVerse", label: isAr ? "آية اليوم" : "Daily Verse", timeKey: "dailyVerseTime" as const },
-                              ].map((item) => (
-                                <div key={item.id} className="flex items-center justify-between p-3 rounded-2xl bg-primary/5 border border-primary/5 group hover:bg-primary/10 transition-all border-b-primary/10">
-                                  <div className={`${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                                    <p className="font-serif text-[12px] font-bold text-primary">{item.label}</p>
-                                    <div className="flex items-center gap-1.5 mt-0.5">
-                                      <Clock size={10} className="text-primary/40" />
-                                      <input
-                                        type="time"
-                                        value={notifSettings[item.timeKey]}
-                                        onChange={(e) => updateNotif({ [item.timeKey]: e.target.value })}
-                                        className="text-[9px] font-bold font-serif text-primary/70 bg-transparent outline-none cursor-pointer hover:text-gold transition-colors"
-                                      />
-                                    </div>
-                                  </div>
-                                  <button
-                                    onClick={() => updateNotif({ [item.id]: !notifSettings[item.id as keyof typeof notifSettings] })}
-                                    className={`w-11 h-6 rounded-full transition-all flex items-center p-1 shadow-inner ${
-                                      notifSettings[item.id as keyof typeof notifSettings] ? "bg-emerald-deep justify-end" : "bg-primary/10 justify-start"
-                                    }`}
-                                  >
-                                    <motion.div 
-                                      layout
-                                      className="w-4 h-4 rounded-full bg-white shadow-lg" 
-                                    />
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
-
-                            <div className="space-y-3 pt-4 border-t border-primary/5">
-                              <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                                <h4 className="text-[11px] font-serif font-bold text-primary">{t("profile.periodicReminders")}</h4>
-                                <p className="text-[8px] text-primary/70">{t("profile.periodicRemindersDesc")}</p>
-                              </div>
-
-                              <div className="flex items-center justify-between p-2 rounded-xl bg-primary/5 border border-primary/5">
-                                <span className="font-serif text-[11px] font-bold text-primary">{t("profile.periodicReminders")}</span>
-                                <button
-                                  onClick={() => handleUpdatePeriodic({ enabled: !periodicSettings.enabled })}
-                                  className={`w-9 h-5 rounded-full transition-all flex items-center p-1 ${
-                                    periodicSettings.enabled ? "bg-emerald-deep justify-end" : "bg-primary/10 justify-start"
-                                  }`}
-                                >
-                                  <motion.div 
-                                    layout
-                                    className="w-3 h-3 rounded-full bg-white shadow-lg" 
-                                  />
-                                </button>
-                              </div>
-
-                              {periodicSettings.enabled && (
-                                <div className="space-y-3 p-3 rounded-xl bg-primary/5 border border-primary/5">
-                                  <div className="flex justify-between items-center">
-                                    <span className="text-[10px] font-serif font-bold text-primary">{t("profile.reminderInterval")}</span>
-                                    <span className="text-[10px] font-bold text-gold">{toArabicNumber(periodicSettings.interval)}</span>
-                                  </div>
-                                  <Slider
-                                    value={[periodicSettings.interval]}
-                                    min={5}
-                                    max={120}
-                                    step={5}
-                                    onValueChange={([val]) => handleUpdatePeriodic({ interval: val })}
-                                    className="py-2"
-                                  />
-                                  <div className="flex justify-between text-[8px] text-primary/40 font-bold">
-                                    <span>{toArabicNumber(5)}</span>
-                                    <span>{toArabicNumber(120)}</span>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-
-                            <div className="pt-1.5 space-y-2">
-                              <button
-                                onClick={() => {
-                                  unlockAudio();
-                                  testPrayerNotification("Asr");
-                                  toast.info(t("profile.testNotifSent"));
-                                }}
-                                className="w-full h-10 rounded-xl bg-accent/10 text-accent border border-accent/20 font-serif font-bold text-[11px] hover:bg-accent/20 transition-all flex items-center justify-center gap-2"
-                              >
-                                <Bell className="w-3.5 h-3.5" />
-                                {t("profile.testNotification")}
-                              </button>
-
-                              <div className="grid grid-cols-2 gap-2">
-                                <button
-                                  onClick={() => {
-                                    testNotification("athkarMorning");
-                                    toast.info(t("profile.testNotifSent"));
-                                  }}
-                                  className="h-10 rounded-xl bg-primary/5 text-primary border border-primary/10 font-serif font-bold text-[9px] hover:bg-primary/10 transition-all flex items-center justify-center gap-2"
-                                >
-                                  <Sun className="w-3 h-3" />
-                                  {t("profile.testMorningNotif")}
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    testNotification("athkarEvening");
-                                    toast.info(t("profile.testNotifSent"));
-                                  }}
-                                  className="h-10 rounded-xl bg-primary/5 text-primary border border-primary/10 font-serif font-bold text-[9px] hover:bg-primary/10 transition-all flex items-center justify-center gap-2"
-                                >
-                                  <Moon className="w-3 h-3" />
-                                  {t("profile.testEveningNotif")}
-                                </button>
-                              </div>
-
-                              <button
-                                onClick={() => {
-                                  testNotification("dailyVerse");
-                                  toast.info(t("profile.testNotifSent"));
-                                }}
-                                className="w-full h-10 rounded-xl bg-primary/5 text-primary border border-primary/10 font-serif font-bold text-[10px] hover:bg-primary/10 transition-all flex items-center justify-center gap-2"
-                              >
-                                <Sparkles className="w-3.5 h-3.5" />
-                                {t("profile.testQuranNotif") || (isAr ? "تجربة آية اليوم" : "Test Daily Verse")}
-                              </button>
-
-                              <button
-                                onClick={() => {
-                                  testNotification("quranReading");
-                                  toast.info(t("profile.testNotifSent"));
-                                }}
-                                className="w-full h-10 rounded-xl bg-primary/5 text-primary border border-primary/10 font-serif font-bold text-[10px] hover:bg-primary/10 transition-all flex items-center justify-center gap-2"
-                              >
-                                <BookOpen className="w-3.5 h-3.5" />
-                                {isAr ? "تجربة ورد القراءة" : "Test Reading Reminder"}
-                              </button>
-                            </div>
-                          </>
-                        )}
-                      </section>
-                    )}
-
-                    {activeCategory === "account" && (
-                      <section className="space-y-4">
-                        <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                          <h3 className="text-sm font-serif font-bold text-primary">{t("profile.accountManagement") || (isAr ? "إدارة الحساب" : "Account Management")}</h3>
-                          <p className="text-[8px] text-primary/70">{t("profile.syncDesc") || "Sync your progress across devices"}</p>
-                        </div>
-                        
-                        <div className="p-4 rounded-2xl bg-primary/5 border border-primary/5 space-y-4">
-                          {auth.currentUser ? (
-                            <div className="space-y-4">
-                              <div className="flex items-center gap-3">
-                                <img src={auth.currentUser.photoURL || "/avatar-man-1.svg"} className="w-10 h-10 rounded-full" referrerPolicy="no-referrer" />
-                                <div className={`${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                                  <p className="text-xs font-bold font-serif text-primary/90">{auth.currentUser.displayName}</p>
-                                  <p className="text-[10px] text-primary/60 font-serif">{auth.currentUser.email}</p>
-                                </div>
-                              </div>
-                              {isAdmin && (
-                                <button
-                                  onClick={() => navigate("/admin")}
-                                  className="w-full py-2 bg-accent/10 text-accent rounded-xl text-xs font-bold font-serif hover:bg-accent/20 transition-all flex items-center justify-center gap-2"
-                                >
-                                  <ShieldCheck size={14} />
-                                  {isAr ? "لوحة التحكم" : "Admin Panel"}
-                                </button>
-                              )}
-                              <button
-                                onClick={() => signOut(auth)}
-                                className="w-full py-2 bg-red-500/10 text-red-500 rounded-xl text-xs font-bold font-serif hover:bg-red-500/20 transition-all"
-                              >
-                                {i18n.language === 'ar' ? "تسجيل الخروج" : (t("profile.logout") || "Sign Out")}
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="space-y-4 text-center">
-                              <p className="text-xs text-primary/70 font-serif leading-relaxed">
-                                {t("profile.loginPrompt")}
-                              </p>
-                              <button
-                                onClick={() => setShowAuthModal(true)}
-                                className="w-full py-3 bg-primary text-primary-foreground rounded-xl text-xs font-bold font-serif shadow-lg shadow-primary/10 flex items-center justify-center gap-2 hover:bg-primary/90 transition-all"
-                              >
-                                <Sparkles size={14} />
-                                {isAr ? "تسجيل الدخول / إنشاء حساب" : "Sign In / Register"}
-                              </button>
-                              <AuthModal
-                                isOpen={showAuthModal}
-                                onClose={() => setShowAuthModal(false)}
+                          <div className="flex items-center justify-between p-2 rounded-xl bg-primary/5 border border-primary/5">
+                            <span className="font-serif text-[11px] font-bold text-primary">{t("profile.periodicReminders")}</span>
+                            <button
+                              onClick={() => handleUpdatePeriodic({ enabled: !periodicSettings.enabled })}
+                              className={`w-9 h-5 rounded-full transition-all flex items-center p-1 ${
+                                periodicSettings.enabled ? "bg-emerald-deep justify-end" : "bg-primary/10 justify-start"
+                              }`}
+                            >
+                              <div 
+                                className="w-3 h-3 rounded-full bg-white shadow-lg transition-all duration-300" 
                               />
+                            </button>
+                          </div>
+
+                          {periodicSettings.enabled && (
+                            <div className="space-y-3 p-3 rounded-xl bg-primary/5 border border-primary/5">
+                              <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-serif font-bold text-primary">{t("profile.reminderInterval")}</span>
+                                <span className="text-[10px] font-bold text-gold">{toArabicNumber(periodicSettings.interval)}</span>
+                              </div>
+                              <Slider
+                                value={[periodicSettings.interval]}
+                                min={5}
+                                max={120}
+                                step={5}
+                                onValueChange={([val]) => handleUpdatePeriodic({ interval: val })}
+                                className="py-2"
+                              />
+                              <div className="flex justify-between text-[8px] text-primary/40 font-bold">
+                                <span>{toArabicNumber(5)}</span>
+                                <span>{toArabicNumber(120)}</span>
+                              </div>
                             </div>
                           )}
                         </div>
 
-                        {/* Privacy & Legal */}
-                        <div className="pt-2">
-                          <Link 
-                            to="/privacy" 
-                            onClick={() => setIsSettingsOpen(false)}
-                            className="flex items-center gap-2 text-[10px] text-primary/40 hover:text-primary transition-colors justify-center"
+                        <div className="pt-1.5 space-y-2">
+                          <button
+                            onClick={() => {
+                              unlockAudio();
+                              testPrayerNotification("Asr");
+                              toast.info(t("profile.testNotifSent"));
+                            }}
+                            className="w-full h-10 rounded-xl bg-accent/10 text-accent border border-accent/20 font-serif font-bold text-[11px] hover:bg-accent/20 transition-all flex items-center justify-center gap-2"
                           >
-                            <Shield size={10} />
-                            <span className="font-serif">
-                              {i18n.language === 'ar' ? "سياسة الخصوصية والأمان" : "Privacy & Security Policy"}
-                            </span>
-                          </Link>
-                        </div>
+                            <Bell className="w-3.5 h-3.5" />
+                            {t("profile.testNotification")}
+                          </button>
 
-                        {/* Character Preview Card */}
-                        <div className="relative p-2.5 rounded-xl bg-gradient-to-br from-primary to-emerald-deep text-white overflow-hidden group">
-                          <div className="absolute inset-0 pattern-islamic opacity-10" />
-                          <div className="relative z-10 flex flex-col items-center gap-1.5">
-                            <div className="w-12 h-12 rounded-lg bg-primary/10 backdrop-blur-md border border-primary/20 flex items-center justify-center overflow-hidden">
-                              {profile.avatar ? (
-                                <img src={profile.avatar} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                              ) : (
-                                <User size={18} />
-                              )}
-                            </div>
-                            <div className="text-center">
-                              <h4 className="text-sm font-serif font-bold text-white">{profile.name}</h4>
-                              <p className="text-[7px] text-white/60 uppercase tracking-widest mt-0.5">{levelName}</p>
-                            </div>
+                          <div className="grid grid-cols-2 gap-2">
                             <button
-                              onClick={() => setIsEditingProfile(true)}
-                              className="px-2.5 py-1 rounded-full bg-gold text-primary font-bold text-[7px] uppercase tracking-widest hover:bg-gold/90 transition-all"
+                              onClick={() => {
+                                testNotification("athkarMorning");
+                                toast.info(t("profile.testNotifSent"));
+                              }}
+                              className="h-10 rounded-xl bg-primary/5 text-primary border border-primary/10 font-serif font-bold text-[9px] hover:bg-primary/10 transition-all flex items-center justify-center gap-2"
                             >
-                              {t("profile.editProfile")}
+                              <Sun className="w-3 h-3" />
+                              {t("profile.testMorningNotif")}
+                            </button>
+                            <button
+                              onClick={() => {
+                                testNotification("athkarEvening");
+                                toast.info(t("profile.testNotifSent"));
+                              }}
+                              className="h-10 rounded-xl bg-primary/5 text-primary border border-primary/10 font-serif font-bold text-[9px] hover:bg-primary/10 transition-all flex items-center justify-center gap-2"
+                            >
+                              <Moon className="w-3 h-3" />
+                              {t("profile.testEveningNotif")}
                             </button>
                           </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 gap-1.5">
+
                           <button
-                            onClick={resetAll}
-                            className="p-2.5 rounded-xl border-2 border-red-500/20 text-red-500 font-serif font-bold hover:bg-red-500/5 transition-all flex items-center justify-between group"
+                            onClick={() => {
+                              testNotification("dailyVerse");
+                              toast.info(t("profile.testNotifSent"));
+                            }}
+                            className="w-full h-10 rounded-xl bg-primary/5 text-primary border border-primary/10 font-serif font-bold text-[10px] hover:bg-primary/10 transition-all flex items-center justify-center gap-2"
                           >
-                            <div className="flex items-center gap-2.5">
-                              <div className="w-7 h-7 rounded-lg bg-red-500/10 flex items-center justify-center">
-                                <Trash2 size={12} />
-                              </div>
-                              <span className="text-xs">{t("profile.factoryReset")}</span>
-                            </div>
-                            <RotateCcw size={12} className="group-hover:rotate-180 transition-transform duration-700" />
+                            <Sparkles className="w-3.5 h-3.5" />
+                            {t("profile.testQuranNotif") || (isAr ? "تجربة آية اليوم" : "Test Daily Verse")}
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              testNotification("quranReading");
+                              toast.info(t("profile.testNotifSent"));
+                            }}
+                            className="w-full h-10 rounded-xl bg-primary/5 text-primary border border-primary/10 font-serif font-bold text-[10px] hover:bg-primary/10 transition-all flex items-center justify-center gap-2"
+                          >
+                            <BookOpen className="w-3.5 h-3.5" />
+                            {isAr ? "تجربة ورد القراءة" : "Test Reading Reminder"}
                           </button>
                         </div>
+                      </>
+                    )}
+                  </section>
+                )}
 
-                        <div className="p-2.5 rounded-xl bg-primary/5 border border-primary/5 space-y-1.5">
-                          <h4 className="font-serif font-bold text-primary text-[9px] uppercase tracking-widest opacity-80">{t("profile.advancedStats")}</h4>
-                          <div className="grid grid-cols-2 gap-1.5">
-                            <div className="p-1.5 rounded-lg bg-card border border-border/20">
-                              <p className="text-[6px] font-bold text-primary/70 uppercase tracking-widest">{t("profile.joinedDate")}</p>
-                              <p className="font-serif font-bold text-primary mt-0.5 text-[9px]">{new Date(profile.joinedDate).toLocaleDateString(i18n.language === 'ar' ? 'ar-EG' : 'en-US')}</p>
-                            </div>
-                            <div className="p-1.5 rounded-lg bg-card border border-border/20">
-                              <p className="text-[6px] font-bold text-primary/70 uppercase tracking-widest">{t("profile.totalPoints")}</p>
-                              <p className="font-serif font-bold text-primary mt-0.5 text-[9px]">{i18n.language === 'ar' ? toArabicNumber(profile.points) : profile.points}</p>
+                {activeCategory === "account" && (
+                  <section className="space-y-4">
+                    <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                      <h3 className="text-sm font-serif font-bold text-primary">{t("profile.accountManagement") || (isAr ? "إدارة الحساب" : "Account Management")}</h3>
+                      <p className="text-[8px] text-primary/70">{t("profile.syncDesc") || "Sync your progress across devices"}</p>
+                    </div>
+                    
+                    <div className="p-4 rounded-2xl bg-primary/5 border border-primary/5 space-y-4">
+                      {auth.currentUser ? (
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3">
+                            <img src={auth.currentUser.photoURL || "/avatar-man-1.svg"} className="w-10 h-10 rounded-full" referrerPolicy="no-referrer" />
+                            <div className={`${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                              <p className="text-xs font-bold font-serif text-primary/90">{auth.currentUser.displayName}</p>
+                              <p className="text-[10px] text-primary/60 font-serif">{auth.currentUser.email}</p>
                             </div>
                           </div>
+                          {isAdmin && (
+                            <button
+                              onClick={() => navigate("/admin")}
+                              className="w-full py-2 bg-accent/10 text-accent rounded-xl text-xs font-bold font-serif hover:bg-accent/20 transition-all flex items-center justify-center gap-2"
+                            >
+                              <ShieldCheck size={14} />
+                              {isAr ? "لوحة التحكم" : "Admin Panel"}
+                            </button>
+                          )}
+                          <button
+                            onClick={() => signOut(auth)}
+                            className="w-full py-2 bg-red-500/10 text-red-500 rounded-xl text-xs font-bold font-serif hover:bg-red-500/20 transition-all"
+                          >
+                            {i18n.language === 'ar' ? "تسجيل الخروج" : (t("profile.logout") || "Sign Out")}
+                          </button>
                         </div>
-                      </section>
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Edit Profile Modal - Game Style */}
-      <AnimatePresence>
-        {isEditingProfile && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[600] bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="w-full max-w-md bg-card rounded-[2.5rem] border border-border/20 shadow-2xl p-6 space-y-6 relative overflow-hidden"
-            >
-              <div className="absolute inset-0 pattern-islamic opacity-[0.03] pointer-events-none" />
-              
-              <div className="flex justify-between items-center relative z-10">
-                <h3 className="text-xl font-serif font-bold text-primary">{t("profile.editProfile")}</h3>
-                <button onClick={() => setIsEditingProfile(false)} className="p-1.5 rounded-lg hover:bg-primary/5 transition-colors">
-                  <X size={18} />
-                </button>
-              </div>
-
-              <div className="space-y-4 relative z-10">
-                <div className="space-y-1.5">
-                  <label className={`text-[9px] font-bold text-primary/70 uppercase tracking-widest px-2 block ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t("profile.name")}</label>
-                  <input
-                    type="text"
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    className={`w-full p-3 rounded-xl bg-primary/5 border border-primary/10 focus:border-accent outline-none font-serif text-base transition-all ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}
-                    placeholder="..."
-                  />
-                </div>
-
-                <div className="space-y-3">
-                  <label className={`text-[9px] font-bold text-primary/70 uppercase tracking-widest px-2 block ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t("profile.chooseAvatar")}</label>
-                  
-                  {/* Upload Profile Picture Button */}
-                  <div className="flex flex-col items-center gap-3 p-4 rounded-xl bg-primary/5 border border-primary/10">
-                    <div className="relative">
-                      {profile.avatar ? (
-                        <img src={profile.avatar} alt="Profile" className="w-20 h-20 rounded-full object-cover border-2 border-accent" />
                       ) : (
-                        <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center border-2 border-primary/20">
-                          <User size={32} className="text-primary/50" />
-                        </div>
-                      )}
-                      {isUploadingAvatar && (
-                        <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center">
-                          <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+                        <div className="space-y-4 text-center">
+                          <p className="text-xs text-primary/70 font-serif leading-relaxed">
+                            {t("profile.loginPrompt")}
+                          </p>
+                          <button
+                            onClick={() => setShowAuthModal(true)}
+                            className="w-full py-3 bg-primary text-primary-foreground rounded-xl text-xs font-bold font-serif shadow-lg shadow-primary/10 flex items-center justify-center gap-2 hover:bg-primary/90 transition-all"
+                          >
+                            <Sparkles size={14} />
+                            {isAr ? "تسجيل الدخول / إنشاء حساب" : "Sign In / Register"}
+                          </button>
+                          <AuthModal
+                            isOpen={showAuthModal}
+                            onClose={() => setShowAuthModal(false)}
+                          />
                         </div>
                       )}
                     </div>
-                    
-                    <label className="cursor-pointer">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleUploadAvatar}
-                        disabled={isUploadingAvatar}
-                        className="hidden"
-                      />
-                      <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-deep text-gold font-serif font-bold text-sm shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                        <Upload size={16} />
-                        <span>{isUploadingAvatar ? (t("profile.uploading") || "Uploading...") : (t("profile.uploadPicture") || "Upload Picture")}</span>
-                      </div>
-                    </label>
-                  </div>
 
-                  <div className="grid grid-cols-4 gap-2.5">
-                    {[
-                      "/avatar-man-1.svg",
-                      "/avatar-woman-1.svg",
-                      "/avatar-man-2.svg",
-                      "/avatar-woman-2.svg",
-                    ].map((url, i) => (
-                      <button
-                        key={i}
-                        onClick={() => updateProfile({ avatar: url })}
-                        className={`aspect-square rounded-xl border-2 transition-all overflow-hidden bg-primary/5 ${
-                          profile.avatar === url ? "border-accent scale-110 shadow-lg" : "border-transparent opacity-50 hover:opacity-100"
-                        }`}
+                    <div className="pt-2">
+                      <Link 
+                        to="/privacy" 
+                        onClick={() => setIsSettingsOpen(false)}
+                        className="flex items-center gap-2 text-[10px] text-primary/40 hover:text-primary transition-colors justify-center"
                       >
-                        <img src={url} alt="" className="w-full h-full object-contain p-2" />
+                        <Shield size={10} />
+                        <span className="font-serif">
+                          {i18n.language === 'ar' ? "سياسة الخصوصية والأمان" : "Privacy & Security Policy"}
+                        </span>
+                      </Link>
+                    </div>
+
+                    <div className="relative p-2.5 rounded-xl bg-gradient-to-br from-primary to-emerald-deep text-white overflow-hidden group">
+                      <div className="absolute inset-0 pattern-islamic opacity-10" />
+                      <div className="relative z-10 flex flex-col items-center gap-1.5">
+                        <div className="w-12 h-12 rounded-lg bg-primary/10 backdrop-blur-md border border-primary/20 flex items-center justify-center overflow-hidden">
+                          {profile.avatar ? (
+                            <img src={profile.avatar} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                          ) : (
+                            <User size={18} />
+                          )}
+                        </div>
+                        <div className="text-center">
+                          <h4 className="text-sm font-serif font-bold text-white">{profile.name}</h4>
+                          <p className="text-[7px] text-white/60 uppercase tracking-widest mt-0.5">{levelName}</p>
+                        </div>
+                        <button
+                          onClick={() => setIsEditingProfile(true)}
+                          className="px-2.5 py-1 rounded-full bg-gold text-primary font-bold text-[7px] uppercase tracking-widest hover:bg-gold/90 transition-all"
+                        >
+                          {t("profile.editProfile")}
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 gap-1.5">
+                      <button
+                        onClick={resetAll}
+                        className="p-2.5 rounded-xl border-2 border-red-500/20 text-red-500 font-serif font-bold hover:bg-red-500/5 transition-all flex items-center justify-between group"
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-lg bg-red-500/10 flex items-center justify-center">
+                            <Trash2 size={12} />
+                          </div>
+                          <span className="text-xs">{t("profile.factoryReset")}</span>
+                        </div>
+                        <RotateCcw size={12} className="group-hover:rotate-180 transition-transform duration-700" />
                       </button>
-                    ))}
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-primary/5 border border-primary/5 space-y-1.5">
+                      <h4 className="font-serif font-bold text-primary text-[9px] uppercase tracking-widest opacity-80">{t("profile.advancedStats")}</h4>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <div className="p-1.5 rounded-lg bg-card border border-border/20">
+                          <p className="text-[6px] font-bold text-primary/70 uppercase tracking-widest">{t("profile.joinedDate")}</p>
+                          <p className="font-serif font-bold text-primary mt-0.5 text-[9px]">{new Date(profile.joinedDate).toLocaleDateString(i18n.language === 'ar' ? 'ar-EG' : 'en-US')}</p>
+                        </div>
+                        <div className="p-1.5 rounded-lg bg-card border border-border/20">
+                          <p className="text-[6px] font-bold text-primary/70 uppercase tracking-widest">{t("profile.totalPoints")}</p>
+                          <p className="font-serif font-bold text-primary mt-0.5 text-[9px]">{i18n.language === 'ar' ? toArabicNumber(profile.points) : profile.points}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Profile Modal - Game Style */}
+      {isEditingProfile && (
+        <div
+          className="fixed inset-0 z-[600] bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+        >
+          <div
+            className="w-full max-w-md bg-card rounded-[2.5rem] border border-border/20 shadow-2xl p-6 space-y-6 relative overflow-hidden"
+          >
+            <div className="absolute inset-0 pattern-islamic opacity-[0.03] pointer-events-none" />
+            
+            <div className="flex justify-between items-center relative z-10">
+              <h3 className="text-xl font-serif font-bold text-primary">{t("profile.editProfile")}</h3>
+              <button onClick={() => setIsEditingProfile(false)} className="p-1.5 rounded-lg hover:bg-primary/5 transition-colors">
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-4 relative z-10">
+              <div className="space-y-1.5">
+                <label className={`text-[9px] font-bold text-primary/70 uppercase tracking-widest px-2 block ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t("profile.name")}</label>
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  className={`w-full p-3 rounded-xl bg-primary/5 border border-primary/10 focus:border-accent outline-none font-serif text-base transition-all ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}
+                  placeholder="..."
+                />
+              </div>
+
+              <div className="space-y-3">
+                <label className={`text-[9px] font-bold text-primary/70 uppercase tracking-widest px-2 block ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t("profile.chooseAvatar")}</label>
+                
+                <div className="flex flex-col items-center gap-3 p-4 rounded-xl bg-primary/5 border border-primary/10">
+                  <div className="relative">
+                    {profile.avatar ? (
+                      <img src={profile.avatar} alt="Profile" className="w-20 h-20 rounded-full object-cover border-2 border-accent" />
+                    ) : (
+                      <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center border-2 border-primary/20">
+                        <User size={32} className="text-primary/50" />
+                      </div>
+                    )}
+                    {isUploadingAvatar && (
+                      <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center">
+                        <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+                      </div>
+                    )}
                   </div>
+                  
+                  <label className="cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleUploadAvatar}
+                      disabled={isUploadingAvatar}
+                      className="hidden"
+                    />
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-deep text-gold font-serif font-bold text-sm shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                      <Upload size={16} />
+                      <span>{isUploadingAvatar ? (t("profile.uploading") || "Uploading...") : (t("profile.uploadPicture") || "Upload Picture")}</span>
+                    </div>
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-4 gap-2.5">
+                  {[
+                    "/avatar-man-1.svg",
+                    "/avatar-woman-1.svg",
+                    "/avatar-man-2.svg",
+                    "/avatar-woman-2.svg",
+                  ].map((url, i) => (
+                    <button
+                      key={i}
+                      onClick={() => updateProfile({ avatar: url })}
+                      className={`aspect-square rounded-xl border-2 transition-all overflow-hidden bg-primary/5 ${
+                        profile.avatar === url ? "border-accent scale-110 shadow-lg" : "border-transparent opacity-50 hover:opacity-100"
+                      }`}
+                    >
+                      <img src={url} alt="" className="w-full h-full object-contain p-2" />
+                    </button>
+                  ))}
                 </div>
               </div>
+            </div>
 
-              <div className="pt-2 relative z-10">
-                <button
-                  onClick={handleUpdateProfile}
-                  className="w-full py-3 rounded-xl bg-emerald-deep text-gold font-serif font-bold text-base shadow-lg shadow-emerald-deep/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                >
-                  {t("profile.saveChanges")}
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <div className="pt-2 relative z-10">
+              <button
+                onClick={handleUpdateProfile}
+                className="w-full py-3 rounded-xl bg-emerald-deep text-gold font-serif font-bold text-base shadow-lg shadow-emerald-deep/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                {t("profile.saveChanges")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,6 +1,5 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
-import { motion } from "motion/react";
 import { Home, Search } from "lucide-react";
 import BackButton from "@/components/BackButton";
 
@@ -21,20 +20,14 @@ const NotFound = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-emerald-deep z-0" />
       
       {/* Atmospheric Elements */}
-      <motion.div 
-        animate={{ 
-          opacity: [0.1, 0.3, 0.1],
-          scale: [1, 1.2, 1],
-        }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -top-1/2 -right-1/4 w-full h-full bg-gold/20 rounded-full blur-[120px] z-0" 
+      <div 
+        className="absolute -top-1/2 -right-1/4 w-full h-full bg-gold/20 rounded-full blur-[120px] z-0 animate-pulse" 
+        style={{ animationDuration: '10s' }}
       />
 
       <div className="relative z-10 text-center max-w-lg mx-auto">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+        <div
+          className="transition-all duration-1000 ease-out opacity-100 scale-100"
         >
           <div className="w-24 h-24 rounded-[2.5rem] bg-gold/20 backdrop-blur-md flex items-center justify-center mx-auto mb-10 border border-gold/30 shadow-gold-glow">
             <Search size={40} className="text-gold" strokeWidth={1.5} />
@@ -60,14 +53,13 @@ const NotFound = () => {
             العودة للرئيسية
           </Link>
 
-          <motion.p 
-            animate={{ opacity: [0.3, 0.6, 0.3] }}
-            transition={{ duration: 4, repeat: Infinity }}
-            className="font-amiri text-gold text-3xl mt-16"
+          <p 
+            className="font-amiri text-gold text-3xl mt-16 animate-pulse"
+            style={{ animationDuration: '4s' }}
           >
             ﷽
-          </motion.p>
-        </motion.div>
+          </p>
+        </div>
       </div>
     </div>
   );
