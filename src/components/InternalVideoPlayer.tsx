@@ -41,8 +41,8 @@ const InternalVideoPlayer: React.FC<InternalVideoPlayerProps> = ({ videoId, onCl
           
           <iframe
             src={videoId.startsWith('PL') || videoId.startsWith('UU')
-              ? `https://www.youtube.com/embed/videoseries?list=${videoId}&autoplay=1`
-              : `https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0`
+              ? `https://www.youtube-nocookie.com/embed/videoseries?list=${videoId}&autoplay=1`
+              : `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0`
             }
             title={title}
             className="w-full h-full relative z-10"
