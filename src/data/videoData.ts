@@ -90,31 +90,31 @@ export const SCHOLARS_DATA = [
   {
     id: 'ghaleez',
     name: 'محمد الغليظ',
-    channelUrl: 'https://www.youtube.com/@mohelghaleez',
+    channelUrl: 'https://www.youtube.com/@MohammadElghaleez',
     description: 'دروس تربوية ومواعظ إيمانية تلامس قلوب الشباب.'
   },
   {
     id: 'alaahamed',
     name: 'علاء حامد',
-    channelUrl: 'https://www.youtube.com/@AlaaHamed',
+    channelUrl: 'https://www.youtube.com/@3laahamed',
     description: 'سلسلة إني أخاف الله ودروس في تزكية النفس وإصلاح القلوب.'
   },
   {
     id: 'shoman',
     name: 'حازم شومان',
-    channelUrl: 'https://www.youtube.com/@DrHazemShoman',
+    channelUrl: 'https://www.youtube.com/@DrHazemShouman',
     description: 'دروس قوية في التوبة والعودة إلى الله والهمة في العبادة.'
   },
   {
     id: 'aymanswayd',
     name: 'أيمن سويد',
-    channelUrl: 'https://www.youtube.com/@DrAymanSwayd',
+    channelUrl: 'https://www.youtube.com/@Dr.AymanSwaid',
     description: 'مرجع التجويد والقراءات، دروس مفصلة في قواعد التلاوة.'
   },
   {
     id: 'alkhamis',
     name: 'عثمان الخميس',
-    channelUrl: 'https://www.youtube.com/@othmanalkamees',
+    channelUrl: 'https://www.youtube.com/@Dr_OthmanAlKhamees',
     description: 'دروس العقيدة والفقه والرد على الشبهات بأسلوب علمي رصين.'
   },
   {
@@ -126,13 +126,13 @@ export const SCHOLARS_DATA = [
   {
     id: 'mustafa_hosny',
     name: 'مصطفى حسني',
-    channelUrl: 'https://www.youtube.com/@MustafaHosny',
+    channelUrl: 'https://www.youtube.com/@MustafaHosnyOfficial',
     description: 'برامج تربوية معاصرة تركز على الأخلاق والتعاملات الإنسانية.'
   },
   {
     id: 'zakir_naik',
     name: 'ذاكر نايك',
-    channelUrl: 'https://www.youtube.com/@DrZakirNaik',
+    channelUrl: 'https://www.youtube.com/@Drzakirchannel',
     description: 'مقارنة الأديان والدعوة إلى الله بأسلوب منطقي وعلمي.'
   }
 ];
