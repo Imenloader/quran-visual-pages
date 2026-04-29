@@ -18,7 +18,7 @@ export const wuduSteps: GuideStep[] = [
     stepNameAr: 'النية',
     description: 'Make the intention in your heart to perform Wudu for the sake of Allah.',
     descriptionAr: 'عزم القلب على فعل الوضوء طاعة لله تعالى.',
-    postureImageUrl: '/assets/guides/child_praying_takbir_1777486213577.png'
+    postureImageUrl: '/assets/guides/child_wudu_niyyah_correct_1777487190054.png'
   },
   {
     id: 'w2',
@@ -34,7 +34,7 @@ export const wuduSteps: GuideStep[] = [
     stepNameAr: 'المضمضة',
     description: 'Rinse your mouth three times.',
     descriptionAr: 'إدخال الماء في الفم وتحريكه ثم إخراجه ثلاث مرات.',
-    postureImageUrl: '/assets/guides/child_wudu_face_1777486284568.png'
+    postureImageUrl: '/assets/guides/child_wudu_mouth_correct_1777487203629.png'
   },
   {
     id: 'w4',
@@ -42,7 +42,7 @@ export const wuduSteps: GuideStep[] = [
     stepNameAr: 'الاستنشاق',
     description: 'Sniff water into your nose and blow it out three times.',
     descriptionAr: 'جذب الماء بالأنف ثم إخراجه ثلاث مرات.',
-    postureImageUrl: '/assets/guides/child_wudu_face_1777486284568.png'
+    postureImageUrl: '/assets/guides/child_wudu_nose_correct_1777487219843.png'
   },
   {
     id: 'w5',
@@ -50,7 +50,7 @@ export const wuduSteps: GuideStep[] = [
     stepNameAr: 'غسل الوجه',
     description: 'Wash your entire face three times, from hair-line to chin and ear to ear.',
     descriptionAr: 'غسل الوجه كاملاً ثلاث مرات من منابت الشعر إلى أسفل الذقن ومن الأذن إلى الأذن.',
-    postureImageUrl: '/assets/guides/child_wudu_face_1777486284568.png'
+    postureImageUrl: '/assets/guides/child_wudu_face_new_correct_1777487238576.png'
   },
   {
     id: 'w6',
@@ -66,7 +66,7 @@ export const wuduSteps: GuideStep[] = [
     stepNameAr: 'مسح الرأس والأذنين',
     description: 'Wipe your head with wet hands once, then wipe the inside and outside of your ears.',
     descriptionAr: 'مسح الرأس مرة واحدة من الأمام إلى الخلف ثم مسح الأذنين من الداخل والخارج.',
-    postureImageUrl: '/assets/guides/child_wudu_face_1777486284568.png'
+    postureImageUrl: '/assets/guides/child_wudu_head_correct_1777487251649.png'
   },
   {
     id: 'w8',
@@ -178,7 +178,7 @@ export const allSalahSteps: Record<string, GuideStep> = {
     description: 'Recite Attahiyyat in the middle of 3 or 4 Rakah prayer.',
     descriptionAr: 'الجلوس للتشهد الأول وقراءة التحيات كاملة.',
     postureImageUrl: '/assets/guides/child_tashahhud_perfect.png',
-    arabicRecitation: 'التَّحِيَّاتُ لِلَّهِ، وَالصَّلَوَاتُ وَالطَّيِّبَاتُ، السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ، السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللَّهِ الصَّالِحِينَ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ.',
+    arabicRecitation: 'التَّحِيَّاتُ لِلَّهِ، وَالصَّلَوَاتُ وَالطَّيِّبَاتُ، السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ، السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللَّهِ الصَّالِحِينَ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ، وَأَشْهَدُ أَنْ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ.',
     transliteration: 'At-tahiyyatu lillahi, was-salawatu wat-tayyibatu, as-salamu \'alayka ayyuhan-nabiyyu wa rahmatullahi wa barakatuhu, as-salamu \'alayna wa \'ala \'ibadillahis-salihin. Ash-hadu an la ilaha illallahu, wa ash-hadu anna Muhammadan \'abduhu wa rasuluh.',
     translation: 'All compliments, prayers and pure works are due to Allah. Peace be upon you, O Prophet, and the mercy of Allah and His blessings. Peace be upon us and upon the righteous servants of Allah. I bear witness that there is no deity worthy of worship except Allah, and I bear witness that Muhammad is His servant and messenger.',
     translationAr: 'التشهد الأوسط كاملاً'
@@ -190,7 +190,7 @@ export const allSalahSteps: Record<string, GuideStep> = {
     description: 'Recite full Tashahhud and the Ibrahimic Prayer.',
     descriptionAr: 'قراءة التشهد كاملاً ثم الصلاة الإبراهيمية كاملة قبل التسليم.',
     postureImageUrl: '/assets/guides/child_tashahhud_perfect.png',
-    arabicRecitation: 'التَّحِيَّاتُ لِلَّهِ، وَالصَّلَوَاتُ وَالطَّيِّبَاتُ، السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ، السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللَّهِ الصَّالِحِينَ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ. اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ، كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ، اللَّهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ، كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، فِي الْعَالَمِينَ إِنَّكَ حَمِيدٌ مَجِيدٌ.',
+    arabicRecitation: 'التَّحِيَّاتُ لِلَّهِ، وَالصَّلَوَاتُ وَالطَّيِّبَاتُ، السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ، السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللَّهِ الصَّالِحِينَ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ، وَأَشْهَدُ أَنْ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ. اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ، كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ، اللَّهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ، كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، فِي الْعَالَمِينَ إِنَّكَ حَمِيدٌ مَجِيدٌ.',
     transliteration: 'At-tahiyyatu lillahi... Allahumma salli \'ala Muhammadin wa \'ala ali Muhammadin, kama sallayta \'ala Ibrahima wa \'ala ali Ibrahima, innaka Hamidun Majid. Allahumma barik \'ala Muhammadin wa \'ala ali Muhammadin, kama barakta \'ala Ibrahima wa \'ala ali Ibrahima, fil-\'alamina innaka Hamidun Majid.',
     translation: 'All compliments... O Allah, send prayers upon Muhammad and upon the family of Muhammad, as You sent prayers upon Ibrahim and upon the family of Ibrahim; indeed, You are Praiseworthy and Glorious. O Allah, bless Muhammad and the family of Muhammad, as You blessed Ibrahim and the family of Ibrahim; indeed, You are Praiseworthy and Glorious in the worlds.',
     translationAr: 'التشهد الأخير مع الصلاة الإبراهيمية'
