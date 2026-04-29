@@ -29,16 +29,15 @@ const BottomNav = () => {
 
   const NAV_ITEMS = [
     { 
-      id: "tour-profile",
       path: "/profile", 
       label: t("nav.profile") === "nav.profile" ? (i18n.language === 'ar' ? "الملف" : "Profile") : t("nav.profile"), 
       icon: User, 
       isProfile: true 
     },
-    { id: "tour-prayer", path: "/prayer-times", label: t("nav.prayer"), icon: Clock },
-    { id: "tour-home", path: "/", label: t("nav.home"), icon: Home, isCenter: true },
-    { id: "tour-athkar", path: "/athkar", label: t("nav.athkar"), icon: Shield },
-    { id: "tour-hub", path: "/hub", label: t("nav.hub"), icon: LayoutGrid },
+    { path: "/prayer-times", label: t("nav.prayer"), icon: Clock },
+    { path: "/", label: t("nav.home"), icon: Home, isCenter: true },
+    { path: "/athkar", label: t("nav.athkar"), icon: Shield },
+    { path: "/hub", label: t("nav.hub"), icon: LayoutGrid },
   ];
 
   const triggerHaptic = useCallback(() => {
@@ -98,7 +97,7 @@ const BottomNav = () => {
                       to={item.path}
                       onMouseEnter={() => preloadPage(item.path)}
                       onClick={() => handleNavClick(item.path)}
-                      id={item.id}
+                      id={item.path}
                       className={`w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center shadow-islamic relative group z-20 ${
                         isActive 
                           ? "bg-accent text-accent-foreground shadow-accent/20" 
@@ -121,7 +120,7 @@ const BottomNav = () => {
                     to={item.path}
                     onMouseEnter={() => preloadPage(item.path)}
                     onClick={() => handleNavClick(item.path)}
-                    id={item.id}
+                    id={item.path}
                     className="flex flex-col items-center py-1.5 md:py-2 px-0.5 md:px-1 min-w-[56px] md:min-w-[64px] group relative z-10"
                   >
                     <div 

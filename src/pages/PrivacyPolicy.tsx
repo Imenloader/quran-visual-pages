@@ -12,8 +12,8 @@ const PrivacyPolicy = () => {
     {
       icon: <Eye className="text-primary" />,
       content: isAr 
-        ? "نحن نجمع فقط المعلومات الضرورية لتشغيل التطبيق، مثل الاسم والبريد الإلكتروني عند تسجيل الدخول، كما نقوم بحفظ حالة الجولة التعريفية محلياً لتجنب تكرارها."
-        : "We only collect essential information required to operate the app, such as your name and email address when you sign in, and we save the site tour completion status locally."
+        ? "نحن نجمع فقط المعلومات الضرورية لتشغيل التطبيق، مثل الاسم والبريد الإلكتروني عند تسجيل الدخول لمزامنة تقدمك."
+        : "We only collect essential information required to operate the app, such as your name and email address when you sign in to sync your progress."
     },
     {
       icon: <Lock className="text-gold" />,

@@ -422,11 +422,11 @@ const Hub = () => {
                         );
 
                         return isExternal ? (
-                          <a key={tool.name} id={`tour-tool-${tool.id}`} href={tool.path} target="_blank" rel="noopener noreferrer">
+                          <a key={tool.name} href={tool.path} target="_blank" rel="noopener noreferrer">
                             {Content}
                           </a>
                         ) : (
-                          <Link key={tool.name} id={`tour-tool-${tool.id}`} to={tool.path}>
+                          <Link key={tool.name} to={tool.path}>
                             {Content}
                           </Link>
                         );

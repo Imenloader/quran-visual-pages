@@ -179,7 +179,6 @@ const Profile = () => {
     { id: "offline", label: t("hub.offline.title"), icon: DownloadCloud },
     { id: "update", label: t("settings.update.title"), icon: RefreshCw },
     { id: "account", label: t("profile.account"), icon: User },
-    { id: "help", label: isAr ? "مساعدة" : "Help", icon: HelpCircle },
   ];
 
   const resetPagesRead = (e: React.MouseEvent) => {
@@ -1170,7 +1169,6 @@ const Profile = () => {
                           )}
                           <button
                             onClick={() => signOut(auth)}
-                            id="tour-signout"
                             className="w-full py-2 bg-red-500/10 text-red-500 rounded-xl text-xs font-bold font-serif hover:bg-red-500/20 transition-all"
                           >
                             {i18n.language === 'ar' ? "تسجيل الخروج" : (t("profile.logout") || "Sign Out")}
@@ -1183,7 +1181,6 @@ const Profile = () => {
                           </p>
                           <button
                             onClick={() => setShowAuthModal(true)}
-                            id="tour-signin"
                             className="w-full py-3 bg-primary text-primary-foreground rounded-xl text-xs font-bold font-serif shadow-lg shadow-primary/10 flex items-center justify-center gap-2 hover:bg-primary/90 transition-all"
                           >
                             <Sparkles size={14} />
@@ -1264,55 +1261,6 @@ const Profile = () => {
                   </section>
                 )}
 
-                {activeCategory === "help" && (
-                  <section className="space-y-4">
-                    <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                      <h3 className="text-sm font-serif font-bold text-primary">{isAr ? "المساعدة والجولة" : "Help & Tour"}</h3>
-                      <p className="text-[8px] text-primary/70">{isAr ? "تعرف على كيفية استخدام التطبيق" : "Learn how to use the application"}</p>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 gap-3">
-                      <button
-                        onClick={() => {
-                          localStorage.removeItem("quraaniat-tour-completed");
-                          setIsSettingsOpen(false);
-                          navigate("/");
-                          toast.info(isAr ? "سيتم بدء الجولة الآن..." : "Starting tour now...");
-                          setTimeout(() => window.location.reload(), 500);
-                        }}
-                        className="p-4 rounded-2xl bg-accent/10 border border-accent/20 text-accent flex items-center justify-between group"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-accent text-white flex items-center justify-center shadow-lg">
-                            <Sparkles size={18} />
-                          </div>
-                          <div className={`${isAr ? 'text-right' : 'text-left'}`}>
-                            <p className="text-sm font-bold font-serif">{isAr ? "بدء الجولة التعريفية" : "Start Site Tour"}</p>
-                            <p className="text-[10px] opacity-70 font-serif">{isAr ? "شرح مفصل لكافة أجزاء التطبيق" : "A detailed explanation of all app sections"}</p>
-                          </div>
-                        </div>
-                        <ChevronLeft size={16} className={`${i18n.language === 'en' ? 'rotate-180' : ''}`} />
-                      </button>
-
-                      <Link
-                        to="/how-to-use"
-                        onClick={() => setIsSettingsOpen(false)}
-                        className="p-4 rounded-2xl bg-primary/5 border border-primary/5 text-primary flex items-center justify-between group"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                            <BookOpen size={18} />
-                          </div>
-                          <div className={`${isAr ? 'text-right' : 'text-left'}`}>
-                            <p className="text-sm font-bold font-serif">{isAr ? "دليل المستخدم" : "User Guide"}</p>
-                            <p className="text-[10px] opacity-70 font-serif">{isAr ? "تصفح الدليل الكامل للتطبيق" : "Browse the complete app guide"}</p>
-                          </div>
-                        </div>
-                        <ChevronLeft size={16} className={`${i18n.language === 'en' ? 'rotate-180' : ''}`} />
-                      </Link>
-                    </div>
-                  </section>
-                )}
               </div>
             </div>
           </div>

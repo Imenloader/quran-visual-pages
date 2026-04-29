@@ -17,7 +17,6 @@ import { AdhanProvider } from "./contexts/AdhanContext";
 import { SystemProvider } from "./contexts/SystemContext";
 import { OfflineProvider } from "./contexts/OfflineContext";
 import MaintenanceGuard from "./contexts/MaintenanceGuard";
-import { SiteTour } from "./components/SiteTour";
 import { useSystem } from "./contexts/SystemContext";
 import { useUser } from "./contexts/UserContext";
 import { AlertTriangle } from "lucide-react";
@@ -380,7 +379,6 @@ const AppContent = () => {
                       </Routes>
                     </Suspense>
                     </MaintenanceGuard>
-                    <SiteTour />
       <BottomNav />
                   </DynamicThemeWrapper>
                 </AudioPlayerProvider>
