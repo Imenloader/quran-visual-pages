@@ -1,20 +1,31 @@
-import React, { useState } from 'react';
-import { salahSteps, wuduSteps, GuideStep } from '@/data/salahGuideData';
+import React, { useState, useMemo } from 'react';
+import { 
+  allSalahSteps, 
+  wuduSteps, 
+  GuideStep, 
+  prayerDefinitions 
+} from '@/data/salahGuideData';
 import { 
   ChevronLeft, 
   ChevronRight, 
-  Play, 
   RotateCcw, 
-  Info,
   CheckCircle2,
   Volume2,
   Droplets,
   BookOpen,
-  Sparkles
+  Sparkles,
+  Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
 import QuranHeader from '@/components/QuranHeader';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -24,10 +35,17 @@ const SalahGuide: React.FC = () => {
   const isAr = i18n.language === 'ar';
   
   const [activeTab, setActiveTab] = useState<'wudu' | 'salah'>('wudu');
+  const [selectedPrayer, setSelectedPrayer] = useState<keyof typeof prayerDefinitions>('fajr');
   const [wuduStepIndex, setWuduStepIndex] = useState(0);
   const [salahStepIndex, setSalahStepIndex] = useState(0);
 
-  const currentSteps = activeTab === 'wudu' ? wuduSteps : salahSteps;
+  // Derived data based on selection
+  const currentSteps = useMemo(() => {
+    if (activeTab === 'wudu') return wuduSteps;
+    const def = prayerDefinitions[selectedPrayer];
+    return def.sequence.map(key => allSalahSteps[key]);
+  }, [activeTab, selectedPrayer]);
+
   const currentIndex = activeTab === 'wudu' ? wuduStepIndex : salahStepIndex;
   const setIndex = activeTab === 'wudu' ? setWuduStepIndex : setSalahStepIndex;
   
@@ -60,14 +78,17 @@ const SalahGuide: React.FC = () => {
   return (
     <div className="min-h-screen bg-background pb-32">
       <QuranHeader 
-        title={isAr ? "دليل العبادات المصور" : "Visual Worship Guide"} 
-        subtitle={isAr ? "تعلم الوضوء والصلاة خطوة بخطوة" : "Learn Wudu and Salah step-by-step"}
+        title={isAr ? "دليل العبادات الشامل" : "Comprehensive Worship Guide"} 
+        subtitle={isAr ? "دليل مصور للوضوء والصلوات الخمس" : "Visual guide for Wudu and 5 Prayers"}
         variant="compact"
         showBack
       />
 
       <main className="container max-w-5xl mx-auto px-4 py-6">
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
+        <Tabs value={activeTab} onValueChange={(v) => {
+          setActiveTab(v as any);
+          setIndex(0);
+        }} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-8 bg-card/50 backdrop-blur-xl p-1 rounded-2xl border border-border/40 h-14">
             <TabsTrigger value="wudu" className="rounded-xl flex gap-2 font-bold data-[state=active]:bg-primary data-[state=active]:text-white transition-all">
               <Droplets size={18} /> {isAr ? "الوضوء" : "Wudu"}
@@ -78,6 +99,32 @@ const SalahGuide: React.FC = () => {
           </TabsList>
 
           <TabsContent value={activeTab} className="mt-0 space-y-6">
+            {activeTab === 'salah' && (
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-card/30 backdrop-blur-md p-4 rounded-[2rem] border border-border/20 shadow-inner">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 rounded-xl text-primary">
+                    <Sparkles size={20} />
+                  </div>
+                  <span className="font-bold text-sm text-foreground">{isAr ? 'اختر الصلاة:' : 'Choose Prayer:'}</span>
+                </div>
+                <Select value={selectedPrayer} onValueChange={(v) => {
+                  setSelectedPrayer(v as any);
+                  setSalahStepIndex(0);
+                }}>
+                  <SelectTrigger className="w-full md:w-[240px] h-12 rounded-xl bg-card border-border/40 font-bold">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-border/40 bg-card/95 backdrop-blur-xl">
+                    {Object.entries(prayerDefinitions).map(([key, def]) => (
+                      <SelectItem key={key} value={key} className="font-bold">
+                        {isAr ? def.nameAr : def.name} ({def.rakahs} {isAr ? 'ركعات' : 'Rakahs'})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             {/* Progress Section */}
             <div className="bg-card/40 backdrop-blur-xl border border-border/20 rounded-[2rem] p-6 shadow-soft">
               <div className="flex justify-between items-center mb-3">
@@ -98,7 +145,7 @@ const SalahGuide: React.FC = () => {
 
             {/* Interactive Card Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              {/* Image Side - Constrained size */}
+              {/* Image Side */}
               <div className="lg:col-span-4 xl:col-span-3 relative group">
                 <div className="relative aspect-square bg-card rounded-[2.5rem] overflow-hidden shadow-xl border border-border/10 ring-1 ring-black/5 max-h-[320px] mx-auto">
                   <img 
@@ -122,7 +169,7 @@ const SalahGuide: React.FC = () => {
                     </p>
                   </div>
 
-                  {activeTab === 'salah' && currentStep.arabicRecitation && (
+                  {currentStep.arabicRecitation && (
                     <div className="space-y-6">
                       <div className="p-8 bg-primary/5 border border-primary/10 rounded-[2rem] relative group/audio">
                         <div className={`flex justify-between items-center mb-6 ${isAr ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -138,7 +185,7 @@ const SalahGuide: React.FC = () => {
                             <Volume2 size={20} />
                           </Button>
                         </div>
-                        <p className="text-4xl md:text-5xl font-quran text-center leading-[2] text-foreground">
+                        <p className={`text-3xl md:text-4xl font-quran text-center leading-[1.8] text-foreground ${isAr ? 'rtl' : 'ltr'}`}>
                           {currentStep.arabicRecitation}
                         </p>
                       </div>
@@ -159,7 +206,7 @@ const SalahGuide: React.FC = () => {
                   )}
                 </div>
 
-                {/* Controls - More prominent */}
+                {/* Controls */}
                 <div className="flex gap-4">
                   <Button 
                     onClick={prevStep}
@@ -180,34 +227,24 @@ const SalahGuide: React.FC = () => {
                     )}
                   </Button>
                 </div>
-
-                {currentIndex > 0 && (
-                  <Button 
-                    variant="ghost" 
-                    onClick={resetGuide}
-                    className="text-muted-foreground hover:text-primary gap-2 h-10 w-fit mx-auto"
-                  >
-                    <RotateCcw size={16} /> {isAr ? 'البدء من جديد' : 'Start Over'}
-                  </Button>
-                )}
               </div>
             </div>
           </TabsContent>
         </Tabs>
 
-        {/* Dynamic Tip Section */}
+        {/* Tip Section */}
         <div className="mt-12 p-8 bg-amber-500/5 border border-amber-500/10 rounded-[3rem] flex items-start gap-6 shadow-inner">
           <div className="w-16 h-16 rounded-2xl bg-amber-500/20 text-amber-600 flex items-center justify-center shrink-0">
-            <Sparkles size={32} />
+            <Info size={32} />
           </div>
           <div>
             <h4 className="font-bold text-amber-700 text-xl mb-2">
-              {isAr ? 'نصيحة روحانية' : 'Spiritual Tip'}
+              {isAr ? 'ملاحظة تعليمية' : 'Educational Tip'}
             </h4>
             <p className="text-amber-700/80 leading-relaxed text-lg">
               {activeTab === 'wudu' 
-                ? (isAr ? 'الوضوء ليس مجرد غسل للأعضاء، بل هو طهارة للروح ومغفرة للذنوب. استشعر نزول خطاياك مع كل قطرة ماء.' : 'Wudu is not just physical washing; it is a spiritual purification. Feel your sins being washed away with every drop of water.')
-                : (isAr ? 'تذكر أن الصلاة هي صلتك المباشرة مع الخالق. حاول أن تتفكر في معاني الكلمات التي تنطق بها في كل وضعية.' : 'Remember that Salah is your direct connection with the Creator. Try to reflect on the meanings of the words you recite in every posture.')}
+                ? (isAr ? 'هذا الدليل يوضح الصفة المجزئة والمستحبة للوضوء.' : 'This guide shows the recommended steps for a perfect Wudu.')
+                : (isAr ? `لقد اخترت صلاة ${prayerDefinitions[selectedPrayer].nameAr} وهي تتكون من ${prayerDefinitions[selectedPrayer].rakahs} ركعات.` : `You have selected ${prayerDefinitions[selectedPrayer].name} prayer, which consists of ${prayerDefinitions[selectedPrayer].rakahs} Rakahs.`)}
             </p>
           </div>
         </div>

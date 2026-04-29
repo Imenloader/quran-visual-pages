@@ -1,5 +1,5 @@
 export interface GuideStep {
-  id: number;
+  id: string;
   stepName: string;
   stepNameAr: string;
   description: string;
@@ -13,7 +13,7 @@ export interface GuideStep {
 
 export const wuduSteps: GuideStep[] = [
   {
-    id: 1,
+    id: 'w1',
     stepName: 'Niyyah (Intention)',
     stepNameAr: 'النية',
     description: 'Make the intention in your heart to perform Wudu for the sake of Allah.',
@@ -21,7 +21,7 @@ export const wuduSteps: GuideStep[] = [
     postureImageUrl: '/assets/guides/child_praying_takbir_1777486213577.png'
   },
   {
-    id: 2,
+    id: 'w2',
     stepName: 'Washing Hands',
     stepNameAr: 'غسل الكفين',
     description: 'Wash both hands up to the wrists three times.',
@@ -29,7 +29,7 @@ export const wuduSteps: GuideStep[] = [
     postureImageUrl: '/assets/guides/child_wudu_hands_1777486227949.png'
   },
   {
-    id: 3,
+    id: 'w3',
     stepName: 'Rinsing Mouth',
     stepNameAr: 'المضمضة',
     description: 'Rinse your mouth three times.',
@@ -37,7 +37,7 @@ export const wuduSteps: GuideStep[] = [
     postureImageUrl: '/assets/guides/child_wudu_face_1777486284568.png'
   },
   {
-    id: 4,
+    id: 'w4',
     stepName: 'Inhaling Water',
     stepNameAr: 'الاستنشاق',
     description: 'Sniff water into your nose and blow it out three times.',
@@ -45,7 +45,7 @@ export const wuduSteps: GuideStep[] = [
     postureImageUrl: '/assets/guides/child_wudu_face_1777486284568.png'
   },
   {
-    id: 5,
+    id: 'w5',
     stepName: 'Washing Face',
     stepNameAr: 'غسل الوجه',
     description: 'Wash your entire face three times, from hair-line to chin and ear to ear.',
@@ -53,7 +53,7 @@ export const wuduSteps: GuideStep[] = [
     postureImageUrl: '/assets/guides/child_wudu_face_1777486284568.png'
   },
   {
-    id: 6,
+    id: 'w6',
     stepName: 'Washing Arms',
     stepNameAr: 'غسل اليدين للمرفقين',
     description: 'Wash your right arm up to and including the elbow three times, then the left arm.',
@@ -61,7 +61,7 @@ export const wuduSteps: GuideStep[] = [
     postureImageUrl: '/assets/guides/child_wudu_hands_1777486227949.png'
   },
   {
-    id: 7,
+    id: 'w7',
     stepName: 'Wiping Head',
     stepNameAr: 'مسح الرأس والأذنين',
     description: 'Wipe your head with wet hands once, then wipe the inside and outside of your ears.',
@@ -69,7 +69,7 @@ export const wuduSteps: GuideStep[] = [
     postureImageUrl: '/assets/guides/child_wudu_face_1777486284568.png'
   },
   {
-    id: 8,
+    id: 'w8',
     stepName: 'Washing Feet',
     stepNameAr: 'غسل الرجلين',
     description: 'Wash your right foot up to and including the ankles three times, then the left foot.',
@@ -78,65 +78,65 @@ export const wuduSteps: GuideStep[] = [
   }
 ];
 
-export const salahSteps: GuideStep[] = [
-  {
-    id: 1,
+export const allSalahSteps: Record<string, GuideStep> = {
+  niyyah: {
+    id: 's1',
     stepName: 'Intention (Niyyah)',
     stepNameAr: 'النية',
     description: 'Formulate the intention in your heart to pray and face the Qiblah.',
     descriptionAr: 'استحضار النية في القلب للصلاة والتوجه نحو القبلة.',
     postureImageUrl: '/assets/guides/child_praying_takbir_1777486213577.png'
   },
-  {
-    id: 2,
+  takbir: {
+    id: 's2',
     stepName: 'Takbiratul Ihram',
     stepNameAr: 'تكبيرة الإحرام',
-    description: 'Raise your hands to your ears and say Takbir to enter the state of prayer.',
-    descriptionAr: 'رفع اليدين بمحاذاة الأذنين وقول "الله أكبر" للدخول في الصلاة.',
+    description: 'Raise your hands to your ears and say Takbir.',
+    descriptionAr: 'رفع اليدين بمحاذاة الأذنين وقول "الله أكبر".',
     postureImageUrl: '/assets/guides/child_praying_takbir_1777486213577.png',
     arabicRecitation: 'اللهُ أَكْبَر',
     transliteration: 'Allahu Akbar',
     translation: 'Allah is the Greatest',
     translationAr: 'الله أكبر'
   },
-  {
-    id: 3,
+  istiftah: {
+    id: 's3',
     stepName: 'Opening Supplication',
     stepNameAr: 'دعاء الاستفتاح',
-    description: 'Recite the opening supplication (Sunnah) silently.',
+    description: 'Recite the opening supplication silently.',
     descriptionAr: 'قراءة دعاء الاستفتاح سراً بعد تكبيرة الإحرام.',
     postureImageUrl: '/assets/guides/child_praying_takbir_1777486213577.png',
     arabicRecitation: 'سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ، وَتَبَارَكَ اسْمُكَ، وَتَعَالَى جَدُّكَ، وَلَا إِلَهَ غَيْرُكَ',
-    transliteration: 'Subhanaka Allahumma wa bihamdika...',
-    translation: 'Glory be to You, O Allah, and all praise is due to You...',
-    translationAr: 'سبحانك اللهم وبحمدك وتبارك اسمك...'
+    transliteration: 'Subhanaka Allahumma...',
+    translation: 'Glory be to You, O Allah...',
+    translationAr: 'سبحانك اللهم وبحمدك...'
   },
-  {
-    id: 4,
+  fatiha: {
+    id: 's4',
     stepName: 'Qiyam & Recitation',
     stepNameAr: 'القيام والقراءة',
-    description: 'Recite Surah Al-Fatiha and another short Surah.',
-    descriptionAr: 'قراءة سورة الفاتحة وما تيسر من القرآن الكريم بخشوع.',
+    description: 'Recite Surah Al-Fatiha and another Surah.',
+    descriptionAr: 'قراءة سورة الفاتحة وما تيسر من القرآن الكريم.',
     postureImageUrl: '/assets/guides/child_praying_takbir_1777486213577.png',
     arabicRecitation: 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ. الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ...',
     transliteration: 'Bismillahir Rahmanir Rahim...',
-    translation: 'In the name of Allah, the Entirely Merciful...',
+    translation: 'In the name of Allah...',
     translationAr: 'الحمد لله رب العالمين...'
   },
-  {
-    id: 5,
+  ruku: {
+    id: 's5',
     stepName: 'Ruku (Bowing)',
     stepNameAr: 'الركوع',
-    description: 'Bow down and say Tasbih three times.',
-    descriptionAr: 'الانحناء وقول "سبحان ربي العظيم" ثلاث مرات.',
+    description: 'Bow down with hands on knees and back straight.',
+    descriptionAr: 'الانحناء مع وضع اليدين على الركبتين وقول "سبحان ربي العظيم" ثلاث مرات.',
     postureImageUrl: '/assets/guides/child_praying_ruku_1777486270893.png',
     arabicRecitation: 'سُبْحَانَ رَبِّيَ الْعَظِيم',
     transliteration: 'Subhana Rabbiyal Azeem',
     translation: 'Glory be to my Lord, the Almighty',
     translationAr: 'سبحان ربي العظيم'
   },
-  {
-    id: 6,
+  itidal: {
+    id: 's6',
     stepName: 'I\'tidal (Standing Up)',
     stepNameAr: 'الاعتدال',
     description: 'Rise from Ruku and stand straight.',
@@ -147,10 +147,10 @@ export const salahSteps: GuideStep[] = [
     translation: 'Allah hears those who praise Him...',
     translationAr: 'سمع الله لمن حمده، ربنا ولك الحمد'
   },
-  {
-    id: 7,
-    stepName: 'First Sujud',
-    stepNameAr: 'السجود الأول',
+  sujud: {
+    id: 's7',
+    stepName: 'Sujud (Prostration)',
+    stepNameAr: 'السجود',
     description: 'Prostrate on the floor and say Tasbih three times.',
     descriptionAr: 'السجود وقول "سبحان ربي الأعلى" ثلاث مرات.',
     postureImageUrl: '/assets/guides/child_praying_sujud_1777486239724.png',
@@ -159,72 +159,63 @@ export const salahSteps: GuideStep[] = [
     translation: 'Glory be to my Lord, the Most High',
     translationAr: 'سبحان ربي الأعلى'
   },
-  {
-    id: 8,
+  jalsa: {
+    id: 's8',
     stepName: 'Jalsah (Sitting)',
     stepNameAr: 'الجلسة بين السجدتين',
-    description: 'Sit upright between the two prostrations.',
-    descriptionAr: 'الجلوس بين السجدتين والدعاء بالمغفرة.',
-    postureImageUrl: '/assets/guides/child_praying_tashahhud_1777486297063.png',
+    description: 'Sit upright between the two prostrations with hands on knees.',
+    descriptionAr: 'الجلوس بين السجدتين مع وضع اليدين على الفخذين والدعاء بالمغفرة.',
+    postureImageUrl: '/assets/guides/child_jalsa_correct_1777486543212.png',
     arabicRecitation: 'رَبِّ اغْفِرْ لِي',
     transliteration: 'Rabbigh-fir li',
     translation: 'My Lord, forgive me',
     translationAr: 'رب اغفر لي'
   },
-  {
-    id: 9,
-    stepName: 'Second Sujud',
-    stepNameAr: 'السجود الثاني',
-    description: 'Perform the second prostration like the first.',
-    descriptionAr: 'السجود الثاني وقول "سبحان ربي الأعلى" ثلاث مرات.',
-    postureImageUrl: '/assets/guides/child_praying_sujud_1777486239724.png',
-    arabicRecitation: 'سُبْحَانَ رَبِّيَ الأَعْلَى',
-    transliteration: 'Subhana Rabbiyal A\'la',
-    translation: 'Glory be to my Lord, the Most High',
-    translationAr: 'سبحان ربي الأعلى'
-  },
-  {
-    id: 10,
-    stepName: 'Second Rakah',
-    stepNameAr: 'الركعة الثانية',
-    description: 'Stand up and repeat the steps for the second Rakah.',
-    descriptionAr: 'القيام للإتيان بالركعة الثانية بنفس خطوات الأولى.',
-    postureImageUrl: '/assets/guides/child_praying_takbir_1777486213577.png'
-  },
-  {
-    id: 11,
-    stepName: 'Tashahhud (Sitting)',
-    stepNameAr: 'التشهد',
-    description: 'Sit for the final Tashahhud after the second Rakah.',
-    descriptionAr: 'الجلوس للتشهد الأخير والتحيات لله تعالى.',
-    postureImageUrl: '/assets/guides/child_praying_tashahhud_1777486297063.png',
-    arabicRecitation: 'التَّحِيَّاتُ لِلَّهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ...',
-    transliteration: 'At-tahiyyatu lillahi was-salawatu...',
-    translation: 'All compliments, prayers and pure works are due to Allah...',
+  tashahhud_first: {
+    id: 's11',
+    stepName: 'First Tashahhud',
+    stepNameAr: 'التشهد الأول',
+    description: 'Sit and recite the first part of Tashahhud with index finger pointing.',
+    descriptionAr: 'الجلوس للتشهد الأول مع الإشارة بالسبابة.',
+    postureImageUrl: '/assets/guides/child_tashahhud_pointing_correct_1777486554757.png',
+    arabicRecitation: 'التَّحِيَّاتُ لِلَّهِ، وَالصَّلَوَاتُ وَالطَّيِّبَاتُ، السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ، السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللَّهِ الصَّالِحِينَ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ.',
+    transliteration: 'At-tahiyyatu lillahi...',
+    translation: 'All compliments are for Allah...',
     translationAr: 'التحيات لله والصلوات والطيبات...'
   },
-  {
-    id: 12,
-    stepName: 'Ibrahimic Prayer',
-    stepNameAr: 'الصلاة الإبراهيمية',
-    description: 'Recite the Ibrahimic prayer in the final sitting.',
-    descriptionAr: 'الصلاة على النبي ﷺ وعلى آل إبراهيم.',
-    postureImageUrl: '/assets/guides/child_praying_tashahhud_1777486297063.png',
-    arabicRecitation: 'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ...',
-    transliteration: 'Allahumma salli \'ala Muhammad...',
-    translation: 'O Allah, send prayers upon Muhammad...',
-    translationAr: 'اللهم صل على محمد وعلى آل محمد...'
+  tashahhud_final: {
+    id: 's12',
+    stepName: 'Final Tashahhud & Ibrahimic Prayer',
+    stepNameAr: 'التشهد الأخير والصلاة الإبراهيمية',
+    description: 'Recite full Tashahhud and the Ibrahimic Prayer.',
+    descriptionAr: 'قراءة التشهد كاملاً ثم الصلاة الإبراهيمية قبل التسليم.',
+    postureImageUrl: '/assets/guides/child_tashahhud_pointing_correct_1777486554757.png',
+    arabicRecitation: 'التَّحِيَّاتُ لِلَّهِ... اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ، كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ...',
+    transliteration: 'At-tahiyyatu lillahi... Allahumma salli \'ala Muhammad...',
+    translation: 'All compliments... O Allah, send prayers upon Muhammad...',
+    translationAr: 'التحيات لله... اللهم صل على محمد وعلى آل محمد...'
   },
-  {
-    id: 13,
+  taslim: {
+    id: 's13',
     stepName: 'Taslim (Ending)',
     stepNameAr: 'التسليم',
     description: 'Turn your head right then left saying Salaam.',
     descriptionAr: 'الالتفات يميناً ثم يساراً مع قول "السلام عليكم ورحمة الله".',
-    postureImageUrl: '/assets/guides/child_praying_tashahhud_1777486297063.png',
+    postureImageUrl: '/assets/guides/child_praying_taslim_right_1777486566576.png',
     arabicRecitation: 'السَّلامُ عَلَيْكُمْ وَرَحْمَةُ الله',
     transliteration: 'Assalamu alaikum wa rahmatullah',
     translation: 'Peace and mercy of Allah be upon you',
     translationAr: 'السلام عليكم ورحمة الله'
   }
-];
+};
+
+export const prayerDefinitions = {
+  fajr: { name: 'Fajr', nameAr: 'الفجر', rakahs: 2, sequence: ['niyyah', 'takbir', 'istiftah', 'fatiha', 'ruku', 'itidal', 'sujud', 'jalsa', 'sujud', 'fatiha', 'ruku', 'itidal', 'sujud', 'jalsa', 'sujud', 'tashahhud_final', 'taslim'] },
+  dhuhr: { name: 'Dhuhr', nameAr: 'الظهر', rakahs: 4, sequence: ['niyyah', 'takbir', 'istiftah', 'fatiha', 'ruku', 'itidal', 'sujud', 'jalsa', 'sujud', 'fatiha', 'ruku', 'itidal', 'sujud', 'jalsa', 'sujud', 'tashahhud_first', 'fatiha', 'ruku', 'itidal', 'sujud', 'jalsa', 'sujud', 'fatiha', 'ruku', 'itidal', 'sujud', 'jalsa', 'sujud', 'tashahhud_final', 'taslim'] },
+  asr: { name: 'Asr', nameAr: 'العصر', rakahs: 4, sequence: ['niyyah', 'takbir', 'istiftah', 'fatiha', 'ruku', 'itidal', 'sujud', 'jalsa', 'sujud', 'fatiha', 'ruku', 'itidal', 'sujud', 'jalsa', 'sujud', 'tashahhud_first', 'fatiha', 'ruku', 'itidal', 'sujud', 'jalsa', 'sujud', 'fatiha', 'ruku', 'itidal', 'sujud', 'jalsa', 'sujud', 'tashahhud_final', 'taslim'] },
+  maghrib: { name: 'Maghrib', nameAr: 'المغرب', rakahs: 3, sequence: ['niyyah', 'takbir', 'istiftah', 'fatiha', 'ruku', 'itidal', 'sujud', 'jalsa', 'sujud', 'fatiha', 'ruku', 'itidal', 'sujud', 'jalsa', 'sujud', 'tashahhud_first', 'fatiha', 'ruku', 'itidal', 'sujud', 'jalsa', 'sujud', 'tashahhud_final', 'taslim'] },
+  isha: { name: 'Isha', nameAr: 'العشاء', rakahs: 4, sequence: ['niyyah', 'takbir', 'istiftah', 'fatiha', 'ruku', 'itidal', 'sujud', 'jalsa', 'sujud', 'fatiha', 'ruku', 'itidal', 'sujud', 'jalsa', 'sujud', 'tashahhud_first', 'fatiha', 'ruku', 'itidal', 'sujud', 'jalsa', 'sujud', 'fatiha', 'ruku', 'itidal', 'sujud', 'jalsa', 'sujud', 'tashahhud_final', 'taslim'] }
+};
+
+// For backward compatibility or simpler views
+export const salahSteps: GuideStep[] = Object.values(allSalahSteps);
