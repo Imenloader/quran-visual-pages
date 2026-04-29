@@ -97,6 +97,8 @@ const ZakatAlFitr = lazyWithRetry(() => import("./pages/ramadan/ZakatAlFitr"));
 const HowToUse = lazyWithRetry(() => import("./pages/HowToUse"));
 const Tajweed = lazyWithRetry(() => import("./pages/Tajweed"));
 const HifzTester = lazyWithRetry(() => import("./pages/tools/HifzTester"));
+const StrongBeliever = lazyWithRetry(() => import("./pages/tools/StrongBeliever"));
+const KnowledgeSessions = lazyWithRetry(() => import("./pages/tools/KnowledgeSessions"));
 const AdminDashboard = lazyWithRetry(() => import("./pages/admin/AdminDashboard"));
 const SettingsManager = lazyWithRetry(() => import("./pages/admin/SettingsManager"));
 const DuaManager = lazyWithRetry(() => import("./pages/admin/DuaManager"));
@@ -325,6 +327,8 @@ const AppContent = () => {
                         <Route path="/how-to-use" element={<HowToUse />} />
                         <Route path="/tajweed" element={<Tajweed />} />
                         <Route path="/tools/hifz-tester" element={<HifzTester />} />
+                        <Route path="/strong-believer" element={<StrongBeliever />} />
+                        <Route path="/knowledge-sessions" element={<KnowledgeSessions />} />
                         <Route path="/embed/:siteId" element={<EmbedView />} />
                         
                         {/* Admin Routes */}
