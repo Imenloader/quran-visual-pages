@@ -4,9 +4,11 @@ import { BookOpen, GraduationCap, Play, Users, MessageSquare, ChevronRight, Book
 import QuranHeader from "@/components/QuranHeader";
 import BackButton from "@/components/BackButton";
 import ScrollReveal from "@/components/ScrollReveal";
-import { SCHOLARS_DATA, KNOWLEDGE_CATEGORIES } from "@/data/videoData";
+import { SCHOLARS_DATA, KNOWLEDGE_CATEGORIES, ZAD_ACADEMY_LEVELS, SET_DHIKR } from "@/data/videoData";
 import InternalVideoPlayer from "@/components/InternalVideoPlayer";
 import ActivityPlanner from "@/components/ActivityPlanner";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const KnowledgeSessions = () => {
   const { t } = useTranslation();
@@ -98,34 +100,42 @@ const KnowledgeSessions = () => {
             </div>
 
             {/* Academy Highlights */}
-            <ScrollReveal>
-              <div className="bg-indigo-600 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-xl shadow-indigo-200">
-                <div className="absolute top-0 right-0 p-8 opacity-10">
-                  <GraduationCap className="w-40 h-40" />
+            <div className="space-y-6">
+              <ScrollReveal>
+                <div className="flex items-center gap-3 px-2">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-600/10 flex items-center justify-center">
+                    <GraduationCap className="w-5 h-5 text-indigo-600" />
+                  </div>
+                  <h3 className="font-bold text-lg font-naskh">أكاديمية زاد - جميع المستويات</h3>
                 </div>
-                <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-                  <div className="flex-1 space-y-4">
-                    <div className="px-3 py-1 bg-white/20 rounded-full w-fit backdrop-blur-sm">
-                      <Sparkles className="w-4 h-4 text-amber-300 inline mr-2" />
-                      <span className="text-[10px] font-bold uppercase tracking-wider">منهج أكاديمي</span>
+              </ScrollReveal>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {ZAD_ACADEMY_LEVELS.map((level, idx) => (
+                  <ScrollReveal key={level.id} delay={idx * 100}>
+                    <div className="bg-indigo-600 rounded-[2rem] p-6 text-white relative overflow-hidden shadow-lg group">
+                      <div className="absolute top-0 right-0 p-4 opacity-10 transform group-hover:scale-110 transition-transform">
+                        <GraduationCap className="w-24 h-24" />
+                      </div>
+                      <div className="relative z-10 space-y-3">
+                        <h4 className="text-xl font-bold font-naskh">{level.title}</h4>
+                        <p className="text-white/80 text-xs font-naskh leading-relaxed h-8 line-clamp-2">
+                          {level.description}
+                        </p>
+                        <Button 
+                          onClick={() => setActiveVideo({ id: level.playlistId, title: `أكاديمية زاد - ${level.title}` })}
+                          className="w-full bg-white text-indigo-600 hover:bg-white/90 rounded-xl text-xs font-bold font-naskh mt-2"
+                        >
+                          عرض المنهج
+                        </Button>
+                      </div>
                     </div>
-                    <h3 className="text-2xl font-bold font-naskh">أكاديمية زاد العلمية</h3>
-                    <p className="text-white/80 text-sm font-naskh leading-relaxed">
-                      تعلم العلم الشرعي بطريقة منهجية ومبسطة من خلال دروس المستوى الأول في العقيدة، التفسير، الحديث، والفقه.
-                    </p>
-                    <button 
-                      onClick={() => setActiveVideo({ id: 'PL0S_Y1XpM30V_q7Z5z8Q6H1VzYfXy5z8', title: 'أكاديمية زاد - المستوى الأول' })}
-                      className="px-6 py-3 bg-white text-indigo-600 rounded-2xl text-xs font-bold font-naskh hover:bg-white/90 transition-colors shadow-lg"
-                    >
-                      ابدأ التعلم الآن
-                    </button>
-                  </div>
-                  <div className="w-full md:w-48 aspect-video bg-white/10 rounded-2xl backdrop-blur-md border border-white/20 flex items-center justify-center">
-                    <GraduationCap className="w-16 h-16 text-white/40" />
-                  </div>
-                </div>
+                  </ScrollReveal>
+                ))}
               </div>
-            </ScrollReveal>
+            </div>
+
+            </div>
           </div>
 
           {/* Sidebar / Planner */}

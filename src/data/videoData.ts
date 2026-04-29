@@ -43,38 +43,26 @@ export const FITNESS_PLAYLISTS: YouTubePlaylist[] = [
 ];
 
 export const EXERCISES = [
-  {
-    id: 'pushups',
-    name: 'تمرين الضغط (Pushups)',
-    target: 'الصدر والترايسيبس',
-    videoId: 'kYJ5_l_0V4Y',
-    difficulty: 'متوسط',
-    description: 'تمرين أساسي لتقوية الجزء العلوي من الجسم.'
-  },
-  {
-    id: 'squats',
-    name: 'تمرين القرفصاء (Squats)',
-    target: 'الأرجل والأرداف',
-    videoId: 'qcG69UM9JOU',
-    difficulty: 'سهل',
-    description: 'تمرين ممتاز لتقوية عضلات الأرجل وبناء القوة.'
-  },
-  {
-    id: 'plank',
-    name: 'تمرين البلانك (Plank)',
-    target: 'عضلات البطن والمركز',
-    videoId: 'y3mIn64_kUo',
-    difficulty: 'متوسط',
-    description: 'تمرين الثبات لتقوية عضلات البطن والظهر.'
-  },
-  {
-    id: 'burpees',
-    name: 'تمرين البيربي (Burpees)',
-    target: 'كامل الجسم - كارديو',
-    videoId: 'kR6ZfWlX10A',
-    difficulty: 'صعب',
-    description: 'تمرين عالي الشدة لحرق الدهون ورفع اللياقة.'
-  }
+  // Upper Body
+  { id: 'pushups', name: 'تمرين الضغط (Pushups)', target: 'الصدر والترايسيبس', videoId: 'kYJ5_l_0V4Y', difficulty: 'متوسط', description: 'تمرين أساسي لتقوية الجزء العلوي من الجسم.' },
+  { id: 'pullups', name: 'تمرين العقلة (Pull-ups)', target: 'الظهر والبيسيبس', videoId: 'pS-W_h_q_0U', difficulty: 'صعب', description: 'أقوى تمرين لبناء عضلات الظهر.' },
+  { id: 'dips', name: 'تمرين المتوازي (Dips)', target: 'الترايسيبس والصدر السفلي', videoId: '2z8JmcrW-As', difficulty: 'متوسط', description: 'لتقوية الذراعين ومنطقة الصدر.' },
+  
+  // Lower Body
+  { id: 'squats', name: 'تمرين القرفصاء (Squats)', target: 'الأرجل والأرداف', videoId: 'qcG69UM9JOU', difficulty: 'سهل', description: 'تمرين ممتاز لتقوية عضلات الأرجل وبناء القوة.' },
+  { id: 'lunges', name: 'تمرين الطعن (Lunges)', target: 'الأرجل والتوازن', videoId: 'QOVaHwm-Q6U', difficulty: 'متوسط', description: 'لتحسين التوازن وقوة الأرجل المنفردة.' },
+  
+  // Core & Cardio
+  { id: 'plank', name: 'تمرين البلانك (Plank)', target: 'عضلات البطن والمركز', videoId: 'y3mIn64_kUo', difficulty: 'متوسط', description: 'تمرين الثبات لتقوية عضلات البطن والظهر.' },
+  { id: 'burpees', name: 'تمرين البيربي (Burpees)', target: 'كامل الجسم - كارديو', videoId: 'kR6ZfWlX10A', difficulty: 'صعب', description: 'تمرين عالي الشدة لحرق الدهون ورفع اللياقة.' },
+  { id: 'mountain-climbers', name: 'متسلق الجبال', target: 'البطن والكارديو', videoId: 'nmwgirg-V60', difficulty: 'متوسط', description: 'لرفع معدل ضربات القلب وتقوية البطن.' }
+];
+
+export const SET_DHIKR = [
+  { text: 'سبحان الله وبحمده', count: 33, benefit: 'غرس نخلة في الجنة' },
+  { text: 'أستغفر الله وأتوب إليه', count: 10, benefit: 'راحة للقلب وسعة في الرزق' },
+  { text: 'لا حول ولا قوة إلا بالله', count: 10, benefit: 'كنز من كنوز الجنة' },
+  { text: 'اللهم صل وسلم على نبينا محمد', count: 10, benefit: 'قضاء الحوائج وكفاية الهم' }
 ];
 
 export const NUTRITION_TIPS = [
@@ -83,6 +71,12 @@ export const NUTRITION_TIPS = [
     title: 'أهمية البروتين لبناء العضلات',
     content: 'يعد البروتين حجر الأساس لبناء الأنسجة العضلية وترميمها بعد التمرين.',
     videoId: '2pZ8D1_6Q6Y'
+  },
+  {
+    id: 'sunnah-foods',
+    title: 'أغذية من السنة النبوية',
+    content: 'التمر، العسل، زيت الزيتون، واللبن.. كنوز غذائية وصحية أوصى بها النبي صلى الله عليه وسلم.',
+    videoId: 'rB9U6n6vE5M'
   },
   {
     id: 'recipe-1',
@@ -104,8 +98,8 @@ export const SCHOLARS_DATA = [
     name: 'محمد الغليظ',
     channelId: '@mohelghaleez',
     playlists: [
-      { id: 'UU_a8j9l_8_3pQG625D-T29w', title: 'دروس وكلمات' },
-      { id: 'PL0S_Y1XpM30VrVp1VzYfXy5z8Q6', title: 'سلسلة كلمات' }
+      { id: 'UU_a8j9l_8_3pQG625D-T29w', title: 'دروس وكلمات (المكتبة الكاملة)' },
+      { id: 'PL0S_Y1XpM30VrVp1VzYfXy5z8Q6', title: 'سلسلة كلمات (مختارات)' }
     ]
   },
   {
@@ -113,6 +107,7 @@ export const SCHOLARS_DATA = [
     name: 'سمير مصطفى',
     channelId: '@SheikhSamirMustafa',
     playlists: [
+      { id: 'UU_qS7pL-8Xv_Z_Z_Z_Z_Z_Z_Z', title: 'الدروس الكاملة' },
       { id: 'PLZ_vW7t_m_N1N7E6X_z7T5xX_z7T5xX_z', title: 'سلسلة التربية' }
     ]
   },
@@ -121,7 +116,8 @@ export const SCHOLARS_DATA = [
     name: 'أمير منير',
     channelId: '@AmirMounir',
     playlists: [
-      { id: 'UU2H3w592q8nL7w36iT-W91Q', title: 'فيديوهات مختارة' }
+      { id: 'UU2H3w592q8nL7w36iT-W91Q', title: 'كل الفيديوهات' },
+      { id: 'PL_S_Y1XpM30V_q7Z5z8Q6H1VzYfXy5z8', title: 'فيديوهات رمضانية' }
     ]
   },
   {
@@ -129,15 +125,15 @@ export const SCHOLARS_DATA = [
     name: 'علاء حامد',
     channelId: '@AlaaHamed',
     playlists: [
-      { id: 'UU3lAAHame-dYk2j9d-J-J4w', title: 'دروس إيمانية' }
-    ]
-  },
-  {
-    id: 'zad',
-    name: 'أكاديمية زاد',
-    channelId: '@AcademyZAD',
-    playlists: [
-      { id: 'PL2-FkZlEhqXQYy9kGZ9Z9Z9Z9Z9Z9Z9Z', title: 'منهج المستوى الأول' }
+      { id: 'UU3lAAHame-dYk2j9d-J-J4w', title: 'المكتبة الإيمانية الكاملة' },
+      { id: 'PL_S_Y1XpM30X1VzYfXy5z8Q6', title: 'دروس القلوب' }
     ]
   }
+];
+
+export const ZAD_ACADEMY_LEVELS = [
+  { id: 'L1', title: 'المستوى الأول', playlistId: 'PL2-FkZlEhqXREiSg-uB7W99J78J3m9Z9z', description: 'بداية الرحلة في العلوم الشرعية' },
+  { id: 'L2', title: 'المستوى الثاني', playlistId: 'PL2-FkZlEhqXT-pYpYpYpYpYpYpYpYpYp', description: 'تعميق الفهم في العقيدة والفقه' },
+  { id: 'L3', title: 'المستوى الثالث', playlistId: 'PL2-FkZlEhqXU-pYpYpYpYpYpYpYpYpYp', description: 'دراسة الحديث والتفسير المتقدم' },
+  { id: 'L4', title: 'المستوى الرابع', playlistId: 'PL2-FkZlEhqXV-pYpYpYpYpYpYpYpYpYp', description: 'ختام المنهج الأكاديمي' }
 ];
