@@ -1,9 +1,9 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { toArabicNumber } from "@/data/quranData";
-import { auth, db, handleFirestoreError, OperationType } from "@/firebase";
-import { onAuthStateChanged, signInAnonymously } from "firebase/auth";
-import { doc, getDoc, setDoc, onSnapshot, updateDoc, Timestamp } from "firebase/firestore";
+import { auth, db } from "@/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc, setDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { activityService } from "@/services/activityService";
 
 
@@ -47,7 +47,10 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { t, i18n } = useTranslation();
   const [isAuthReady, setIsAuthReady] = useState(false);
-  const snapshotUnsubscribeRef = React.useRef<(() => void) | null>(null);
+  const snapshotUnsubscribeRef = useRef<(() => void) | null>(null);
+
+  // Debounced Firestore sync ref — keeps a timer to batch rapid updates
+  const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const DEFAULT_PROFILE: UserProfile = useMemo(() => ({
     name: t("profile.defaultName") || (i18n.language === 'ar' ? "زائر كريم" : "Honored Guest"),
@@ -68,43 +71,56 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const [profile, setProfile] = useState<UserProfile>(DEFAULT_PROFILE);
 
-  const updateProfile = useCallback(async (updates: Partial<UserProfile>) => {
-    setProfile(prev => {
-      const newProfile = { ...prev, ...updates };
-      
+  /**
+   * Syncs a partial profile update to Firestore with debouncing.
+   * This is kept outside state updaters to avoid side-effects inside React updaters.
+   */
+  const syncToFirestore = useCallback((updates: Partial<UserProfile>) => {
+    if (!auth.currentUser) return;
+    if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
+    syncTimerRef.current = setTimeout(() => {
       if (auth.currentUser) {
-        updateDoc(doc(db, "users", auth.currentUser.uid), updates).catch(error => {
+        updateDoc(doc(db, "users", auth.currentUser.uid), updates as Record<string, unknown>).catch(error => {
           console.error("Firestore Update Error:", error);
         });
       }
-      
-      return newProfile;
-    });
+    }, 1500);
   }, []);
+
+  /**
+   * updateProfile: Updates local state immediately, then schedules a debounced
+   * Firestore sync. No side-effects inside the React updater.
+   */
+  const updateProfile = useCallback((updates: Partial<UserProfile>) => {
+    setProfile(prev => ({ ...prev, ...updates }));
+    syncToFirestore(updates);
+  }, [syncToFirestore]);
 
   const addPoints = useCallback((amount: number) => {
     setProfile(prev => {
       const updates = { points: prev.points + amount };
-      updateProfile(updates);
+      syncToFirestore(updates);
       return { ...prev, ...updates };
     });
-  }, [updateProfile]);
+  }, [syncToFirestore]);
 
   const addAyahRead = useCallback(() => {
-    addPoints(10);
     setProfile(prev => {
-      const updates = { totalAyahsRead: prev.totalAyahsRead + 1 };
-      updateProfile(updates);
+      const updates = {
+        totalAyahsRead: prev.totalAyahsRead + 1,
+        points: prev.points + 10,
+      };
+      syncToFirestore(updates);
       return { ...prev, ...updates };
     });
-  }, [addPoints, updateProfile]);
+  }, [syncToFirestore]);
 
   const addPageRead = useCallback(() => {
     const today = new Date().toISOString().split("T")[0];
     setProfile(prev => {
       const currentHistory = prev.dailyReadingHistory || [];
       const dayIndex = currentHistory.findIndex(h => h.date === today);
-      
+
       let newHistory;
       if (dayIndex >= 0) {
         newHistory = [...currentHistory];
@@ -112,75 +128,75 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         newHistory = [...currentHistory, { date: today, pages: 1 }];
       }
-      
-      const updates = { 
-        totalPagesRead: prev.totalPagesRead + 1, 
+
+      const updates = {
+        totalPagesRead: prev.totalPagesRead + 1,
         points: prev.points + 150,
         dailyReadingHistory: newHistory
       };
-      updateProfile(updates);
+      syncToFirestore(updates);
       return { ...prev, ...updates };
     });
-  }, [updateProfile]);
+  }, [syncToFirestore]);
 
   const addJuzCompleted = useCallback(() => {
-    addPoints(3000);
     setProfile(prev => {
-      const updates = { totalJuzCompleted: prev.totalJuzCompleted + 1 };
-      updateProfile(updates);
+      const updates = {
+        totalJuzCompleted: prev.totalJuzCompleted + 1,
+        points: prev.points + 3000,
+      };
+      syncToFirestore(updates);
       return { ...prev, ...updates };
     });
-  }, [addPoints, updateProfile]);
+  }, [syncToFirestore]);
 
-  const athkarBufferRef = React.useRef(0);
-  const athkarTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const athkarBufferRef = useRef(0);
+  const athkarTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const addAthkarRecited = useCallback((count: number = 1) => {
     athkarBufferRef.current += count;
-    
+
     if (athkarTimerRef.current) clearTimeout(athkarTimerRef.current);
-    
+
     athkarTimerRef.current = setTimeout(() => {
       const totalToAdd = athkarBufferRef.current;
       if (totalToAdd === 0) return;
       athkarBufferRef.current = 0;
-      
+
       setProfile(prev => {
-        const pointsToAdd = totalToAdd * 2;
-        const updates = { 
+        const updates = {
           totalAthkarRecited: prev.totalAthkarRecited + totalToAdd,
-          points: prev.points + pointsToAdd
+          points: prev.points + totalToAdd * 2,
         };
-        updateProfile(updates);
+        syncToFirestore(updates);
         return { ...prev, ...updates };
       });
     }, 2000);
-  }, [updateProfile]);
-  
+  }, [syncToFirestore]);
+
   const completeQuest = useCallback((questId: string, points: number) => {
     const today = new Date().toISOString().split("T")[0];
     setProfile(prev => {
-      // Check if quest was already completed today
-      const isAlreadyCompleted = prev.lastQuestDate === today && prev.completedQuests?.includes(questId);
-      if (isAlreadyCompleted) return prev;
-      
-      const newQuests = prev.lastQuestDate === today 
-        ? [...(prev.completedQuests || []), questId] 
+      // Guard: don't complete the same quest twice on the same day
+      if (prev.lastQuestDate === today && prev.completedQuests?.includes(questId)) return prev;
+
+      const newQuests = prev.lastQuestDate === today
+        ? [...(prev.completedQuests || []), questId]
         : [questId];
-        
-      const updates = { 
+
+      const updates = {
         points: prev.points + points,
         completedQuests: newQuests,
         lastQuestDate: today
       };
-      
-      updateProfile(updates);
+      syncToFirestore(updates);
       return { ...prev, ...updates };
     });
-  }, [updateProfile]);
+  }, [syncToFirestore]);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+      // Tear down previous snapshot listener when the auth state changes
       if (snapshotUnsubscribeRef.current) {
         snapshotUnsubscribeRef.current();
         snapshotUnsubscribeRef.current = null;
@@ -207,20 +223,19 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.error("Firestore Profile Error:", e);
         }
 
+        // Real-time sync: update local state when Firestore changes (e.g., from another device)
         snapshotUnsubscribeRef.current = onSnapshot(userRef, (snap) => {
           if (snap.exists()) {
-            const data = snap.data() as UserProfile;
-            console.log("Profile updated from Firestore. Role:", data.role);
-            setProfile(data);
+            setProfile(snap.data() as UserProfile);
           }
         }, (error) => console.warn("Profile Sync Error:", error));
       } else {
-        // Fallback to local storage if no user is signed in
+        // No authenticated user — fall back to local storage
         const saved = localStorage.getItem("user-profile");
         if (saved) {
           try {
             setProfile({ ...DEFAULT_PROFILE, ...JSON.parse(saved) });
-          } catch (e) {
+          } catch {
             setProfile(DEFAULT_PROFILE);
           }
         } else {
@@ -234,46 +249,44 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       unsubscribeAuth();
       if (snapshotUnsubscribeRef.current) snapshotUnsubscribeRef.current();
       if (athkarTimerRef.current) clearTimeout(athkarTimerRef.current);
+      if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
     };
   }, [DEFAULT_PROFILE]);
 
-  // Handle Daily Streak
+  // Daily streak handler — only runs once auth is ready and lastActiveDate is set
   useEffect(() => {
-    if (isAuthReady && profile.lastActiveDate) {
-      const today = new Date().toISOString().split("T")[0];
-      if (profile.lastActiveDate !== today) {
-        const lastDate = new Date(profile.lastActiveDate);
-        const todayDate = new Date(today);
-        const diffTime = Math.abs(todayDate.getTime() - lastDate.getTime());
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        
-        let newStreak = profile.daysActive || 1;
-        
-        if (diffDays === 1) {
-          // Continuous day
-          newStreak += 1;
-        } else if (diffDays > 1) {
-          // Streak broken? 
-          // For a religious app, let's be encouraging and not reset to 1 immediately, 
-          // but we follow the standard streak logic: if more than 1 day gap, reset to 1.
-          newStreak = 1;
-        }
-        
-        updateProfile({ 
-          daysActive: newStreak, 
-          lastActiveDate: today,
-          points: profile.points + 100 // Bonus for daily login
-        });
-      }
+    if (!isAuthReady || !profile.lastActiveDate) return;
+
+    const today = new Date().toISOString().split("T")[0];
+    if (profile.lastActiveDate === today) return; // Already logged today, no action needed
+
+    const lastDate = new Date(profile.lastActiveDate);
+    const todayDate = new Date(today);
+    const diffDays = Math.floor(
+      (todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    let newStreak = profile.daysActive || 1;
+    if (diffDays === 1) {
+      newStreak += 1; // Consecutive day
+    } else if (diffDays > 1) {
+      newStreak = 1;  // Streak broken, reset
     }
+
+    updateProfile({
+      daysActive: newStreak,
+      lastActiveDate: today,
+      points: profile.points + 100,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthReady, profile.lastActiveDate]);
 
+  // Persist profile to localStorage as a fast-access cache
   useEffect(() => {
     localStorage.setItem("user-profile", JSON.stringify(profile));
   }, [profile]);
 
   const calculateLevel = (pts: number) => {
-    // Making it harder: Using 5000 as base instead of 1000
     const lvl = Math.floor((Math.sqrt(8 * pts / 5000 + 1) - 1) / 2);
     return Math.max(1, lvl + 1);
   };
@@ -281,18 +294,21 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const getThreshold = (lvl: number) => {
     if (lvl <= 1) return 0;
     const l = lvl - 1;
-    // Multiplier increased to 5000
     return 5000 * l * (l + 1) / 2;
   };
 
   const currentLevel = calculateLevel(profile.points);
   const nextLevelThreshold = getThreshold(currentLevel + 1);
   const prevLevelThreshold = getThreshold(currentLevel);
-  const progress = Math.min(100, Math.max(0, ((profile.points - prevLevelThreshold) / (nextLevelThreshold - prevLevelThreshold)) * 100));
-  
-  const levelName = currentLevel <= 20 
+  const progress = Math.min(100, Math.max(0,
+    ((profile.points - prevLevelThreshold) / (nextLevelThreshold - prevLevelThreshold)) * 100
+  ));
+
+  const levelName = currentLevel <= 20
     ? t(`profile.levels.${currentLevel}`)
     : `${t(`profile.levels.20`)} (${toArabicNumber(currentLevel)})`;
+
+  const isAdmin = profile.role === 'admin' || auth.currentUser?.email === "3wdkyarb@gmail.com";
 
   return (
     <UserContext.Provider value={{
@@ -300,7 +316,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       addJuzCompleted, addAthkarRecited, level: currentLevel,
       nextLevelPoints: nextLevelThreshold, prevLevelPoints: prevLevelThreshold,
       levelProgress: progress, levelName, isAuthReady, completeQuest,
-      isAdmin: profile.role === 'admin' || auth.currentUser?.email === "3wdkyarb@gmail.com"
+      isAdmin,
     }}>
       {children}
     </UserContext.Provider>

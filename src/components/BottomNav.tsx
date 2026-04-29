@@ -1,4 +1,4 @@
-import { useState, useCallback, memo } from "react";
+import { useState, useCallback, memo, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Clock, Shield, User, Home, ChevronUp, LayoutGrid } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -27,18 +27,20 @@ const BottomNav = () => {
   const { settings, loading: systemLoading } = useSystem();
   const [isHidden, setIsHidden] = useState(false);
 
-  const NAV_ITEMS = [
-    { 
-      path: "/profile", 
-      label: t("nav.profile") === "nav.profile" ? (i18n.language === 'ar' ? "الملف" : "Profile") : t("nav.profile"), 
-      icon: User, 
-      isProfile: true 
+
+  const NAV_ITEMS = useMemo(() => [
+    {
+      path: "/profile",
+      label: t("nav.profile") === "nav.profile" ? (i18n.language === 'ar' ? "الملف" : "Profile") : t("nav.profile"),
+      icon: User,
+      isProfile: true
     },
     { path: "/prayer-times", label: t("nav.prayer"), icon: Clock },
     { path: "/", label: t("nav.home"), icon: Home, isCenter: true },
     { path: "/athkar", label: t("nav.athkar"), icon: Shield },
     { path: "/hub", label: t("nav.hub"), icon: LayoutGrid },
-  ];
+  ], [t, i18n.language]);
+
 
   const triggerHaptic = useCallback(() => {
     if (typeof window !== "undefined" && window.navigator && window.navigator.vibrate) {

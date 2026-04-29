@@ -540,38 +540,55 @@ function JuzViewer() {
         saveBookmark(num, currentPage, readingMode, currentVerseKey);
         setSavedBookmark({ juz: num, page: currentPage, readingMode, verseKey: currentVerseKey });
 
-        const history = JSON.parse(localStorage.getItem("quran-reading-history") || "{}");
-        const juzHistory = history[num] || { pagesRead: 0, lastPage: 0, visitedPages: [] };
-        
-        if (!(juzHistory.visitedPages || []).includes(currentPage)) {
-          juzHistory.visitedPages.push(currentPage);
-          juzHistory.pagesRead = juzHistory.visitedPages.length;
-          
-          addPageRead();
+        try {
+          const history = JSON.parse(localStorage.getItem("quran-reading-history") || "{}");
+          const rawHistory = history[num] || {};
 
-          if (juzHistory.pagesRead === pages.length && !juzHistory.completed) {
-            juzHistory.completed = true;
-            addJuzCompleted();
-            
-            if (num === 30) {
-              setShowKhatmaCelebration(true);
-            } else {
-              toast.success(t("juzViewer.juzCompleted"), {
-                description: `${t("juzViewer.congrats")} ${isAr ? toArabicNumber(num.toString()) : num}`,
-                icon: <Trophy className="text-gold" />
-              });
+          // Guard: ensure visitedPages is always a valid array (guards against malformed data)
+          const visitedPages: number[] = Array.isArray(rawHistory.visitedPages)
+            ? rawHistory.visitedPages
+            : [];
+
+          const juzHistory = {
+            pagesRead: rawHistory.pagesRead ?? 0,
+            lastPage: rawHistory.lastPage ?? 0,
+            completed: rawHistory.completed ?? false,
+            visitedPages,
+          };
+
+          if (!juzHistory.visitedPages.includes(currentPage)) {
+            juzHistory.visitedPages = [...juzHistory.visitedPages, currentPage];
+            juzHistory.pagesRead = juzHistory.visitedPages.length;
+
+            addPageRead();
+
+            if (juzHistory.pagesRead === pages.length && !juzHistory.completed) {
+              juzHistory.completed = true;
+              addJuzCompleted();
+
+              if (num === 30) {
+                setShowKhatmaCelebration(true);
+              } else {
+                toast.success(t("juzViewer.juzCompleted"), {
+                  description: `${t("juzViewer.congrats")} ${isAr ? toArabicNumber(num.toString()) : num}`,
+                  icon: <Trophy className="text-gold" />
+                });
+              }
             }
           }
+
+          juzHistory.lastPage = currentPage;
+          history[num] = juzHistory;
+          localStorage.setItem("quran-reading-history", JSON.stringify(history));
+        } catch (e) {
+          console.error("Failed to update reading history:", e);
         }
-        
-        juzHistory.lastPage = currentPage;
-        history[num] = juzHistory;
-        localStorage.setItem("quran-reading-history", JSON.stringify(history));
-      }, 1500); 
-      
+      }, 1500);
+
       return () => clearTimeout(timer);
     }
-  }, [currentPage, num, readingMode, juz, currentVerseKey, addAyahRead, addPageRead, addJuzCompleted, pages.length]);
+  }, [currentPage, num, readingMode, juz, currentVerseKey, addPageRead, addJuzCompleted, pages.length]);
+
 
   useEffect(() => {
     if (!juz || pages.length === 0 || !isLoaded) return;

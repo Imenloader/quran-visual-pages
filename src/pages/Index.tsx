@@ -202,7 +202,7 @@ function Index() {
                 <div className="flex flex-col sm:flex-row items-center gap-4 md:gap-8 w-full md:w-auto">
                   {bookmark ? (
                     <button
-                      onClick={() => navigate(`/juz/${bookmarkInfo?.juzNumber}#page-${bookmark.page}`)}
+                      onClick={() => navigate(`/juz/${bookmark.juz}#page-${bookmark.page}`)}
                       className="group relative flex items-center gap-3 md:gap-4 bg-accent text-accent-foreground px-6 md:px-10 py-3 md:py-4 rounded-2xl md:rounded-[2rem] font-naskh text-sm md:text-lg font-bold shadow-islamic hover:shadow-accent/20 transition-all hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-gold/20 to-transparent opacity-0 group-hover:opacity-100" />
