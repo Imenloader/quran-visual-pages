@@ -11,10 +11,9 @@ const PrivacyPolicy = () => {
   const sections = [
     {
       icon: <Eye className="text-primary" />,
-      title: isAr ? "البيانات التي نجمعها" : "Data We Collect",
       content: isAr 
-        ? "نحن نجمع فقط المعلومات الضرورية لتشغيل التطبيق، مثل الاسم والبريد الإلكتروني عند تسجيل الدخول عبر جوجل لمزامنة تقدمك."
-        : "We only collect essential information required to operate the app, such as your name and email address when you sign in with Google to sync your progress."
+        ? "نحن نجمع فقط المعلومات الضرورية لتشغيل التطبيق، مثل الاسم والبريد الإلكتروني عند تسجيل الدخول، كما نقوم بحفظ حالة الجولة التعريفية محلياً لتجنب تكرارها."
+        : "We only collect essential information required to operate the app, such as your name and email address when you sign in, and we save the site tour completion status locally."
     },
     {
       icon: <Lock className="text-gold" />,
@@ -52,7 +51,7 @@ const PrivacyPolicy = () => {
                 {isAr ? "التزامنا بالخصوصية" : "Our Privacy Commitment"}
               </h2>
               <p className="text-sm text-muted-foreground font-bold">
-                {isAr ? "آخر تحديث: أبريل 2024" : "Last Updated: April 2024"}
+                {isAr ? "آخر تحديث: أبريل 2026" : "Last Updated: April 2026"}
               </p>
             </div>
           </div>

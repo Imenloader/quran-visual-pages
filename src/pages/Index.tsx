@@ -203,6 +203,7 @@ function Index() {
                   {bookmark ? (
                     <button
                       onClick={handleResumeReading}
+                      id="tour-resume"
                       className="group relative flex items-center gap-3 md:gap-4 bg-primary text-primary-foreground px-6 md:px-10 py-4 md:py-5 rounded-2xl md:rounded-[2.5rem] font-serif text-lg md:text-xl font-medium shadow-2xl w-full sm:w-auto justify-center"
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-gold/20 to-transparent opacity-0 group-hover:opacity-100" />
@@ -212,6 +213,7 @@ function Index() {
                   ) : (
                     <button
                       onClick={() => setShowIndex(true)}
+                      id="tour-start"
                       className="group relative flex items-center gap-3 md:gap-4 bg-primary text-primary-foreground px-6 md:px-10 py-4 md:py-5 rounded-2xl md:rounded-[2.5rem] font-serif text-lg md:text-xl font-medium shadow-2xl w-full sm:w-auto justify-center"
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-gold/20 to-transparent opacity-0 group-hover:opacity-100" />
@@ -240,6 +242,7 @@ function Index() {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    id="tour-search"
                     placeholder={t("index.search.placeholder")}
                     className="w-full bg-muted/30 backdrop-blur-md border border-border/40 rounded-xl md:rounded-2xl pr-12 pl-4 py-3 md:py-4 text-sm font-naskh text-primary placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/40 transition-all"
                   />
