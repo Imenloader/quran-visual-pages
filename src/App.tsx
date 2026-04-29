@@ -227,8 +227,14 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    // Pre-load voices for TTS
-    window.speechSynthesis.getVoices();
+    // Pre-load voices for TTS - safely check for speechSynthesis support
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      try {
+        window.speechSynthesis.getVoices();
+      } catch (error) {
+        console.warn("Failed to pre-load TTS voices:", error);
+      }
+    }
   }, []);
 
   return (

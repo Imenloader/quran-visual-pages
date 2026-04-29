@@ -18,10 +18,14 @@ export const useAudioUnlock = () => {
     });
 
     // Unlock SpeechSynthesis
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.getVoices();
-      const utterance = new SpeechSynthesisUtterance("");
-      window.speechSynthesis.speak(utterance);
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      try {
+        window.speechSynthesis.getVoices();
+        const utterance = new SpeechSynthesisUtterance("");
+        window.speechSynthesis.speak(utterance);
+      } catch (error) {
+        console.warn("SpeechSynthesis unlock failed:", error);
+      }
     }
   }, [isAudioUnlocked]);
 
