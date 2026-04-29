@@ -120,7 +120,7 @@ export const SCHOLARS_DATA = [
   {
     id: 'alkamali',
     name: 'سعيد الكملي',
-    channelUrl: 'https://www.youtube.com/@SaidiKamali',
+    channelUrl: 'https://www.youtube.com/@elkamali',
     description: 'شروحات الموطأ والأدب العربي والفقيه المالكي المتميز.'
   },
   {
