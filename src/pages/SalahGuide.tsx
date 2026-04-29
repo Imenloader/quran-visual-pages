@@ -97,26 +97,21 @@ const SalahGuide: React.FC = () => {
             </div>
 
             {/* Interactive Card Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-              {/* Image Side - Fixed size to avoid "huge" look */}
-              <div className="lg:col-span-5 relative group">
-                <div className="relative aspect-[4/5] lg:aspect-auto lg:h-full min-h-[300px] md:min-h-[450px] bg-card rounded-[2.5rem] overflow-hidden shadow-2xl border border-border/10 ring-1 ring-black/5">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              {/* Image Side - Constrained size */}
+              <div className="lg:col-span-4 xl:col-span-3 relative group">
+                <div className="relative aspect-square bg-card rounded-[2.5rem] overflow-hidden shadow-xl border border-border/10 ring-1 ring-black/5 max-h-[320px] mx-auto">
                   <img 
                     src={currentStep.postureImageUrl} 
                     alt={currentStep.stepName}
-                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                    className="w-full h-full object-contain p-4 transition-transform duration-1000 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  
-                  {/* Floating Action Hint */}
-                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-white text-[10px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-500">
-                    <Info size={12} /> {isAr ? "تأمل الوضعية" : "Study Posture"}
-                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent pointer-events-none" />
                 </div>
               </div>
 
               {/* Details Side */}
-              <div className="lg:col-span-7 flex flex-col gap-6">
+              <div className="lg:col-span-8 xl:col-span-9 flex flex-col gap-6">
                 <div className="bg-card/60 backdrop-blur-2xl border border-border/20 rounded-[2.5rem] p-8 md:p-10 shadow-soft flex-1 flex flex-col justify-center">
                   <div className={isAr ? "text-right" : "text-left"}>
                     <h2 className={`text-3xl md:text-4xl font-bold mb-4 text-foreground ${isAr ? "font-naskh" : "font-serif"}`}>
