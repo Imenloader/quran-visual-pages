@@ -40,10 +40,13 @@ const InternalVideoPlayer: React.FC<InternalVideoPlayerProps> = ({ videoId, onCl
           )}
           
           <iframe
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0`}
+            src={videoId.startsWith('PL') 
+              ? `https://www.youtube.com/embed/videoseries?list=${videoId}&autoplay=1`
+              : `https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0`
+            }
             title={title}
             className="w-full h-full relative z-10"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allow="autoplay; fullscreen"
             allowFullScreen
             onLoad={() => setIsLoading(false)}
           />
