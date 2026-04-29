@@ -18,7 +18,7 @@ const MosqueFinder = () => {
     setLoading(true);
     setError(null);
     try {
-      const results = await searchPlaces(queryOverride || "مساجد قريبة", lat, lng);
+      const results = await searchPlaces(queryOverride || "مساجد قريبة", lat, lng, "mosque");
       setMosques(results);
       if (results.length === 0) {
         setError("لم يتم العثور على مساجد قريبة. يرجى التأكد من تفعيل الموقع أو المحاولة لاحقاً.");
@@ -114,7 +114,7 @@ const MosqueFinder = () => {
                       </div>
                       <div className="space-y-1">
                         <h3 className="font-bold font-naskh text-foreground">{mosque.name}</h3>
-                        <p className="text-[10px] text-muted-foreground font-naskh">{mosque.address || "العنوان متاح في الخريطة"}</p>
+                        <p className="text-[10px] text-muted-foreground font-naskh">{mosque.distance ? `${mosque.distance} • ` : ""}{mosque.address || "العنوان متاح في الخريطة"}</p>
                       </div>
                     </div>
                     <div className="text-right">
