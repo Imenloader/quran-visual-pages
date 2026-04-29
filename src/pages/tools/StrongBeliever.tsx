@@ -1,3 +1,9 @@
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Dumbbell, Play, Heart, Flame, Timer, ChevronRight, Sparkles } from "lucide-react";
+import QuranHeader from "@/components/QuranHeader";
+import BackButton from "@/components/BackButton";
+import ScrollReveal from "@/components/ScrollReveal";
 import { FITNESS_CATEGORIES, FITNESS_PLAYLISTS, EXERCISES, NUTRITION_TIPS, SET_DHIKR } from "@/data/videoData";
 import InternalVideoPlayer from "@/components/InternalVideoPlayer";
 import ActivityPlanner from "@/components/ActivityPlanner";

@@ -134,8 +134,6 @@ const KnowledgeSessions = () => {
                 ))}
               </div>
             </div>
-
-            </div>
           </div>
 
           {/* Sidebar / Planner */}
