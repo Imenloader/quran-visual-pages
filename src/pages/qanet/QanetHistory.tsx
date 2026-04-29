@@ -1,55 +1,70 @@
 import React, { useMemo, useState } from 'react';
-import { Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Trash2, ChevronLeft, ChevronRight, BarChart3, PieChart as PieIcon, ListFilter, History } from 'lucide-react';
 import { useQanet } from './QanetContext';
 import { calculateStats, getQanetLevel, getLevelLabel } from './utils';
 import { surahData } from '@/data/quranData';
 import { toHijri, getHijriMonthDays, getHijriMonthStartDay, toArabicDigits, WEEKDAYS_AR_SHORT } from './hijriUtils';
-import { startOfDay, subDays, format, parseISO, isValid } from 'date-fns';
+import { startOfDay, subDays, parseISO, isValid } from 'date-fns';
+import { StatCard } from './components/StatCard';
+import { 
+  AreaChart, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend
+} from 'recharts';
 
 export default function QanetHistory() {
-  const { logs, deleteLog, settings } = useQanet();
+  const { logs, deleteLog, settings, language } = useQanet();
+  const isArabic = language === 'ar';
   const stats = useMemo(() => calculateStats(logs), [logs]);
 
   const todayHijri = toHijri(new Date(), settings.hijriOffset);
   const [viewMonth, setViewMonth] = useState(todayHijri.month);
   const [viewYear, setViewYear] = useState(todayHijri.year);
 
-  // --- Last 7 days chart data ---
-  const last7Days = useMemo(() => {
+  // --- Last 7 days Area Chart ---
+  const last7DaysData = useMemo(() => {
     const today = startOfDay(new Date());
-    const days = [];
-    const dayNames = ['أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت'];
+    const dayNames = isArabic ? ['أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-    for (let i = 6; i >= 0; i--) {
-      const date = subDays(today, i);
+    return [...Array(7)].map((_, i) => {
+      const date = subDays(today, 6 - i);
       const dateKey = startOfDay(date).toISOString();
       const ayahs = (stats.dailyTotals as Map<string, number>)?.get(dateKey) || 0;
-      days.push({
+      return {
         label: dayNames[date.getDay()],
         ayahs,
-        date,
-      });
-    }
-    return days;
-  }, [logs, stats]);
+        date: format(date, 'MMM dd')
+      };
+    });
+  }, [logs, stats, isArabic]);
 
-  const maxChartValue = Math.max(...last7Days.map(d => d.ayahs), 1);
-
-  // --- Level distribution ---
-  const levelDistribution = useMemo(() => {
+  // --- Level distribution Pie Chart ---
+  const levelDistributionData = useMemo(() => {
     const dist = { heedless: 0, aware: 0, qanet: 0, muqantar: 0 };
-    if (!stats.dailyTotals) return dist;
+    if (!stats.dailyTotals) return [];
 
     (stats.dailyTotals as Map<string, number>).forEach((ayahs) => {
       const level = getQanetLevel(ayahs);
       dist[level]++;
     });
-    return dist;
-  }, [stats]);
 
-  const totalNightsForDist = Object.values(levelDistribution).reduce((a, b) => a + b, 0);
+    return [
+      { name: isArabic ? 'غافل' : 'Heedless', value: dist.heedless, color: '#f87171' },
+      { name: isArabic ? 'غير غافل' : 'Aware', value: dist.aware, color: '#60a5fa' },
+      { name: isArabic ? 'قانت' : 'Qanet', value: dist.qanet, color: '#34d399' },
+      { name: isArabic ? 'مقنطر' : 'Muqantar', value: dist.muqantar, color: '#c084fc' }
+    ].filter(d => d.value > 0);
+  }, [stats, isArabic]);
 
-  // --- Calendar: days with logs ---
+  // --- Calendar Logic ---
   const logDayMap = useMemo(() => {
     const map = new Map<string, number>();
     logs.forEach(log => {
@@ -93,206 +108,194 @@ export default function QanetHistory() {
     return 'bg-red-500/20 text-red-600';
   };
 
-  // Recent logs sorted
-  const recentLogs = useMemo(() =>
-    [...logs].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 10)
-  , [logs]);
-
   const handleDeleteLog = (id: string) => {
-    if (window.confirm('هل تريد حذف هذا السجل؟')) {
+    if (window.confirm(isArabic ? 'هل تريد حذف هذا السجل؟' : 'Delete this log?')) {
       deleteLog(id);
     }
   };
 
   return (
-    <div className="p-6 pt-4 pb-24 max-w-md mx-auto space-y-8">
+    <div className="p-6 pt-4 pb-32 max-w-2xl mx-auto space-y-10" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="text-center">
-        <h1 className="text-3xl font-bold mb-2 text-primary font-naskh">سجل الصلوات</h1>
-        <p className="text-muted-foreground text-sm font-medium">تتبع تقدمك واستمراريتك</p>
+        <h1 className="text-3xl font-bold mb-2 text-primary font-naskh">{isArabic ? 'سجل العبادة' : 'Worship Log'}</h1>
+        <p className="text-muted-foreground text-sm font-medium">{isArabic ? 'تتبع مسيرة تقربك واستمراريتك' : 'Track your journey and consistency'}</p>
       </div>
 
-      {/* Streak Stats */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-card border border-border rounded-[2rem] p-6 text-right shadow-soft">
-          <p className="text-muted-foreground text-[10px] font-bold mb-4">أطول سلسلة استمرارية كقانت</p>
-          <div className="flex items-center gap-2 justify-end">
-            <span className="text-3xl font-bold text-foreground">{stats.maxQanetStreak}</span>
-            <span className="text-orange-500 text-2xl">🔥</span>
-          </div>
+      {/* Hero Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
+          <StatCard title={isArabic ? 'إجمالي الآيات' : 'Total Ayahs'} value={stats.totalAyahs.toLocaleString(isArabic ? 'ar-SA' : 'en-US')} />
+          <StatCard title={isArabic ? 'إجمالي الليالي' : 'Total Nights'} value={stats.totalNights} />
         </div>
-        <div className="bg-card border border-border rounded-[2rem] p-6 text-right shadow-soft">
-          <p className="text-muted-foreground text-[10px] font-bold mb-4">أطول سلسلة عدم غفلة</p>
-          <div className="flex items-center gap-2 justify-end">
-            <span className="text-3xl font-bold text-foreground">{stats.maxNonHeedlessStreak}</span>
-            <span className="text-blue-500 text-2xl">🔥</span>
-          </div>
-        </div>
+        <StatCard 
+          title={isArabic ? 'أطول سلسلة قانت' : 'Max Qanet Streak'} 
+          value={stats.maxQanetStreak} 
+          variant="highlight"
+          subtitle={isArabic ? 'يوم متواصل' : 'days streak'}
+        />
+      </div>
 
-        <div className="bg-card border border-border rounded-[2rem] p-6 text-right shadow-soft">
-          <div className="flex items-center justify-end gap-2 text-muted-foreground mb-4 text-[10px] font-bold">
-            <span>إجمالي الآيات</span>
-            <span className="text-yellow-500">📖</span>
-          </div>
-          <div className="text-2xl font-bold text-foreground">{stats.totalAyahs.toLocaleString('ar-SA')}</div>
+      {/* Activity Area Chart */}
+      <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-soft space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="font-bold text-lg font-naskh flex items-center gap-2">
+            <BarChart3 className="text-primary w-5 h-5" />
+            {isArabic ? 'نشاط الأسبوع الأخير' : 'Last Week Activity'}
+          </h3>
         </div>
-        <div className="bg-card border border-border rounded-[2rem] p-6 text-right shadow-soft">
-          <div className="flex items-center justify-end gap-2 text-muted-foreground mb-4 text-[10px] font-bold">
-            <span>إجمالي الليالي</span>
-            <span className="text-blue-400">🌙</span>
-          </div>
-          <div className="text-2xl font-bold text-foreground">{stats.totalNights}</div>
+        <div className="h-[200px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={last7DaysData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#88888820" vertical={false} />
+              <XAxis dataKey="label" fontSize={10} axisLine={false} tickLine={false} />
+              <YAxis hide />
+              <Tooltip 
+                contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '1rem', border: '1px solid hsl(var(--border))' }}
+                itemStyle={{ color: 'hsl(var(--primary))', fontSize: '12px' }}
+              />
+              <Area 
+                type="monotone" 
+                dataKey="ayahs" 
+                stroke="hsl(var(--primary))" 
+                fill="hsl(var(--primary))" 
+                fillOpacity={0.1}
+                strokeWidth={3}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
-      {/* Last 7 Days Chart */}
-      <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-soft">
-        <div className="flex justify-between items-center mb-8">
-          <span className="text-muted-foreground text-xs font-bold uppercase tracking-wider">آخر ٧ ليالٍ</span>
-          <span className="font-bold text-primary text-sm">معدل القراءة</span>
+      {/* Distribution & Calendar Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Pie Chart Distribution */}
+        <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-soft space-y-6">
+          <h3 className="font-bold text-lg font-naskh flex items-center gap-2">
+            <PieIcon className="text-primary w-5 h-5" />
+            {isArabic ? 'توزيع الحالات' : 'Level Distribution'}
+          </h3>
+          <div className="h-[250px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={levelDistributionData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {levelDistributionData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend layout="horizontal" verticalAlign="bottom" align="center" />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
-        <div className="h-32 border-b border-border relative mb-6">
-          <div className="absolute inset-0 flex items-end justify-between px-2">
-            {last7Days.map((day, i) => {
-              const height = maxChartValue > 0 ? (day.ayahs / maxChartValue) * 100 : 0;
-              const level = getQanetLevel(day.ayahs);
-              const barColor = day.ayahs === 0 ? 'bg-muted'
-                : level === 'muqantar' ? 'bg-purple-500'
-                : level === 'qanet' ? 'bg-emerald-500'
-                : level === 'aware' ? 'bg-blue-500'
-                : 'bg-red-400';
+        {/* Hijri Calendar */}
+        <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-soft space-y-6">
+          <div className="flex justify-between items-center">
+            <button onClick={() => navigateMonth(1)} className="p-2 hover:bg-muted rounded-full transition-colors">
+              <ChevronLeft size={20} />
+            </button>
+            <span className="font-bold text-primary text-lg font-naskh">
+              {monthNames[viewMonth - 1]} {toArabicDigits(viewYear)} هـ
+            </span>
+            <button onClick={() => navigateMonth(-1)} className="p-2 hover:bg-muted rounded-full transition-colors">
+              <ChevronRight size={20} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-muted-foreground uppercase tracking-widest" dir="rtl">
+            {WEEKDAYS_AR_SHORT.map((d, i) => <span key={i}>{d}</span>)}
+          </div>
+
+          <div className="grid grid-cols-7 gap-y-3 text-center" dir="rtl">
+            {[...Array(startDay)].map((_, i) => <div key={`e-${i}`} />)}
+            {[...Array(daysInMonth)].map((_, i) => {
+              const day = i + 1;
+              const key = `${viewYear}-${viewMonth}-${day}`;
+              const ayahs = logDayMap.get(key) || 0;
+              const isToday = todayHijri.day === day && todayHijri.month === viewMonth && todayHijri.year === viewYear;
+              const colorClass = getDayColor(ayahs);
 
               return (
-                <div key={i} className="flex flex-col items-center w-8 group relative">
-                  {day.ayahs > 0 && (
-                    <div className="absolute -top-8 bg-foreground text-background px-2 py-1 rounded-lg text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                      {day.ayahs}
-                    </div>
-                  )}
-                  <div
-                    className={`w-6 ${barColor} rounded-t-lg transition-all group-hover:brightness-110`}
-                    style={{ height: `${Math.max(height, day.ayahs > 0 ? 8 : 4)}%` }}
-                  />
+                <div
+                  key={day}
+                  className={`w-8 h-8 mx-auto flex items-center justify-center rounded-xl text-xs font-bold transition-all relative
+                    ${colorClass}
+                    ${isToday && !colorClass ? 'border border-primary text-primary shadow-[0_0_10px_rgba(var(--primary),0.3)]' : ''}
+                    ${isToday && colorClass ? 'ring-2 ring-primary ring-offset-1' : ''}
+                    ${!colorClass && !isToday ? 'text-foreground/40 hover:bg-muted hover:text-foreground' : ''}
+                  `}
+                >
+                  {toArabicDigits(day)}
+                  {ayahs > 0 && <div className="absolute -bottom-1 w-1 h-1 rounded-full bg-primary" />}
                 </div>
               );
             })}
           </div>
         </div>
-        <div className="flex justify-between px-2 text-[10px] text-muted-foreground font-bold" dir="rtl">
-          {last7Days.map((d, i) => <span key={i}>{d.label}</span>)}
-        </div>
       </div>
 
-      {/* Level Distribution */}
-      <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-soft text-center">
-        <h3 className="font-bold text-lg mb-6 text-right text-primary px-2">تصنيف القراءة</h3>
-        <div className="h-4 bg-muted rounded-full w-full mb-6 overflow-hidden flex shadow-inner">
-          {totalNightsForDist > 0 ? (
-            <>
-              <div className="h-full bg-red-400" style={{ width: `${(levelDistribution.heedless / totalNightsForDist) * 100}%` }} />
-              <div className="h-full bg-blue-400" style={{ width: `${(levelDistribution.aware / totalNightsForDist) * 100}%` }} />
-              <div className="h-full bg-emerald-400" style={{ width: `${(levelDistribution.qanet / totalNightsForDist) * 100}%` }} />
-              <div className="h-full bg-purple-400" style={{ width: `${(levelDistribution.muqantar / totalNightsForDist) * 100}%` }} />
-            </>
-          ) : (
-            <div className="h-full bg-muted/50 w-full" />
-          )}
-        </div>
-        <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-[11px] text-muted-foreground font-bold" dir="rtl">
-          <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 bg-red-400 rounded-sm" />غافل ({levelDistribution.heedless})</span>
-          <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 bg-blue-400 rounded-sm" />غير غافل ({levelDistribution.aware})</span>
-          <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 bg-emerald-400 rounded-sm" />قانت ({levelDistribution.qanet})</span>
-          <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 bg-purple-400 rounded-sm" />مقنطر ({levelDistribution.muqantar})</span>
-        </div>
-      </div>
-
-      {/* Hijri Calendar */}
-      <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-soft">
-        <div className="flex justify-between items-center mb-8">
-          <button onClick={() => navigateMonth(1)} className="text-muted-foreground hover:text-primary p-2 bg-muted rounded-full transition-colors">
-            <ChevronLeft size={20} />
-          </button>
-          <span className="font-bold text-primary text-lg">
-            {monthNames[viewMonth - 1]} {toArabicDigits(viewYear)} هـ
-          </span>
-          <button onClick={() => navigateMonth(-1)} className="text-muted-foreground hover:text-primary p-2 bg-muted rounded-full transition-colors">
-            <ChevronRight size={20} />
+      {/* History List */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between px-2">
+          <h3 className="font-bold text-xl text-primary font-naskh flex items-center gap-2">
+            <History className="w-6 h-6" />
+            {isArabic ? 'سجلات الماضي' : 'Past Logs'}
+          </h3>
+          <button className="p-2 hover:bg-muted rounded-xl transition-colors">
+            <ListFilter size={18} className="text-muted-foreground" />
           </button>
         </div>
-
-        <div className="grid grid-cols-7 gap-2 text-center text-[11px] font-bold text-muted-foreground mb-4" dir="rtl">
-          {WEEKDAYS_AR_SHORT.map((d, i) => <span key={i}>{d}</span>)}
-        </div>
-
-        <div className="grid grid-cols-7 gap-y-4 text-center text-sm" dir="rtl">
-          {[...Array(startDay)].map((_, i) => <div key={`e-${i}`} />)}
-
-          {[...Array(daysInMonth)].map((_, i) => {
-            const day = i + 1;
-            const key = `${viewYear}-${viewMonth}-${day}`;
-            const ayahs = logDayMap.get(key) || 0;
-            const isToday = todayHijri.day === day && todayHijri.month === viewMonth && todayHijri.year === viewYear;
-            const colorClass = getDayColor(ayahs);
+        
+        <div className="space-y-4">
+          {logs.slice(0, 15).map((log) => {
+            const level = getQanetLevel(log.totalAyahs);
+            const startSurahName = surahData.find(s => s.number === log.startSurah)?.name || '';
+            const endSurahName = surahData.find(s => s.number === log.endSurah)?.name || '';
 
             return (
-              <div
-                key={day}
-                className={`w-9 h-9 mx-auto flex items-center justify-center rounded-2xl text-xs font-bold transition-all
-                  ${colorClass}
-                  ${isToday && !colorClass ? 'border-2 border-primary text-primary' : ''}
-                  ${isToday && colorClass ? 'ring-2 ring-primary ring-offset-2' : ''}
-                  ${!colorClass && !isToday ? 'text-foreground/70 hover:bg-muted' : ''}
-                `}
-                title={ayahs > 0 ? `${ayahs} آية` : ''}
-              >
-                {toArabicDigits(day)}
+              <div key={log.id} className="group flex items-center justify-between bg-card border border-border rounded-[2rem] p-6 shadow-soft hover:shadow-islamic hover:border-primary/20 transition-all">
+                <button
+                  onClick={() => handleDeleteLog(log.id)}
+                  className="p-3 text-destructive/20 hover:text-destructive hover:bg-destructive/5 rounded-2xl transition-all"
+                >
+                  <Trash2 size={18} />
+                </button>
+                
+                <div className="flex-1 text-right mr-6">
+                  <div className="flex items-center justify-end gap-3 mb-1">
+                    <span className={`text-[10px] px-3 py-1 rounded-full font-bold border ${
+                      level === 'muqantar' ? 'bg-purple-500/10 border-purple-500/20 text-purple-600' :
+                      level === 'qanet' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600' :
+                      level === 'aware' ? 'bg-blue-500/10 border-blue-500/20 text-blue-600' :
+                      'bg-red-500/10 border-red-500/20 text-red-600'
+                    }`}>
+                      {getLevelLabel(level)}
+                    </span>
+                    <span className="font-black text-foreground text-2xl tabular-nums">{log.totalAyahs}</span>
+                    <span className="text-xs font-bold text-muted-foreground">{isArabic ? 'آية' : 'Ayahs'}</span>
+                  </div>
+                  <div className="flex items-center justify-end gap-2 text-muted-foreground text-[10px] font-bold uppercase tracking-tighter">
+                    <span className="font-naskh text-sm opacity-80">{startSurahName}</span>
+                    <ChevronRight size={10} className={isArabic ? 'rotate-180' : ''} />
+                    <span className="font-naskh text-sm opacity-80">{endSurahName}</span>
+                    <span className="mx-2 opacity-30">|</span>
+                    <span>{log.hijriDate}</span>
+                  </div>
+                </div>
               </div>
             );
           })}
         </div>
       </div>
-
-      {/* Recent Logs */}
-      {recentLogs.length > 0 && (
-        <div className="space-y-4">
-          <h3 className="font-bold text-xl text-primary px-2">آخر السجلات</h3>
-          <div className="space-y-3">
-            {recentLogs.map((log) => {
-              const level = getQanetLevel(log.totalAyahs);
-              const levelLabel = getLevelLabel(level);
-              const startSurahName = surahData.find(s => s.number === log.startSurah)?.name || '';
-              const endSurahName = surahData.find(s => s.number === log.endSurah)?.name || '';
-
-              return (
-                <div key={log.id} className="flex items-center justify-between bg-card border border-border rounded-3xl p-5 shadow-soft hover:shadow-islamic transition-all">
-                  <button
-                    onClick={() => handleDeleteLog(log.id)}
-                    className="p-2 text-destructive/40 hover:text-destructive hover:bg-destructive/5 rounded-full transition-colors"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                  <div className="flex-1 text-right mr-4">
-                    <div className="flex items-center justify-end gap-3 mb-1">
-                      <span className={`text-[10px] px-3 py-1 rounded-full font-bold ${
-                        level === 'muqantar' ? 'bg-purple-500/10 text-purple-600' :
-                        level === 'qanet' ? 'bg-emerald-500/10 text-emerald-600' :
-                        level === 'aware' ? 'bg-blue-500/10 text-blue-600' :
-                        'bg-red-500/10 text-red-600'
-                      }`}>
-                        {levelLabel}
-                      </span>
-                      <span className="font-bold text-foreground text-lg">{log.totalAyahs} آية</span>
-                    </div>
-                    <p className="text-muted-foreground text-xs font-medium">
-                      {startSurahName} ← {endSurahName} | {log.hijriDate}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

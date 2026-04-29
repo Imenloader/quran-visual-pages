@@ -1,10 +1,20 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, Flame, FlameKindling, BookOpen } from 'lucide-react';
+import { Plus, Flame, FlameKindling, BookOpen, BarChart2, Calendar, Trophy } from 'lucide-react';
 import { useQanet } from './QanetContext';
 import { useUser } from '@/contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { calculateStats, getQanetLevel, getLevelLabel } from './utils';
 import QanetLogModal from './QanetLogModal';
+import { StatCard } from './components/StatCard';
+import { 
+  AreaChart, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer 
+} from 'recharts';
 
 const moonImage = "https://images.unsplash.com/photo-1532693322450-2cb5c511067d?q=80&w=600&auto=format&fit=crop";
 
@@ -16,6 +26,23 @@ export default function QanetHome() {
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
 
   const stats = useMemo(() => calculateStats(logs), [logs]);
+
+  // Chart Data Preparation
+  const chartData = useMemo(() => {
+    const last30Days = [...Array(30)].map((_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (29 - i));
+      return d.toISOString().split('T')[0];
+    });
+
+    return last30Days.map(date => {
+      const log = logs.find(l => l.date === date);
+      return {
+        date: date.split('-').slice(1).reverse().join('/'),
+        ayahs: log ? log.totalAyahs : 0,
+      };
+    });
+  }, [logs]);
 
   // Last night logic
   const lastLog = logs.length > 0 ? [...logs].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0] : null;
@@ -29,31 +56,31 @@ export default function QanetHome() {
   const bestNight = logs.length > 0 ? Math.max(...logs.map(l => l.totalAyahs)) : 0;
 
   return (
-    <div className="p-6 pt-4 pb-24 max-w-md mx-auto space-y-8">
+    <div className="p-6 pt-4 pb-32 max-w-2xl mx-auto space-y-10">
       {/* User Profile Header */}
       <div className="flex items-center justify-between">
         <div className="flex gap-2">
           <button
             onClick={() => navigate('/juz/1')}
-            className="flex items-center gap-1.5 px-3 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary text-[11px] font-bold"
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-primary/10 border border-primary/20 rounded-2xl text-primary text-[11px] font-bold hover:bg-primary/20 transition-all"
           >
             <BookOpen size={14} />
             {isArabic ? 'اقرأ القرآن' : 'Read Quran'}
           </button>
           <button
             onClick={() => navigate('/qiyam')}
-            className="flex items-center gap-1.5 px-3 py-2 bg-accent/10 border border-accent/20 rounded-full text-accent text-[11px] font-bold"
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-accent/10 border border-accent/20 rounded-2xl text-accent text-[11px] font-bold hover:bg-accent/20 transition-all"
           >
             <Flame size={14} />
             {isArabic ? '١٠٠ آية' : '100 Aya'}
           </button>
         </div>
         <div className="flex items-center gap-3">
-          <div className="text-right">
-            <p className="text-muted-foreground text-[10px]">مرحباً</p>
+          <div className="text-right hidden sm:block">
+            <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest">مرحباً</p>
             <p className="font-bold text-foreground text-sm">{profile.name}</p>
           </div>
-          <div className="w-10 h-10 rounded-full overflow-hidden border border-border bg-muted">
+          <div className="w-12 h-12 rounded-2xl overflow-hidden border border-border bg-muted shadow-soft">
             {profile.avatar ? (
               <img src={profile.avatar} alt="" className="w-full h-full object-cover" />
             ) : (
@@ -63,77 +90,126 @@ export default function QanetHome() {
         </div>
       </div>
 
-      {/* Moon & Title */}
-      <div className="flex flex-col items-center py-4">
-        <div className="w-32 h-32 rounded-full overflow-hidden mb-6 shadow-islamic border-4 border-primary/10 bg-black relative">
-          <img 
-            src={moonImage} 
-            alt="Moon" 
-            className="w-full h-full object-cover opacity-90 scale-110"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+      {/* Moon & Title Section - More Premium */}
+      <div className="flex flex-col items-center text-center relative py-10 overflow-hidden">
+        <div className="absolute inset-0 bg-primary/5 blur-[120px] rounded-full scale-150" />
+        <div className="relative z-10">
+          <div className="w-40 h-40 rounded-full overflow-hidden mb-8 shadow-islamic border-[6px] border-primary/10 bg-black relative mx-auto group cursor-pointer active:scale-95 transition-transform">
+            <img 
+              src={moonImage} 
+              alt="Moon" 
+              className="w-full h-full object-cover opacity-90 scale-110 group-hover:scale-125 transition-transform duration-1000"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <MoonStars className="text-white w-10 h-10 animate-pulse" />
+            </div>
+          </div>
+          <h1 className="text-4xl font-bold mb-3 text-primary font-naskh tracking-tight">{isArabic ? 'من القانتين' : 'Min Al-Qaniteen'}</h1>
+          <p className="text-muted-foreground text-base font-medium max-w-[250px] mx-auto leading-relaxed">
+            {isArabic ? 'رفيقك في رحلة قيام الليل والتقرب إلى الله' : 'Your Qiyam Al-Layl companion on the journey to Allah'}
+          </p>
         </div>
-        <h1 className="text-3xl font-bold mb-2 text-primary font-naskh">{isArabic ? 'من القانتين' : 'Min Al-Qaniteen'}</h1>
-        <p className="text-muted-foreground text-sm font-medium">{isArabic ? 'رفيقك في قيام الليل' : 'Your Qiyam Al-Layl Companion'}</p>
+      </div>
+
+      {/* Main Stats Graph */}
+      <div className="bg-card rounded-[2.5rem] p-8 border border-border shadow-soft space-y-6">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-lg font-bold font-naskh flex items-center gap-2">
+            <BarChart2 className="text-primary w-5 h-5" />
+            {isArabic ? 'مستوى النشاط (٣٠ يوم)' : 'Activity Level (30 Days)'}
+          </h2>
+          <div className="px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold">
+            {isArabic ? 'مباشر' : 'Live'}
+          </div>
+        </div>
+        <div className="h-[200px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id="colorAyahs" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#88888820" vertical={false} />
+              <XAxis dataKey="date" hide />
+              <YAxis hide />
+              <Tooltip 
+                contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '1rem', border: '1px solid hsl(var(--border))' }}
+                itemStyle={{ color: 'hsl(var(--primary))', fontSize: '12px' }}
+              />
+              <Area 
+                type="monotone" 
+                dataKey="ayahs" 
+                stroke="hsl(var(--primary))" 
+                fillOpacity={1} 
+                fill="url(#colorAyahs)" 
+                strokeWidth={3}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="space-y-4">
-        {/* Top Streak Card */}
-        <div className="bg-card rounded-[2.5rem] p-8 border border-border flex shadow-soft group">
-          <div className="flex-1 flex flex-col justify-center gap-1 border-l border-border pl-6">
-            <div className="flex items-center gap-2 justify-end mb-1">
-              <Flame size={24} className="text-orange-500" />
-              <span className="text-4xl font-bold text-foreground">{stats.qanetStreak}</span>
-            </div>
-            <p className="text-muted-foreground text-sm font-bold">سلسلة الاستمرارية</p>
-            <p className="text-primary text-[11px] font-bold">كقانت</p>
-          </div>
-          <div className="flex-1 flex flex-col justify-center items-end pr-6 gap-1">
-            <div className="text-4xl font-bold text-foreground mb-1">{lastNightAyahs > 0 ? lastNightAyahs : '-'}</div>
-            <p className="text-muted-foreground text-sm font-bold">الليلة الماضية</p>
-          </div>
-        </div>
-
-        {/* Bottom Two Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <StatCard 
+          title={isArabic ? 'سلسلة الاستمرارية' : 'Current Streak'}
+          value={stats.qanetStreak}
+          subtitle={isArabic ? 'كقانت' : 'As Qanet'}
+          icon={<Flame className="text-orange-500 w-6 h-6" />}
+          variant="highlight"
+        />
+        
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-card rounded-[2rem] p-6 border border-border flex flex-col items-center justify-center gap-3 text-center shadow-soft">
-            <div className={`text-xl font-bold ${
-              avgLevel === 'muqantar' ? 'text-purple-500' :
-              avgLevel === 'qanet' ? 'text-emerald-500' :
-              avgLevel === 'aware' ? 'text-blue-500' :
-              'text-red-500'
-            }`}>
-              {getLevelLabel(avgLevel)}
-            </div>
-            <p className="text-muted-foreground text-xs font-bold">متوسط الحالة</p>
-          </div>
-
-          <div className="bg-card rounded-[2rem] p-6 border border-border flex flex-col justify-center shadow-soft">
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center gap-1">
-                <FlameKindling size={18} className="text-blue-500" />
-                <span className="font-bold text-xl text-foreground">{stats.nonHeedlessStreak}</span>
-              </div>
-              <span className="font-bold text-xl text-foreground">{bestNight > 0 ? bestNight : '-'}</span>
-            </div>
-            <div className="flex justify-between items-center text-[10px] text-muted-foreground font-bold">
-              <span>سلسلة عدم الغفلة</span>
-              <span>أفضل ليلة</span>
-            </div>
-          </div>
+          <StatCard 
+            title={isArabic ? 'متوسط الحالة' : 'Avg Level'}
+            value={getLevelLabel(avgLevel)}
+            variant="status"
+            status={avgLevel}
+            icon={<Trophy className="text-amber-500 w-5 h-5" />}
+          />
+          <StatCard 
+            title={isArabic ? 'أفضل ليلة' : 'Personal Best'}
+            value={bestNight > 0 ? bestNight : '-'}
+            subtitle={isArabic ? 'آية' : 'Ayahs'}
+            icon={<Calendar className="text-blue-500 w-5 h-5" />}
+          />
         </div>
       </div>
 
-      {/* Recent Logs */}
-      <div className="mt-6">
-        <h2 className="text-xl font-bold mb-4 text-primary px-2">أحدث السجلات</h2>
-        <div className="bg-card rounded-[2rem] p-6 border border-border shadow-soft">
+      {/* Recent Logs - More Detailed */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between px-2">
+          <h2 className="text-xl font-bold text-primary font-naskh">{isArabic ? 'أحدث السجلات' : 'Recent Logs'}</h2>
+          <button 
+            onClick={() => navigate('/qanet/history')}
+            className="text-xs font-bold text-muted-foreground hover:text-primary transition-colors"
+          >
+            {isArabic ? 'عرض الكل' : 'View All'}
+          </button>
+        </div>
+        <div className="bg-card rounded-[2.5rem] p-6 border border-border shadow-soft divide-y divide-border/50">
           {logs.length > 0 ? (
-            <div className="space-y-4">
-              {[...logs].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5).map((log, i) => (
-                <div key={log.id || i} className="flex justify-between items-center border-b border-border/50 pb-3 last:border-0 last:pb-0">
-                  <div className={`text-[10px] px-3 py-1 rounded-full font-bold ${
+            [...logs].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 4).map((log, i) => (
+              <div key={log.id || i} className="flex justify-between items-center py-4 first:pt-0 last:pb-0">
+                <div className="flex items-center gap-4">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-[10px] font-bold ${
+                    getQanetLevel(log.totalAyahs) === 'muqantar' ? 'bg-purple-500/10 text-purple-600' :
+                    getQanetLevel(log.totalAyahs) === 'qanet' ? 'bg-emerald-500/10 text-emerald-600' :
+                    getQanetLevel(log.totalAyahs) === 'aware' ? 'bg-blue-500/10 text-blue-600' :
+                    'bg-red-500/10 text-red-600'
+                  }`}>
+                    {getLevelLabel(getQanetLevel(log.totalAyahs)).charAt(0)}
+                  </div>
+                  <div>
+                    <div className="font-bold text-sm text-foreground">{log.totalAyahs} {isArabic ? 'آية' : 'Ayahs'}</div>
+                    <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight">{log.hijriDate}</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className={`text-[10px] px-3 py-1 rounded-full font-bold inline-block ${
                     getQanetLevel(log.totalAyahs) === 'muqantar' ? 'bg-purple-500/10 text-purple-600' :
                     getQanetLevel(log.totalAyahs) === 'qanet' ? 'bg-emerald-500/10 text-emerald-600' :
                     getQanetLevel(log.totalAyahs) === 'aware' ? 'bg-blue-500/10 text-blue-600' :
@@ -141,31 +217,21 @@ export default function QanetHome() {
                   }`}>
                     {getLevelLabel(getQanetLevel(log.totalAyahs))}
                   </div>
-                  <div className="text-right">
-                    <div className="font-bold text-foreground">{log.totalAyahs} آية</div>
-                    <div className="text-muted-foreground text-[10px]">{log.hijriDate}</div>
-                  </div>
                 </div>
-              ))}
-              <button 
-                onClick={() => navigate('/qanet/history')}
-                className="w-full py-2 text-primary text-xs font-bold"
-              >
-                عرض الكل
-              </button>
-            </div>
+              </div>
+            ))
           ) : (
-            <p className="text-center text-muted-foreground py-6 text-sm">لا توجد سجلات بعد</p>
+            <p className="text-center text-muted-foreground py-10 text-sm font-naskh">لا توجد سجلات بعد. ابدأ اليوم!</p>
           )}
         </div>
       </div>
 
-      {/* FAB */}
+      {/* FAB - Premium Style */}
       <button
         onClick={() => setIsLogModalOpen(true)}
-        className="fixed bottom-24 right-6 w-14 h-14 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-islamic z-50"
+        className="fixed bottom-32 right-6 w-16 h-16 bg-primary text-primary-foreground rounded-[1.5rem] flex items-center justify-center shadow-islamic z-50 hover:scale-110 active:scale-95 transition-all group"
       >
-        <Plus size={28} />
+        <Plus size={32} className="group-hover:rotate-90 transition-transform duration-500" />
       </button>
 
       {/* Modal */}
@@ -173,3 +239,17 @@ export default function QanetHome() {
     </div>
   );
 }
+
+const MoonStars = ({ className }: { className?: string }) => (
+  <div className={className}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+      <path d="M19 3v4" />
+      <path d="M21 5h-4" />
+      <path d="M12 1v2" />
+      <path d="M12 21v2" />
+      <path d="M22 12h-2" />
+      <path d="M4 12H2" />
+    </svg>
+  </div>
+);

@@ -1,38 +1,57 @@
-import React from 'react';
-import { ChevronRight, Share2, BookOpen } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronRight, Share2, BookOpen, CheckCircle2, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useQanet } from './QanetContext';
+import { toHijri } from './hijriUtils';
+import { toast } from 'sonner';
 
 const AYA_SECTIONS = [
   {
+    id: 'fatiha',
     title: 'سورة الفاتحة',
+    ayahs: 7,
     image: 'https://d1yei2z3i6k35z.cloudfront.net/14770342/6937ea71de61b_1000464685.png',
   },
   {
+    id: 'kursi',
     title: 'آية الكرسي',
+    ayahs: 1,
     image: 'https://d1yei2z3i6k35z.cloudfront.net/14770342/6937eaf07516c_1000464691.png',
   },
   {
+    id: 'baqarah_last',
     title: 'أخر آيتين من سورة البقرة',
+    ayahs: 2,
     image: 'https://d1yei2z3i6k35z.cloudfront.net/14770342/6937eae42cde7_1000464690.png',
   },
   {
+    id: 'sajdah',
     title: 'سورة السجدة',
+    ayahs: 30,
     image: 'https://d1yei2z3i6k35z.cloudfront.net/14770342/6937eac62c66a_1000464687.png',
   },
   {
-    title: 'أواخر سورة الحشر ثلاثا',
+    id: 'hashr_last',
+    title: 'أواخر سورة الحشر (٣ مرات)',
+    ayahs: 9, // 3 * 3
     image: 'https://d1yei2z3i6k35z.cloudfront.net/14770342/6937eadbe1de8_1000464689.png',
   },
   {
+    id: 'mulk',
     title: 'سورة الملك',
+    ayahs: 30,
     image: 'https://d1yei2z3i6k35z.cloudfront.net/14770342/6937ea8715237_1000464686.png',
   },
   {
+    id: 'kafirun',
     title: 'سورة الكافرون',
+    ayahs: 6,
     image: 'https://d1yei2z3i6k35z.cloudfront.net/14770342/6937eafc20436_1000464692.png',
   },
   {
-    title: 'المعوذات ثلاثا',
+    id: 'ikhlas_maowidhat',
+    title: 'المعوذات (٣ مرات)',
+    ayahs: 15, // (4+5+6) * 1 approx
     image: 'https://d1yei2z3i6k35z.cloudfront.net/14770342/6937eacfbb5c3_1000464688.png',
   },
 ];
@@ -52,67 +71,161 @@ const VIRTUES = [
 
 export default function QiyamAya100() {
   const navigate = useNavigate();
+  const { addLog, settings } = useQanet();
+  const [completed, setCompleted] = useState<string[]>([]);
+
+  const toggleComplete = (id: string) => {
+    setCompleted(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const totalAyahs = AYA_SECTIONS
+    .filter(s => completed.includes(s.id))
+    .reduce((sum, s) => sum + s.ayahs, 0);
+
+  const handleFinish = () => {
+    if (totalAyahs === 0) {
+      toast.error('يرجى تحديد الآيات التي قرأتها أولاً');
+      return;
+    }
+
+    const hijri = toHijri(new Date(), settings.hijriOffset);
+    addLog({
+      id: crypto.randomUUID(),
+      date: new Date().toISOString().split('T')[0],
+      hijriDate: `${hijri.day} ${hijri.monthName} ${hijri.year}`,
+      totalAyahs,
+      startSurah: 1, // Simplified
+      startAyah: 1,
+      endSurah: 114,
+      endAyah: 6,
+      notes: 'قراءة مئة آية المأثورة',
+      createdAt: new Date().toISOString()
+    });
+
+    toast.success(`تم تسجيل ${totalAyahs} آية في سجلك!`);
+    navigate('/qanet');
+  };
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-24 font-naskh" dir="rtl">
+    <div className="min-h-screen bg-background text-foreground pb-32 font-naskh" dir="rtl">
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border p-4 flex items-center justify-between">
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border p-4 flex items-center justify-between">
         <button 
           onClick={() => navigate(-1)}
-          className="p-2 bg-muted/50 rounded-full"
+          className="p-2.5 bg-muted/50 rounded-xl hover:bg-muted transition-colors"
         >
           <ChevronRight className="w-6 h-6" />
         </button>
-        <h1 className="text-xl font-bold text-primary">مئة آية</h1>
-        <button className="p-2 bg-muted/50 rounded-full">
+        <div className="text-center">
+          <h1 className="text-xl font-bold text-primary">ورد مئة آية</h1>
+          <p className="text-[10px] text-muted-foreground font-bold tracking-widest uppercase">Prophetic Night Word</p>
+        </div>
+        <button className="p-2.5 bg-muted/50 rounded-xl">
           <Share2 className="w-5 h-5 text-muted-foreground" />
         </button>
-      </div>
+      </header>
 
-      <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
-        {/* Quote Box */}
-        <div className="bg-primary/5 border-r-4 border-primary p-6 rounded-l-2xl shadow-sm">
-          <p className="text-primary font-bold mb-2">قَالَ رَسُولُ اللَّهِ ﷺ :</p>
-          <p className="text-lg leading-relaxed text-foreground/90 font-serif italic">
-            ( مَنْ قَامَ بِعَشْرِ آيَاتٍ لَمْ يُكْتَبْ مِنْ الْغَافِلِينَ ، وَمَنْ قَامَ بِمِائَةِ آيَةٍ كُتِبَ مِنْ الْقَانِتِينَ ، وَمَنْ قَامَ بِأَلْفِ آيَةٍ كُتِبَ مِنْ الْمُقَنْطِرِينَ )
-          </p>
-          <p className="text-sm text-muted-foreground mt-4 text-left">صححه الألباني في صحيح أبي داود (1264)</p>
-        </div>
-
-        {/* Sections */}
-        {AYA_SECTIONS.map((section, idx) => (
-          <div key={idx} className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                {idx + 1}
-              </div>
-              <h2 className="text-2xl font-bold text-primary border-b-2 border-primary/20 pb-1">
-                {section.title}
+      <div className="max-w-2xl mx-auto px-4 py-8 space-y-10">
+        {/* Progress Tracker */}
+        <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-soft sticky top-20 z-40">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">التقدم الحالي</p>
+              <h2 className="text-3xl font-black text-foreground tabular-nums">
+                {totalAyahs} <span className="text-sm font-bold text-muted-foreground">/ ١٠٠ آية</span>
               </h2>
             </div>
-            <div className="bg-card rounded-3xl p-2 border border-border shadow-soft overflow-hidden">
-              <img 
-                src={section.image} 
-                alt={section.title}
-                className="w-full h-auto rounded-2xl"
-                loading="lazy"
-              />
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+              <Sparkles size={32} />
             </div>
           </div>
-        ))}
+          <div className="h-3 bg-muted rounded-full overflow-hidden mb-6 shadow-inner">
+            <div 
+              className="h-full bg-primary transition-all duration-700 shadow-[0_0_15px_rgba(var(--primary),0.5)]"
+              style={{ width: `${Math.min(100, (totalAyahs / 100) * 100)}%` }}
+            />
+          </div>
+          <button
+            onClick={handleFinish}
+            className="w-full h-14 bg-primary text-primary-foreground rounded-2xl font-bold flex items-center justify-center gap-3 shadow-islamic active:scale-95 transition-all"
+          >
+            <CheckCircle2 size={20} />
+            حفظ وإضافة للسجل
+          </button>
+        </div>
+
+        {/* Hadith Quote */}
+        <div className="bg-primary/5 border-r-4 border-primary p-8 rounded-l-3xl shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 left-0 p-4 opacity-5">
+            <BookOpen size={100} />
+          </div>
+          <p className="text-primary font-bold mb-3 flex items-center gap-2">
+            <Sparkles size={16} />
+            قَالَ رَسُولُ اللَّهِ ﷺ :
+          </p>
+          <p className="text-xl leading-relaxed text-foreground/90 font-serif italic text-justify">
+            ( مَنْ قَامَ بِعَشْرِ آيَاتٍ لَمْ يُكْتَبْ مِنْ الْغَافِلِينَ ، وَمَنْ قَامَ بِمِائَةِ آيَةٍ كُتِبَ مِنْ الْقَانِتِينَ ، وَمَنْ قَامَ بِأَلْفِ آيَةٍ كُتِبَ مِنْ الْمُقَنْطِرِينَ )
+          </p>
+          <p className="text-[10px] text-muted-foreground mt-4 text-left font-bold italic tracking-wide">صححه الألباني في صحيح أبي داود (1264)</p>
+        </div>
+
+        {/* Sections List */}
+        <div className="space-y-6">
+          {AYA_SECTIONS.map((section, idx) => {
+            const isDone = completed.includes(section.id);
+            return (
+              <div key={section.id} className="space-y-4">
+                <div 
+                  onClick={() => toggleComplete(section.id)}
+                  className={`flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer ${
+                    isDone 
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700' 
+                      : 'bg-card border-border text-foreground hover:border-primary/50'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold ${
+                      isDone ? 'bg-emerald-500 text-white shadow-islamic' : 'bg-muted text-muted-foreground'
+                    }`}>
+                      {isDone ? <CheckCircle2 size={20} /> : idx + 1}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg font-naskh">{section.title}</h3>
+                      <p className="text-[10px] font-bold opacity-60 uppercase">{section.ayahs} آيات</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className={`bg-card rounded-3xl p-3 border border-border shadow-islamic overflow-hidden transition-all duration-500 ${
+                  isDone ? 'opacity-40 grayscale-[0.5] scale-[0.98]' : 'opacity-100'
+                }`}>
+                  <img 
+                    src={section.image} 
+                    alt={section.title}
+                    className="w-full h-auto rounded-2xl"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
         {/* Virtues Section */}
-        <div className="mt-12 space-y-6 pt-12 border-t border-border">
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <BookOpen className="w-6 h-6 text-primary" />
-            <h3 className="text-2xl font-bold text-primary">فضائل هذه الآيات</h3>
+        <div className="mt-20 space-y-8 pt-20 border-t border-border">
+          <div className="text-center space-y-2">
+            <div className="w-16 h-1 bg-primary/20 mx-auto rounded-full" />
+            <h3 className="text-3xl font-black text-primary font-naskh">فضائل هذه الآيات</h3>
+            <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest">Divine Virtues</p>
           </div>
           
           <div className="space-y-4">
             {VIRTUES.map((virtue, idx) => (
               <div 
                 key={idx} 
-                className="bg-muted/30 p-4 rounded-2xl border border-border/50 text-foreground/80 leading-relaxed text-lg"
+                className="bg-muted/30 p-6 rounded-[2rem] border border-border/50 text-foreground/80 leading-relaxed text-lg text-justify hover:bg-muted/50 transition-colors"
               >
                 {virtue.text}
               </div>

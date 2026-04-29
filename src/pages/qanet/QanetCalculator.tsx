@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Moon, Edit2, ArrowLeft, MapPin, Clock, Loader2 } from 'lucide-react';
+import { Moon, Edit2, ArrowLeft, MapPin, Clock, Loader2, Sparkles, BookOpen, Timer, ChevronRight } from 'lucide-react';
 import { surahData } from '@/data/quranData';
 import { useQanet } from './QanetContext';
+import { StatCard } from './components/StatCard';
 
 interface LastThirdInfo {
   loading: boolean;
@@ -11,6 +12,12 @@ interface LastThirdInfo {
   maghrib: string | null;
   cityName: string | null;
 }
+
+const PRESET_PLANS = [
+  { id: 'heedless', label: 'عدم الغفلة', ayahs: 10, color: 'text-red-500', bg: 'bg-red-500/10' },
+  { id: 'qanet', label: 'القنوت', ayahs: 100, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+  { id: 'muqantar', label: 'القنطرة', ayahs: 1000, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+];
 
 export default function QanetCalculator() {
   const { language } = useQanet();
@@ -94,9 +101,6 @@ export default function QanetCalculator() {
 
   const displayTotal = mode === 'target' ? target : rangeTotal;
   
-  // Estimation logic:
-  // Average reading speed: ~15 seconds per ayah (varies by length)
-  // 1 Rub' (Quarter Hizb) is roughly 25-26 ayahs on average (6236 ayahs / 240 Rubs)
   const estimatedTime = Math.round((displayTotal * 15) / 60);
   const estimatedRub = (displayTotal / 26).toFixed(1);
 
@@ -140,208 +144,222 @@ export default function QanetCalculator() {
   };
 
   return (
-    <div className="p-6 pt-4 pb-24 max-w-md mx-auto space-y-8">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold mb-2 text-primary font-naskh">{isArabic ? 'حاسبة الآيات' : 'Ayah Calculator'}</h1>
-        <p className="text-muted-foreground text-sm font-medium">{isArabic ? 'خطط لقيامك الليلة بدقة' : 'Plan your night prayer accurately'}</p>
+    <div className="p-6 pt-4 pb-32 max-w-2xl mx-auto space-y-10" dir={isArabic ? 'rtl' : 'ltr'}>
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-black text-primary font-naskh">{isArabic ? 'مخطط القنوت' : 'Qanoot Planner'}</h1>
+        <p className="text-muted-foreground text-sm font-medium">{isArabic ? 'دليلك لحساب وردك الليلة بدقة' : 'Your guide to calculating your night word accurately'}</p>
       </div>
 
-      <div className="space-y-6">
-        {/* Last Third Banner */}
-        <button
-          onClick={calculateLastThird}
-          disabled={lastThird.loading}
-          className="w-full bg-card border border-border rounded-[2rem] p-6 flex items-center justify-between text-right shadow-soft group"
-        >
-          <div className="flex-1">
-            {lastThird.time ? (
-              <div>
-                <h3 className="font-bold mb-1 text-foreground flex items-center gap-2">
-                  <Clock size={16} className="text-primary" />
-                  بداية الثلث الأخير: {lastThird.time}
-                </h3>
-                <p className="text-muted-foreground text-[10px] font-bold">
-                  المغرب: {lastThird.maghrib} | الفجر: {lastThird.fajr}
-                </p>
-              </div>
-            ) : lastThird.error ? (
-              <div>
-                <h3 className="font-bold mb-1 text-destructive">{lastThird.error}</h3>
-                <p className="text-muted-foreground text-[10px]">اضغط للمحاولة مرة أخرى</p>
-              </div>
-            ) : (
-              <div>
-                <h3 className="font-bold mb-1 text-foreground">بداية الثلث الأخير</h3>
-                <p className="text-muted-foreground text-[10px]">اسمح بالموقع لحساب الوقت بدقة</p>
-              </div>
-            )}
-          </div>
-          <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-            {lastThird.loading ? (
-              <Loader2 size={20} className="text-primary" />
-            ) : (
-              <Moon size={20} className="text-primary" />
-            )}
-          </div>
-        </button>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-6">
+          {/* Last Third Banner - Premium */}
+          <button
+            onClick={calculateLastThird}
+            disabled={lastThird.loading}
+            className="w-full bg-card/50 backdrop-blur-sm border border-border rounded-[2rem] p-6 flex items-center justify-between shadow-soft group hover:border-primary/50 transition-all"
+          >
+            <div className="flex-1 text-right">
+              {lastThird.time ? (
+                <div className="space-y-1">
+                  <h3 className="font-bold text-foreground flex items-center gap-2 justify-end">
+                    <Clock size={16} className="text-primary" />
+                    بداية الثلث الأخير: {lastThird.time}
+                  </h3>
+                  <div className="flex items-center justify-end gap-2 opacity-60 text-[10px] font-bold">
+                    <span>المغرب: {lastThird.maghrib}</span>
+                    <span className="w-1 h-1 rounded-full bg-muted-foreground" />
+                    <span>الفجر: {lastThird.fajr}</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <h3 className="font-bold text-foreground">{isArabic ? 'بداية الثلث الأخير' : 'Last Third Start'}</h3>
+                  <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest">{isArabic ? 'اضغط للحساب تلقائياً' : 'Click to calculate'}</p>
+                </div>
+              )}
+            </div>
+            <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center mr-4">
+              {lastThird.loading ? (
+                <Loader2 size={24} className="text-primary animate-spin" />
+              ) : (
+                <Moon size={24} className="text-primary group-hover:scale-110 transition-transform" />
+              )}
+            </div>
+          </button>
 
-        {/* Calculator Card */}
+          {/* Preset Selection Grid */}
+          <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-soft space-y-6">
+            <h3 className="font-bold text-lg font-naskh flex items-center gap-2">
+              <Sparkles className="text-primary w-5 h-5" />
+              {isArabic ? 'خطط مقترحة' : 'Suggested Plans'}
+            </h3>
+            <div className="grid grid-cols-1 gap-3">
+              {PRESET_PLANS.map(plan => (
+                <button
+                  key={plan.id}
+                  onClick={() => { setTarget(plan.ayahs); setMode('target'); }}
+                  className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                    target === plan.ayahs && mode === 'target' 
+                      ? `${plan.bg} border-${plan.id === 'muqantar' ? 'purple' : plan.id === 'qanet' ? 'emerald' : 'red'}-500/50`
+                      : 'bg-muted/30 border-transparent hover:bg-muted/50'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black ${plan.color} ${plan.bg}`}>
+                      {plan.ayahs}
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-foreground">{plan.label}</p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase">{plan.ayahs} آيات</p>
+                    </div>
+                  </div>
+                  <ChevronRight size={18} className={`text-muted-foreground ${isArabic ? 'rotate-180' : ''}`} />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Calculator Main Section */}
         <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-soft space-y-8">
-          {/* Mode Tabs */}
-          <div className="flex bg-muted rounded-2xl p-1.5">
+          {/* Mode Switcher */}
+          <div className="flex bg-muted rounded-[1.5rem] p-1.5">
             <button
               onClick={() => setMode('target')}
-              className={`flex-1 py-3 rounded-xl font-bold text-[11px] ${mode === 'target' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'}`}
+              className={`flex-1 py-3 rounded-xl font-bold text-[11px] transition-all ${mode === 'target' ? 'bg-background text-foreground shadow-islamic' : 'text-muted-foreground hover:text-foreground'}`}
             >
-              الآيات المستهدفة
+              {isArabic ? 'الآيات المستهدفة' : 'Target Count'}
             </button>
             <button
               onClick={() => setMode('range')}
-              className={`flex-1 py-3 rounded-xl font-bold text-[11px] ${mode === 'range' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'}`}
+              className={`flex-1 py-3 rounded-xl font-bold text-[11px] transition-all ${mode === 'range' ? 'bg-background text-foreground shadow-islamic' : 'text-muted-foreground hover:text-foreground'}`}
             >
-              نطاق مخصص
+              {isArabic ? 'نطاق مخصص' : 'Custom Range'}
             </button>
           </div>
 
           {mode === 'target' && (
-            <div className="space-y-3">
-              <label className="block text-right text-muted-foreground text-xs font-bold px-1">الآيات المستهدفة</label>
-              <div className="flex gap-2" dir="rtl">
-                {[10, 100, 1000].map(val => (
-                  <button
-                    key={val}
-                    onClick={() => setTarget(val)}
-                    className={`flex-1 py-3 rounded-2xl border-2 font-bold ${target === val ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/50 border-transparent text-muted-foreground'}`}
-                  >
-                    {val}
-                  </button>
-                ))}
-                <button
-                  onClick={() => setShowCustomInput(!showCustomInput)}
-                  className={`w-14 rounded-2xl flex items-center justify-center border-2 ${showCustomInput ? 'bg-primary border-primary text-primary-foreground' : 'bg-muted/50 border-transparent text-muted-foreground'}`}
-                >
-                  <Edit2 size={18} />
-                </button>
+            <div className="space-y-4">
+              <label className="block text-right text-muted-foreground text-[10px] font-bold uppercase tracking-widest px-1">العدد المستهدف</label>
+              <div className="relative" dir="rtl">
+                <input
+                  type="number"
+                  min="0"
+                  value={target}
+                  onChange={e => setTarget(Math.max(0, Number(e.target.value)))}
+                  className="w-full bg-muted/50 border-2 border-border focus:border-primary outline-none rounded-2xl py-5 px-6 text-foreground text-center font-black text-3xl tabular-nums shadow-inner transition-all"
+                />
+                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-sm">آية</div>
               </div>
-              {showCustomInput && (
-                <div className="relative mt-4" dir="rtl">
-                  <input
-                    type="number"
-                    min="0"
-                    value={customTarget}
-                    onChange={e => setCustomTarget(Math.max(0, Number(e.target.value)).toString())}
-                    placeholder={isArabic ? "أدخل عدد الآيات" : "Enter ayah count"}
-                    className="w-full bg-muted border-2 border-border focus:border-primary outline-none rounded-2xl py-4 pr-4 pl-24 text-foreground text-right font-bold"
-                  />
-                  <button 
-                    onClick={() => { setTarget(Math.max(0, Number(customTarget)) || 10); setShowCustomInput(false); }} 
-                    className="absolute left-2 top-2 bottom-2 px-6 bg-primary text-primary-foreground rounded-xl font-bold text-xs shadow-sm"
-                  >
-                    {isArabic ? "تأكيد" : "Confirm"}
-                  </button>
-                </div>
-              )}
             </div>
           )}
 
-          {/* Start Point */}
-          <div className="space-y-3">
-            <label className="block text-right text-muted-foreground text-xs font-bold px-1">نقطة البداية</label>
-            <div className="flex gap-2" dir="rtl">
-              <select
-                value={startSurah}
-                onChange={e => { setStartSurah(Number(e.target.value)); setStartAyah(1); }}
-                className="flex-1 bg-muted border-2 border-border focus:border-primary outline-none rounded-2xl p-4 text-foreground text-sm font-bold appearance-none cursor-pointer"
-              >
-                {surahData.map(s => (
-                  <option key={s.number} value={s.number}>{s.number}. {s.name}</option>
-                ))}
-              </select>
-              <select
-                value={startAyah}
-                onChange={e => setStartAyah(Number(e.target.value))}
-                className="w-24 bg-muted border-2 border-border focus:border-primary outline-none rounded-2xl p-4 text-foreground text-center text-sm font-bold appearance-none cursor-pointer"
-              >
-                {[...Array(startSurahInfo?.ayahs || 1)].map((_, i) => (
-                  <option key={i + 1} value={i + 1}>{i + 1}</option>
-                ))}
-              </select>
+          {/* Start Point Selection */}
+          <div className="space-y-4">
+            <label className="block text-right text-muted-foreground text-[10px] font-bold uppercase tracking-widest px-1">نقطة البداية</label>
+            <div className="flex gap-3" dir="rtl">
+              <div className="flex-1 relative">
+                <select
+                  value={startSurah}
+                  onChange={e => { setStartSurah(Number(e.target.value)); setStartAyah(1); }}
+                  className="w-full bg-muted/50 border-2 border-border focus:border-primary outline-none rounded-2xl p-4 text-foreground text-sm font-bold appearance-none cursor-pointer pr-10"
+                >
+                  {surahData.map(s => (
+                    <option key={s.number} value={s.number}>{s.number}. {s.name}</option>
+                  ))}
+                </select>
+                <BookOpen size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-primary" />
+              </div>
+              <div className="w-24 relative">
+                <select
+                  value={startAyah}
+                  onChange={e => setStartAyah(Number(e.target.value))}
+                  className="w-full bg-muted/50 border-2 border-border focus:border-primary outline-none rounded-2xl p-4 text-foreground text-center text-sm font-bold appearance-none cursor-pointer"
+                >
+                  {[...Array(startSurahInfo?.ayahs || 1)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>{i + 1}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 
           {mode === 'range' && (
-            <div className="space-y-3">
-              <label className="block text-right text-muted-foreground text-xs font-bold px-1">نقطة النهاية</label>
-              <div className="flex gap-2" dir="rtl">
-                <select
-                  value={endSurah}
-                  onChange={e => {
-                    const val = Number(e.target.value);
-                    setEndSurah(val);
-                    if (val === startSurah) setEndAyah(Math.max(startAyah, endAyah));
-                  }}
-                  className="flex-1 bg-muted border-2 border-border focus:border-primary outline-none rounded-2xl p-4 text-foreground text-sm font-bold appearance-none cursor-pointer"
-                >
-                  {surahData.filter(s => s.number >= startSurah).map(s => (
-                    <option key={s.number} value={s.number}>{s.number}. {s.name}</option>
-                  ))}
-                </select>
-                <select
-                  value={endAyah}
-                  onChange={e => setEndAyah(Number(e.target.value))}
-                  className="w-24 bg-muted border-2 border-border focus:border-primary outline-none rounded-2xl p-4 text-foreground text-center text-sm font-bold appearance-none cursor-pointer"
-                >
-                  {[...Array(endSurahInfo?.ayahs || 1)].map((_, i) => {
-                    const ayahNum = i + 1;
-                    const isDisabled = endSurah === startSurah && ayahNum < startAyah;
-                    return (
-                      <option key={ayahNum} value={ayahNum} disabled={isDisabled}>
-                        {ayahNum}
-                      </option>
-                    );
-                  })}
-                </select>
+            <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+              <label className="block text-right text-muted-foreground text-[10px] font-bold uppercase tracking-widest px-1">نقطة النهاية</label>
+              <div className="flex gap-3" dir="rtl">
+                <div className="flex-1 relative">
+                  <select
+                    value={endSurah}
+                    onChange={e => {
+                      const val = Number(e.target.value);
+                      setEndSurah(val);
+                      if (val === startSurah) setEndAyah(Math.max(startAyah, endAyah));
+                    }}
+                    className="w-full bg-muted/50 border-2 border-border focus:border-primary outline-none rounded-2xl p-4 text-foreground text-sm font-bold appearance-none cursor-pointer pr-10"
+                  >
+                    {surahData.filter(s => s.number >= startSurah).map(s => (
+                      <option key={s.number} value={s.number}>{s.number}. {s.name}</option>
+                    ))}
+                  </select>
+                  <BookOpen size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-primary" />
+                </div>
+                <div className="w-24 relative">
+                  <select
+                    value={endAyah}
+                    onChange={e => setEndAyah(Number(e.target.value))}
+                    className="w-full bg-muted/50 border-2 border-border focus:border-primary outline-none rounded-2xl p-4 text-foreground text-center text-sm font-bold appearance-none cursor-pointer"
+                  >
+                    {[...Array(endSurahInfo?.ayahs || 1)].map((_, i) => {
+                      const ayahNum = i + 1;
+                      const isDisabled = endSurah === startSurah && ayahNum < startAyah;
+                      return (
+                        <option key={ayahNum} value={ayahNum} disabled={isDisabled}>
+                          {ayahNum}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
               </div>
             </div>
           )}
-        </div>
 
-        {/* Results Card */}
-        <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-islamic space-y-8 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-primary/5 opacity-0 pointer-events-none" />
-          
-          <div className="flex items-center justify-between text-center relative z-10">
-            <div className="flex-1">
-              <h4 className="font-bold mb-1 text-primary text-xl font-naskh">{startSurahInfo?.name || ''}</h4>
-              <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-wider">الآية {startAyah}</p>
+          {/* Summary Results - Premium Design */}
+          <div className="pt-8 border-t border-border space-y-6">
+            <div className="flex items-center justify-between text-center">
+              <div className="flex-1">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">{isArabic ? 'من' : 'From'}</p>
+                <h4 className="font-bold text-primary text-xl font-naskh">{startSurahInfo?.name || ''}</h4>
+                <p className="text-foreground text-[10px] font-bold">الآية {startAyah}</p>
+              </div>
+              <div className="px-4">
+                <div className="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center">
+                  <ArrowLeft className={`text-primary/30 w-5 h-5 ${isArabic ? '' : 'rotate-180'}`} />
+                </div>
+              </div>
+              <div className="flex-1">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">{isArabic ? 'إلى' : 'To'}</p>
+                <h4 className="font-bold text-primary text-xl font-naskh">
+                  {mode === 'target' ? targetResult?.endSurahName || '' : endSurahInfo?.name || ''}
+                </h4>
+                <p className="text-foreground text-[10px] font-bold">
+                  الآية {mode === 'target' ? targetResult?.endAyah || 0 : endAyah}
+                </p>
+              </div>
             </div>
-            <div className="px-4">
-              <ArrowLeft className="text-primary/30 w-6 h-6" />
-            </div>
-            <div className="flex-1">
-              <h4 className="font-bold mb-1 text-primary text-xl font-naskh">
-                {mode === 'target' ? targetResult?.endSurahName || '' : endSurahInfo?.name || ''}
-              </h4>
-              <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-wider">
-                الآية {mode === 'target' ? targetResult?.endAyah || 0 : endAyah}
-              </p>
-            </div>
-          </div>
 
-          <div className="text-center py-4 relative z-10">
-            <div className="text-6xl font-bold text-foreground flex items-center justify-center gap-3">
-              {displayTotal} <span className="text-2xl text-muted-foreground font-medium">آية</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 pt-6 border-t border-border relative z-10">
-            <div className="text-center space-y-1">
-              <div className="font-bold text-2xl text-foreground">{estimatedTime} <span className="text-xs font-medium">دقيقة</span></div>
-              <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-wider">وقت القراءة المقدر</p>
-            </div>
-            <div className="text-center space-y-1 border-r border-border">
-              <div className="font-bold text-2xl text-foreground">{estimatedRub}</div>
-              <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-wider">أرباع الأحزاب (تقريباً)</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-primary/5 rounded-[1.5rem] p-4 text-center space-y-1 border border-primary/10">
+                <Timer size={18} className="text-primary mx-auto mb-1" />
+                <div className="font-black text-xl text-foreground tabular-nums">{estimatedTime} <span className="text-[10px] font-bold uppercase">دقيقة</span></div>
+                <p className="text-muted-foreground text-[8px] font-bold uppercase tracking-widest">{isArabic ? 'وقت تقديري' : 'Est. Time'}</p>
+              </div>
+              <div className="bg-accent/5 rounded-[1.5rem] p-4 text-center space-y-1 border border-accent/10">
+                <BookOpen size={18} className="text-accent mx-auto mb-1" />
+                <div className="font-black text-xl text-foreground tabular-nums">{estimatedRub}</div>
+                <p className="text-muted-foreground text-[8px] font-bold uppercase tracking-widest">{isArabic ? 'أرباع أحزاب' : 'Ruba Hizb'}</p>
+              </div>
             </div>
           </div>
         </div>
