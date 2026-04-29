@@ -120,6 +120,9 @@ const UserManagement = lazyWithRetry(() => import("./pages/admin/UserManagement"
 const RoutineManager = lazyWithRetry(() => import("./pages/admin/RoutineManager"));
 const LibraryManager = lazyWithRetry(() => import("./pages/admin/LibraryManager"));
 const AnalyticsPage = lazyWithRetry(() => import("./pages/admin/AnalyticsPage"));
+const StoriesLibrary = lazyWithRetry(() => import("./pages/StoriesLibrary"));
+const StoryReader = lazyWithRetry(() => import("./pages/StoryReader"));
+const SalahGuide = lazyWithRetry(() => import("./pages/SalahGuide"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -308,6 +311,9 @@ const AppContent = () => {
                         <Route path="/names-directory" element={<NamesDirectory />} />
                         <Route path="/daily-adhkar" element={<DailyAdhkar />} />
                         <Route path="/khatma-jamaaiya" element={<KhatmaJamaaiya />} />
+                        <Route path="/stories" element={<StoriesLibrary />} />
+                        <Route path="/stories/:storyId" element={<StoryReader />} />
+                        <Route path="/salah-guide" element={<SalahGuide />} />
                         <Route path="/hadith" element={<Hadith />} />
                         <Route path="/seerah-timeline" element={<SeerahTimeline />} />
                         <Route path="/islamic-quiz" element={<IslamicQuiz />} />
