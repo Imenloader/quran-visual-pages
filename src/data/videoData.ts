@@ -15,7 +15,7 @@ export interface YouTubePlaylist {
 
 export const FITNESS_CATEGORIES: VideoCategory[] = [
   { id: 'home', name: 'تمارين منزلية', description: 'تمارين يمكن القيام بها في المنزل بدون معدات' },
-  { id: 'gym', name: 'تمارين الجيم', description: 'تمارين كمال الأجسام واللياقة في الصالة الرياضية' },
+
   { id: 'nutrition', name: 'تغذية وصحة', description: 'نصائح غذائية لبناء جسم قوي' },
 ];
 
@@ -33,13 +33,7 @@ export const FITNESS_PLAYLISTS: YouTubePlaylist[] = [
     categoryId: 'home',
     channelTitle: 'Captain Anis',
   },
-  {
-    id: 'PLyXf8H_z7T5xX_z7T5xX_z7T5xX_z7T5',
-    title: 'تضخيم العضلات للمبتدئين',
-    description: 'دليل شامل للتمارين في الجيم',
-    categoryId: 'gym',
-    channelTitle: 'Ahmed Fitness',
-  }
+
 ];
 
 export const EXERCISES = [

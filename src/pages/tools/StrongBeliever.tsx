@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Dumbbell, Play, Heart, Flame, Timer, ChevronRight, Sparkles } from "lucide-react";
+import { Dumbbell, Play, Heart, Flame, Timer, ChevronRight, Sparkles, BookOpen } from "lucide-react";
 import QuranHeader from "@/components/QuranHeader";
 import BackButton from "@/components/BackButton";
 import ScrollReveal from "@/components/ScrollReveal";
-import { FITNESS_CATEGORIES, FITNESS_PLAYLISTS, EXERCISES, NUTRITION_TIPS, SET_DHIKR } from "@/data/videoData";
-import InternalVideoPlayer from "@/components/InternalVideoPlayer";
+import { FITNESS_CATEGORIES, SET_DHIKR } from "@/data/videoData";
+import { EXERCISES, NUTRITION_RECIPES, Exercise, Recipe } from "@/data/fitnessData";
+import ExerciseModal from "@/components/ExerciseModal";
 import ActivityPlanner from "@/components/ActivityPlanner";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -13,9 +14,7 @@ import { toast } from "sonner";
 const StrongBeliever = () => {
   const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState('home');
-  const [activeVideo, setActiveVideo] = useState<{ id: string; title: string } | null>(null);
-
-  const filteredPlaylists = FITNESS_PLAYLISTS.filter(p => p.categoryId === selectedCategory);
+  const [activeItem, setActiveItem] = useState<Exercise | Recipe | null>(null);
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -62,7 +61,7 @@ const StrongBeliever = () => {
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.id)}
                     className={`px-6 py-3 rounded-2xl text-sm font-bold font-naskh transition-all border ${
-                      selectedCategory === cat.id
+                       selectedCategory === cat.id
                         ? "bg-accent text-white border-accent shadow-lg shadow-accent/20"
                         : "bg-card text-muted-foreground border-border/40 hover:border-accent/30"
                     }`}
@@ -73,28 +72,35 @@ const StrongBeliever = () => {
               </div>
             </ScrollReveal>
 
-            {/* List Selection */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Individual Exercises for Home/Gym */}
-              {(selectedCategory === 'home' || selectedCategory === 'gym') && EXERCISES.map((exercise, idx) => (
+              {/* Individual Exercises for Home */}
+              {selectedCategory === 'home' && EXERCISES.map((exercise, idx) => (
                 <ScrollReveal key={exercise.id} delay={idx * 100}>
-                  <div className="bg-card border border-border/40 rounded-[2rem] p-6 hover:border-accent/30 transition-all shadow-sm flex flex-col gap-4">
+                  <div className="bg-card border border-border/40 rounded-[2rem] p-6 hover:border-accent/30 transition-all shadow-sm flex flex-col gap-4 group">
                     <div className="flex items-start justify-between">
-                      <div>
-                        <span className="text-[10px] font-bold text-accent bg-accent/5 px-2 py-1 rounded-lg uppercase tracking-wider mb-2 inline-block">
-                          {exercise.difficulty}
-                        </span>
-                        <h3 className="font-bold font-naskh text-lg">{exercise.name}</h3>
-                        <p className="text-xs text-muted-foreground font-naskh">{exercise.target}</p>
+                      <div className="flex gap-4">
+                        <div className="w-16 h-16 rounded-2xl bg-accent/5 overflow-hidden flex items-center justify-center p-2 border border-accent/10">
+                          <img 
+                            src={exercise.image} 
+                            alt={exercise.name} 
+                            className="w-full h-full object-contain group-hover:scale-110 transition-transform"
+                          />
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-bold text-accent bg-accent/5 px-2 py-1 rounded-lg uppercase tracking-wider mb-2 inline-block">
+                            {exercise.difficulty}
+                          </span>
+                          <h3 className="font-bold font-naskh text-base">{exercise.name}</h3>
+                          <p className="text-xs text-muted-foreground font-naskh">{exercise.target}</p>
+                        </div>
                       </div>
                       <button 
                         onClick={() => {
                           toast.info('قل "بسم الله" وابدأ!');
-                          setActiveVideo({ id: exercise.videoId, title: exercise.name });
+                          setActiveItem(exercise);
                         }}
-                        className="w-12 h-12 rounded-2xl bg-accent text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                        className="w-10 h-10 rounded-xl bg-accent text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform mt-2"
                       >
-                        <Play className="w-5 h-5 fill-current" />
+                        <Play className="w-4 h-4 fill-current" />
                       </button>
                     </div>
                   </div>
@@ -102,29 +108,27 @@ const StrongBeliever = () => {
               ))}
 
               {/* Nutrition/Health Advice */}
-              {selectedCategory === 'nutrition' && NUTRITION_TIPS.map((tip, idx) => (
-                <ScrollReveal key={tip.id} delay={idx * 100}>
-                  <div className="bg-card border border-border/40 rounded-[2rem] p-6 hover:border-emerald-500/30 transition-all shadow-sm flex flex-col gap-4">
+              {selectedCategory === 'nutrition' && NUTRITION_RECIPES.map((recipe, idx) => (
+                <ScrollReveal key={recipe.id} delay={idx * 100}>
+                  <div className="bg-card border border-border/40 rounded-[2rem] p-6 hover:border-emerald-500/30 transition-all shadow-sm flex flex-col gap-4 h-full">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4">
                           <Heart className="w-5 h-5 text-emerald-500" />
                         </div>
-                        <h3 className="font-bold font-naskh text-base mb-1">{tip.title}</h3>
-                        <p className="text-xs text-muted-foreground font-naskh leading-relaxed">
-                          {tip.content}
+                        <h3 className="font-bold font-naskh text-base mb-1">{recipe.title}</h3>
+                        <p className="text-xs text-muted-foreground font-naskh leading-relaxed line-clamp-2">
+                          {recipe.content}
                         </p>
                       </div>
                     </div>
-                    {tip.videoId && (
-                      <button 
-                        onClick={() => setActiveVideo({ id: tip.videoId, title: tip.title })}
-                        className="w-full py-3 rounded-xl bg-emerald-500/10 text-emerald-600 font-bold text-xs font-naskh flex items-center justify-center gap-2 hover:bg-emerald-500/20 transition-all"
-                      >
-                        <Play className="w-4 h-4 fill-current" />
-                        مشاهدة الشرح / الوصفة
-                      </button>
-                    )}
+                    <button 
+                      onClick={() => setActiveItem(recipe)}
+                      className="w-full py-3 rounded-xl bg-emerald-500/10 text-emerald-600 font-bold text-xs font-naskh flex items-center justify-center gap-2 hover:bg-emerald-500/20 transition-all mt-auto"
+                    >
+                      <BookOpen className="w-4 h-4" />
+                      قراءة الوصفة / النصيحة
+                    </button>
                   </div>
                 </ScrollReveal>
               ))}
@@ -181,12 +185,11 @@ const StrongBeliever = () => {
         </div>
       </div>
 
-      {/* Video Player Portal */}
-      {activeVideo && (
-        <InternalVideoPlayer
-          videoId={activeVideo.id}
-          title={activeVideo.title}
-          onClose={() => setActiveVideo(null)}
+      {/* Details Modal */}
+      {activeItem && (
+        <ExerciseModal
+          item={activeItem}
+          onClose={() => setActiveItem(null)}
         />
       )}
     </div>
