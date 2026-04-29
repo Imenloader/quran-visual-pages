@@ -52,6 +52,8 @@ import { juzData, toArabicNumber } from "@/data/quranData";
 import QuranTextViewer from "@/components/QuranTextViewer";
 import QuranPlayerBar from "@/components/QuranPlayerBar";
 import AuthModal from "@/components/AuthModal";
+import { activityService } from "@/services/activityService";
+
 
 // --- Types ---
 
@@ -276,6 +278,7 @@ const KhatmaJamaaiya = () => {
       });
       
       toast.success(isAr ? "تم إنشاء الختمة بنجاح" : "Khatma created successfully", { id: toastId });
+      activityService.log('KHATMA_CREATED', `أنشأ ختمة جديدة: ${newKhatmaTitle || (type === 'public' ? 'ختمة عامة' : 'ختمة خاصة')}`);
       setShowCreateModal(false);
       setNewKhatmaTitle("");
       window.scrollTo(0, 0);
@@ -455,6 +458,7 @@ const KhatmaJamaaiya = () => {
       }
       
       toast.success(isAr ? "تقبل الله طاعتك!" : "May Allah accept your good deed!");
+      activityService.log('QUEST_COMPLETED', `أتم قراءة ${juzNames[parseInt(juzIndex) - 1]} في ختمة: ${currentKhatma.title}`);
     } catch (e) {
       handleFirestoreError(e, OperationType.UPDATE, `khatmas/${currentKhatma.id}`);
     } finally {

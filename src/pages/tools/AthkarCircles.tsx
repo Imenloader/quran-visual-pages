@@ -7,6 +7,8 @@ import { toArabicNumber } from "@/data/quranData";
 import QuranHeader from "@/components/QuranHeader";
 import { toast } from "sonner";
 import { useSearchParams } from "react-router-dom";
+import { activityService } from "@/services/activityService";
+
 
 interface AthkarCircle {
   id: string;
@@ -66,6 +68,7 @@ const AthkarCircles: React.FC = () => {
       await setDoc(doc(db, "athkar_circles", newId), circleData);
       setSearchParams({ id: newId });
       toast.success(isAr ? "تم إنشاء حلقة الذكر" : "Athkar circle created");
+      activityService.log('CIRCLE_CREATED', `أنشأ حلقة ذكر جديدة باسم: ${newCircleName}`);
     } catch (e) {
       toast.error(isAr ? "فشل إنشاء الحلقة" : "Failed to create circle");
     } finally {

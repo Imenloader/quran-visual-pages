@@ -8,6 +8,8 @@ import { Capacitor } from "@capacitor/core";
 import { useUser } from "@/contexts/UserContext";
 import { db } from "@/firebase";
 import { doc, onSnapshot, setDoc, increment } from "firebase/firestore";
+import { activityService } from "@/services/activityService";
+
 
 // Persist personal daily count in localStorage keyed by today's date
 const getTodayKey = () => `global-dhikr-personal-${new Date().toISOString().split("T")[0]}`;
@@ -84,6 +86,11 @@ const GlobalDhikr = () => {
 
     // Increment personal stats and points
     addAthkarRecited(1);
+
+    // Milestone logging
+    if ((sessionCount + 1) % 1000 === 0) {
+      activityService.log('DHIKR_MILESTONE', `أتم ${sessionCount + 1} ذكر في جلسة واحدة`);
+    }
 
     // Haptic feedback
     if (Capacitor.isNativePlatform()) {

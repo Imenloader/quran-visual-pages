@@ -4,6 +4,8 @@ import { toArabicNumber } from "@/data/quranData";
 import { auth, db, handleFirestoreError, OperationType } from "@/firebase";
 import { onAuthStateChanged, signInAnonymously } from "firebase/auth";
 import { doc, getDoc, setDoc, onSnapshot, updateDoc, Timestamp } from "firebase/firestore";
+import { activityService } from "@/services/activityService";
+
 
 interface UserProfile {
   name: string;
@@ -199,6 +201,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             };
             await setDoc(userRef, newProfile);
             setProfile(newProfile);
+            activityService.log('USER_JOINED', 'انضم إلى المنصة حديثاً');
           }
         } catch (e) {
           console.error("Firestore Profile Error:", e);

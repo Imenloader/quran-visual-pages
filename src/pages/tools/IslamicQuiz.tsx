@@ -5,6 +5,8 @@ import QuranHeader from "@/components/QuranHeader";
 import { Button } from "@/components/ui/button";
 import { db } from "@/firebase";
 import { collection, getDocs } from "firebase/firestore";
+import { activityService } from "@/services/activityService";
+
 
 import { QUIZ_QUESTIONS, Question } from "@/data/quizData";
 
@@ -84,6 +86,7 @@ const IslamicQuiz = () => {
       setTimer(30);
     } else {
       setCurrentStep("result");
+      activityService.log('QUEST_COMPLETED', `أكمل مسابقة ${category === 'all' ? 'عامة' : category} بنتيجة ${score}/${filteredQuestions.length}`);
     }
   };
 

@@ -37,6 +37,8 @@ import { communityCache } from "@/lib/communityCache";
 import { toast } from "sonner";
 import BackButton from "@/components/BackButton";
 import AuthModal from "@/components/AuthModal";
+import { activityService } from "@/services/activityService";
+
 
 interface Post {
   id: string;
@@ -140,6 +142,8 @@ const CommunityTopics = () => {
         createdAt: serverTimestamp()
       });
 
+      activityService.log('POST_CREATED', `نشر موضوعاً جديداً في قسم ${CATEGORIES.find(c => c.id === selectedCategory)?.labelAr || 'عام'}`);
+      
       setNewPostContent("");
       setShowCreateModal(false);
       toast.success(isAr ? "تم نشر الموضوع بنجاح" : "Topic posted successfully");

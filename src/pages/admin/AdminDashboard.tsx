@@ -25,12 +25,14 @@ import {
   Scroll as LucideScroll,
   History as LucideHistory,
   Zap as LucideZap,
-  Library as LucideLibrary
+  Library as LucideLibrary,
+  Target,
+  Users2
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { db } from "@/firebase";
-import { collection, getDocs, query, limit, orderBy } from "firebase/firestore";
+import { collection, onSnapshot, query, limit, orderBy } from "firebase/firestore";
 import BackButton from "@/components/BackButton";
 
 const AdminDashboard = () => {
@@ -38,55 +40,68 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalUsers: 0,
-    activeQuests: 0,
-    totalPoints: 0
+    totalPoints: 0,
+    activeKhatmas: 0,
+    communityPosts: 0
   });
   const [loading, setLoading] = useState(true);
   const [activities, setActivities] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchAdminData = async () => {
-      try {
-        const usersSnap = await getDocs(collection(db, "users"));
-        const khatmasSnap = await getDocs(collection(db, "khatmas"));
+    // 1. Listen for User Stats
+    const unsubUsers = onSnapshot(collection(db, "users"), (snap) => {
+      const totalPoints = snap.docs.reduce((acc, doc) => acc + (doc.data().points || 0), 0);
+      setStats(prev => ({ ...prev, totalUsers: snap.size, totalPoints }));
+    });
+
+    // 2. Listen for Khatmas
+    const unsubKhatmas = onSnapshot(collection(db, "khatmas"), (snap) => {
+      setStats(prev => ({ ...prev, activeKhatmas: snap.size }));
+    });
+
+    // 3. Listen for Community Posts
+    const unsubPosts = onSnapshot(collection(db, "community_posts"), (snap) => {
+      setStats(prev => ({ ...prev, communityPosts: snap.size }));
+    });
+
+    // 4. Listen for Real-time Activities
+    const qActivities = query(
+      collection(db, "admin_activities"), 
+      orderBy("createdAt", "desc"), 
+      limit(10)
+    );
+    const unsubActivities = onSnapshot(qActivities, (snap) => {
+      const activityList = snap.docs.map(doc => {
+        const data = doc.data();
+        let icon = <Plus className="w-4 h-4 text-primary" />;
         
-        setStats({
-          totalUsers: usersSnap.size,
-          activeQuests: khatmasSnap.size,
-          totalPoints: usersSnap.docs.reduce((acc, doc) => acc + (doc.data().points || 0), 0)
-        });
+        switch (data.type) {
+          case 'USER_JOINED': icon = <Users className="w-4 h-4 text-green-500" />; break;
+          case 'KHATMA_CREATED': icon = <LucideBook className="w-4 h-4 text-blue-500" />; break;
+          case 'POST_CREATED': icon = <MessageSquare className="w-4 h-4 text-amber-500" />; break;
+          case 'QUEST_COMPLETED': icon = <LucideCheckCircle className="w-4 h-4 text-emerald-500" />; break;
+          case 'CIRCLE_CREATED': icon = <Target className="w-4 h-4 text-indigo-500" />; break;
+          case 'DHIKR_MILESTONE': icon = <LucideSparkles className="w-4 h-4 text-amber-500" />; break;
+        }
 
-        const activityList: any[] = [];
-        usersSnap.docs
-          .sort((a, b) => (b.data().joinedDate || 0) - (a.data().joinedDate || 0))
-          .slice(0, 3)
-          .forEach(d => activityList.push({
-            id: d.id,
-            user: d.data().displayName || "مستخدم جديد",
-            action: "انضم إلى المنصة",
-            time: "جديد",
-            icon: <Users className="w-4 h-4 text-green-500" />
-          }));
+        return {
+          id: doc.id,
+          user: data.userName,
+          action: data.action,
+          time: data.createdAt?.toDate?.()?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || 'الآن',
+          icon
+        };
+      });
+      setActivities(activityList);
+      setLoading(false);
+    });
 
-        khatmasSnap.docs
-          .sort((a, b) => (b.data().createdAt?.seconds || 0) - (a.data().createdAt?.seconds || 0))
-          .slice(0, 3)
-          .forEach(d => activityList.push({
-            id: d.id,
-            user: d.data().createdBy?.slice(0, 5) || "مجهول",
-            action: `أنشأ ختمة: ${d.data().title || "بدون عنوان"}`,
-            time: "مؤخراً",
-            icon: <LucideBook className="w-4 h-4 text-blue-500" />
-          }));
-
-        setActivities(activityList.slice(0, 5));
-      } catch (error) {
-        console.error("Admin Stats Error:", error);
-      } finally {
-        setLoading(false);
-      }
+    return () => {
+      unsubUsers();
+      unsubKhatmas();
+      unsubPosts();
+      unsubActivities();
     };
-    fetchAdminData();
   }, []);
 
   const menuItems = [
@@ -127,26 +142,31 @@ const AdminDashboard = () => {
         </header>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <StatCard 
             title="إجمالي المستخدمين" 
             value={stats.totalUsers} 
             icon={<Users className="w-5 h-5" />} 
-            trend="+12% هذا الشهر"
+            color="text-blue-500"
           />
           <StatCard 
-            title="نقاط الخبرة الكلية" 
+            title="الختمات النشطة" 
+            value={stats.activeKhatmas} 
+            icon={<Target className="w-5 h-5" />} 
+            color="text-emerald-500"
+          />
+          <StatCard 
+            title="مواضيع المجتمع" 
+            value={stats.communityPosts} 
+            icon={<MessageSquare className="w-5 h-5" />} 
+            color="text-amber-500"
+          />
+          <StatCard 
+            title="نقاط الخبرة" 
             value={stats.totalPoints.toLocaleString()} 
             icon={<TrendingUp className="w-5 h-5" />} 
+            color="text-rose-500"
           />
-          <div className="hidden md:block">
-            <StatCard 
-              title="تنبيهات النظام" 
-              value="0" 
-              icon={<AlertCircle className="w-5 h-5" />} 
-              color="text-green-500"
-            />
-          </div>
         </div>
 
         {/* Navigation Grid */}
@@ -173,7 +193,10 @@ const AdminDashboard = () => {
 
         {/* Quick Actions / Activity */}
         <div className="mt-8">
-          <h2 className="text-lg font-bold font-naskh mb-4 px-2">آخر النشاطات</h2>
+          <h2 className="text-lg font-bold font-naskh mb-4 px-2 flex items-center gap-2">
+            <Users2 className="w-5 h-5 text-accent" />
+            آخر النشاطات
+          </h2>
           <div className="bg-card border border-border rounded-3xl p-4 space-y-4">
             {activities.length > 0 ? activities.map(act => (
               <ActivityItem 
@@ -202,7 +225,7 @@ const StatCard = ({ title, value, icon, trend, color = "text-accent" }: any) => 
       {trend && <span className="text-[10px] text-green-500 font-bold">{trend}</span>}
     </div>
     <div className="space-y-1">
-      <h3 className="text-xs text-muted-foreground font-naskh">{title}</h3>
+      <h3 className="text-[10px] font-bold text-muted-foreground font-naskh uppercase tracking-wider">{title}</h3>
       <p className="text-2xl font-bold text-foreground">{value}</p>
     </div>
   </div>
@@ -215,10 +238,10 @@ const ActivityItem = ({ user, action, time, icon }: any) => (
         {icon}
       </div>
       <div>
-        <p className="text-sm font-bold font-naskh text-foreground">
+        <p className="text-sm font-bold font-naskh text-foreground leading-tight">
           <span className="text-accent">{user}</span> {action}
         </p>
-        <p className="text-[10px] text-muted-foreground">{time}</p>
+        <p className="text-[10px] text-muted-foreground mt-0.5">{time}</p>
       </div>
     </div>
   </div>
