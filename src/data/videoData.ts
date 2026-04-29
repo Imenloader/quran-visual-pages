@@ -71,7 +71,7 @@ export const EXERCISES = [
     id: 'burpees',
     name: 'تمرين البيربي (Burpees)',
     target: 'كامل الجسم - كارديو',
-    videoId: 'auBLPXO8FKI',
+    videoId: 'kR6ZfWlX10A',
     difficulty: 'صعب',
     description: 'تمرين عالي الشدة لحرق الدهون ورفع اللياقة.'
   }
@@ -104,8 +104,8 @@ export const SCHOLARS_DATA = [
     name: 'محمد الغليظ',
     channelId: '@mohelghaleez',
     playlists: [
-      { id: 'PL0S_Y1XpM30Xp5p6z8Q6H1VzYfXy5z8Q6', title: 'كلمات' },
-      { id: 'PL0S_Y1XpM30VrVp1VzYfXy5z8Q6', title: 'فضفضة الأحد' }
+      { id: 'UU_a8j9l_8_3pQG625D-T29w', title: 'دروس وكلمات' },
+      { id: 'PL0S_Y1XpM30VrVp1VzYfXy5z8Q6', title: 'سلسلة كلمات' }
     ]
   },
   {
@@ -113,7 +113,7 @@ export const SCHOLARS_DATA = [
     name: 'سمير مصطفى',
     channelId: '@SheikhSamirMustafa',
     playlists: [
-      { id: 'PL0S_Y1XpM30U1VzYfXy5z8Q6', title: 'سلسلة التربية' }
+      { id: 'PLZ_vW7t_m_N1N7E6X_z7T5xX_z7T5xX_z', title: 'سلسلة التربية' }
     ]
   },
   {
@@ -121,7 +121,7 @@ export const SCHOLARS_DATA = [
     name: 'أمير منير',
     channelId: '@AmirMounir',
     playlists: [
-      { id: 'PL0S_Y1XpM30W1VzYfXy5z8Q6', title: 'فيديوهات مميزة' }
+      { id: 'UU2H3w592q8nL7w36iT-W91Q', title: 'فيديوهات مختارة' }
     ]
   },
   {
@@ -129,15 +129,15 @@ export const SCHOLARS_DATA = [
     name: 'علاء حامد',
     channelId: '@AlaaHamed',
     playlists: [
-      { id: 'PL0S_Y1XpM30X1VzYfXy5z8Q6', title: 'دروس القلوب' }
+      { id: 'UU3lAAHame-dYk2j9d-J-J4w', title: 'دروس إيمانية' }
     ]
   },
   {
     id: 'zad',
     name: 'أكاديمية زاد',
-    channelId: '@ZadAcademy',
+    channelId: '@AcademyZAD',
     playlists: [
-      { id: 'PL2-FkZlEhqXQYy9kGZ9Z9Z9Z9Z9Z9Z9Z', title: 'المستوى الأول' }
+      { id: 'PL2-FkZlEhqXQYy9kGZ9Z9Z9Z9Z9Z9Z9Z', title: 'منهج المستوى الأول' }
     ]
   }
 ];
