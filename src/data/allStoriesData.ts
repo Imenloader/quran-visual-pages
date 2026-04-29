@@ -133,7 +133,7 @@ const generatedStories: Story[] = Array.from({ length: 96 }).map((_, i) => ({
   title: `قصة إيمانية #${i + 1}: ${i % 3 === 0 ? 'فضل الصدق' : i % 3 === 1 ? 'بر الوالدين' : 'أمانة التاجر'}`,
   targetAudience: i % 2 === 0 ? 'child' : 'adult',
   category: i % 3 === 0 ? 'مواعظ إيمانية' : 'أخلاق إسلامية',
-  coverImage: `https://picsum.photos/seed/story_ar_${i}/800/500`,
+  coverImage: `https://images.unsplash.com/photo-${i % 2 === 0 ? '1542816417-0983c9c9ad53' : '1590076214667-cda43216bb8b'}?q=80&w=800&auto=format&fit=crop`,
   estimatedReadTime: `${Math.floor(Math.random() * 10) + 10} min`,
   language: 'ar',
   isReal: false,
