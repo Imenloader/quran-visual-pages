@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Joyride, Step, CallBackProps, STATUS, ACTIONS, EVENTS } from "react-joyride";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -18,12 +18,12 @@ export const SiteTour = () => {
 
   useEffect(() => {
     const isCompleted = localStorage.getItem(TOUR_STORAGE_KEY);
-    if (!isCompleted && location.pathname === "/") {
+    if (!isCompleted && !run && location.pathname === "/") {
       setRun(true);
     }
-  }, [location.pathname]);
+  }, [location.pathname, run]);
 
-  const steps: Step[] = [
+  const steps: Step[] = useMemo(() => [
     {
       target: "body",
       content: (
@@ -112,7 +112,7 @@ export const SiteTour = () => {
       ),
       placement: "center",
     }
-  ];
+  ], [i18n.language]);
 
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { status, type, action, index } = data;
@@ -124,29 +124,24 @@ export const SiteTour = () => {
         toast.success(i18n.language === "ar" ? "انتهت الجولة، استمتع بالتطبيق!" : "Tour completed, enjoy the app!");
       }
     } else if (type === EVENTS.STEP_AFTER || type === EVENTS.TARGET_NOT_FOUND) {
-      const nextIndex = index + (action === ACTIONS.PREV ? -1 : 1);
+      const isNext = action === ACTIONS.NEXT;
+      const nextIndex = index + (isNext ? 1 : -1);
       
       // Auto-navigate to Hub for the Sahaba step
       if (steps[nextIndex]?.target === "#tour-tool-sahaba" && location.pathname !== "/hub") {
         navigate("/hub");
-        // Wait for navigation
-        setTimeout(() => setStepIndex(nextIndex), 500);
+        setTimeout(() => setStepIndex(nextIndex), 600);
         return;
       }
 
-      // Auto-navigate back to home or profile if needed
+      // Auto-navigate back to profile if needed
       if (steps[nextIndex]?.target === "#tour-profile" && location.pathname !== "/profile") {
-        // We can stay on current page as profile is in bottom nav, but let's navigate to profile to show sign in
         navigate("/profile");
-        setTimeout(() => setStepIndex(nextIndex), 500);
+        setTimeout(() => setStepIndex(nextIndex), 600);
         return;
       }
 
-      if (action === ACTIONS.NEXT) {
-        setStepIndex(index + 1);
-      } else if (action === ACTIONS.PREV) {
-        setStepIndex(index - 1);
-      }
+      setStepIndex(nextIndex);
     }
   };
 
@@ -159,6 +154,10 @@ export const SiteTour = () => {
       showProgress
       showSkipButton
       scrollToFirstStep
+      disableScrolling={false}
+      disableOverlayClose
+      disableCloseOnEsc
+      spotlightClicks
       callback={handleJoyrideCallback}
       locale={{
         back: i18n.language === "ar" ? "السابق" : "Back",
