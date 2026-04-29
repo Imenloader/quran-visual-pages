@@ -47,7 +47,7 @@ export const EXERCISES = [
     id: 'pushups',
     name: 'تمرين الضغط (Pushups)',
     target: 'الصدر والترايسيبس',
-    videoId: 'IODxDxX7oi4',
+    videoId: 'kYJ5_l_0V4Y',
     difficulty: 'متوسط',
     description: 'تمرين أساسي لتقوية الجزء العلوي من الجسم.'
   },
@@ -55,7 +55,7 @@ export const EXERCISES = [
     id: 'squats',
     name: 'تمرين القرفصاء (Squats)',
     target: 'الأرجل والأرداف',
-    videoId: 'mGvzVjuY8SY',
+    videoId: 'qcG69UM9JOU',
     difficulty: 'سهل',
     description: 'تمرين ممتاز لتقوية عضلات الأرجل وبناء القوة.'
   },
@@ -63,7 +63,7 @@ export const EXERCISES = [
     id: 'plank',
     name: 'تمرين البلانك (Plank)',
     target: 'عضلات البطن والمركز',
-    videoId: 'ASdvN_XEl_c',
+    videoId: 'y3mIn64_kUo',
     difficulty: 'متوسط',
     description: 'تمرين الثبات لتقوية عضلات البطن والظهر.'
   },
@@ -94,7 +94,7 @@ export const NUTRITION_TIPS = [
     id: 'water',
     title: 'شرب الماء والأداء الرياضي',
     content: 'الجفاف يؤدي لتراجع الأداء بنسبة تصل لـ ٢٠٪، احرص على شرب الماء بانتظام.',
-    videoId: 'n5p6t8u9y' // Placeholder
+    videoId: 'E_m1S06vE5M' 
   }
 ];
 
@@ -105,7 +105,7 @@ export const SCHOLARS_DATA = [
     channelId: '@mohelghaleez',
     playlists: [
       { id: 'PL0S_Y1XpM30Xp5p6z8Q6H1VzYfXy5z8Q6', title: 'كلمات' },
-      { id: 'PL0S_Y1XpM30V_q7Z5z8Q6H1VzYfXy5z8', title: 'فضفضة الأحد' }
+      { id: 'PL0S_Y1XpM30VrVp1VzYfXy5z8Q6', title: 'فضفضة الأحد' }
     ]
   },
   {
@@ -113,7 +113,7 @@ export const SCHOLARS_DATA = [
     name: 'سمير مصطفى',
     channelId: '@SheikhSamirMustafa',
     playlists: [
-      { id: 'PL0S_Y1XpM30V_q7Z5z8Q6H1VzYfXy5z8', title: 'سلسلة التربية' }
+      { id: 'PL0S_Y1XpM30U1VzYfXy5z8Q6', title: 'سلسلة التربية' }
     ]
   },
   {
@@ -121,7 +121,7 @@ export const SCHOLARS_DATA = [
     name: 'أمير منير',
     channelId: '@AmirMounir',
     playlists: [
-      { id: 'PL0S_Y1XpM30V_q7Z5z8Q6H1VzYfXy5z8', title: 'فيديوهات مميزة' }
+      { id: 'PL0S_Y1XpM30W1VzYfXy5z8Q6', title: 'فيديوهات مميزة' }
     ]
   },
   {
@@ -129,7 +129,7 @@ export const SCHOLARS_DATA = [
     name: 'علاء حامد',
     channelId: '@AlaaHamed',
     playlists: [
-      { id: 'PL0S_Y1XpM30V_q7Z5z8Q6H1VzYfXy5z8', title: 'دروس القلوب' }
+      { id: 'PL0S_Y1XpM30X1VzYfXy5z8Q6', title: 'دروس القلوب' }
     ]
   },
   {
@@ -137,7 +137,7 @@ export const SCHOLARS_DATA = [
     name: 'أكاديمية زاد',
     channelId: '@ZadAcademy',
     playlists: [
-      { id: 'PL0S_Y1XpM30V_q7Z5z8Q6H1VzYfXy5z8', title: 'المستوى الأول' }
+      { id: 'PL2-FkZlEhqXQYy9kGZ9Z9Z9Z9Z9Z9Z9Z', title: 'المستوى الأول' }
     ]
   }
 ];
