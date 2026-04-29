@@ -75,91 +75,82 @@ const StoryReader: React.FC = () => {
         />
       </div>
 
-      <main className="pt-24 pb-20 px-4 md:px-0">
-        <article className="max-w-3xl mx-auto">
-          {/* Cover Image Header */}
-          <div className="relative h-64 md:h-96 rounded-[3rem] overflow-hidden mb-8 shadow-2xl">
+      <main className="pt-20 pb-32 px-4 md:px-0">
+        <article className="max-w-4xl mx-auto">
+          {/* Cover Image Header - Reduced size and improved contrast */}
+          <div className="relative h-48 md:h-72 rounded-[2rem] overflow-hidden mb-6 shadow-xl border border-border/20">
             <img 
               src={story.coverImage} 
               alt={story.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-1000 hover:scale-105"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
             
-            <div className="absolute bottom-8 left-8 right-8">
-              <div className="flex items-center gap-3 mb-4">
-                <Badge variant="secondary" className="bg-white/20 backdrop-blur-md text-white border-white/30 px-4 py-1">
+            <div className={`absolute bottom-6 left-6 right-6 ${story.language === 'ar' ? 'text-right' : 'text-left'}`}>
+              <div className={`flex items-center gap-3 mb-2 ${story.language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+                <Badge variant="secondary" className="bg-white/20 backdrop-blur-md text-white border-white/30 px-3 py-0.5 text-[10px]">
                   {story.category}
                 </Badge>
-                <div className="flex items-center gap-1.5 text-white/80 text-sm">
-                  <Clock size={16} />
+                <div className="flex items-center gap-1 text-white/80 text-[10px]">
+                  <Clock size={12} />
                   {story.estimatedReadTime}
                 </div>
               </div>
-              <h1 className={`text-4xl md:text-6xl font-bold text-white drop-shadow-lg ${
-                story.language === 'ar' ? 'font-naskh text-right' : 'font-serif'
+              <h1 className={`text-2xl md:text-4xl font-bold text-white leading-tight ${
+                story.language === 'ar' ? 'font-naskh' : 'font-serif'
               }`}>
                 {story.title}
               </h1>
             </div>
           </div>
 
-          {/* Reading Controls */}
-          <div className="sticky top-24 z-40 flex items-center justify-between p-4 mb-8 bg-card/80 backdrop-blur-xl border border-border/40 rounded-3xl shadow-soft">
-            <div className="flex gap-2">
+          {/* Reading Controls - More compact and sticky */}
+          <div className="sticky top-20 z-40 flex items-center justify-between p-3 mb-6 bg-card/95 backdrop-blur-xl border border-border/40 rounded-2xl shadow-lg">
+            <div className={`flex gap-2 ${story.language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
               <Button 
                 onClick={handleToggleTTS}
                 variant={isSpeaking ? "default" : "outline"}
-                className="rounded-2xl gap-2 h-12 px-6"
+                className="rounded-xl gap-2 h-10 px-4 text-xs"
               >
-                {isSpeaking ? <Pause size={18} /> : <Play size={18} />}
+                {isSpeaking ? <Pause size={14} /> : <Play size={14} />}
                 {isSpeaking ? (story.language === 'ar' ? 'إيقاف' : 'Stop') : (story.language === 'ar' ? 'استماع' : 'Listen')}
               </Button>
-              {isSpeaking && (
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className="rounded-2xl h-12 w-12"
-                  onClick={() => {
-                    window.speechSynthesis.cancel();
-                    handleToggleTTS();
-                  }}
-                >
-                  <RotateCcw size={18} />
-                </Button>
-              )}
             </div>
 
-            <div className="flex gap-2">
-              <Button variant="outline" size="icon" className="rounded-2xl h-12 w-12">
-                <Bookmark size={18} />
+            <div className="flex gap-1.5">
+              <Button variant="ghost" size="icon" className="rounded-xl h-10 w-10">
+                <Bookmark size={16} />
               </Button>
-              <Button variant="outline" size="icon" className="rounded-2xl h-12 w-12">
-                <Share2 size={18} />
+              <Button variant="ghost" size="icon" className="rounded-xl h-10 w-10">
+                <Share2 size={16} />
               </Button>
             </div>
           </div>
 
-          {/* Story Content */}
-          <div className={`prose prose-lg dark:prose-invert max-w-none px-4 md:px-8 bg-card/30 rounded-[3rem] p-8 md:p-12 border border-border/20 shadow-soft ${
-            story.language === 'ar' ? 'text-right font-naskh leading-relaxed' : 'font-serif'
+          {/* Story Content - Better spacing and RTL support */}
+          <div 
+            dir={story.language === 'ar' ? 'rtl' : 'ltr'}
+            className={`prose prose-sm md:prose-base dark:prose-invert max-w-none px-6 py-10 bg-card/40 rounded-[2.5rem] border border-border/10 shadow-soft mb-12 ${
+            story.language === 'ar' ? 'text-right font-naskh leading-[2] text-lg' : 'font-serif leading-relaxed'
           }`}>
-            {/* Very basic markdown to JSX conversion for the mock data */}
+            {/* Improved basic markdown to JSX conversion */}
             {story.markdownContent.split('\n').map((line, idx) => {
-              if (line.startsWith('# ')) {
-                return <h1 key={idx} className="mt-0">{line.replace('# ', '')}</h1>;
+              const trimmedLine = line.trim();
+              if (trimmedLine.startsWith('# ')) {
+                return <h1 key={idx} className="text-3xl md:text-4xl mb-6 text-primary">{trimmedLine.replace('# ', '')}</h1>;
               }
-              if (line.startsWith('### ')) {
-                return <h3 key={idx}>{line.replace('### ', '')}</h3>;
+              if (trimmedLine.startsWith('## ')) {
+                return <h2 key={idx} className="text-2xl md:text-3xl mt-8 mb-4 border-b border-border/40 pb-2">{trimmedLine.replace('## ', '')}</h2>;
               }
-              if (line.startsWith('**') && line.endsWith('**')) {
-                return <p key={idx} className="font-bold text-primary">{line.replace(/\*\*/g, '')}</p>;
+              if (trimmedLine.startsWith('### ')) {
+                return <h3 key={idx} className="text-xl md:text-2xl mt-6 mb-3 text-accent">{trimmedLine.replace('### ', '')}</h3>;
               }
-              if (line.startsWith('*') && line.endsWith('*')) {
-                return <p key={idx} className="italic text-muted-foreground">{line.replace(/\*/g, '')}</p>;
+              if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**')) {
+                return <div key={idx} className="my-6 p-4 bg-primary/5 border-l-4 border-primary rounded-r-xl italic text-lg font-medium">{trimmedLine.replace(/\*\*/g, '')}</div>;
               }
-              if (line.trim() === '') return <br key={idx} />;
-              return <p key={idx}>{line}</p>;
+              if (trimmedLine.trim() === '') return null;
+              
+              return <p key={idx} className="mb-4">{trimmedLine}</p>;
             })}
           </div>
 

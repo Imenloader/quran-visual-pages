@@ -139,7 +139,7 @@ const StoriesLibrary: React.FC = () => {
                   {story.targetAudience === 'child' && (
                     <div className="absolute bottom-4 left-4 flex items-center gap-1.5 bg-yellow-400/90 text-black px-3 py-1 rounded-full text-[10px] font-bold shadow-lg">
                       <Sparkles size={12} />
-                      KIDS PICK
+                      {i18n.language === 'ar' ? 'اختيار الأطفال' : 'KIDS PICK'}
                     </div>
                   )}
                 </div>
@@ -164,7 +164,7 @@ const StoriesLibrary: React.FC = () => {
                   </h3>
 
                   <div className="mt-auto pt-4 border-t border-border/40 flex items-center justify-between">
-                    <span className="text-sm font-medium text-muted-foreground">Read Story</span>
+                    <span className="text-sm font-medium text-muted-foreground">{i18n.language === 'ar' ? 'اقرأ القصة' : 'Read Story'}</span>
                     <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
                       <ChevronRight size={20} />
                     </div>
@@ -178,8 +178,8 @@ const StoriesLibrary: React.FC = () => {
             <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4 text-muted-foreground">
               <BookOpen size={40} />
             </div>
-            <h3 className="text-xl font-bold text-foreground">No stories found</h3>
-            <p className="text-muted-foreground">Try adjusting your filters or search query.</p>
+            <h3 className="text-xl font-bold text-foreground">{i18n.language === 'ar' ? 'لم يتم العثور على قصص' : 'No stories found'}</h3>
+            <p className="text-muted-foreground">{i18n.language === 'ar' ? 'حاول تغيير الفلاتر أو البحث مرة أخرى.' : 'Try adjusting your filters or search query.'}</p>
             <Button 
               variant="link" 
               className="mt-2 text-primary"
@@ -189,7 +189,7 @@ const StoriesLibrary: React.FC = () => {
                 setSelectedCategory('All');
               }}
             >
-              Clear all filters
+              {i18n.language === 'ar' ? 'مسح كل الفلاتر' : 'Clear all filters'}
             </Button>
           </div>
         )}
