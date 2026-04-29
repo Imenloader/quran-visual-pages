@@ -124,6 +124,12 @@ export const SiteTour = () => {
         toast.success(i18n.language === "ar" ? "انتهت الجولة، استمتع بالتطبيق!" : "Tour completed, enjoy the app!");
       }
     } else if (type === EVENTS.STEP_AFTER || type === EVENTS.TARGET_NOT_FOUND) {
+      if (action === ACTIONS.CLOSE) {
+        setRun(false);
+        localStorage.setItem(TOUR_STORAGE_KEY, "true");
+        return;
+      }
+
       const isNext = action === ACTIONS.NEXT;
       const nextIndex = index + (isNext ? 1 : -1);
       
