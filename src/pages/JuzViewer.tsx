@@ -158,6 +158,56 @@ function JuzViewer() {
   const currentPageRef = useRef(currentPage);
   const prevScrollDirectionRef = useRef(scrollDirection);
   const prevReadingModeRef = useRef(readingMode);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [initialDist, setInitialDist] = useState<number | null>(null);
+  const [initialZoom, setInitialZoom] = useState<number>(100);
+
+  // Pinch-to-zoom logic
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        // Prevent default browser zoom
+        const dist = Math.hypot(
+          e.touches[0].pageX - e.touches[1].pageX,
+          e.touches[0].pageY - e.touches[1].pageY
+        );
+        setInitialDist(dist);
+        setInitialZoom(zoom);
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 2 && initialDist !== null) {
+        // Prevent browser zoom gesture
+        if (e.cancelable) e.preventDefault();
+        
+        const dist = Math.hypot(
+          e.touches[0].pageX - e.touches[1].pageX,
+          e.touches[0].pageY - e.touches[1].pageY
+        );
+        const scale = dist / initialDist;
+        const nextZoom = Math.min(Math.max(initialZoom * scale, 50), 250);
+        setZoom(Math.round(nextZoom));
+      }
+    };
+
+    const handleTouchEnd = () => {
+      setInitialDist(null);
+    };
+
+    el.addEventListener('touchstart', handleTouchStart, { passive: false });
+    el.addEventListener('touchmove', handleTouchMove, { passive: false });
+    el.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      el.removeEventListener('touchstart', handleTouchStart);
+      el.removeEventListener('touchmove', handleTouchMove);
+      el.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [zoom, initialDist, initialZoom]);
 
   const pages = useMemo(() => {
     if (!juz) return [];
@@ -876,7 +926,18 @@ function JuzViewer() {
           </div>
         )}
 
-        <div className="flex flex-col items-center gap-6 md:gap-8 sm:gap-12 w-full" style={{ maxWidth: `${isFullscreen ? 9999 : maxWidth}px` }}>
+        <div 
+          ref={containerRef}
+          className="w-full overflow-x-auto custom-scrollbar touch-pan-y"
+        >
+          <div 
+            className="flex flex-col items-center gap-6 md:gap-8 sm:gap-12 mx-auto transition-all duration-300 ease-out" 
+            style={{ 
+              width: `${isFullscreen ? 100 : zoom}%`, 
+              minWidth: "100%",
+              maxWidth: isFullscreen ? "none" : `${maxWidth}px` 
+            }}
+          >
           {readingMode === "image" ? (
             scrollDirection === "vertical" ? (
               pages.map((page) => (
@@ -1140,7 +1201,8 @@ function JuzViewer() {
             </div>
           )}
         </div>
-      </main>
+      </div>
+    </main>
 
       {!isFullscreen && (
         <div className="text-center pb-12">
