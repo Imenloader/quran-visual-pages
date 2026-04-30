@@ -120,18 +120,18 @@ const ActivityPlanner: React.FC<ActivityPlannerProps> = ({ storageKey, type, tit
       </div>
 
       <div className="space-y-3">
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <input 
             type="date"
             value={selectedDay}
             onChange={(e) => setSelectedDay(e.target.value)}
-            className="bg-muted/50 border border-border/40 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-accent"
+            className="flex-1 min-w-[140px] bg-muted/50 border border-border/40 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-accent"
           />
           <input 
             type="time"
             value={newActivityTime}
             onChange={(e) => setNewActivityTime(e.target.value)}
-            className="bg-muted/50 border border-border/40 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-accent w-24"
+            className="w-full sm:w-24 bg-muted/50 border border-border/40 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-accent"
           />
         </div>
         

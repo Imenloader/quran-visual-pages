@@ -130,6 +130,13 @@
     @apply bg-background text-foreground font-sans selection:bg-primary/20 antialiased;
     -webkit-tap-highlight-color: transparent;
     text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  
+  html {
+    overflow-x: hidden;
+    max-width: 100vw;
   }
   
   .container-responsive {

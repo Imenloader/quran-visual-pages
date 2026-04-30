@@ -19,7 +19,7 @@ const QuranHeader = ({
   const isCompact = variant === "compact";
 
   return (
-    <header className={`relative overflow-hidden bg-emerald-deep flex items-center justify-center shadow-islamic ${
+    <header className={`relative w-full overflow-x-hidden bg-emerald-deep flex items-center justify-center shadow-islamic ${
       isCompact ? "min-h-[180px] md:min-h-[300px]" : "min-h-[340px] md:min-h-[500px]"
     }`}>
       {/* Back Button */}

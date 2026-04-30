@@ -17,7 +17,7 @@ const KnowledgeSessions = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen w-full overflow-x-hidden bg-background pb-24">
       <QuranHeader 
         title="جلسات علمية" 
         subtitle="مَن سلك طريقًا يلتمس فيه علمًا سهَّل الله له طريقًا إلى الجنة" 

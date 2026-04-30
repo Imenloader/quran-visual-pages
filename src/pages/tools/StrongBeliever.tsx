@@ -17,7 +17,7 @@ const StrongBeliever = () => {
   const [activeItem, setActiveItem] = useState<Exercise | Recipe | null>(null);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen w-full overflow-x-hidden bg-background pb-24">
       <QuranHeader 
         title="المؤمن القوي" 
         subtitle="المؤمن القوي خيرٌ وأحبُّ إلى الله من المؤمن الضعيف" 
