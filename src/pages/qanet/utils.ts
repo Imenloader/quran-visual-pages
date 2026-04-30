@@ -104,8 +104,8 @@ export const calculateStats = (logs: QanetLog[]) => {
     }
     
     // Track max streaks regardless of current
-    let currentCalcQanet = 0;
-    let currentCalcNonHeedless = 0;
+    const currentCalcQanet = 0;
+    const currentCalcNonHeedless = 0;
     
     // A separate loop to calculate all-time max streaks simply
     // Wait, let's do a simple max streak calculation

@@ -34,7 +34,7 @@ import {
 import { auth, db } from "@/firebase";
 import { useUser } from "@/contexts/UserContext";
 import BackButton from "@/components/BackButton";
-import { juzData, surahData } from "@/data/quranData";
+import { juzData, surahData, surahByNumber } from "@/data/quranData";
 import AuthModal from "@/components/AuthModal";
 
 interface CircleMember {
@@ -153,7 +153,7 @@ const ReadingCircles = () => {
       return;
     }
 
-    const surah = surahData.find(s => s.number === selectedSurah);
+    const surah = surahByNumber[selectedSurah];
     if (!surah) return;
 
     try {
