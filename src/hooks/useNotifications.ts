@@ -7,6 +7,7 @@ import { surahIndex } from "../data/quranData";
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Capacitor } from '@capacitor/core';
 import { storage } from '@/lib/storage';
+import { surahByName } from "@/data/quranData";
 
 const CAIRO_TZ = "Africa/Cairo";
 const NOTIF_SETTINGS_KEY = "quran-notification-settings";
@@ -58,7 +59,7 @@ const getRandomMessage = (messages: string[]) =>
 
 const getRandomDailyVerse = () => {
   const verse = dailyVerses[Math.floor(Math.random() * dailyVerses.length)];
-  const surahInfo = surahIndex.find(s => s.name === verse.surah);
+  const surahInfo = surahByName[verse.surah];
   const surahNum = surahInfo?.number || 1;
   
   return {

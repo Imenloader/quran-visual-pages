@@ -136,6 +136,19 @@ export const surahData: SurahInfo[] = [
 
 export const surahIndex = surahData;
 
+// Pre-computed maps for O(1) lookups
+export const surahByNumber = surahData.reduce((acc, surah) => {
+  acc[surah.number] = surah;
+  return acc;
+}, {} as Record<number, SurahInfo>);
+
+export const surahByName = surahData.reduce((acc, surah) => {
+  acc[surah.name] = surah;
+  acc[surah.nameEn] = surah;
+  acc[surah.englishName] = surah;
+  return acc;
+}, {} as Record<string, SurahInfo>);
+
 export const juzData: JuzInfo[] = [
   { number: 1, nameAr: "الجزء الأول", nameEn: "Juz 1", startPage: 1, endPage: 21, startSurah: "الفاتحة", surahs: ["الفاتحة", "البقرة"] },
   { number: 2, nameAr: "الجزء الثاني", nameEn: "Juz 2", startPage: 22, endPage: 41, startSurah: "البقرة 142", surahs: ["البقرة"] },
@@ -180,7 +193,7 @@ export const toArabicNumber = (num: number | string | undefined | null, force: b
 };
 
 export const getJuzAndPageForSurah = (surahNumber: number): { juz: number; page: number } => {
-  const surah = surahIndex.find(s => s.number === surahNumber);
+  const surah = surahByNumber[surahNumber];
   if (!surah) return { juz: 1, page: 1 };
   
   const juz = juzData.find(j => surah.startPage >= j.startPage && surah.startPage <= j.endPage);

@@ -1,0 +1,3 @@
+## 2024-05-14 - Surah Lookup Performance
+**Learning:** The codebase currently uses `.find()` on `surahIndex` and `surahData` arrays extensively for looking up surahs by name or number. Memory explicitly states: "For optimal performance, use the pre-computed maps `surahByName` or `surahByNumber` from `src/data/quranData.ts` for surah lookups instead of performing array searches (e.g., `.find()`) on `surahIndex`." However, these maps do not currently exist in the `src/data/quranData.ts` file.
+**Action:** Implement `surahByName` and `surahByNumber` maps in `src/data/quranData.ts` and refactor the `.find()` calls across the codebase to use these O(1) lookups instead of O(n) array searches.

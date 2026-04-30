@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { X, Moon, CalendarDays, Check, Plus, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useQanet } from './QanetContext';
 import { getQanetLevel } from './utils';
-import { surahData } from '@/data/quranData';
+import { surahData, surahByNumber } from "@/data/quranData";
 import { ReadingRange } from './types';
 import { toHijri, formatHijriDate, formatHijriDateFull, getHijriMonthDays, getHijriMonthStartDay, toArabicDigits, WEEKDAYS_AR_SHORT } from './hijriUtils';
 
@@ -17,13 +17,13 @@ const calculateRangeAyahs = (range: ReadingRange): number => {
 
   let total = 0;
   // Remaining ayahs in start surah
-  const startSurahData = surahData.find(s => s.number === range.startSurah);
+  const startSurahData = surahByNumber[range.startSurah];
   if (startSurahData) {
     total += startSurahData.ayahs - range.startAyah + 1;
   }
   // Full surahs in between
   for (let i = range.startSurah + 1; i < range.endSurah; i++) {
-    const s = surahData.find(su => su.number === i);
+    const s = surahByNumber[i];
     if (s) total += s.ayahs;
   }
   // Ayahs in end surah
@@ -50,7 +50,7 @@ export default function QanetLogModal({ onClose }: { onClose: () => void }) {
   const totalAyahs = useMemo(() => {
     return ranges.reduce((sum, range, i) => {
       if (wholeSurahFlags[i]) {
-        const s = surahData.find(su => su.number === range.startSurah);
+        const s = surahByNumber[range.startSurah];
         return sum + (s?.ayahs || 0);
       }
       return sum + calculateRangeAyahs(range);
@@ -88,7 +88,7 @@ export default function QanetLogModal({ onClose }: { onClose: () => void }) {
   const handleSave = () => {
     const finalRanges = ranges.map((range, i) => {
       if (wholeSurahFlags[i]) {
-        const s = surahData.find(su => su.number === range.startSurah);
+        const s = surahByNumber[range.startSurah];
         return {
           startSurah: range.startSurah,
           startAyah: 1,
@@ -115,7 +115,7 @@ export default function QanetLogModal({ onClose }: { onClose: () => void }) {
   };
 
   const getAyahCount = (surahNumber: number) => {
-    return surahData.find(s => s.number === surahNumber)?.ayahs || 1;
+    return surahByNumber[surahNumber]?.ayahs || 1;
   };
 
   return (
