@@ -74,11 +74,6 @@ jobs:
           cd android
           chmod +x gradlew
           
-          echo "--- DEBUG: Checking for problematic assets ---"
-          find . -name "ic_launcher_background.png" -exec ls -l {} +
-          echo "--- DEBUG: Deleting potential problematic assets ---"
-          find . -name "ic_launcher_background.png" -delete
-          
           # Delete legacy density folders that often cause compilation issues with modern assets
           echo "--- CLEANING LEGACY MISMITS ---"
           rm -rf app/src/main/res/mipmap-ldpi
