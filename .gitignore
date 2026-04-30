@@ -42,4 +42,11 @@ __pycache__/
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Mobile Signing Keys
+*.jks
+*.keystore
+*.p12
+*.jks.gpg
+
 ```
