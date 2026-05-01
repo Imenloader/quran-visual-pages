@@ -70,23 +70,25 @@ export async function fetchWithCache(
         }
       } catch (fetchError) {
         // SSL/Network Fallback for Quran APIs
-        if (url.includes("api.quran.com") || url.includes("api.qurancdn.com")) {
+        if (url.includes("api.quran.com") || url.includes("api.qurancdn.com") || url.includes("mp3quran.net")) {
           console.warn("Primary API call failed, trying mirror or proxy...", fetchError);
           
-          const isMain = url.includes("api.quran.com");
-          const mirrorUrl = isMain 
-            ? url.replace("api.quran.com", "api.qurancdn.com")
-            : url.replace("api.qurancdn.com", "api.quran.com");
+          if (url.includes("api.quran.com") || url.includes("api.qurancdn.com")) {
+            const isMain = url.includes("api.quran.com");
+            const mirrorUrl = isMain 
+              ? url.replace("api.quran.com", "api.qurancdn.com")
+              : url.replace("api.qurancdn.com", "api.quran.com");
 
-          // Try mirror first (it's faster than proxy)
-          try {
-            console.log(`Trying mirror fallback: ${mirrorUrl}`);
-            const mirrorResponse = await fetch(mirrorUrl, { signal: controller.signal });
-            if (mirrorResponse.ok) {
-              return await mirrorResponse.json();
+            // Try mirror first (it's faster than proxy)
+            try {
+              console.log(`Trying mirror fallback: ${mirrorUrl}`);
+              const mirrorResponse = await fetch(mirrorUrl, { signal: controller.signal });
+              if (mirrorResponse.ok) {
+                return await mirrorResponse.json();
+              }
+            } catch (mirrorError) {
+              console.warn("Mirror fallback failed, trying proxies...", mirrorError);
             }
-          } catch (mirrorError) {
-            console.warn("Mirror fallback failed, trying proxies...", mirrorError);
           }
 
           // Using allorigins as a proxy fallback
