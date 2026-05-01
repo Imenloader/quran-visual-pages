@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { db, auth } from '@/firebase';
-import { collection, query, where, onSnapshot, doc, setDoc, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, setDoc, addDoc, serverTimestamp, orderBy, limit, updateDoc, increment } from 'firebase/firestore';
 import QuranHeader from '@/components/QuranHeader';
 import { 
   Users, 
@@ -31,7 +31,10 @@ const PrayerCircles: React.FC = () => {
   const { t, i18n } = useTranslation();
   const isArabic = i18n.language === 'ar';
   const [circles, setCircles] = useState<Circle[]>([]);
+  const [duaRequests, setDuaRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showDuaModal, setShowDuaModal] = useState(false);
+  const [duaText, setDuaText] = useState('');
 
   useEffect(() => {
     if (!auth.currentUser) {
@@ -44,7 +47,7 @@ const PrayerCircles: React.FC = () => {
       where('members', 'array-contains', auth.currentUser.uid)
     );
 
-    const unsub = onSnapshot(q, (snap) => {
+    const unsubCircles = onSnapshot(q, (snap) => {
       const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Circle));
       setCircles(data);
       setLoading(false);
@@ -53,7 +56,16 @@ const PrayerCircles: React.FC = () => {
       setLoading(false);
     });
 
-    return () => unsub();
+    const duaQuery = query(collection(db, 'dua_requests'), orderBy('createdAt', 'desc'), limit(10));
+    const unsubDuas = onSnapshot(duaQuery, (snap) => {
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      setDuaRequests(data);
+    });
+
+    return () => {
+      unsubCircles();
+      unsubDuas();
+    };
   }, []);
 
   const createCircle = async () => {
@@ -92,8 +104,42 @@ const PrayerCircles: React.FC = () => {
     }
   };
 
-  const requestDua = () => {
-    toast.info(isArabic ? 'سيتم إطلاق ميزة طلب الدعاء قريباً!' : 'Request Dua feature coming soon!');
+  const requestDua = async () => {
+    if (!auth.currentUser) {
+      toast.error(isArabic ? 'يرجى تسجيل الدخول أولاً' : 'Please sign in first');
+      return;
+    }
+
+    const text = prompt(isArabic ? 'ما هو دعاؤك؟' : 'What is your Dua?');
+    if (!text) return;
+
+    try {
+      await addDoc(collection(db, 'dua_requests'), {
+        text,
+        userName: auth.currentUser.displayName || 'مستخدم',
+        userId: auth.currentUser.uid,
+        createdAt: serverTimestamp(),
+        ameenCount: 0,
+        ameeners: []
+      });
+      toast.success(isArabic ? 'تم نشر طلب الدعاء بنجاح' : 'Dua request posted successfully');
+    } catch (e) {
+      toast.error(isArabic ? 'فشل نشر الطلب' : 'Failed to post request');
+    }
+  };
+
+  const handleAmeen = async (id: string, currentAmeeners: string[]) => {
+    if (!auth.currentUser) return;
+    if (currentAmeeners.includes(auth.currentUser.uid)) return;
+
+    try {
+      await updateDoc(doc(db, 'dua_requests', id), {
+        ameenCount: increment(1),
+        ameeners: [...currentAmeeners, auth.currentUser.uid]
+      });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
@@ -196,6 +242,53 @@ const PrayerCircles: React.FC = () => {
                 ))}
              </div>
            )}
+        </div>
+
+        {/* Dua Requests Section */}
+        <div className="mt-16 space-y-8">
+           <div className="flex items-center gap-3 px-2">
+              <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center text-gold">
+                 <Heart size={20} />
+              </div>
+              <h2 className="text-2xl font-serif font-bold text-primary">{isArabic ? 'طلبات الدعاء بظهر الغيب' : 'Dua Requests'}</h2>
+           </div>
+
+           <div className="grid grid-cols-1 gap-6">
+              {duaRequests.map(req => (
+                <div key={req.id} className="p-8 rounded-[2.5rem] bg-card border border-border/40 shadow-islamic space-y-6">
+                   <p className="text-xl font-serif text-foreground leading-relaxed italic text-center">
+                     "{req.text}"
+                   </p>
+                   <div className="flex items-center justify-between pt-4 border-t border-border/20">
+                      <div className="flex items-center gap-3">
+                         <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-bold uppercase">
+                            {req.userName?.charAt(0)}
+                         </div>
+                         <span className="text-sm font-bold text-muted-foreground">{req.userName}</span>
+                      </div>
+                      <button 
+                        onClick={() => handleAmeen(req.id, req.ameeners || [])}
+                        disabled={req.ameeners?.includes(auth.currentUser?.uid)}
+                        className={`flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-sm transition-all ${
+                          req.ameeners?.includes(auth.currentUser?.uid) 
+                            ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' 
+                            : 'bg-gold text-white shadow-lg hover:scale-105 active:scale-95'
+                        }`}
+                      >
+                        <Heart size={16} fill={req.ameeners?.includes(auth.currentUser?.uid) ? 'currentColor' : 'none'} />
+                        {req.ameeners?.includes(auth.currentUser?.uid) ? (isArabic ? 'آمين' : 'Ameen') : (isArabic ? 'قل آمين' : 'Say Ameen')}
+                        <span className="ml-1 opacity-60">({toArabicNumber(req.ameenCount || 0)})</span>
+                      </button>
+                   </div>
+                </div>
+              ))}
+              {duaRequests.length === 0 && (
+                <div className="py-20 text-center bg-card/40 border-2 border-dashed border-border/40 rounded-[3rem]">
+                   <Sparkles size={48} className="mx-auto mb-4 opacity-20" />
+                   <p className="font-serif text-muted-foreground">{isArabic ? 'لا توجد طلبات دعاء حالياً' : 'No dua requests yet'}</p>
+                </div>
+              )}
+           </div>
         </div>
       </main>
     </div>

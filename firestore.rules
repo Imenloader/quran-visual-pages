@@ -104,5 +104,10 @@ service cloud.firestore {
       allow update: if isAuthenticated() && (canWrite() || isAdmin());
       allow delete: if isAdmin() || (isAuthenticated() && resource.data.authorId == request.auth.uid);
     }
+
+    match /dua_requests/{id} {
+      allow read: if true;
+      allow write: if isAuthenticated() && canWrite();
+    }
   }
 }
