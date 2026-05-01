@@ -15,6 +15,7 @@ import {
   HandHelping
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { toArabicNumber } from '@/data/quranData';
 
 interface Circle {
   id: string;
