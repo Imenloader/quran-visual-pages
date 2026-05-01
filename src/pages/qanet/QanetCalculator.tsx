@@ -3,6 +3,10 @@ import { Moon, Edit2, ArrowLeft, MapPin, Clock, Loader2, Sparkles, BookOpen, Tim
 import { surahData } from '@/data/quranData';
 import { useQanet } from './QanetContext';
 import { StatCard } from './components/StatCard';
+import { Geolocation } from "@capacitor/geolocation";
+import { Capacitor } from "@capacitor/core";
+import { storage } from "@/lib/storage";
+import { PRAYER_SETTINGS_KEY, DEFAULT_SETTINGS } from '@/hooks/usePrayerTimes';
 
 interface LastThirdInfo {
   loading: boolean;
@@ -21,7 +25,21 @@ const PRESET_PLANS = [
 
 export default function QanetCalculator() {
   const { language } = useQanet();
+  const [prayerMethod, setPrayerMethod] = useState(4);
   const isArabic = language === 'ar';
+
+  useEffect(() => {
+    const loadMethod = async () => {
+      const stored = await storage.get(PRAYER_SETTINGS_KEY);
+      if (stored) {
+        try {
+          const s = JSON.parse(stored);
+          if (s.method) setPrayerMethod(s.method);
+        } catch {}
+      }
+    };
+    loadMethod();
+  }, []);
   const [mode, setMode] = useState<'target' | 'range'>('target');
   const [target, setTarget] = useState(100);
   const [customTarget, setCustomTarget] = useState('');
@@ -112,15 +130,31 @@ export default function QanetCalculator() {
   const calculateLastThird = async () => {
     setLastThird({ loading: true, error: null, time: null, fajr: null, maghrib: null, cityName: null });
     try {
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
-      });
-      const { latitude, longitude } = position.coords;
+      let latitude: number, longitude: number;
+      
+      if (Capacitor.isNativePlatform()) {
+        const permissions = await Geolocation.checkPermissions();
+        if (permissions.location !== 'granted') await Geolocation.requestPermissions();
+        const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+        latitude = pos.coords.latitude;
+        longitude = pos.coords.longitude;
+      } else {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
+        });
+        latitude = position.coords.latitude;
+        longitude = position.coords.longitude;
+      }
+
       const today = new Date();
       const dd = String(today.getDate()).padStart(2, '0');
       const mm = String(today.getMonth() + 1).padStart(2, '0');
       const yyyy = today.getFullYear();
-      const res = await fetch(`https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${latitude}&longitude=${longitude}&method=4`);
+      
+      // Use user's preferred method if available, default to 4
+      const method = prayerMethod;
+      const res = await fetch(`https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${latitude}&longitude=${longitude}&method=${method}`);
+      
       if (!res.ok) throw new Error('فشل في جلب المواقيت');
       const data = await res.json();
       const timings = data.data.timings;
@@ -133,7 +167,12 @@ export default function QanetCalculator() {
       const lastThirdStart = maghribMinutes + Math.floor(nightDuration * 2 / 3);
       const ltHours = Math.floor(lastThirdStart / 60) % 24;
       const ltMinutes = lastThirdStart % 60;
-      const ltFormatted = `${String(ltHours).padStart(2, '0')}:${String(ltMinutes).padStart(2, '0')}`;
+      
+      // Convert to 12h format for display
+      const period = ltHours >= 12 ? 'م' : 'ص';
+      const h12 = ltHours % 12 || 12;
+      const ltFormatted = `${h12}:${String(ltMinutes).padStart(2, '0')} ${period}`;
+      
       setLastThird({
         loading: false, error: null, time: ltFormatted, fajr: timings.Fajr, maghrib: timings.Maghrib,
         cityName: data.data.meta?.timezone || null

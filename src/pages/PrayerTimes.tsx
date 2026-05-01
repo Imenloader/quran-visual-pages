@@ -2,12 +2,15 @@ import React, { useState, useEffect, useRef, useCallback, lazy, Suspense } from 
 import {
   MapPin, Clock, Bell, BellOff, Volume2, VolumeX,
   Settings, Loader2, RefreshCw, Edit3, Check, X,
-  ChevronDown, ChevronUp, Sparkles,
+  ChevronDown, ChevronUp, ChevronRight, Sparkles, Navigation, CheckCircle2, Circle, Info
 } from "lucide-react";
+import { format } from "date-fns";
+import { syncService } from "@/services/syncService";
 import { toast } from "sonner";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import { useTranslation } from "react-i18next";
 import { useAudioUnlock } from "@/hooks/useAudioUnlock";
+import { useNavigate } from "react-router-dom";
 import {
   usePrayerTimes,
   getCairoDate,
@@ -102,8 +105,60 @@ function NextPrayerCountdown({
   timeFormat?: "12h" | "24h";
 }) {
   const [remaining, setRemaining] = useState({ hours: 0, minutes: 0, seconds: 0 });
+  const [progress, setProgress] = useState(0);
+  const [heading, setHeading] = useState<number | null>(null);
+  const [qiblaDirection, setQiblaDirection] = useState(0);
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
+
+  useEffect(() => {
+    if (settings.latitude && settings.longitude) {
+      const calculateQibla = (lat: number, lng: number) => {
+        const kaabaLat = 21.4225;
+        const kaabaLng = 39.8262;
+        const φ1 = lat * (Math.PI / 180);
+        const φ2 = kaabaLat * (Math.PI / 180);
+        const Δλ = (kaabaLng - lng) * (Math.PI / 180);
+        const y = Math.sin(Δλ);
+        const x = Math.cos(φ1) * Math.tan(φ2) - Math.sin(φ1) * Math.cos(Δλ);
+        return (Math.atan2(y, x) * (180 / Math.PI) + 360) % 360;
+      };
+      setQiblaDirection(calculateQibla(settings.latitude, settings.longitude));
+    }
+
+    const handleOrientation = (e: any) => {
+      let newHeading = null;
+      if (e.webkitCompassHeading !== undefined) {
+        newHeading = e.webkitCompassHeading;
+      } else if (e.alpha !== null) {
+        newHeading = 360 - e.alpha;
+      }
+      setHeading(newHeading);
+    };
+
+    if (window.DeviceOrientationEvent) {
+      const DeviceOrientationEventWithPermission = DeviceOrientationEvent as any;
+      if (typeof DeviceOrientationEventWithPermission.requestPermission === "function") {
+        DeviceOrientationEventWithPermission.requestPermission().then((state: string) => {
+          if (state === "granted") window.addEventListener("deviceorientation", handleOrientation);
+        });
+      } else {
+        if ('ondeviceorientationabsolute' in window) {
+          window.addEventListener("deviceorientationabsolute", handleOrientation);
+        } else {
+          window.addEventListener("deviceorientation", handleOrientation);
+        }
+      }
+    }
+
+    return () => {
+      window.removeEventListener("deviceorientation", handleOrientation);
+      if ('ondeviceorientationabsolute' in window) window.removeEventListener("deviceorientationabsolute", handleOrientation);
+    };
+  }, [settings.latitude, settings.longitude]);
+
+  const relativeQibla = heading !== null ? (qiblaDirection - heading + 360) % 360 : qiblaDirection;
+
 
   useEffect(() => {
     const calc = () => {
@@ -111,13 +166,22 @@ function NextPrayerCountdown({
       const now = getEffectiveNow(settings);
       const target = new Date(now);
       target.setHours(h, m, 0, 0);
+      
+      // Calculate total duration between previous prayer and this one to get progress
+      // For simplicity, we'll use a fixed 4-hour window if we don't have the previous time
+      const totalWindow = 4 * 60 * 60 * 1000; 
+
       if (target <= now) target.setDate(target.getDate() + 1);
       const diff = target.getTime() - now.getTime();
+      
       setRemaining({
         hours: Math.floor(diff / 3600000),
         minutes: Math.floor((diff % 3600000) / 60000),
         seconds: Math.floor((diff % 60000) / 1000),
       });
+
+      const prog = Math.max(0, Math.min(100, 100 - (diff / totalWindow) * 100));
+      setProgress(prog);
     };
     calc();
     const interval = setInterval(calc, 1000);
@@ -158,9 +222,18 @@ function NextPrayerCountdown({
       <div className="flex flex-col md:flex-row items-center justify-between w-full gap-4 md:gap-6 relative z-10">
         <div className="flex items-center gap-3 md:gap-4">
           <div 
-            className="w-16 h-16 md:w-24 md:h-24 rounded-2xl md:rounded-[2rem] gradient-islamic flex items-center justify-center text-3xl md:text-5xl shadow-2xl shadow-primary/30 border border-primary/10 transition-transform active:scale-95"
+            className="w-16 h-16 md:w-24 md:h-24 rounded-2xl md:rounded-[2rem] gradient-islamic flex items-center justify-center text-3xl md:text-5xl shadow-2xl shadow-primary/30 border border-primary/10 transition-transform active:scale-95 relative"
           >
             {prayerIcon}
+            {/* Small Qibla Compass */}
+            <div className="absolute -top-2 -right-2 w-8 h-8 md:w-10 md:h-10 bg-card border border-border shadow-lg rounded-full flex items-center justify-center overflow-hidden">
+               <div 
+                className="transition-transform duration-500 ease-out"
+                style={{ transform: `rotate(${relativeQibla}deg)` }}
+               >
+                 <Navigation size={14} className="text-primary fill-primary" />
+               </div>
+            </div>
           </div>
           <div className="text-right">
             <div className="flex items-center gap-2 mb-1 md:mb-2 justify-end">
@@ -202,12 +275,21 @@ function NextPrayerCountdown({
           ))}
         </div>
       </div>
+
+      {/* Progress Bar */}
+      <div className="absolute bottom-0 left-0 w-full h-1 bg-muted/20">
+        <div 
+          className="h-full bg-gold shadow-[0_0_10px_rgba(234,179,8,0.5)] transition-all duration-1000"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
     </section>
   );
 }
 
 export default function PrayerTimes() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const isAr = i18n.language === "ar";
   const { stopPlayer, isPlaying: isQuranPlaying } = useAudioPlayer();
   const {
@@ -226,6 +308,30 @@ export default function PrayerTimes() {
   const [editingPrayer, setEditingPrayer] = useState<keyof PrayerTimesData | null>(null);
   const [editValue, setEditValue] = useState("");
   const [playingAdhan, setPlayingAdhan] = useState<string | null>(null);
+  const [showSunnah, setShowSunnah] = useState(false);
+  const [history, setHistory] = useState<Record<string, string[]>>({});
+  const today = format(new Date(), "yyyy-MM-dd");
+
+  useEffect(() => {
+    const loadHistory = async () => {
+      const saved = await syncService.loadData<Record<string, string[]>>("prayer_history", {});
+      setHistory(saved);
+    };
+    loadHistory();
+  }, []);
+
+  const togglePrayerStatus = useCallback(async (prayerId: string) => {
+    const dayPrayers = history[today] || [];
+    const next = dayPrayers.includes(prayerId)
+      ? dayPrayers.filter(p => p !== prayerId)
+      : [...dayPrayers, prayerId];
+    
+    const newHistory = { ...history, [today]: next };
+    setHistory(newHistory);
+    await syncService.saveData("prayer_history", newHistory);
+    toast.success(next.includes(prayerId) ? "تم تسجيل الصلاة" : "تم إلغاء تسجيل الصلاة");
+  }, [history, today]);
+
 
   const handleEnableNotifications = useCallback(async () => {
     unlockAudio();
@@ -314,7 +420,13 @@ export default function PrayerTimes() {
     Asr: "🌤️",
     Maghrib: "🌇",
     Isha: "🌙",
+    Midnight: "🌌",
+    LastThird: "✨",
+    Duha: "🌅",
   };
+
+  const sunnahPrayers: (keyof PrayerTimesData)[] = ["Duha", "Midnight", "LastThird"];
+
 
   return (
     <div className="min-h-screen bg-background pb-24 transition-opacity duration-500 opacity-100">
@@ -429,7 +541,7 @@ export default function PrayerTimes() {
                     return (
                       <div
                         key={prayer}
-                        className={`group relative grid grid-cols-[80px_1fr_80px] md:grid-cols-[100px_1fr_100px] items-center gap-2 px-4 py-4 md:py-5 border-b border-border/20 last:border-0 transition-all ${
+                        className={`group relative grid grid-cols-[80px_1fr_100px] md:grid-cols-[100px_1fr_120px] items-center gap-2 px-4 py-4 md:py-5 border-b border-border/20 last:border-0 transition-all ${
                           isNext 
                             ? "bg-primary/[0.04]" 
                             : "hover:bg-muted/30"
@@ -437,16 +549,21 @@ export default function PrayerTimes() {
                       >
                           {/* Icon & Actions - Right side (Col 1) */}
                           <div className="flex items-center gap-3 justify-start overflow-visible">
-                            <div className={`relative z-10 w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl flex items-center justify-center text-xl md:text-3xl shadow-lg transition-all duration-500 ${
-                              isNext 
-                                ? "bg-primary text-white scale-110 shadow-primary/30 rotate-2 ring-4 ring-primary/10" 
-                                : "bg-card border border-border/40 text-muted-foreground group-hover:scale-105"
-                            }`}>
-                              {prayerIcons[prayer]}
-                              {isNext && (
+                            <button 
+                              onClick={() => togglePrayerStatus(prayer.toLowerCase())}
+                              className={`relative z-10 w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl flex items-center justify-center text-xl md:text-3xl shadow-lg transition-all duration-500 ${
+                                history[today]?.includes(prayer.toLowerCase())
+                                  ? "bg-emerald-500 text-white shadow-emerald-500/30"
+                                  : isNext 
+                                    ? "bg-primary text-white scale-110 shadow-primary/30 rotate-2 ring-4 ring-primary/10" 
+                                    : "bg-card border border-border/40 text-muted-foreground group-hover:scale-105"
+                              }`}
+                            >
+                              {history[today]?.includes(prayer.toLowerCase()) ? <CheckCircle2 className="w-6 h-6 md:w-8 md:h-8" /> : prayerIcons[prayer]}
+                              {isNext && !history[today]?.includes(prayer.toLowerCase()) && (
                                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-gold rounded-full border-2 border-white animate-bounce" />
                               )}
-                            </div>
+                            </button>
 
                             <div className="hidden md:flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
                               {prayer !== "Sunrise" && (
@@ -495,11 +612,20 @@ export default function PrayerTimes() {
                             ) : (
                               <div className="flex flex-col items-center gap-1">
                                 <p className={`font-naskh text-lg md:text-2xl font-bold transition-colors ${
-                                  isNext ? "text-primary" : "text-foreground"
-                                }`}>
-                                  {PRAYER_NAMES[prayer]}
-                                </p>
-                                {isNext && (
+                                  history[today]?.includes(prayer.toLowerCase()) ? "text-emerald-500" : "text-foreground"
+                             }`}>
+                               {PRAYER_NAMES[prayer]}
+                             </p>
+                             {history[today]?.includes(prayer.toLowerCase()) && (
+                               <button 
+                                 onClick={() => navigate("/athkar")}
+                                 className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 animate-in fade-in zoom-in"
+                               >
+                                 <Sparkles size={10} />
+                                 أذكار ما بعد الصلاة
+                               </button>
+                             )}
+                             {isNext && (
                                   <div 
                                     className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-600/10 text-emerald-600 text-[9px] md:text-[10px] font-bold border border-emerald-600/20"
                                   >
@@ -534,6 +660,56 @@ export default function PrayerTimes() {
                   })}
                 </div>
               ) : null}
+              
+              <button 
+                onClick={() => setShowSunnah(!showSunnah)}
+                className="w-full py-4 text-xs font-bold text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-2 border-t border-border/20"
+              >
+                <Sparkles size={14} />
+                {showSunnah ? (isAr ? "إخفاء سنن اليوم" : "Hide Sunnah Times") : (isAr ? "عرض سنن اليوم (الضحى والتهجد)" : "Show Sunnah Times")}
+                <ChevronDown size={14} className={`transition-transform ${showSunnah ? "rotate-180" : ""}`} />
+              </button>
+
+              {showSunnah && times && (
+                <div className="bg-muted/10 divide-y divide-border/20 border-t border-border/20 animate-in fade-in slide-in-from-top-2">
+                   {sunnahPrayers.map((prayer) => (
+                     <div key={prayer} className="grid grid-cols-[60px_1fr_80px] items-center gap-2 px-6 py-4">
+                        <div className="w-10 h-10 rounded-xl bg-card border border-border/40 flex items-center justify-center text-xl shadow-sm">
+                          {prayerIcons[prayer]}
+                        </div>
+                        <div className="text-right">
+                          <p className="font-naskh text-sm font-bold text-foreground/80">{PRAYER_NAMES[prayer]}</p>
+                          {prayer === "LastThird" && (
+                            <p className="text-[9px] text-muted-foreground font-naskh">وقت قيام الليل</p>
+                          )}
+                        </div>
+                        <div className="text-left font-bold text-lg tabular-nums text-muted-foreground" dir="ltr">
+                          {formatTime(times[prayer] || "--:--", settings.timeFormat)}
+                        </div>
+                     </div>
+                   ))}
+                </div>
+              )}
+            </section>
+
+            {/* Spiritual Inspiration Card */}
+            <section className="bg-primary/5 border border-primary/10 rounded-[2rem] p-6 text-center space-y-4 shadow-sm relative overflow-hidden group">
+               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+               <Sparkles className="w-6 h-6 text-gold mx-auto animate-pulse" />
+               <div className="space-y-2">
+                 <p className="text-sm font-naskh leading-relaxed text-foreground/80 italic">
+                   {isAr 
+                     ? "«الصلاة هي عماد الدين، من أقامها فقد أقام الدين ومن هدمها فقد هدم الدين»"
+                     : '"Prayer is the pillar of religion; whoever establishes it has established religion, and whoever leaves it has destroyed religion."'}
+                 </p>
+                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">— Hadith Sharif</p>
+               </div>
+               <button 
+                 onClick={() => navigate("/athkar")}
+                 className="text-[10px] font-bold text-primary hover:underline flex items-center justify-center gap-1 mx-auto"
+               >
+                 Explore Adhkar Library <ChevronRight size={12} />
+               </button>
             </section>
 
             <section className="bg-card border border-border rounded-2xl p-5 shadow-soft space-y-4 transition-all">
@@ -648,9 +824,50 @@ export default function PrayerTimes() {
                 <div className="flex-1">
                   <CustomSelect
                     value={settings.adhanSound}
-                    onChange={(val) => updateSettings({ adhanSound: val as string })}
+                    onChange={(val) => {
+                      const newAdhanSounds = { ...settings.adhanSounds };
+                      // Also update all prayers if they were using the global default
+                      prayerOrder.forEach(p => {
+                        if (!settings.adhanSounds[p] || settings.adhanSounds[p] === settings.adhanSound) {
+                          newAdhanSounds[p] = val as string;
+                        }
+                      });
+                      updateSettings({ adhanSound: val as string, adhanSounds: newAdhanSounds });
+                    }}
                     options={ADHAN_SOUNDS}
                   />
+                </div>
+              </div>
+
+              <div className="mt-6 pt-6 border-t border-border/40">
+                <h3 className="text-xs font-bold text-muted-foreground mb-4 text-right uppercase tracking-wider">تخصيص صوت كل صلاة</h3>
+                <div className="space-y-3">
+                  {prayerOrder.map(prayer => (
+                    <div key={prayer} className="flex items-center gap-3">
+                      <button
+                        onClick={() => handlePreview(settings.adhanSounds[prayer] || settings.adhanSound)}
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+                          playingAdhan === (settings.adhanSounds[prayer] || settings.adhanSound)
+                            ? "bg-primary text-white"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {playingAdhan === (settings.adhanSounds[prayer] || settings.adhanSound) ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                      </button>
+                      <div className="flex-1">
+                        <CustomSelect
+                          value={settings.adhanSounds[prayer] || settings.adhanSound}
+                          onChange={(val) => {
+                            updateSettings({ 
+                              adhanSounds: { ...settings.adhanSounds, [prayer]: val as string } 
+                            });
+                          }}
+                          options={ADHAN_SOUNDS}
+                        />
+                      </div>
+                      <span className="w-16 text-right font-naskh text-xs font-bold text-foreground/70">{PRAYER_NAMES[prayer]}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </section>

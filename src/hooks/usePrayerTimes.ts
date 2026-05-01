@@ -158,7 +158,24 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
       const t = data.data.timings;
-      const prayerTimes: PrayerTimesData = { Fajr: t.Fajr, Sunrise: t.Sunrise, Dhuhr: t.Dhuhr, Asr: t.Asr, Maghrib: t.Maghrib, Isha: t.Isha };
+      const prayerTimes: PrayerTimesData = { 
+        Fajr: t.Fajr, 
+        Sunrise: t.Sunrise, 
+        Dhuhr: t.Dhuhr, 
+        Asr: t.Asr, 
+        Maghrib: t.Maghrib, 
+        Isha: t.Isha,
+        Midnight: t.Midnight,
+        LastThird: t.Lastthird
+      };
+      
+      // Calculate Duha (Sunrise + 15 mins)
+      const [sH, sM] = t.Sunrise.split(":").map(Number);
+      const duhaDate = new Date();
+      duhaDate.setHours(sH, sM, 0, 0);
+      duhaDate.setMinutes(duhaDate.getMinutes() + 15);
+      prayerTimes.Duha = `${String(duhaDate.getHours()).padStart(2, "0")}:${String(duhaDate.getMinutes()).padStart(2, "0")}`;
+
       setTimes(prayerTimes);
       await storage.set(cacheKey, JSON.stringify(prayerTimes));
     } catch {
@@ -252,7 +269,8 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
       const winNotif = (window as any).Notification;
       if (winNotif?.permission === "granted") new winNotif(title, { body, icon: "/pwa-192x192.png" });
     }
-    playAdhanSound(settings.adhanSound, prayerNameAr);
+    const soundId = settings.adhanSounds?.[prayer] || settings.adhanSound;
+    playAdhanSound(soundId, prayerNameAr);
     setTimeout(() => stopAdhan(), 20000);
   }, [settings.adhanSound, playAdhanSound, stopAdhan]);
 

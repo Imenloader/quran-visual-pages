@@ -9,6 +9,10 @@ export interface PrayerTimesData {
   Asr: string;
   Maghrib: string;
   Isha: string;
+  // Sunnah Times
+  Midnight?: string;
+  LastThird?: string;
+  Duha?: string;
 }
 
 export interface PrayerSettings {
@@ -23,6 +27,7 @@ export interface PrayerSettings {
   enabledPrayers: (keyof PrayerTimesData)[];
   manualOverrides: Partial<PrayerTimesData>;
   timeFormat: "12h" | "24h";
+  adhanSounds: Record<string, string>; // Per-prayer sound id
 }
 
 export const DEFAULT_SETTINGS: PrayerSettings = {
@@ -30,13 +35,20 @@ export const DEFAULT_SETTINGS: PrayerSettings = {
   longitude: 31.2569,
   cityName: "المعادي، القاهرة (تلقائي)",
   method: 5, // Egyptian General Authority of Survey
-  adhanSound: "tts_arabic",
+  adhanSound: "minshawi",
   notificationsEnabled: false,
   prePrayerNotification: false,
   prePrayerMinutes: 10,
   enabledPrayers: ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"],
   manualOverrides: {},
   timeFormat: "12h",
+  adhanSounds: {
+    Fajr: "minshawi",
+    Dhuhr: "minshawi",
+    Asr: "minshawi",
+    Maghrib: "minshawi",
+    Isha: "minshawi",
+  },
 };
 
 export const ADHAN_SOUNDS: { id: string; label: string; url: string }[] = [
@@ -153,4 +165,7 @@ export const PRAYER_NAMES: Record<keyof PrayerTimesData, string> = {
   Asr: "العصر",
   Maghrib: "المغرب",
   Isha: "العشاء",
+  Midnight: "منتصف الليل",
+  LastThird: "الثلث الأخير",
+  Duha: "الضحى",
 };
