@@ -14,6 +14,10 @@ import { normalizeArabic } from "@/lib/arabicUtils";
 import { applyTajweedColors } from "@/lib/tajweedParser";
 import { syncService } from "@/services/syncService";
 import { useNativeWidgets } from "@/hooks/useNativeWidgets";
+import { usePrayerTimes, formatTime, PRAYER_NAMES } from "@/hooks/usePrayerTimes";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { Clock, Sun } from "lucide-react";
+import { sunnahActions } from "@/data/sunnahData";
 
 const BOOKMARK_KEY = "quran-bookmark";
 
@@ -45,8 +49,10 @@ function Index() {
   const { t, i18n } = useTranslation();
   const { setReadingMode, tajweedMode } = useTheme();
   const navigate = useNavigate();
+  const { nextPrayer, settings } = usePrayerTimes();
   const [bookmark, setBookmark] = useState<BookmarkData | null>(null);
   const [verseOfDay, setVerseOfDay] = useState<{ text: string; surah: string; number: number } | null>(null);
+  const [sunnahOfDay, setSunnahOfDay] = useState<{ textAr: string; textEn: string } | null>(null);
   
   // Sync to native widgets
   useNativeWidgets(verseOfDay);
@@ -69,6 +75,10 @@ function Index() {
     const index = Math.abs(hash) % dailyVerses.length;
     const verse = dailyVerses[index];
     setVerseOfDay({ text: verse.text, surah: verse.surah, number: verse.number });
+
+    const sunnahIndex = Math.abs(hash) % sunnahActions.length;
+    const sunnah = sunnahActions[sunnahIndex];
+    setSunnahOfDay({ textAr: sunnah.textAr, textEn: sunnah.textEn });
   }, []);
 
   const handleResumeReading = () => {
@@ -202,7 +212,10 @@ function Index() {
                 <div className="flex flex-col sm:flex-row items-center gap-4 md:gap-8 w-full md:w-auto">
                   {bookmark ? (
                     <button
-                      onClick={() => navigate(`/juz/${bookmark.juz}#page-${bookmark.page}`)}
+                      onClick={() => {
+                        Haptics.impact({ style: ImpactStyle.Medium });
+                        navigate(`/juz/${bookmark.juz}#page-${bookmark.page}`);
+                      }}
                       className="group relative flex items-center gap-3 md:gap-4 bg-accent text-accent-foreground px-6 md:px-10 py-3 md:py-4 rounded-2xl md:rounded-[2rem] font-naskh text-sm md:text-lg font-bold shadow-islamic hover:shadow-accent/20 transition-all hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-gold/20 to-transparent opacity-0 group-hover:opacity-100" />
@@ -211,7 +224,10 @@ function Index() {
                     </button>
                   ) : (
                     <button
-                      onClick={() => setShowIndex(true)}
+                      onClick={() => {
+                        Haptics.impact({ style: ImpactStyle.Medium });
+                        setShowIndex(true);
+                      }}
                       className="group relative flex items-center gap-3 md:gap-4 bg-primary text-primary-foreground px-6 md:px-10 py-3 md:py-4 rounded-2xl md:rounded-[2rem] font-naskh text-sm md:text-lg font-bold shadow-islamic hover:shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-gold/20 to-transparent opacity-0 group-hover:opacity-100" />
@@ -284,7 +300,62 @@ function Index() {
               </Link>
             </div>
           </section>
+
+          {/* Next Prayer Mini-Widget */}
+          {nextPrayer && (
+            <section
+              onClick={() => {
+                Haptics.impact({ style: ImpactStyle.Light });
+                navigate("/prayer-times");
+              }}
+              className="relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-emerald-900/10 backdrop-blur-2xl border border-emerald-900/20 p-6 md:p-8 shadow-islamic group lg:col-span-1 flex flex-col justify-center cursor-pointer hover:bg-emerald-900/20 transition-all"
+            >
+              <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full -mr-12 -mt-12 blur-2xl" />
+              <div className="relative z-10 flex items-center justify-between">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Clock size={14} className="text-emerald-600" />
+                    <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">الصلاة القادمة</span>
+                  </div>
+                  <h3 className="text-2xl font-naskh font-bold text-primary">{PRAYER_NAMES[nextPrayer.name]}</h3>
+                  <p className="text-xs text-muted-foreground">موعد الأذان: <span className="font-bold text-primary">{formatTime(nextPrayer.time, settings.timeFormat)}</span></p>
+                </div>
+                <div className="w-16 h-16 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-600/30 group-hover:scale-110 transition-transform">
+                   <Clock size={32} strokeWidth={1.5} />
+                </div>
+              </div>
+            </section>
+          )}
         </div>
+
+        {/* Sunnah of the Day Card */}
+        {sunnahOfDay && (
+          <section className="mb-8 md:mb-16">
+            <div 
+              className="relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-gold/5 to-primary/5 border border-gold/10 p-6 md:p-10 shadow-sm"
+            >
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                <div className="flex items-center gap-4 md:gap-6">
+                   <div className="w-14 h-14 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-gold/10 flex items-center justify-center text-gold shadow-inner">
+                      <Sun size={32} strokeWidth={1.5} className="md:w-10 md:h-10" />
+                   </div>
+                   <div className="space-y-1">
+                      <span className="text-[10px] font-bold text-gold uppercase tracking-[0.4em]">سنة اليوم</span>
+                      <h3 className="text-xl md:text-3xl font-naskh font-bold text-primary">
+                        {isAr ? sunnahOfDay.textAr : sunnahOfDay.textEn}
+                      </h3>
+                   </div>
+                </div>
+                <button 
+                  onClick={() => navigate("/daily-adhkar")}
+                  className="bg-gold text-white px-8 py-3 rounded-2xl font-bold text-sm shadow-lg shadow-gold/20 hover:scale-105 active:scale-95 transition-all"
+                >
+                  {isAr ? "اكتشف السنن النبوية" : "Explore Sunnah"}
+                </button>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Search Results - Editorial Style */}
         {surahResults.length > 0 && (
