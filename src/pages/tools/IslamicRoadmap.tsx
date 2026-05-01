@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { islamicEvents, IslamicEvent } from '@/data/islamicEventsData';
 import QuranHeader from '@/components/QuranHeader';
-import { Calendar, ChevronLeft, ChevronRight, Info, Sparkles, Clock } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Info, Sparkles, Clock, Loader2 } from 'lucide-react';
 import { toArabicNumber } from '@/data/quranData';
 
 const IslamicRoadmap: React.FC = () => {
@@ -10,18 +10,45 @@ const IslamicRoadmap: React.FC = () => {
   const isArabic = i18n.language === 'ar';
 
   // Get current Hijri date using Intl
-  const currentHijri = useMemo(() => {
-    const today = new Date();
-    const formatter = new Intl.DateTimeFormat('en-u-ca-islamic-uma-nu-latn', {
-      day: 'numeric',
-      month: 'numeric',
-      year: 'numeric'
-    });
-    const parts = formatter.formatToParts(today);
-    const day = parseInt(parts.find(p => p.type === 'day')?.value || '1');
-    const month = parseInt(parts.find(p => p.type === 'month')?.value || '1');
-    const year = parseInt(parts.find(p => p.type === 'year')?.value || '1447');
-    return { day, month, year };
+  const [currentHijri, setCurrentHijri] = useState({ day: 1, month: 1, year: 1447 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDate = async () => {
+      try {
+        const now = new Date();
+        const d = now.getDate();
+        const m = now.getMonth() + 1;
+        const y = now.getFullYear();
+        const res = await fetch(`https://api.aladhan.com/v1/gToH/${d}-${m}-${y}`);
+        const data = await res.json();
+        if (data.status === "OK") {
+          setCurrentHijri({
+            day: parseInt(data.data.hijri.day),
+            month: parseInt(data.data.hijri.month.number),
+            year: parseInt(data.data.hijri.year)
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch Hijri date:", err);
+        // Fallback to Intl if API fails
+        const today = new Date();
+        const formatter = new Intl.DateTimeFormat('en-u-ca-islamic-uma-nu-latn', {
+          day: 'numeric',
+          month: 'numeric',
+          year: 'numeric'
+        });
+        const parts = formatter.formatToParts(today);
+        setCurrentHijri({
+          day: parseInt(parts.find(p => p.type === 'day')?.value || '1'),
+          month: parseInt(parts.find(p => p.type === 'month')?.value || '1'),
+          year: parseInt(parts.find(p => p.type === 'year')?.value || '1447')
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDate();
   }, []);
 
   const calculateDaysRemaining = (event: IslamicEvent) => {
@@ -42,7 +69,10 @@ const IslamicRoadmap: React.FC = () => {
     let diff = eventTotalDays - currentTotalDays;
     const yearLength = monthLengths.reduce((a, b) => a + b, 0);
 
-    if (diff < 0) diff += yearLength; 
+    if (diff < 0) {
+      // If the event has passed this year, show days until next year
+      diff += yearLength;
+    }
     return diff;
   };
 
@@ -64,9 +94,15 @@ const IslamicRoadmap: React.FC = () => {
       />
 
       <main className="container max-w-2xl mx-auto px-4 -mt-10 relative z-20">
-        <div className="space-y-12 relative">
-          {/* Roadmap Line */}
-          <div className="absolute top-0 bottom-0 left-6 md:left-1/2 w-0.5 bg-gradient-to-b from-gold/50 via-emerald-500/30 to-transparent -translate-x-1/2" />
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-32 bg-card rounded-[3rem] border border-border/40 shadow-islamic">
+            <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
+            <p className="font-naskh text-muted-foreground">{isArabic ? 'جاري حساب خارطة الطريق...' : 'Calculating roadmap...'}</p>
+          </div>
+        ) : (
+          <div className="space-y-12 relative">
+            {/* Roadmap Line */}
+            <div className="absolute top-0 bottom-0 left-6 md:left-1/2 w-0.5 bg-gradient-to-b from-gold/50 via-emerald-500/30 to-transparent -translate-x-1/2" />
 
           {sortedEvents.map((event, index) => {
             const daysLeft = calculateDaysRemaining(event);
@@ -114,6 +150,7 @@ const IslamicRoadmap: React.FC = () => {
             );
           })}
         </div>
+        )}
       </main>
     </div>
   );
