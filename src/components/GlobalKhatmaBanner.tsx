@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '@/firebase';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, increment } from 'firebase/firestore';
+import { auth } from '@/firebase';
 import { Users, BookOpen, Sparkles, TrendingUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toArabicNumber } from '@/data/quranData';
+import { toast } from 'sonner';
 
 const GlobalKhatmaBanner: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -23,6 +25,34 @@ const GlobalKhatmaBanner: React.FC = () => {
     });
     return () => unsub();
   }, []);
+
+  const handleRecord = async () => {
+    if (!auth.currentUser) {
+      toast.error(isArabic ? "يرجى تسجيل الدخول أولاً" : "Please login first");
+      return;
+    }
+
+    const input = prompt(isArabic ? "كم جزءاً قرأت اليوم؟" : "How many Juz did you read today?");
+    if (!input) return;
+
+    const juzCount = parseInt(input);
+    if (isNaN(juzCount) || juzCount <= 0) {
+      toast.error(isArabic ? "يرجى إدخال رقم صحيح" : "Please enter a valid number");
+      return;
+    }
+
+    try {
+      const statsRef = doc(db, 'global_stats', 'khatma');
+      await updateDoc(statsRef, {
+        currentJuz: increment(juzCount),
+        participants: increment(1) // Simple increment, can be refined later
+      });
+      toast.success(isArabic ? "تم تسجيل قراءتك بنجاح، جزاك الله خيراً" : "Reading recorded successfully, Jazak Allah Khayran");
+    } catch (error) {
+      console.error("Error updating global khatma:", error);
+      toast.error(isArabic ? "فشل تسجيل القراءة، تأكد من الاتصال أو الصلاحيات" : "Failed to record reading, check connection or permissions");
+    }
+  };
 
   const progress = Math.min(100, (stats.currentJuz / stats.targetJuz) * 100);
 
@@ -75,7 +105,10 @@ const GlobalKhatmaBanner: React.FC = () => {
             </div>
           </div>
           
-          <button className="w-full py-3 rounded-2xl bg-gold text-emerald-deep font-bold text-sm shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+          <button 
+            onClick={handleRecord}
+            className="w-full py-3 rounded-2xl bg-gold text-emerald-deep font-bold text-sm shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          >
             <BookOpen size={18} />
             سجل قراءتك الآن
           </button>
