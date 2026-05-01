@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, Moon, Bell, AlertTriangle, Medal, Trophy } from 'lucide-react';
 import { useQanet } from './QanetContext';
+import { LocalNotifications } from '@capacitor/local-notifications';
+import { Capacitor } from '@capacitor/core';
+import { toast } from 'sonner';
 
-const moonImage = "https://images.unsplash.com/photo-1532693322450-2cb5c511067d?q=80&w=600&auto=format&fit=crop"; 
+const moonImage = "/assets/images/qanet_moon.png"; 
 // Using a placeholder moon image for the onboarding until custom assets are added.
 // The user provided screenshots, but we don't have the actual assets, so we use a good unsplash moon.
 
@@ -29,7 +32,7 @@ export default function QanetOnboarding() {
         <div 
           className="w-32 h-32 md:w-48 md:h-48 rounded-full overflow-hidden mb-4 shadow-[0_0_50px_rgba(255,255,255,0.1)] relative"
         >
-          <img src={moonImage} alt="Moon" className="w-full h-full object-cover mix-blend-screen" />
+          <img src={moonImage} alt="Moon" className="w-full h-full object-cover" />
         </div>
         <h1 
           className="text-3xl font-bold text-center !text-white font-naskh"
@@ -245,7 +248,36 @@ const StepLevels = () => {
 };
 
 const StepNotifications = ({ finish }: { finish: () => void }) => {
-  const { updateState } = useQanet();
+  const { updateState, language } = useQanet();
+  const isAr = language === 'ar';
+
+  const handleEnable = async () => {
+    try {
+      if (Capacitor.isNativePlatform()) {
+        const perm = await LocalNotifications.checkPermissions();
+        if (perm.display !== 'granted') {
+          const request = await LocalNotifications.requestPermissions();
+          if (request.display !== 'granted') {
+            toast.error(isAr ? "يرجى تفعيل التنبيهات من إعدادات الجهاز" : "Please enable notifications from device settings");
+            return;
+          }
+        }
+      } else if ('Notification' in window) {
+        const perm = await Notification.requestPermission();
+        if (perm !== 'granted') {
+          toast.error(isAr ? "تم رفض إذن التنبيهات" : "Notification permission denied");
+          return;
+        }
+      }
+      
+      updateState({ notificationsEnabled: true });
+      toast.success(isAr ? "تم تفعيل التنبيهات بنجاح" : "Notifications enabled successfully");
+      finish();
+    } catch (err) {
+      console.error("Notification permission error:", err);
+      toast.error(isAr ? "حدث خطأ أثناء تفعيل التنبيهات" : "Error enabling notifications");
+    }
+  };
   
   return (
     <div className="flex-1 flex flex-col justify-center gap-10">
@@ -262,8 +294,8 @@ const StepNotifications = ({ finish }: { finish: () => void }) => {
       
       <div className="space-y-4 mt-8">
         <button 
-          onClick={() => { updateState({ notificationsEnabled: true }); finish(); }}
-          className="w-full py-4 rounded-full bg-white text-[#0B132B] font-bold text-lg hover:bg-white/90 transition-all"
+          onClick={handleEnable}
+          className="w-full py-4 rounded-full bg-white text-[#0B132B] font-bold text-lg hover:bg-white/90 transition-all active:scale-95"
         >
           تفعيل الإشعارات
         </button>

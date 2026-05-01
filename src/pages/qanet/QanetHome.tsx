@@ -96,14 +96,10 @@ export default function QanetHome() {
         <div className="relative z-10">
           <div className="w-40 h-40 rounded-full mb-8 shadow-[0_0_50px_rgba(255,255,255,0.1)] border-[6px] border-primary/10 bg-black relative mx-auto group cursor-pointer active:scale-95 transition-all overflow-hidden">
             <img 
-              src="https://images.unsplash.com/photo-1532693322450-2cb5c511067d?q=80&w=600&auto=format&fit=crop" 
+              src="/assets/images/qanet_moon.png" 
               alt="Moon" 
-              className="w-full h-full object-cover opacity-80 scale-110 group-hover:scale-125 transition-transform duration-1000"
+              className="w-full h-full object-cover scale-110 group-hover:scale-125 transition-transform duration-1000"
             />
-            {/* Glowing Crescent Overlay */}
-            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-              <MoonStars className="text-gold/80 w-20 h-20 drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]" />
-            </div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
           </div>
           <h1 className="text-4xl font-bold mb-3 text-primary font-naskh tracking-tight">{isArabic ? 'من القانتين' : 'Min Al-Qaniteen'}</h1>
