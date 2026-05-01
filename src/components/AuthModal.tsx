@@ -95,14 +95,17 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
 
   const handleEmailAuth = async () => {
     setError("");
-    if (!email || !password) {
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+
+    if (!trimmedEmail || !trimmedPassword) {
       setError(isAr ? "يرجى ملء جميع الحقول." : "Please fill in all fields.");
       return;
     }
     setLoading(true);
     try {
       if (tab === "signin") {
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, trimmedEmail, trimmedPassword);
         toast.success(isAr ? "مرحباً بعودتك!" : "Welcome back!");
       } else {
         if (!name.trim()) {
@@ -115,7 +118,7 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
           setLoading(false);
           return;
         }
-        const result = await createUserWithEmailAndPassword(auth, email, password);
+        const result = await createUserWithEmailAndPassword(auth, trimmedEmail, trimmedPassword);
         await updateProfile(result.user, { displayName: name.trim() });
         toast.success(isAr ? "تم إنشاء الحساب بنجاح!" : "Account created successfully!");
       }
