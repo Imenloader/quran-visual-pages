@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '@/firebase';
-import { doc, onSnapshot, updateDoc, increment } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, increment, setDoc } from 'firebase/firestore';
 import { auth } from '@/firebase';
 import { Users, BookOpen, Sparkles, TrendingUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -43,10 +43,11 @@ const GlobalKhatmaBanner: React.FC = () => {
 
     try {
       const statsRef = doc(db, 'global_stats', 'khatma');
-      await updateDoc(statsRef, {
+      await setDoc(statsRef, {
         currentJuz: increment(juzCount),
-        participants: increment(1) // Simple increment, can be refined later
-      });
+        participants: increment(1),
+        targetJuz: 1000 // Default target if not exists
+      }, { merge: true });
       toast.success(isArabic ? "تم تسجيل قراءتك بنجاح، جزاك الله خيراً" : "Reading recorded successfully, Jazak Allah Khayran");
     } catch (error) {
       console.error("Error updating global khatma:", error);
