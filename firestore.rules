@@ -38,7 +38,7 @@ service cloud.firestore {
     // --- GLOBAL STATS ---
     match /global_stats/{id} {
       allow read: if true;
-      allow update: if isAuthenticated() && (canWrite() || isAdmin());
+      allow write: if isAuthenticated() && (canWrite() || isAdmin());
     }
 
     match /stats/dhikr {
