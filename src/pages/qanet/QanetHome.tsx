@@ -94,16 +94,17 @@ export default function QanetHome() {
       <div className="flex flex-col items-center text-center relative py-10 overflow-hidden">
         <div className="absolute inset-0 bg-primary/5 blur-[120px] rounded-full scale-150" />
         <div className="relative z-10">
-          <div className="w-40 h-40 rounded-full overflow-hidden mb-8 shadow-islamic border-[6px] border-primary/10 bg-black relative mx-auto group cursor-pointer active:scale-95 transition-transform">
+          <div className="w-40 h-40 rounded-full mb-8 shadow-[0_0_50px_rgba(255,255,255,0.1)] border-[6px] border-primary/10 bg-black relative mx-auto group cursor-pointer active:scale-95 transition-all overflow-hidden">
             <img 
-              src={moonImage} 
+              src="https://images.unsplash.com/photo-1532693322450-2cb5c511067d?q=80&w=600&auto=format&fit=crop" 
               alt="Moon" 
-              className="w-full h-full object-cover opacity-90 scale-110 group-hover:scale-125 transition-transform duration-1000"
+              className="w-full h-full object-cover opacity-80 scale-110 group-hover:scale-125 transition-transform duration-1000"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <MoonStars className="text-white w-10 h-10 animate-pulse" />
+            {/* Glowing Crescent Overlay */}
+            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+              <MoonStars className="text-gold/80 w-20 h-20 drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]" />
             </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
           </div>
           <h1 className="text-4xl font-bold mb-3 text-primary font-naskh tracking-tight">{isArabic ? 'من القانتين' : 'Min Al-Qaniteen'}</h1>
           <p className="text-muted-foreground text-base font-medium max-w-[250px] mx-auto leading-relaxed">

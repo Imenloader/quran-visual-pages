@@ -702,13 +702,13 @@ export default function PrayerTimes() {
                      ? "«الصلاة هي عماد الدين، من أقامها فقد أقام الدين ومن هدمها فقد هدم الدين»"
                      : '"Prayer is the pillar of religion; whoever establishes it has established religion, and whoever leaves it has destroyed religion."'}
                  </p>
-                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">— Hadith Sharif</p>
+                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">— {isAr ? "حديث شريف" : "Hadith Sharif"}</p>
                </div>
                <button 
                  onClick={() => navigate("/athkar")}
                  className="text-[10px] font-bold text-primary hover:underline flex items-center justify-center gap-1 mx-auto"
                >
-                 Explore Adhkar Library <ChevronRight size={12} />
+                 {isAr ? "استكشف مكتبة الأذكار" : "Explore Adhkar Library"} <ChevronRight size={12} />
                </button>
             </section>
 
