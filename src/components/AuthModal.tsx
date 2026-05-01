@@ -56,6 +56,7 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
       "auth/invalid-email": isAr ? "البريد الإلكتروني غير صالح." : "Invalid email address.",
       "auth/user-not-found": isAr ? "لا يوجد حساب بهذا البريد." : "No account found with this email.",
       "auth/wrong-password": isAr ? "كلمة المرور غير صحيحة." : "Incorrect password.",
+      "auth/invalid-credential": isAr ? "البريد الإلكتروني أو كلمة المرور غير صحيحة." : "Invalid email or password.",
       "auth/weak-password": isAr ? "كلمة المرور ضعيفة جداً (6 أحرف على الأقل)." : "Password too weak (min 6 chars).",
       "auth/unauthorized-domain": isAr
         ? "هذا النطاق غير مصرح به في Firebase. أضف النطاق في إعدادات المصادقة."
@@ -234,7 +235,7 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
                 onKeyDown={(e) => e.key === "Enter" && handleEmailAuth()}
                 placeholder={isAr ? "البريد الإلكتروني" : "Email address"}
                 dir="ltr"
-                className="w-full px-4 py-3 rounded-xl bg-primary/5 border border-primary/10 focus:border-accent outline-none font-serif text-sm text-primary placeholder:text-primary/30 transition-all text-right"
+                className="w-full px-4 py-3 rounded-xl bg-primary/5 border border-primary/10 focus:border-accent outline-none font-serif text-sm text-primary placeholder:text-primary/30 transition-all text-start"
               />
               <Mail size={14} className={`absolute ${isAr ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-primary/30`} />
             </div>
@@ -247,7 +248,7 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
                 onKeyDown={(e) => e.key === "Enter" && handleEmailAuth()}
                 placeholder={isAr ? "كلمة المرور" : "Password"}
                 dir="ltr"
-                className="w-full px-4 py-3 rounded-xl bg-primary/5 border border-primary/10 focus:border-accent outline-none font-serif text-sm text-primary placeholder:text-primary/30 transition-all text-right"
+                className="w-full px-4 py-3 rounded-xl bg-primary/5 border border-primary/10 focus:border-accent outline-none font-serif text-sm text-primary placeholder:text-primary/30 transition-all text-start"
               />
               <Lock size={14} className={`absolute ${isAr ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-primary/30`} />
               <button
