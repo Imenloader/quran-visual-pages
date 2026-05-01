@@ -133,7 +133,7 @@ function NextPrayerCountdown({
   ];
 
   return (
-    <section className="relative overflow-hidden bg-card border border-border/40 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 shadow-islamic group min-h-[200px] md:min-h-[240px] flex items-center transition-all duration-500">
+    <section className="relative overflow-hidden bg-card border border-border/40 rounded-[2rem] md:rounded-[2.5rem] p-5 md:p-6 shadow-islamic group min-h-[180px] md:min-h-[220px] flex items-center transition-all duration-500">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-gold/10 pointer-events-none" />
       <div className="absolute top-0 right-0 w-60 h-60 md:w-80 md:h-80 bg-gold/15 rounded-full -mr-30 md:-mr-40 -mt-30 md:-mt-40 blur-[80px] md:blur-[120px]" />
       <div className="absolute bottom-0 left-0 w-60 h-60 md:w-80 md:h-80 bg-primary/15 rounded-full -ml-30 md:-ml-40 -mb-30 md:-mb-40 blur-[80px] md:blur-[120px]" />
@@ -155,8 +155,8 @@ function NextPrayerCountdown({
       <div className="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-transparent via-gold/30 to-transparent rotate-12 blur-md opacity-50" />
       <div className="absolute top-0 left-1/3 w-px h-full bg-gradient-to-b from-transparent via-gold/20 to-transparent -rotate-12 blur-md opacity-50" />
       
-      <div className="flex flex-col md:flex-row items-center justify-between w-full gap-6 md:gap-8 relative z-10">
-        <div className="flex items-center gap-4 md:gap-6">
+      <div className="flex flex-col md:flex-row items-center justify-between w-full gap-4 md:gap-6 relative z-10">
+        <div className="flex items-center gap-3 md:gap-4">
           <div 
             className="w-16 h-16 md:w-24 md:h-24 rounded-2xl md:rounded-[2rem] gradient-islamic flex items-center justify-center text-3xl md:text-5xl shadow-2xl shadow-primary/30 border border-primary/10 transition-transform active:scale-95"
           >
@@ -170,17 +170,17 @@ function NextPrayerCountdown({
             <h2 className="font-serif text-2xl md:text-4xl font-bold text-foreground mb-0.5 md:mb-1 tracking-tight">
               {PRAYER_NAMES[prayerName]}
             </h2>
-            <p className="text-sm md:text-lg text-white/90 font-naskh">
+            <p className="text-sm md:text-base text-foreground/70 font-naskh">
               موعد الأذان: <span className="font-bold underline decoration-gold/30 underline-offset-4">{formatTime(prayerTime, settings.timeFormat)}</span>
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 md:gap-4" dir="ltr">
+        <div className="flex items-center gap-1.5 md:gap-3" dir="ltr">
           {units.map((unit, i) => (
-            <div key={i} className="flex items-center gap-2 md:gap-4">
+            <div key={i} className="flex items-center gap-1.5 md:gap-3">
               {i > 0 && (
-                <div className="flex flex-col gap-1.5 md:gap-2 opacity-40">
+                <div className="flex flex-col gap-1 md:gap-1.5 opacity-40">
                   <div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-gold" />
                   <div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-gold" />
                 </div>
@@ -342,7 +342,7 @@ export default function PrayerTimes() {
         )}
       </QuranHeader>
 
-      <main className="container max-w-lg mx-auto px-4 py-4 space-y-4">
+      <main className="container max-w-xl mx-auto px-4 py-4 space-y-4">
         {isAdhanPlaying && (
           <div
             className="bg-destructive/90 text-white p-3 rounded-xl shadow-xl flex items-center justify-between border border-white/20"
