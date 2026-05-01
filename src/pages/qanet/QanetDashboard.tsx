@@ -1,10 +1,11 @@
-import React from 'react';
-import { Moon, Calculator, History, Settings, ArrowRight, BookOpen, Home, Activity } from 'lucide-react';
+import React, { useState } from 'react';
+import { Moon, Calculator, History, Settings, ArrowRight, BookOpen, Home, Activity, Plus } from 'lucide-react';
 import { useNavigate, useLocation, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import QanetHome from './QanetHome';
 import QanetCalculator from './QanetCalculator';
 import QanetHistory from './QanetHistory';
 import QanetSettings from './QanetSettings';
+import QanetLogModal from './QanetLogModal';
 import { useQanet } from './QanetContext';
 import { useDynamicTheme } from '@/hooks/useDynamicTheme';
 
@@ -13,6 +14,8 @@ export default function QanetDashboard() {
   const isArabic = language === 'ar';
   const navigate = useNavigate();
   const location = useLocation();
+  const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+
   
   // Activate dynamic theme logic if enabled in settings
   useDynamicTheme(settings.interactiveColors);
@@ -85,6 +88,17 @@ export default function QanetDashboard() {
           <Route path="*" element={<Navigate to="/qanet" replace />} />
         </Routes>
       </main>
+
+      {/* Shared FAB - Premium Style */}
+      <button
+        onClick={() => setIsLogModalOpen(true)}
+        className="fixed bottom-32 right-6 w-16 h-16 bg-primary text-primary-foreground rounded-[1.5rem] flex items-center justify-center shadow-islamic z-[101] hover:scale-110 active:scale-95 transition-all group"
+      >
+        <Plus size={32} className="group-hover:rotate-90 transition-transform duration-500" />
+      </button>
+
+      {/* Shared Modal */}
+      {isLogModalOpen && <QanetLogModal onClose={() => setIsLogModalOpen(false)} />}
     </div>
   );
 }
