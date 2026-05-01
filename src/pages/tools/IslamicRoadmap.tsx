@@ -25,15 +25,25 @@ const IslamicRoadmap: React.FC = () => {
   }, []);
 
   const calculateDaysRemaining = (event: IslamicEvent) => {
-    // Very simplified calculation for Hijri countdown
-    // In a real app, this would need complex moon-sighting/calculation logic
-    // For now, we estimate based on 29.5 days per month
-    const currentTotalDays = (currentHijri.month - 1) * 29.5 + currentHijri.day;
-    const eventTotalDays = (event.hijriDate.month - 1) * 29.5 + event.hijriDate.day;
+    // Hijri month lengths (standard estimation)
+    const monthLengths = [30, 29, 30, 29, 30, 29, 30, 29, 30, 29, 30, 29];
+    
+    const getDaysFromStartOfYear = (m: number, d: number) => {
+      let total = 0;
+      for (let i = 0; i < m - 1; i++) {
+        total += monthLengths[i];
+      }
+      return total + d;
+    };
+
+    const currentTotalDays = getDaysFromStartOfYear(currentHijri.month, currentHijri.day);
+    const eventTotalDays = getDaysFromStartOfYear(event.hijriDate.month, event.hijriDate.day);
     
     let diff = eventTotalDays - currentTotalDays;
-    if (diff < 0) diff += 354; // Next year
-    return Math.round(diff);
+    const yearLength = monthLengths.reduce((a, b) => a + b, 0);
+
+    if (diff < 0) diff += yearLength; 
+    return diff;
   };
 
   const sortedEvents = useMemo(() => {
