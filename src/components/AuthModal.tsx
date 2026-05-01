@@ -124,6 +124,7 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
       }
       handleClose();
     } catch (err: any) {
+      console.error("Auth Error Detail:", err);
       setError(getFriendlyError(err?.code || ""));
     } finally {
       setLoading(false);
