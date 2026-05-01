@@ -265,6 +265,30 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
             </div>
           </div>
 
+          {/* Forgot Password */}
+          {tab === "signin" && (
+            <div className="flex justify-start px-1">
+              <button
+                onClick={async () => {
+                  if (!email.trim()) {
+                    setError(isAr ? "يرجى إدخال البريد الإلكتروني أولاً." : "Please enter your email first.");
+                    return;
+                  }
+                  try {
+                    const { sendPasswordResetEmail } = await import("firebase/auth");
+                    await sendPasswordResetEmail(auth, email.trim());
+                    toast.success(isAr ? "تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك." : "Password reset link sent to your email.");
+                  } catch (err: any) {
+                    setError(getFriendlyError(err.code));
+                  }
+                }}
+                className="text-[10px] font-bold text-primary/60 hover:text-gold transition-colors"
+              >
+                {isAr ? "نسيت كلمة المرور؟" : "Forgot Password?"}
+              </button>
+            </div>
+          )}
+
           {/* Error */}
           {error && (
             <div
