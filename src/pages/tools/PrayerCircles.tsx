@@ -31,10 +31,13 @@ const PrayerCircles: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!auth.currentUser) return;
+    if (!auth.currentUser) {
+      setLoading(false);
+      return;
+    }
 
     const q = query(
-      collection(db, 'circles'), 
+      collection(db, 'prayer_circles'), 
       where('members', 'array-contains', auth.currentUser.uid)
     );
 
@@ -60,7 +63,7 @@ const PrayerCircles: React.FC = () => {
     if (!name) return;
 
     try {
-      await addDoc(collection(db, 'circles'), {
+      await addDoc(collection(db, 'prayer_circles'), {
         name,
         createdBy: auth.currentUser.uid,
         members: [auth.currentUser.uid],

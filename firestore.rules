@@ -88,7 +88,7 @@ service cloud.firestore {
     }
 
     // --- CIRCLES & COMMUNITY ---
-    match /reading_circles/{circleId} {
+    match /prayer_circles/{circleId} {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated() && canWrite();
     }
