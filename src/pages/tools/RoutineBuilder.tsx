@@ -110,6 +110,22 @@ const RoutineBuilder: React.FC = () => {
     saveRoutines(updated);
   };
 
+  const addRoutine = () => {
+    const name = prompt(isArabic ? 'اسم الروتين الجديد:' : 'New Routine Name:');
+    if (!name) return;
+
+    const newRoutine: Routine = {
+      id: Date.now().toString(),
+      name,
+      icon: 'clock',
+      tasks: []
+    };
+
+    const updated = [...routines, newRoutine];
+    saveRoutines(updated);
+    setActiveRoutine(newRoutine.id);
+  };
+
   const deleteTask = (routineId: string, taskId: string) => {
     const updated = routines.map(r => {
       if (r.id === routineId) {
@@ -165,6 +181,7 @@ const RoutineBuilder: React.FC = () => {
                 ))}
               </div>
               <button 
+                onClick={addRoutine}
                 className="w-full mt-6 py-4 rounded-2xl border-2 border-dashed border-border/60 text-muted-foreground hover:border-gold/40 hover:text-gold transition-all flex items-center justify-center gap-2 text-xs font-bold"
               >
                 <Plus size={16} />
