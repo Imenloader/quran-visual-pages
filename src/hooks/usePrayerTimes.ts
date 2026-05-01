@@ -71,6 +71,9 @@ const syncToNativeWidget = async (times: PrayerTimesData, city: string) => {
     // Send full schedule so the widget can switch prayers autonomously
     await Preferences.set({ key: "prayer_times_json", value: JSON.stringify(times) });
     await Preferences.set({ key: "city_name", value: city || "Quraaniat" });
+    if ((times as any).hijri) {
+      await Preferences.set({ key: "hijri_date", value: (times as any).hijri });
+    }
   } catch (err) {
     console.error("Failed to sync to widget:", err);
   }
@@ -168,6 +171,11 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
         Midnight: t.Midnight,
         LastThird: t.Lastthird
       };
+
+      if (data.data.date?.hijri) {
+        const h = data.data.date.hijri;
+        (prayerTimes as any).hijri = `${h.day} ${h.month.ar} ${h.year}`;
+      }
       
       // Calculate Duha (Sunrise + 15 mins)
       const [sH, sM] = t.Sunrise.split(":").map(Number);
