@@ -26,6 +26,8 @@ interface QanetContextType extends QanetState {
   deleteLog: (id: string) => void;
   resetData: () => void;
   isSyncing: boolean;
+  isLogModalOpen: boolean;
+  setIsLogModalOpen: (isOpen: boolean) => void;
 }
 
 export const QanetContext = createContext<QanetContextType | undefined>(undefined);
@@ -42,6 +44,7 @@ export const QanetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
 
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const unsubLogsRef = useRef<(() => void) | null>(null);
   const unsubSettingsRef = useRef<(() => void) | null>(null);
   const isFirebaseActive = useRef(false);

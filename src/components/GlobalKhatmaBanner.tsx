@@ -12,8 +12,10 @@ const GlobalKhatmaBanner: React.FC = () => {
   const isArabic = i18n.language === 'ar';
   const [stats, setStats] = useState({ currentJuz: 0, targetJuz: 1000, participants: 0 });
 
+  const currentMonthId = `khatma_${new Date().getFullYear()}_${(new Date().getMonth() + 1).toString().padStart(2, '0')}`;
+
   useEffect(() => {
-    const unsub = onSnapshot(doc(db, 'global_stats', 'khatma'), (snap) => {
+    const unsub = onSnapshot(doc(db, 'global_stats', currentMonthId), (snap) => {
       if (snap.exists()) {
         const data = snap.data();
         setStats({
@@ -21,10 +23,13 @@ const GlobalKhatmaBanner: React.FC = () => {
           targetJuz: data.targetJuz || 1000,
           participants: data.participants || 0
         });
+      } else {
+        // Reset local stats if no data for current month
+        setStats({ currentJuz: 0, targetJuz: 1000, participants: 0 });
       }
     });
     return () => unsub();
-  }, []);
+  }, [currentMonthId]);
 
   const handleRecord = async () => {
     if (!auth.currentUser) {
@@ -42,11 +47,12 @@ const GlobalKhatmaBanner: React.FC = () => {
     }
 
     try {
-      const statsRef = doc(db, 'global_stats', 'khatma');
+      const statsRef = doc(db, 'global_stats', currentMonthId);
       await setDoc(statsRef, {
         currentJuz: increment(juzCount),
         participants: increment(1),
-        targetJuz: 1000 // Default target if not exists
+        targetJuz: 1000,
+        monthName: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
       }, { merge: true });
       toast.success(isArabic ? "تم تسجيل قراءتك بنجاح، جزاك الله خيراً" : "Reading recorded successfully, Jazak Allah Khayran");
     } catch (error) {

@@ -19,7 +19,7 @@ import {
 const moonImage = "https://images.unsplash.com/photo-1532693322450-2cb5c511067d?q=80&w=600&auto=format&fit=crop";
 
 export default function QanetHome() {
-  const { logs, language } = useQanet();
+  const { logs, language, setIsLogModalOpen } = useQanet();
   const isArabic = language === 'ar';
   const { profile } = useUser();
   const navigate = useNavigate();
@@ -94,7 +94,10 @@ export default function QanetHome() {
       <div className="flex flex-col items-center text-center relative py-10 overflow-hidden">
         <div className="absolute inset-0 bg-primary/5 blur-[120px] rounded-full scale-150" />
         <div className="relative z-10">
-          <div className="w-40 h-40 rounded-full mb-8 shadow-[0_0_50px_rgba(255,255,255,0.1)] border-[6px] border-primary/10 bg-black relative mx-auto group cursor-pointer active:scale-95 transition-all overflow-hidden">
+          <div 
+            onClick={() => setIsLogModalOpen(true)}
+            className="w-40 h-40 rounded-full mb-8 shadow-[0_0_50px_rgba(255,255,255,0.1)] border-[6px] border-primary/10 bg-black relative mx-auto group cursor-pointer active:scale-95 transition-all overflow-hidden"
+          >
             <img 
               src="/assets/images/qanet_moon.png" 
               alt="Moon" 

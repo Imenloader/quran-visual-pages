@@ -12,10 +12,12 @@ import {
   Sparkles,
   Shield,
   Zap,
-  HandHelping
+  HandHelping,
+  Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { toArabicNumber } from '@/data/quranData';
+import { deleteDoc } from 'firebase/firestore';
 
 interface Circle {
   id: string;
@@ -76,6 +78,24 @@ const PrayerCircles: React.FC = () => {
     }
   };
 
+  const deleteCircle = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!auth.currentUser) return;
+    
+    if (!window.confirm(isArabic ? 'هل أنت متأكد من حذف هذه الحلقة؟' : 'Are you sure you want to delete this circle?')) return;
+
+    try {
+      await deleteDoc(doc(db, 'prayer_circles', id));
+      toast.success(isArabic ? 'تم حذف الحلقة' : 'Circle deleted');
+    } catch (e) {
+      toast.error(isArabic ? 'فشل حذف الحلقة' : 'Failed to delete circle');
+    }
+  };
+
+  const requestDua = () => {
+    toast.info(isArabic ? 'سيتم إطلاق ميزة طلب الدعاء قريباً!' : 'Request Dua feature coming soon!');
+  };
+
   return (
     <div className="min-h-screen bg-background pb-32">
       <QuranHeader 
@@ -105,7 +125,10 @@ const PrayerCircles: React.FC = () => {
             </div>
           </button>
 
-          <button className="p-8 rounded-[2.5rem] bg-gold text-white shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all relative overflow-hidden group text-right">
+          <button 
+            onClick={requestDua}
+            className="p-8 rounded-[2.5rem] bg-gold text-white shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all relative overflow-hidden group text-right"
+          >
             <div className="absolute inset-0 pattern-islamic opacity-10 group-hover:opacity-20 transition-opacity" />
             <div className="relative z-10 flex items-center gap-6 flex-row-reverse">
               <div className="w-16 h-16 rounded-3xl bg-white/10 flex items-center justify-center shadow-inner">
@@ -138,9 +161,10 @@ const PrayerCircles: React.FC = () => {
              </div>
            ) : (
              <div className="grid grid-cols-1 gap-4">
-                {circles.map(circle => (
+                 {circles.map(circle => (
                   <div 
                     key={circle.id}
+                    onClick={() => toast.info(isArabic ? 'سيتم تفعيل غرف الدردشة قريباً' : 'Chat rooms coming soon')}
                     className="p-6 rounded-[2rem] bg-card border border-border/40 hover:border-gold/30 transition-all shadow-sm flex items-center justify-between group cursor-pointer"
                   >
                     <div className="flex items-center gap-6">
@@ -155,8 +179,18 @@ const PrayerCircles: React.FC = () => {
                           </p>
                        </div>
                     </div>
-                    <div className="w-10 h-10 rounded-full bg-muted/20 flex items-center justify-center text-muted-foreground group-hover:bg-gold group-hover:text-white transition-all">
-                       <ChevronRight size={18} />
+                    <div className="flex items-center gap-3">
+                      {circle.createdBy === auth.currentUser?.uid && (
+                        <button 
+                          onClick={(e) => deleteCircle(circle.id, e)}
+                          className="w-10 h-10 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      )}
+                      <div className="w-10 h-10 rounded-full bg-muted/20 flex items-center justify-center text-muted-foreground group-hover:bg-gold group-hover:text-white transition-all">
+                         <ChevronRight size={18} />
+                      </div>
                     </div>
                   </div>
                 ))}

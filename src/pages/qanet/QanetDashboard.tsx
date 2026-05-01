@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Moon, Calculator, History, Settings, ArrowRight, BookOpen, Home, Activity, Plus } from 'lucide-react';
 import { useNavigate, useLocation, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import QanetHome from './QanetHome';
@@ -10,11 +10,10 @@ import { useQanet } from './QanetContext';
 import { useDynamicTheme } from '@/hooks/useDynamicTheme';
 
 export default function QanetDashboard() {
-  const { settings, language } = useQanet();
+  const { settings, language, isLogModalOpen, setIsLogModalOpen } = useQanet();
   const isArabic = language === 'ar';
   const navigate = useNavigate();
   const location = useLocation();
-  const [isLogModalOpen, setIsLogModalOpen] = useState(false);
 
   
   // Activate dynamic theme logic if enabled in settings
