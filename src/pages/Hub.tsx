@@ -212,6 +212,7 @@ const Hub = () => {
            { id: 'strong-believer', name: "المؤمن القوي", icon: <Dumbbell className="w-5 h-5" />, path: "/strong-believer" },
            { id: 'salah-guide', name: i18n.language === 'ar' ? 'دليل الصلاة' : 'Salah Guide', icon: <BookOpen className="w-5 h-5" />, path: "/salah-guide" },
           { id: 'names', name: t("hub.namesOfAllah"), icon: <Heart className="w-5 h-5" />, path: "/names-of-allah" },
+          { id: 'islamic-roadmap', name: i18n.language === 'ar' ? 'خارطة الطريق' : 'Islamic Roadmap', icon: <Sparkles className="w-5 h-5" />, path: "/islamic-roadmap" },
         ]
       },
       {
@@ -222,6 +223,7 @@ const Hub = () => {
           { id: 'khatma', name: t("hub.khatma"), icon: <BookOpen className="w-5 h-5" />, path: "/khatma" },
           { id: 'collab-khatma', name: t("hub.collaborativeKhatma"), icon: <Users className="w-5 h-5" />, path: "/khatma-jamaaiya" },
           { id: 'community', name: t("hub.community") || "المجتمع", icon: <MessageSquare className="w-5 h-5" />, path: "/community" },
+          { id: 'prayer-circles', name: i18n.language === 'ar' ? 'حلقات الدعاء' : 'Prayer Circles', icon: <Users className="w-5 h-5" />, path: "/prayer-circles" },
           { id: 'reading-circles', name: t("hub.readingCircles") || "حلقات القراءة", icon: <Users className="w-5 h-5" />, path: "/reading-circles" },
           { id: 'hifz', name: t("hub.hifzTester"), icon: <GradIcon className="w-5 h-5" />, path: "/tools/hifz-tester" },
           { id: 'routine', name: t("hub.routineBuilder"), icon: <Zap className="w-5 h-5" />, path: "/routine-builder" },

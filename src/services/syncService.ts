@@ -15,6 +15,23 @@ import {
  */
 export const syncService = {
   /**
+   * Tracks the last time a cloud synchronization occurred successfully.
+   */
+  _lastSyncTime: localStorage.getItem("last_sync_time") || null,
+
+  getLastSyncTime() {
+    return this._lastSyncTime;
+  },
+
+  _updateSyncTime() {
+    const now = new Date().toISOString();
+    this._lastSyncTime = now;
+    localStorage.setItem("last_sync_time", now);
+    // Dispatch custom event for UI reactivity
+    window.dispatchEvent(new CustomEvent("sync-status-updated", { detail: now }));
+  },
+
+  /**
    * Saves a simple object or value to both LocalStorage and Firestore.
    * Always writes a `_syncedAt` timestamp so that `loadData` can resolve conflicts.
    */
@@ -28,6 +45,7 @@ export const syncService = {
         payload: data,
         updatedAt: new Date().toISOString(),
       }, { merge: true });
+      this._updateSyncTime();
     }
   },
 
@@ -73,6 +91,7 @@ export const syncService = {
             // Update local cache with the fresher cloud version
             const wrappedPayload = { data: firestoreData, _syncedAt: firestoreUpdatedAt };
             localStorage.setItem(key, JSON.stringify(wrappedPayload));
+            this._updateSyncTime();
             return firestoreData;
           }
         }
@@ -107,6 +126,7 @@ export const syncService = {
         ...item,
         updatedAt: new Date().toISOString(),
       }, { merge: true });
+      this._updateSyncTime();
     }
   },
 
@@ -125,6 +145,7 @@ export const syncService = {
         if (!snap.empty) {
           result = snap.docs.map(d => ({ ...d.data() } as T));
           localStorage.setItem(collectionKey, JSON.stringify(result));
+          this._updateSyncTime();
         }
       } catch (e) {
         console.error(`SyncService: Error loading collection ${collectionKey}`, e);

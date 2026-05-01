@@ -1,5 +1,6 @@
 import { BookOpen, Sparkles } from "lucide-react";
 import BackButton from "./BackButton";
+import SyncStatusIndicator from "./SyncStatusIndicator";
 
 interface QuranHeaderProps {
   title?: string;
@@ -28,6 +29,11 @@ const QuranHeader = ({
           <BackButton variant="ghost" />
         </div>
       )}
+
+      {/* Sync Status Indicator */}
+      <div className="absolute top-6 left-6 z-50">
+        <SyncStatusIndicator />
+      </div>
       {/* Immersive Background Layer */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 pattern-islamic scale-[2] opacity-15 transform-gpu" />

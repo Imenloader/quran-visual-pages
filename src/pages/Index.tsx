@@ -18,6 +18,7 @@ import { usePrayerTimes, formatTime, PRAYER_NAMES } from "@/hooks/usePrayerTimes
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { Clock, Sun } from "lucide-react";
 import { sunnahActions } from "@/data/sunnahData";
+import GlobalKhatmaBanner from "@/components/GlobalKhatmaBanner";
 
 const BOOKMARK_KEY = "quran-bookmark";
 
@@ -47,6 +48,7 @@ function Index() {
   const [surahResults, setSurahResults] = useState<SurahInfo[]>([]);
   const [showIndex, setShowIndex] = useState(false);
   const { t, i18n } = useTranslation();
+  const isAr = i18n.language === "ar";
   const { setReadingMode, tajweedMode } = useTheme();
   const navigate = useNavigate();
   const { nextPrayer, settings } = usePrayerTimes();
@@ -173,6 +175,11 @@ function Index() {
       <QuranHeader showBack={false} />
       
       <main className="container-responsive pb-32 -mt-12 md:-mt-24 relative z-30">
+        {/* Global Community Challenge */}
+        <div className="mb-8">
+           <GlobalKhatmaBanner />
+        </div>
+
         {/* Immersive Bento Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-16">
           
