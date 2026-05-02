@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { X, Moon, CalendarDays, Check, Plus, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Moon, CalendarDays, Check, Plus, Trash2, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useQanet } from './QanetContext';
 import { getQanetLevel } from './utils';

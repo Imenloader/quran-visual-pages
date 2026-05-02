@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, Flame, FlameKindling, BookOpen, BarChart2, Calendar, Trophy } from 'lucide-react';
+import { Plus, Flame, FlameKindling, BookOpen, BarChart2, Calendar, Trophy, Sparkles } from 'lucide-react';
 import { useQanet } from './QanetContext';
 import { useUser } from '@/contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
