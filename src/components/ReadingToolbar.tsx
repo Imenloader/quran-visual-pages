@@ -121,16 +121,16 @@ const ReadingToolbar = ({
           {/* Hifz Group Pill */}
           <div className="flex items-center gap-0.5 bg-muted/40 rounded-full p-0.5 border border-border/20 mx-1">
             <button
-              onClick={(e) => { e.stopPropagation(); onToggleHifzMode(); }}
-              className={cn("p-1.5 md:p-2 rounded-full transition-all", hifzMode ? "bg-accent text-white shadow-sm" : "text-primary/60 hover:text-primary")}
-              title="وضع الحفظ"
+              onClick={(e) => { e.stopPropagation(); setIsQuizOpen(true); }}
+              className="p-1.5 md:p-2 rounded-full text-primary/60 hover:text-primary transition-all"
+              title="اختبار الحفظ"
             >
               <GraduationCap className="size-[14px] md:size-[18px]" />
             </button>
             <button
-              onClick={(e) => { e.stopPropagation(); setIsQuizOpen(true); }}
-              className="p-1.5 md:p-2 rounded-full text-primary/60 hover:text-primary transition-all"
-              title="اختبار الحفظ"
+              onClick={(e) => { e.stopPropagation(); onToggleHifzMode(); }}
+              className={cn("p-1.5 md:p-2 rounded-full transition-all", hifzMode ? "bg-accent text-white shadow-sm" : "text-primary/60 hover:text-primary")}
+              title="وضع الحفظ (الإخفاء)"
             >
               <EyeOff className="size-[14px] md:size-[18px]" />
             </button>
