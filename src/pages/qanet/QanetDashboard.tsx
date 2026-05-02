@@ -87,8 +87,6 @@ export default function QanetDashboard() {
           <Route path="*" element={<Navigate to="/qanet" replace />} />
         </Routes>
       </main>
-
-      </main>
     </div>
   );
 }

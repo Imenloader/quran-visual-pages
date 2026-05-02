@@ -92,16 +92,21 @@ export default function QiyamAya100() {
 
     const hijri = toHijri(new Date(), settings.hijriOffset);
     addLog({
-      id: crypto.randomUUID(),
+      id: Date.now().toString(),
       date: new Date().toISOString().split('T')[0],
       hijriDate: `${hijri.day} ${hijri.monthName} ${hijri.year}`,
       totalAyahs,
-      startSurah: 1, // Simplified
+      shafaWitr: false,
+      ranges: [{
+        startSurah: 1,
+        startAyah: 1,
+        endSurah: 114,
+        endAyah: 6
+      }],
+      startSurah: 1,
       startAyah: 1,
       endSurah: 114,
       endAyah: 6,
-      notes: 'قراءة مئة آية المأثورة',
-      createdAt: new Date().toISOString()
     });
 
     toast.success(`تم تسجيل ${totalAyahs} آية في سجلك!`);
