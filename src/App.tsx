@@ -284,8 +284,8 @@ const AppContent = () => {
           <Sonner />
           <ScrollRestoration />
         
-        {/* Global Qanet Add Button (FAB) */}
-        {!location.pathname.startsWith('/admin') && !location.pathname.startsWith('/juz/') && (
+        {/* Qanet Add Button (FAB) - Only in Qanet section */}
+        {location.pathname.startsWith('/qanet') && (
           <button
             onClick={() => setIsLogModalOpen(true)}
             className="fixed bottom-32 right-6 w-14 h-14 md:w-16 md:h-16 bg-primary text-primary-foreground rounded-2xl flex items-center justify-center shadow-islamic z-[101] hover:scale-110 active:scale-95 transition-all group"
