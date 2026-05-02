@@ -23,7 +23,7 @@ export default function QanetHome() {
   const isArabic = language === 'ar';
   const { profile } = useUser();
   const navigate = useNavigate();
-  const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+
 
   const stats = useMemo(() => calculateStats(logs), [logs]);
 
