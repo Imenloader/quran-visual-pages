@@ -24,6 +24,7 @@ import BackButton from "@/components/BackButton";
 import AtmosphericBackground from "@/components/AtmosphericBackground";
 import { cn } from "@/lib/utils";
 import { useOffline } from "@/contexts/OfflineContext";
+import { useQanet } from "@/pages/qanet/QanetContext";
 
 // --- التعديل هنا: تحميل KhatmaCelebration بشكل Lazy ---
 const KhatmaCelebration = lazy(() => import("@/components/KhatmaCelebration"));
@@ -73,6 +74,7 @@ function JuzViewer() {
   const { theme, readingMode, scrollDirection, tajweedMode, hifzMode, setHifzMode, preferredImageSource, setPreferredImageSource, isLoaded } = useTheme();
   const { addAyahRead, addPageRead, addJuzCompleted } = useUser();
   const { pageStatus, refreshJuzCompletion, prefetchNeighborPages, prepareJuzOffline } = useOffline();
+  const { isTracking, trackingSession, stopTracking, updateTrackingPage } = useQanet();
 
 
 
@@ -589,6 +591,12 @@ function JuzViewer() {
       const timer = setTimeout(() => {
         saveBookmark(num, currentPage, readingMode, currentVerseKey);
         setSavedBookmark({ juz: num, page: currentPage, readingMode, verseKey: currentVerseKey });
+
+        // --- Qanet Auto-Tracking Integration ---
+        if (isTracking) {
+          updateTrackingPage(currentPage);
+        }
+        // ----------------------------------------
 
         try {
           const history = JSON.parse(localStorage.getItem("quran-reading-history") || "{}");
@@ -1244,6 +1252,27 @@ function JuzViewer() {
           <QuranPlayerBar onPlayFirst={handleMainPlayToggle} isScrollingDown={isScrollingDown} isFullscreen={isFullscreen} />
         </div>
       </div>
+      {isTracking && trackingSession && (
+        <div className="fixed top-24 left-4 z-[160] bg-emerald-950/90 text-white p-4 rounded-3xl shadow-2xl border border-white/10 backdrop-blur-xl flex flex-col gap-3 min-w-[140px] animate-in slide-in-from-left-4 duration-500">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+            <span className="text-[10px] font-bold uppercase tracking-widest opacity-80">تتبع القانتين</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-2xl font-black text-gold leading-none">{(trackingSession.visitedPages.length * 15).toLocaleString('ar-EG')}</span>
+            <span className="text-[10px] font-bold opacity-60">آية مقروءة</span>
+          </div>
+          <button 
+            onClick={() => {
+              stopTracking(true);
+              toast.success("تم حفظ الجلسة بنجاح!");
+            }}
+            className="w-full bg-white text-emerald-950 py-2 rounded-xl text-xs font-black shadow-lg active:scale-95 transition-all"
+          >
+            حفظ وإنهاء
+          </button>
+        </div>
+      )}
     </div>
   );
 };

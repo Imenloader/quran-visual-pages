@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { X, Moon, CalendarDays, Check, Plus, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useQanet } from './QanetContext';
 import { getQanetLevel } from './utils';
 import { surahData } from '@/data/quranData';
@@ -33,7 +34,8 @@ const calculateRangeAyahs = (range: ReadingRange): number => {
 };
 
 export default function QanetLogModal({ onClose }: { onClose: () => void }) {
-  const { addLog, settings } = useQanet();
+  const navigate = useNavigate();
+  const { addLog, settings, startTracking } = useQanet();
 
   const [shafaWitr, setShafaWitr] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -213,6 +215,18 @@ export default function QanetLogModal({ onClose }: { onClose: () => void }) {
 
         {/* Actions */}
         <div className="mt-10 space-y-4">
+          <button
+            onClick={() => {
+              startTracking(ranges[0].startSurah, 1);
+              onClose();
+              navigate('/juz/1'); // Start from first juz or resume
+            }}
+            className="w-full py-5 bg-accent text-accent-foreground rounded-2xl font-bold flex items-center justify-center gap-3 hover:brightness-110 transition-all shadow-islamic active:scale-95"
+          >
+            <BookOpen size={20} />
+            سجل قراءتك الآن (تتبع تلقائي)
+          </button>
+
           <button
             onClick={addRange}
             className="w-full py-5 bg-muted border-2 border-dashed border-border rounded-2xl text-foreground font-bold hover:bg-muted/80 hover:border-primary/40 flex items-center justify-center gap-3 transition-all"

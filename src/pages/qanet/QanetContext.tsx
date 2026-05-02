@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { QanetState, QanetLog } from './types';
+import { formatHijriDate } from './hijriUtils';
 import { auth, db } from '@/firebase';
 import { doc, getDoc, setDoc, updateDoc, collection, addDoc, deleteDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -12,12 +13,20 @@ const defaultState: QanetState = {
   notificationsEnabled: false,
   reminderTime: '21:00',
   logs: [],
+  totalJuzTracked: 0,
   settings: {
     interactiveColors: true,
     hijriCalendar: true,
     hijriOffset: 0,
   }
 };
+
+interface TrackingSession {
+  startTime: string;
+  juzNumber: number;
+  startPage: number;
+  visitedPages: number[];
+}
 
 interface QanetContextType extends QanetState {
   updateState: (updates: Partial<QanetState>) => void;
@@ -28,6 +37,11 @@ interface QanetContextType extends QanetState {
   isSyncing: boolean;
   isLogModalOpen: boolean;
   setIsLogModalOpen: (isOpen: boolean) => void;
+  isTracking: boolean;
+  trackingSession: TrackingSession | null;
+  startTracking: (juzNumber: number, startPage: number) => void;
+  stopTracking: (save: boolean) => void;
+  updateTrackingPage: (pageNumber: number) => void;
 }
 
 export const QanetContext = createContext<QanetContextType | undefined>(undefined);
@@ -197,6 +211,66 @@ export const QanetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, []);
 
+  const [isTracking, setIsTracking] = useState(false);
+  const [trackingSession, setTrackingSession] = useState<TrackingSession | null>(null);
+
+  const startTracking = useCallback((juzNumber: number, startPage: number) => {
+    setIsTracking(true);
+    setTrackingSession({
+      startTime: new Date().toISOString(),
+      juzNumber,
+      startPage,
+      visitedPages: [startPage]
+    });
+  }, []);
+
+  const stopTracking = useCallback((save: boolean) => {
+    if (save && trackingSession) {
+      // Calculate ayahs (rough estimate based on pages, or use a data map)
+      // For now, let's say average 15 ayahs per page
+      const totalAyahs = trackingSession.visitedPages.length * 15;
+      const hijriDateStr = formatHijriDate(new Date(), state.settings.hijriOffset);
+      
+      addLog({
+        id: Date.now().toString(),
+        date: new Date().toISOString().split('T')[0],
+        hijriDate: hijriDateStr,
+        shafaWitr: false,
+        totalAyahs,
+        ranges: [{
+          startSurah: 1,
+          startAyah: 1,
+          endSurah: 114,
+          endAyah: 6
+        }],
+        startSurah: 1,
+        startAyah: 1,
+        endSurah: 114,
+        endAyah: 6
+      });
+
+      // Update total juz tracked
+      setState(prev => {
+        let newTotal = prev.totalJuzTracked + (trackingSession.visitedPages.length / 20); // 20 pages per juz
+        if (newTotal >= 1000) newTotal = 0; // Reset every 1000 juz
+        return { ...prev, totalJuzTracked: newTotal };
+      });
+    }
+    setIsTracking(false);
+    setTrackingSession(null);
+  }, [trackingSession, addLog]);
+
+  const updateTrackingPage = useCallback((pageNumber: number) => {
+    setTrackingSession(prev => {
+      if (!prev) return null;
+      if (prev.visitedPages.includes(pageNumber)) return prev;
+      return {
+        ...prev,
+        visitedPages: [...prev.visitedPages, pageNumber]
+      };
+    });
+  }, []);
+
   const resetData = useCallback(() => {
     // Clear local
     setState(defaultState);
@@ -214,7 +288,22 @@ export const QanetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   return (
-    <QanetContext.Provider value={{ ...state, updateState, updateSettings, addLog, deleteLog, resetData, isSyncing, isLogModalOpen, setIsLogModalOpen }}>
+    <QanetContext.Provider value={{ 
+      ...state, 
+      updateState, 
+      updateSettings, 
+      addLog, 
+      deleteLog, 
+      resetData, 
+      isSyncing, 
+      isLogModalOpen, 
+      setIsLogModalOpen,
+      isTracking,
+      trackingSession,
+      startTracking,
+      stopTracking,
+      updateTrackingPage
+    }}>
       {children}
     </QanetContext.Provider>
   );

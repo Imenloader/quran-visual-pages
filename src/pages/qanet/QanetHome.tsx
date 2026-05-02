@@ -4,6 +4,7 @@ import { useQanet } from './QanetContext';
 import { useUser } from '@/contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { calculateStats, getQanetLevel, getLevelLabel } from './utils';
+import { sunnahActions } from '@/data/sunnahData';
 import QanetLogModal from './QanetLogModal';
 import { StatCard } from './components/StatCard';
 import { 
@@ -19,10 +20,17 @@ import {
 const moonImage = "https://images.unsplash.com/photo-1532693322450-2cb5c511067d?q=80&w=600&auto=format&fit=crop";
 
 export default function QanetHome() {
-  const { logs, language, isLogModalOpen, setIsLogModalOpen } = useQanet();
+  const { logs, language, isLogModalOpen, setIsLogModalOpen, totalJuzTracked } = useQanet();
   const isArabic = language === 'ar';
   const { profile } = useUser();
   const navigate = useNavigate();
+
+  const sunnahOfDay = useMemo(() => {
+    const today = new Date();
+    const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+    const index = seed % sunnahActions.length;
+    return sunnahActions[index];
+  }, []);
 
   const stats = useMemo(() => calculateStats(logs), [logs]);
 
@@ -109,6 +117,46 @@ export default function QanetHome() {
             {isArabic ? 'رفيقك في رحلة قيام الليل والتقرب إلى الله' : 'Your Qiyam Al-Layl companion on the journey to Allah'}
           </p>
         </div>
+      </div>
+
+      {/* Sunnah of the Day - Premium Card */}
+      <div className="bg-gradient-to-br from-emerald-500/10 to-primary/5 border border-primary/20 rounded-[2.5rem] p-8 shadow-soft relative overflow-hidden group">
+        <div className="absolute inset-0 pattern-islamic opacity-[0.03] scale-150" />
+        <div className="relative z-10 flex flex-col items-center text-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-inner">
+            <Sparkles size={28} className="animate-pulse" />
+          </div>
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">{isArabic ? 'سنة اليوم' : 'Daily Sunnah'}</span>
+            <h3 className="text-xl font-bold text-foreground font-serif leading-relaxed">
+              {isArabic ? sunnahOfDay.textAr : sunnahOfDay.textEn}
+            </h3>
+          </div>
+        </div>
+      </div>
+
+      {/* 1000 Juz Milestone Progress */}
+      <div className="bg-card rounded-[2.5rem] p-8 border border-border shadow-soft space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold font-naskh flex items-center gap-2">
+            <Trophy className="text-gold w-5 h-5" />
+            {isArabic ? 'تحدي الألف جزء' : '1000 Juz Challenge'}
+          </h2>
+          <div className="text-[10px] font-bold text-muted-foreground uppercase">
+            {totalJuzTracked.toFixed(1)} / 1000 JUZ
+          </div>
+        </div>
+        <div className="h-4 bg-muted rounded-full overflow-hidden shadow-inner border border-border/50">
+          <div 
+            className="h-full bg-gradient-to-r from-gold via-primary to-gold bg-[length:200%_auto] animate-shimmer transition-all duration-1000"
+            style={{ width: `${Math.min(100, (totalJuzTracked / 1000) * 100)}%` }}
+          />
+        </div>
+        <p className="text-[10px] text-center text-muted-foreground font-bold italic">
+          {isArabic 
+            ? 'باقي ' + (1000 - totalJuzTracked).toFixed(1) + ' جزء للوصول للهدف التالي'
+            : (1000 - totalJuzTracked).toFixed(1) + ' juz remaining to next goal'}
+        </p>
       </div>
 
       {/* Main Stats Graph */}

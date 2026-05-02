@@ -90,11 +90,11 @@ export default function QiyamAya100() {
       return;
     }
 
-    const hijri = toHijri(new Date(), settings.hijriOffset);
+    const hijriDateStr = formatHijriDate(new Date(), settings.hijriOffset);
     addLog({
       id: Date.now().toString(),
       date: new Date().toISOString().split('T')[0],
-      hijriDate: `${hijri.day} ${hijri.monthName} ${hijri.year}`,
+      hijriDate: hijriDateStr,
       totalAyahs,
       shafaWitr: false,
       ranges: [{
