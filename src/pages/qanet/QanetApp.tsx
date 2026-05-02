@@ -25,8 +25,6 @@ const QanetMain = () => {
 
 export default function QanetApp() {
   return (
-    <QanetProvider>
-      <QanetMain />
-    </QanetProvider>
+    <QanetMain />
   );
 }

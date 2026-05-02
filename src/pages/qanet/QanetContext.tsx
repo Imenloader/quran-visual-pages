@@ -214,7 +214,7 @@ export const QanetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   return (
-    <QanetContext.Provider value={{ ...state, updateState, updateSettings, addLog, deleteLog, resetData, isSyncing }}>
+    <QanetContext.Provider value={{ ...state, updateState, updateSettings, addLog, deleteLog, resetData, isSyncing, isLogModalOpen, setIsLogModalOpen }}>
       {children}
     </QanetContext.Provider>
   );

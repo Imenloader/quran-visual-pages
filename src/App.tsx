@@ -31,6 +31,9 @@ import SplashScreen from "./components/SplashScreen";
 import ScrollRestoration from "./components/ScrollRestoration";
 import CommandPalette from "./components/CommandPalette";
 import AdminRoute from "./components/AdminRoute";
+import { Plus } from "lucide-react";
+import QanetLogModal from "./pages/qanet/QanetLogModal";
+import { QanetProvider, useQanet } from "./pages/qanet/QanetContext";
 import { lazyWithRetry } from "./lib/lazyRetry";
 import { checkNetworkReliability } from "./lib/networkCheck";
 import DynamicThemeWrapper from "./components/DynamicThemeWrapper";
@@ -45,7 +48,6 @@ const Install = lazyWithRetry(() => import("./pages/Install"));
 const Recitations = lazyWithRetry(() => import("./pages/Recitations"));
 const EmbedView = lazyWithRetry(() => import("./pages/EmbedView"));
 const QanetApp = lazyWithRetry(() => import("./pages/qanet/QanetApp"));
-import { QanetProvider } from "./pages/qanet/QanetContext";
 const QiyamAya100 = lazyWithRetry(() => import("./pages/qanet/QiyamAya100"));
 const Athkar = lazyWithRetry(() => import("./pages/Athkar"));
 const Favorites = lazyWithRetry(() => import("./pages/Favorites"));
@@ -247,7 +249,9 @@ const App = () => {
             <AdhanProvider>
               <OfflineProvider>
                 <SystemProvider>
-                  <AppContent />
+                  <QanetProvider>
+                    <AppContent />
+                  </QanetProvider>
                 </SystemProvider>
               </OfflineProvider>
             </AdhanProvider>
@@ -261,6 +265,8 @@ const App = () => {
 const AppContent = () => {
   const { settings } = useSystem();
   const { isAdmin } = useUser();
+  const { isLogModalOpen, setIsLogModalOpen } = useQanet();
+  const location = useLocation();
 
   return (
     <TooltipProvider>
@@ -277,6 +283,19 @@ const AppContent = () => {
           <Toaster />
           <Sonner />
           <ScrollRestoration />
+        
+        {/* Global Qanet Add Button (FAB) */}
+        {!location.pathname.startsWith('/admin') && !location.pathname.startsWith('/juz/') && (
+          <button
+            onClick={() => setIsLogModalOpen(true)}
+            className="fixed bottom-32 right-6 w-14 h-14 md:w-16 md:h-16 bg-primary text-primary-foreground rounded-2xl flex items-center justify-center shadow-islamic z-[101] hover:scale-110 active:scale-95 transition-all group"
+          >
+            <Plus size={28} className="group-hover:rotate-90 transition-transform duration-500" />
+          </button>
+        )}
+
+        {/* Global Qanet Modal */}
+        {isLogModalOpen && <QanetLogModal onClose={() => setIsLogModalOpen(false)} />}
         
         {/* Admin Maintenance Banner */}
         {settings.maintenanceMode && isAdmin && (
@@ -301,11 +320,7 @@ const AppContent = () => {
                         <Route path="/tasbih" element={<Tasbih />} />
                         <Route path="/qibla" element={<QiblaFinder />} />
                         <Route path="/qanet/*" element={<QanetApp />} />
-                        <Route path="/qiyam" element={
-                          <QanetProvider>
-                            <QiyamAya100 />
-                          </QanetProvider>
-                        } />
+                        <Route path="/qiyam" element={<QiyamAya100 />} />
                         <Route path="/names-of-allah" element={<NamesOfAllah />} />
                         <Route path="/zakat" element={<ZakatCalculator />} />
                         <Route path="/prayer-tracker" element={<PrayerTracker />} />

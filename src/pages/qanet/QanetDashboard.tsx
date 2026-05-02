@@ -10,7 +10,7 @@ import { useQanet } from './QanetContext';
 import { useDynamicTheme } from '@/hooks/useDynamicTheme';
 
 export default function QanetDashboard() {
-  const { settings, language, isLogModalOpen, setIsLogModalOpen } = useQanet();
+  const { settings, language } = useQanet();
   const isArabic = language === 'ar';
   const navigate = useNavigate();
   const location = useLocation();
@@ -88,16 +88,7 @@ export default function QanetDashboard() {
         </Routes>
       </main>
 
-      {/* Shared FAB - Premium Style */}
-      <button
-        onClick={() => setIsLogModalOpen(true)}
-        className="fixed bottom-32 right-6 w-16 h-16 bg-primary text-primary-foreground rounded-[1.5rem] flex items-center justify-center shadow-islamic z-[101] hover:scale-110 active:scale-95 transition-all group"
-      >
-        <Plus size={32} className="group-hover:rotate-90 transition-transform duration-500" />
-      </button>
-
-      {/* Shared Modal */}
-      {isLogModalOpen && <QanetLogModal onClose={() => setIsLogModalOpen(false)} />}
+      </main>
     </div>
   );
 }

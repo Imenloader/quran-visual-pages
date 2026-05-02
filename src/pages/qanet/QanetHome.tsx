@@ -19,11 +19,10 @@ import {
 const moonImage = "https://images.unsplash.com/photo-1532693322450-2cb5c511067d?q=80&w=600&auto=format&fit=crop";
 
 export default function QanetHome() {
-  const { logs, language, setIsLogModalOpen } = useQanet();
+  const { logs, language, isLogModalOpen, setIsLogModalOpen } = useQanet();
   const isArabic = language === 'ar';
   const { profile } = useUser();
   const navigate = useNavigate();
-  const [isLogModalOpen, setIsLogModalOpen] = useState(false);
 
   const stats = useMemo(() => calculateStats(logs), [logs]);
 
