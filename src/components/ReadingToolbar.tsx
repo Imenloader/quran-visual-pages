@@ -1,4 +1,4 @@
-import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen, List, Moon, Sun, Info, MessageSquareText, Type, FileImage, ArrowDown, ArrowRightLeft, Palette, GraduationCap, Sparkles, Server, Wand2, DownloadCloud, EyeOff, Eye } from "lucide-react";
+import { ZoomIn, ZoomOut, RotateCcw, Bookmark, BookOpen, List, Moon, Sun, Info, MessageSquareText, Type, FileImage, ArrowDown, ArrowRightLeft, Palette, GraduationCap, Sparkles, Server, Wand2, DownloadCloud, EyeOff, Eye, Trophy } from "lucide-react";
 import { toArabicNumber } from "@/data/quranData";
 import ShareButton from "./ShareButton";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -154,9 +154,14 @@ const ReadingToolbar = ({
                   <span className="text-xs font-naskh">تأثيرات جوية</span>
                 </Button>
 
-                <Button variant="outline" onClick={onToggleSourceSelector} className="flex flex-col gap-2 h-20 rounded-2xl border-border/40 col-span-2">
+                <Button variant="outline" onClick={() => { setIsQuizOpen(true); }} className="flex flex-col gap-2 h-20 rounded-2xl border-border/40">
+                  <Trophy className="text-accent" />
+                  <span className="text-xs font-naskh">اختبار الحفظ</span>
+                </Button>
+
+                <Button variant="outline" onClick={onToggleSourceSelector} className="flex flex-col gap-2 h-20 rounded-2xl border-border/40">
                   <Server className="text-accent" />
-                  <span className="text-xs font-naskh">تغيير مصدر الصور</span>
+                  <span className="text-xs font-naskh">مصدر الصور</span>
                 </Button>
               </div>
             </SheetContent>
@@ -167,7 +172,16 @@ const ReadingToolbar = ({
           <div className="hidden sm:block" onClick={(e) => e.stopPropagation()}>
             <ShareButton juzNumber={juzNumber} currentPage={currentPage} />
           </div>
-          
+
+          {/* Quick Hifz Toggle */}
+          <button
+            onClick={(e) => { e.stopPropagation(); onToggleHifzMode(); }}
+            className={cn("toolbar-btn !p-1.5 md:!p-2.5 transition-all active:scale-90", hifzMode && "text-accent bg-accent/10")}
+            title="وضع الحفظ"
+          >
+            <GraduationCap className="size-[16px] md:size-[20px]" strokeWidth={1.5} />
+          </button>
+
           <button
             onClick={(e) => { e.stopPropagation(); onSaveBookmark(); }}
             className={`toolbar-btn !p-1.5 md:!p-2.5 transition-all active:scale-90 ${bookmarked ? "text-accent" : ""}`}
@@ -177,6 +191,23 @@ const ReadingToolbar = ({
           </button>
         </div>
       </div>
+
+      {/* Hifz Quiz Dialog/Sheet */}
+      <Sheet open={isQuizOpen} onOpenChange={setIsQuizOpen}>
+        <SheetContent side="bottom" className="rounded-t-[2.5rem] border-t-accent/20 bg-card/95 backdrop-blur-xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+           <SheetHeader>
+             <SheetTitle className="text-right font-serif">اختبار الحفظ</SheetTitle>
+             <SheetDescription className="text-right">اختبر حفظك للصفحة الحالية عبر أسئلة ذكية</SheetDescription>
+           </SheetHeader>
+           <HifzQuizView 
+             pageNumber={currentPage} 
+             onClose={() => setIsQuizOpen(false)}
+             onComplete={(score) => {
+               console.log("Quiz completed with score:", score);
+             }}
+           />
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
