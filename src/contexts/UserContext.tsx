@@ -22,6 +22,7 @@ interface UserProfile {
   completedQuests?: string[];
   lastQuestDate?: string;
   dailyReadingHistory?: { date: string; pages: number }[];
+  lastKhatmaSyncPages?: number;
 }
 
 interface UserContextType {
@@ -67,6 +68,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     completedQuests: [],
     lastQuestDate: new Date().toISOString().split("T")[0],
     dailyReadingHistory: [],
+    lastKhatmaSyncPages: 0,
   }), [t, i18n.language]);
 
   const [profile, setProfile] = useState<UserProfile>(DEFAULT_PROFILE);

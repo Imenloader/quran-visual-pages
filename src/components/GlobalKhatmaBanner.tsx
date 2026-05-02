@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '@/firebase';
-import { doc, onSnapshot, updateDoc, increment, setDoc } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, increment, setDoc, getDoc } from 'firebase/firestore';
 import { auth } from '@/firebase';
 import { Users, BookOpen, Sparkles, TrendingUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toArabicNumber } from '@/data/quranData';
 import { toast } from 'sonner';
+import { useUser } from '@/contexts/UserContext';
 
 const GlobalKhatmaBanner: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -31,37 +32,59 @@ const GlobalKhatmaBanner: React.FC = () => {
     return () => unsub();
   }, [currentMonthId]);
 
+  const { profile, updateProfile } = useUser();
+  const progress = Math.min(100, (stats.currentJuz / stats.targetJuz) * 100);
+
   const handleRecord = async () => {
     if (!auth.currentUser) {
-      toast.error(isArabic ? "يرجى تسجيل الدخول أولاً" : "Please login first");
+      toast.error(isArabic ? "يرجى تسجيل الدخول أولاً للمشاركة في التحدي" : "Please login first to join the challenge");
       return;
     }
 
-    const input = prompt(isArabic ? "كم جزءاً قرأت اليوم؟" : "How many Juz did you read today?");
-    if (!input) return;
+    const currentTotalPages = profile.totalPagesRead || 0;
+    const lastSynced = profile.lastKhatmaSyncPages || 0;
+    const deltaPages = currentTotalPages - lastSynced;
 
-    const juzCount = parseInt(input);
-    if (isNaN(juzCount) || juzCount <= 0) {
-      toast.error(isArabic ? "يرجى إدخال رقم صحيح" : "Please enter a valid number");
+    if (deltaPages <= 0) {
+      toast.info(isArabic ? "لقد قمت بمشاركة آخر تقدم لك بالفعل. استمر في القراءة!" : "You've already synced your latest progress. Keep reading!");
       return;
     }
+
+    // Convert pages to Juz (approx 20 pages per Juz)
+    const deltaJuz = deltaPages / 20;
 
     try {
       const statsRef = doc(db, 'global_stats', currentMonthId);
+      const participantRef = doc(db, 'global_stats', currentMonthId, 'participants', auth.currentUser.uid);
+      
+      // Check if this is the first time the user participates this month
+      const participantSnap = await getDoc(participantRef);
+      const isNewParticipant = !participantSnap.exists();
+
       await setDoc(statsRef, {
-        currentJuz: increment(juzCount),
-        participants: increment(1),
+        currentJuz: increment(deltaJuz),
+        participants: increment(isNewParticipant ? 1 : 0),
         targetJuz: 1000,
         monthName: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
       }, { merge: true });
-      toast.success(isArabic ? "تم تسجيل قراءتك بنجاح، جزاك الله خيراً" : "Reading recorded successfully, Jazak Allah Khayran");
+
+      // Record participant entry
+      await setDoc(participantRef, { 
+        lastContribution: new Date().toISOString(),
+        totalContributedPages: increment(deltaPages)
+      }, { merge: true });
+
+      // Update local profile
+      updateProfile({ lastKhatmaSyncPages: currentTotalPages });
+
+      toast.success(isArabic 
+        ? `تم تسجيل ${toArabicNumber(deltaJuz.toFixed(2))} جزء في الختمة الجماعية!` 
+        : `Recorded ${deltaJuz.toFixed(2)} Juz in the community Khatma!`);
     } catch (error) {
       console.error("Error updating global khatma:", error);
-      toast.error(isArabic ? "فشل تسجيل القراءة، تأكد من الاتصال أو الصلاحيات" : "Failed to record reading, check connection or permissions");
+      toast.error(isArabic ? "فشل تسجيل القراءة، تأكد من الاتصال" : "Failed to record reading, check connection");
     }
   };
-
-  const progress = Math.min(100, (stats.currentJuz / stats.targetJuz) * 100);
 
   return (
     <section className="relative overflow-hidden rounded-[2.5rem] bg-emerald-deep p-6 md:p-10 shadow-2xl group border border-white/5">
