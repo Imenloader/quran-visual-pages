@@ -107,7 +107,12 @@ service cloud.firestore {
 
     match /dua_requests/{id} {
       allow read: if true;
-      allow write: if isAuthenticated() && canWrite();
+      allow create: if isAuthenticated() && canWrite();
+      allow update: if isAuthenticated() && (
+        canWrite() || 
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ameenCount', 'ameeners']))
+      );
+      allow delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
     }
   }
 }

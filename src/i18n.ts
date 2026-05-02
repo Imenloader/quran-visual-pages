@@ -116,7 +116,31 @@ const resources = {
         "userGuide": "User Guide",
         "contactUs": "Contact Us",
         "readingCircles": "Private Reading Circles",
-        "community": "Faith Community"
+        "community": "Faith Community",
+        "prayerCircles": {
+          "title": "Prayer & Dhikr Circles",
+          "subtitle": "Support each other in righteousness",
+          "createTitle": "Create New Circle",
+          "createDesc": "Invite friends and family",
+          "requestDua": "Request Dua",
+          "requestDuaDesc": "Ask others to pray for you",
+          "activeCircles": "Your Active Circles",
+          "noCircles": "You haven't joined any circles yet",
+          "comingSoon": "Chat rooms coming soon",
+          "duaRequestsTitle": "Dua Requests",
+          "noDuas": "No dua requests yet",
+          "sayAmeen": "Say Ameen",
+          "ameen": "Ameen",
+          "deleteConfirm": "Are you sure you want to delete this circle?",
+          "deleteDuaConfirm": "Are you sure you want to delete this dua request?",
+          "requestModal": {
+            "title": "Request Community Dua",
+            "placeholder": "What is your Dua?",
+            "submit": "Post Request",
+            "success": "Dua request posted successfully",
+            "error": "Failed to post request"
+          }
+        }
       },
       "prayerTimes": {
         "title": "Prayer Times"
@@ -630,7 +654,31 @@ const resources = {
         "userGuide": "دليل المستخدم",
         "contactUs": "تواصل معنا",
         "readingCircles": "حلقات القراءة الخاصة",
-        "community": "مجتمع قرآنيات"
+        "community": "مجتمع قرآنيات",
+        "prayerCircles": {
+          "title": "حلقات الذكر والدعاء",
+          "subtitle": "تعاونوا على البر والتقوى",
+          "createTitle": "إنشاء حلقة جديدة",
+          "createDesc": "ادعُ أصدقاءك وعائلتك للمشاركة",
+          "requestDua": "طلب دعاء بظهر الغيب",
+          "requestDuaDesc": "اطلب من إخوتك الدعاء لك",
+          "activeCircles": "حلقاتك النشطة",
+          "noCircles": "لم تنضم إلى أي حلقة بعد",
+          "comingSoon": "سيتم تفعيل غرف الدردشة قريباً",
+          "duaRequestsTitle": "طلبات الدعاء بظهر الغيب",
+          "noDuas": "لا توجد طلبات دعاء حالياً",
+          "sayAmeen": "قل آمين",
+          "ameen": "آمين",
+          "deleteConfirm": "هل أنت متأكد من حذف هذه الحلقة؟",
+          "deleteDuaConfirm": "هل أنت متأكد من حذف هذا الطلب؟",
+          "requestModal": {
+            "title": "طلب دعاء بظهر الغيب",
+            "placeholder": "ما هو دعاؤك؟",
+            "submit": "نشر الطلب",
+            "success": "تم نشر طلب الدعاء بنجاح",
+            "error": "فشل نشر الطلب"
+          }
+        }
       },
       "prayerTimes": {
         "title": "مواقيت الصلاة"
