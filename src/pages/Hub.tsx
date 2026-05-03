@@ -301,10 +301,10 @@ const Hub = () => {
   return (
     <div className="relative min-h-screen bg-background pb-24 overflow-x-hidden">
       <QuranHeader title={t("hub.title")} subtitle={t("hub.subtitle")} variant="compact" />
-      <div className="max-w-7xl mx-auto px-4 mt-6">
+      <div className="max-w-7xl mx-auto px-3 md:px-6 mt-6">
         <HubHeroBanner />
       </div>
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-3 md:px-6">
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-4 space-y-8">

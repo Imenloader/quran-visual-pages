@@ -143,6 +143,30 @@ const ReadingToolbar = ({
           <button onClick={(e) => { e.stopPropagation(); toggleReadingMode(); }} className="toolbar-btn !p-1.5 md:!p-2.5 text-primary/70">
             {readingMode === "image" ? <Type className="size-[16px] md:size-[20px]" /> : <FileImage className="size-[16px] md:size-[20px]" />}
           </button>
+
+          {/* Zoom Group Pill */}
+          <div className="flex items-center gap-0.5 bg-muted/40 rounded-full p-0.5 border border-border/20 mx-1">
+            <button
+              onClick={(e) => { e.stopPropagation(); onZoomOut(); }}
+              className="p-1.5 md:p-2 rounded-full text-primary/60 hover:text-primary transition-all active:scale-90"
+              title="تصغير"
+            >
+              <ZoomOut className="size-[14px] md:size-[18px]" />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onResetZoom(); }}
+              className="px-1.5 py-1 text-[9px] md:text-[10px] font-bold text-primary/50 hover:text-accent transition-colors tabular-nums min-w-[32px] text-center"
+            >
+              {zoom}%
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onZoomIn(); }}
+              className="p-1.5 md:p-2 rounded-full text-primary/60 hover:text-primary transition-all active:scale-90"
+              title="تكبير"
+            >
+              <ZoomIn className="size-[14px] md:size-[18px]" />
+            </button>
+          </div>
         </div>
 
         {/* Center: Title */}

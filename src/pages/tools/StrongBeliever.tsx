@@ -24,7 +24,7 @@ const StrongBeliever = () => {
         variant="compact" 
       />
       
-      <div className="max-w-7xl mx-auto px-4 mt-6">
+      <div className="max-w-7xl mx-auto px-3 md:px-6 mt-6">
         <header className="flex items-center gap-4 mb-8">
           <BackButton />
           <div className="h-10 w-[1px] bg-border/40" />
@@ -77,12 +77,12 @@ const StrongBeliever = () => {
               {/* Individual Exercises for Home */}
               {selectedCategory === 'home' && EXERCISES.map((exercise, idx) => (
                 <ScrollReveal key={exercise.id} delay={idx * 100}>
-                  <div className="bg-card border border-border/40 rounded-[2.5rem] p-6 hover:border-accent/30 transition-all shadow-sm flex flex-col gap-5 group relative overflow-hidden">
+                  <div className="bg-card border border-border/40 rounded-[2rem] md:rounded-[2.5rem] p-4 md:p-6 hover:border-accent/30 transition-all shadow-sm flex flex-col gap-4 md:gap-5 group relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-accent/5 rounded-full blur-2xl -mr-12 -mt-12 group-hover:bg-accent/10 transition-colors" />
                     
                     <div className="flex items-center justify-between relative z-10">
-                      <div className="flex items-center gap-4 min-w-0">
-                        <div className="w-16 h-16 rounded-2xl bg-muted/50 overflow-hidden flex items-center justify-center p-2 border border-border/40 group-hover:border-accent/30 transition-all shrink-0 shadow-inner">
+                      <div className="flex items-center gap-3 md:gap-4 min-w-0">
+                        <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-muted/50 overflow-hidden flex items-center justify-center p-2 border border-border/40 group-hover:border-accent/30 transition-all shrink-0 shadow-inner">
                           <img 
                             src={exercise.image} 
                             alt={exercise.name} 
@@ -90,11 +90,11 @@ const StrongBeliever = () => {
                           />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <span className="text-[9px] font-bold text-accent bg-accent/10 px-2 py-0.5 rounded-full uppercase tracking-widest mb-2 inline-block">
+                          <span className="text-[8px] md:text-[9px] font-bold text-accent bg-accent/10 px-2 py-0.5 rounded-full uppercase tracking-widest mb-1 md:mb-2 inline-block">
                             {exercise.difficulty}
                           </span>
-                          <h3 className="font-bold font-naskh text-lg truncate text-foreground">{exercise.name}</h3>
-                          <p className="text-xs text-muted-foreground font-naskh truncate">{exercise.target}</p>
+                          <h3 className="font-bold font-naskh text-base md:text-lg truncate text-foreground">{exercise.name}</h3>
+                          <p className="text-[10px] md:text-xs text-muted-foreground font-naskh truncate">{exercise.target}</p>
                         </div>
                       </div>
                       <button 
@@ -102,9 +102,9 @@ const StrongBeliever = () => {
                           toast.info('قل "بسم الله" وابدأ!');
                           setActiveItem(exercise);
                         }}
-                        className="w-12 h-12 rounded-2xl bg-accent text-white flex items-center justify-center shadow-lg shadow-accent/20 hover:scale-110 transition-transform shrink-0"
+                        className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-accent text-white flex items-center justify-center shadow-lg shadow-accent/20 hover:scale-110 transition-transform shrink-0"
                       >
-                        <Play className="w-5 h-5 fill-current" />
+                        <Play className="w-4 h-4 md:w-5 md:h-5 fill-current" />
                       </button>
                     </div>
                   </div>
@@ -155,14 +155,14 @@ const StrongBeliever = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                     {SET_DHIKR.map((dhikr, idx) => (
-                      <div key={idx} className="bg-white/10 backdrop-blur-md border border-white/10 p-5 rounded-[2rem] flex items-center justify-between group hover:bg-white/20 transition-all">
-                        <div className="min-w-0">
-                          <p className="font-bold text-base font-naskh text-white mb-1 truncate">{dhikr.text}</p>
-                          <p className="text-[10px] text-emerald-100/60 font-naskh truncate">{dhikr.benefit}</p>
+                      <div key={idx} className="bg-white/10 backdrop-blur-md border border-white/10 p-4 md:p-5 rounded-[1.5rem] md:rounded-[2rem] flex items-center justify-between group hover:bg-white/20 transition-all">
+                        <div className="min-w-0 pr-2">
+                          <p className="font-bold text-sm md:text-base font-naskh text-white mb-0.5 md:mb-1 truncate">{dhikr.text}</p>
+                          <p className="text-[9px] md:text-[10px] text-emerald-100/60 font-naskh truncate">{dhikr.benefit}</p>
                         </div>
-                        <div className="w-12 h-12 rounded-2xl bg-gold/20 text-gold flex flex-col items-center justify-center shrink-0 border border-gold/20 shadow-lg">
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gold/20 text-gold flex flex-col items-center justify-center shrink-0 border border-gold/20 shadow-lg">
                           <span className="text-xs font-bold leading-none">{dhikr.count}</span>
                           <span className="text-[8px] uppercase tracking-tighter mt-1 opacity-60">مرة</span>
                         </div>

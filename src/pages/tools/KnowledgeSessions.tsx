@@ -24,7 +24,7 @@ const KnowledgeSessions = () => {
         variant="compact" 
       />
       
-      <div className="max-w-7xl mx-auto px-4 mt-6">
+      <div className="max-w-7xl mx-auto px-3 md:px-6 mt-6">
         <header className="flex items-center gap-4 mb-8">
           <BackButton />
           <div className="h-10 w-[1px] bg-border/40" />
@@ -40,29 +40,29 @@ const KnowledgeSessions = () => {
                   <div
                     key={scholar.id}
                     onClick={() => openYouTubeLink(scholar.channelUrl)}
-                    className="group relative p-6 bg-card border border-border/40 rounded-[2.5rem] hover:border-accent/30 transition-all cursor-pointer shadow-sm hover:shadow-xl hover:-translate-y-1 overflow-hidden"
+                    className="group relative p-4 md:p-6 bg-card border border-border/40 rounded-[2rem] md:rounded-[2.5rem] hover:border-accent/30 transition-all cursor-pointer shadow-sm hover:shadow-xl hover:-translate-y-1 overflow-hidden"
                   >
                     <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-accent/10 transition-colors" />
                     
-                    <div className="flex flex-col gap-5 relative z-10">
+                    <div className="flex flex-col gap-4 md:gap-5 relative z-10">
                       <div className="flex items-center justify-between">
-                        <div className="w-16 h-16 rounded-2xl bg-muted/50 overflow-hidden border border-border/40 group-hover:border-accent/30 transition-all shadow-inner shrink-0 flex items-center justify-center">
+                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-muted/50 overflow-hidden border border-border/40 group-hover:border-accent/30 transition-all shadow-inner shrink-0 flex items-center justify-center">
                           {scholar.thumbnail ? (
                             <img src={scholar.thumbnail} alt={scholar.name} className="w-full h-full object-cover" />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-accent bg-accent/5">
+                            <div className="w-full h-full flex items-center justify-center text-xl md:text-2xl font-bold text-accent bg-accent/5">
                               {scholar.name[0]}
                             </div>
                           )}
                         </div>
-                        <div className="w-10 h-10 rounded-xl bg-accent/5 text-accent flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-all shadow-sm">
-                          <Play className="w-4 h-4 fill-current" />
+                        <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-accent/5 text-accent flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-all shadow-sm">
+                          <Play className="w-3.5 h-3.5 md:w-4 md:h-4 fill-current" />
                         </div>
                       </div>
                       
                       <div>
-                        <h4 className="font-bold text-xl font-naskh mb-2 text-foreground group-hover:text-accent transition-colors">{scholar.name}</h4>
-                        <p className="text-xs text-muted-foreground font-naskh leading-relaxed line-clamp-2">
+                        <h4 className="font-bold text-lg md:text-xl font-naskh mb-1 md:mb-2 text-foreground group-hover:text-accent transition-colors">{scholar.name}</h4>
+                        <p className="text-[10px] md:text-xs text-muted-foreground font-naskh leading-relaxed line-clamp-2">
                           {scholar.description}
                         </p>
                       </div>
@@ -92,20 +92,20 @@ const KnowledgeSessions = () => {
                 <ScrollReveal key={level.id}>
                   <div 
                     onClick={() => openYouTubeLink(level.url)}
-                    className="bg-indigo-600 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-lg group cursor-pointer"
+                    className="bg-indigo-600 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 text-white relative overflow-hidden shadow-lg group cursor-pointer"
                   >
                     <div className="absolute top-0 right-0 p-6 opacity-10 transform group-hover:scale-110 transition-transform">
-                      <GraduationCap className="w-32 h-32" />
+                      <GraduationCap className="w-24 h-24 md:w-32 md:h-32" />
                     </div>
-                    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                      <div className="space-y-2">
-                        <h4 className="text-2xl font-bold font-naskh">{level.title}</h4>
-                        <p className="text-white/80 text-sm font-naskh max-w-md">
+                    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
+                      <div className="space-y-1 md:space-y-2">
+                        <h4 className="text-xl md:text-2xl font-bold font-naskh">{level.title}</h4>
+                        <p className="text-white/80 text-xs md:text-sm font-naskh max-w-md">
                           {level.description}
                         </p>
                       </div>
                       <Button 
-                        className="bg-white text-indigo-600 hover:bg-white/90 rounded-2xl px-8 font-bold font-naskh"
+                        className="bg-white text-indigo-600 hover:bg-white/90 rounded-xl md:rounded-2xl px-6 md:px-8 font-bold font-naskh text-xs md:text-sm h-10 md:h-11"
                       >
                         عرض القناة
                       </Button>
