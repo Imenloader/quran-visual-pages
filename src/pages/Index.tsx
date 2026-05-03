@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "react-i18next";
-import { juzData, toArabicNumber, surahIndex, SurahInfo } from "@/data/quranData";
+import { juzData, toArabicNumber, surahIndex, SurahInfo, surahByName, surahByNumber } from "@/data/quranData";
 import { dailyVerses } from "@/data/dailyVersesData";
 import JuzCard from "@/components/JuzCard";
 import JuzIndex from "@/components/JuzIndex";
@@ -102,7 +102,7 @@ function Index() {
     
     if (bookmark.verseKey && bookmark.readingMode === "text") {
       const [surahNum, ayahNum] = bookmark.verseKey.split(":").map(Number);
-      const surah = surahIndex.find(s => s.number === surahNum);
+      const surah = surahByNumber.get(surahNum);
       return {
         juzName,
         detail: `${surah?.name || ""} • ${t("index.hero.ayah")} ${i18n.language === "ar" ? toArabicNumber(ayahNum) : ayahNum}`
@@ -129,7 +129,7 @@ function Index() {
           const normalizedS = normalizeArabic(s);
           if (normalizedS.includes(normalizedQuery)) return true;
           // Look up English name in surahIndex
-          const surah = surahIndex.find(si => si.name === s);
+          const surah = surahByName.get(s);
           return surah?.nameEn.toLowerCase().includes(query);
         })
     );
