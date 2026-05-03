@@ -81,11 +81,11 @@ const PrayerCircles: React.FC = () => {
 
   const createCircle = async () => {
     if (!auth.currentUser) {
-      toast.error(isArabic ? 'يرجى تسجيل الدخول أولاً' : 'Please sign in first');
+      toast.error(t('common.loginRequired'));
       return;
     }
 
-    const name = prompt(isArabic ? 'اسم الحلقة:' : 'Circle Name:');
+    const name = prompt(t('prayerCircles.promptName'));
     if (!name) return;
 
     try {
@@ -95,9 +95,9 @@ const PrayerCircles: React.FC = () => {
         members: [auth.currentUser.uid],
         createdAt: serverTimestamp()
       });
-      toast.success(isArabic ? 'تم إنشاء الحلقة بنجاح' : 'Circle created successfully');
+      toast.success(t('prayerCircles.createSuccess'));
     } catch (e) {
-      toast.error(isArabic ? 'فشل إنشاء الحلقة' : 'Failed to create circle');
+      toast.error(t('prayerCircles.createError'));
     }
   };
 
@@ -109,9 +109,9 @@ const PrayerCircles: React.FC = () => {
 
     try {
       await deleteDoc(doc(db, 'prayer_circles', id));
-      toast.success(isArabic ? 'تم حذف الحلقة' : 'Circle deleted');
+      toast.success(t('prayerCircles.deleteSuccess'));
     } catch (e) {
-      toast.error(isArabic ? 'فشل حذف الحلقة' : 'Failed to delete circle');
+      toast.error(t('prayerCircles.deleteError'));
     }
   };
 
@@ -122,7 +122,7 @@ const PrayerCircles: React.FC = () => {
     try {
       await addDoc(collection(db, 'dua_requests'), {
         text: duaText.trim(),
-        userName: auth.currentUser.displayName || (isArabic ? 'مستخدم' : 'User'),
+        userName: auth.currentUser.displayName || t('profile.defaultName'),
         userId: auth.currentUser.uid,
         userAvatar: auth.currentUser.photoURL || '',
         createdAt: serverTimestamp(),
@@ -144,15 +144,15 @@ const PrayerCircles: React.FC = () => {
 
     try {
       await deleteDoc(doc(db, 'dua_requests', id));
-      toast.success(isArabic ? 'تم حذف الطلب' : 'Request deleted');
+      toast.success(t('prayerCircles.deleteDuaSuccess'));
     } catch (e) {
-      toast.error(isArabic ? 'فشل الحذف' : 'Failed to delete');
+      toast.error(t('prayerCircles.deleteDuaError'));
     }
   };
 
   const handleAmeen = async (id: string, currentAmeeners: string[]) => {
     if (!auth.currentUser) {
-       toast.error(isArabic ? 'يرجى تسجيل الدخول أولاً' : 'Please sign in first');
+       toast.error(t('common.loginRequired'));
        return;
     }
     if (currentAmeeners.includes(auth.currentUser.uid)) return;
@@ -235,7 +235,7 @@ const PrayerCircles: React.FC = () => {
 
            {loading ? (
              <div className="py-20 text-center animate-pulse text-muted-foreground">
-               {isArabic ? 'جاري التحميل...' : 'Loading...'}
+               {t('common.loading')}
              </div>
            ) : circles.length === 0 ? (
              <div className="py-20 text-center bg-card/40 border-2 border-dashed border-border/40 rounded-[3rem]">
@@ -258,7 +258,9 @@ const PrayerCircles: React.FC = () => {
                           <h4 className="text-lg font-serif font-bold text-primary">{circle.name}</h4>
                           <p className="text-xs text-muted-foreground flex items-center gap-2">
                              <Users size={12} />
-                             {isArabic ? toArabicNumber(circle.members.length) : circle.members.length} {isArabic ? 'أعضاء' : 'members'}
+                             {t('prayerCircles.membersCount', { 
+                               count: isArabic ? toArabicNumber(circle.members.length) : circle.members.length 
+                             })}
                           </p>
                        </div>
                     </div>

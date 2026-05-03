@@ -139,7 +139,15 @@ const resources = {
             "submit": "Post Request",
             "success": "Dua request posted successfully",
             "error": "Failed to post request"
-          }
+          },
+          "promptName": "Enter circle name:",
+          "createSuccess": "Circle created successfully",
+          "createError": "Failed to create circle",
+          "deleteSuccess": "Circle deleted",
+          "deleteError": "Failed to delete circle",
+          "deleteDuaSuccess": "Request deleted",
+          "deleteDuaError": "Failed to delete request",
+          "membersCount": "{{count}} members"
         }
       },
       "prayerTimes": {
@@ -205,7 +213,9 @@ const resources = {
         "back": "Back",
         "backToTop": "Back to top",
         "close": "Close",
-        "confirm": "Confirm"
+        "confirm": "Confirm",
+        "loading": "Loading...",
+        "loginRequired": "Please sign in first"
       },
       "search": {
         "placeholder": "Search in Quran (Surah or Ayah)...",
@@ -677,7 +687,15 @@ const resources = {
             "submit": "نشر الطلب",
             "success": "تم نشر طلب الدعاء بنجاح",
             "error": "فشل نشر الطلب"
-          }
+          },
+          "promptName": "أدخل اسم الحلقة:",
+          "createSuccess": "تم إنشاء الحلقة بنجاح",
+          "createError": "فشل إنشاء الحلقة",
+          "deleteSuccess": "تم حذف الحلقة بنجاح",
+          "deleteError": "فشل حذف الحلقة",
+          "deleteDuaSuccess": "تم حذف طلب الدعاء",
+          "deleteDuaError": "فشل حذف الطلب",
+          "membersCount": "{{count}} أعضاء"
         }
       },
       "prayerTimes": {
@@ -742,7 +760,9 @@ const resources = {
         "backToTop": "العودة إلى الأعلى",
         "back": "رجوع",
         "close": "إغلاق",
-        "confirm": "تأكيد"
+        "confirm": "تأكيد",
+        "loading": "جاري التحميل...",
+        "loginRequired": "يرجى تسجيل الدخول أولاً"
       },
       "search": {
         "placeholder": "ابحث في القرآن (سورة أو آية)...",
