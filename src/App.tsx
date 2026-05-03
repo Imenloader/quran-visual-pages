@@ -128,6 +128,8 @@ const SalahGuide = lazyWithRetry(() => import("./pages/SalahGuide"));
 const SahabaEncyclopedia = lazyWithRetry(() => import("./pages/SahabaEncyclopedia"));
 const IslamicRoadmap = lazyWithRetry(() => import("./pages/tools/IslamicRoadmap"));
 const PrayerCircles = lazyWithRetry(() => import("./pages/tools/PrayerCircles"));
+const UserProfileView = lazyWithRetry(() => import("./pages/community/UserProfileView"));
+const FriendsManager = lazyWithRetry(() => import("./pages/community/FriendsManager"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -374,6 +376,8 @@ const AppContent = () => {
                         <Route path="/knowledge-sessions" element={<KnowledgeSessions />} />
                         <Route path="/islamic-roadmap" element={<IslamicRoadmap />} />
                         <Route path="/prayer-circles" element={<PrayerCircles />} />
+                        <Route path="/profile/:userId" element={<UserProfileView />} />
+                        <Route path="/community/friends" element={<FriendsManager />} />
                         <Route path="/embed/:siteId" element={<EmbedView />} />
                         
                         {/* Admin Routes */}

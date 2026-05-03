@@ -53,9 +53,11 @@ const PrayerCircles: React.FC = () => {
       return;
     }
 
+    // Load all circles to allow discovery
     const q = query(
-      collection(db, 'prayer_circles'), 
-      where('members', 'array-contains', auth.currentUser.uid)
+      collection(db, 'prayer_circles'),
+      orderBy('createdAt', 'desc'),
+      limit(50)
     );
 
     const unsubCircles = onSnapshot(q, (snap) => {
@@ -112,6 +114,24 @@ const PrayerCircles: React.FC = () => {
       toast.success(t('prayerCircles.deleteSuccess'));
     } catch (e) {
       toast.error(t('prayerCircles.deleteError'));
+    }
+  };
+
+  const joinCircle = async (circleId: string, members: string[]) => {
+    if (!auth.currentUser) {
+       toast.error(t('common.loginRequired'));
+       return;
+    }
+    if (members.includes(auth.currentUser.uid)) return;
+
+    try {
+      const { arrayUnion } = await import('firebase/firestore');
+      await updateDoc(doc(db, 'prayer_circles', circleId), {
+        members: arrayUnion(auth.currentUser.uid)
+      });
+      toast.success(isArabic ? 'تم الانضمام للحلقة بنجاح' : 'Joined circle successfully');
+    } catch (e) {
+      toast.error(isArabic ? 'فشل الانضمام' : 'Failed to join');
     }
   };
 
@@ -247,7 +267,13 @@ const PrayerCircles: React.FC = () => {
                  {circles.map(circle => (
                   <div 
                     key={circle.id}
-                    onClick={() => toast.info(t('prayerCircles.comingSoon'))}
+                    onClick={() => {
+                      if (!circle.members.includes(auth.currentUser?.uid || '')) {
+                        joinCircle(circle.id, circle.members);
+                      } else {
+                        toast.info(t('prayerCircles.comingSoon'));
+                      }
+                    }}
                     className="p-6 rounded-[2rem] bg-card border border-border/40 hover:border-gold/30 transition-all shadow-sm flex items-center justify-between group cursor-pointer"
                   >
                     <div className="flex items-center gap-6">
@@ -273,9 +299,16 @@ const PrayerCircles: React.FC = () => {
                           <Trash2 size={18} />
                         </button>
                       )}
-                      <div className="w-10 h-10 rounded-full bg-muted/20 flex items-center justify-center text-muted-foreground group-hover:bg-gold group-hover:text-white transition-all">
-                         <ChevronRight size={18} />
-                      </div>
+                      
+                      {!circle.members.includes(auth.currentUser?.uid || '') ? (
+                         <Button size="sm" className="bg-primary/10 text-primary border-none font-bold rounded-xl px-4">
+                            {isArabic ? 'انضمام' : 'Join'}
+                         </Button>
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-muted/20 flex items-center justify-center text-muted-foreground group-hover:bg-gold group-hover:text-white transition-all">
+                           <ChevronRight size={18} />
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

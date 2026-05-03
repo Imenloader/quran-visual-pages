@@ -23,6 +23,12 @@ interface UserProfile {
   lastQuestDate?: string;
   dailyReadingHistory?: { date: string; pages: number }[];
   lastKhatmaSyncPages?: number;
+  privacySettings?: {
+    profileVisible: boolean;
+    showStats: boolean;
+    allowRequests: boolean;
+  };
+  friendCount?: number;
 }
 
 interface UserContextType {
@@ -69,6 +75,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     lastQuestDate: new Date().toISOString().split("T")[0],
     dailyReadingHistory: [],
     lastKhatmaSyncPages: 0,
+    privacySettings: {
+      profileVisible: true,
+      showStats: true,
+      allowRequests: true,
+    },
+    friendCount: 0,
   }), [t, i18n.language]);
 
   const [profile, setProfile] = useState<UserProfile>(DEFAULT_PROFILE);
@@ -82,9 +94,30 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
     syncTimerRef.current = setTimeout(() => {
       if (auth.currentUser) {
-        updateDoc(doc(db, "users", auth.currentUser.uid), updates as Record<string, unknown>).catch(error => {
-          console.error("Firestore Update Error:", error);
+        const uid = auth.currentUser.uid;
+        // 1. Update private user doc
+        updateDoc(doc(db, "users", uid), updates as Record<string, unknown>).catch(error => {
+          console.error("Firestore Update Error (users):", error);
         });
+
+        // 2. Update public profile doc (only if profile is visible)
+        // We only mirror fields that are safe to show publicly
+        const publicFields = ['name', 'avatar', 'points', 'totalAyahsRead', 'totalPagesRead', 'totalJuzCompleted', 'totalAthkarRecited', 'daysActive', 'role', 'privacySettings', 'friendCount'];
+        const publicUpdates: Record<string, any> = {};
+        let hasPublicUpdate = false;
+        
+        publicFields.forEach(field => {
+          if (field in updates) {
+            publicUpdates[field] = (updates as any)[field];
+            hasPublicUpdate = true;
+          }
+        });
+
+        if (hasPublicUpdate) {
+          setDoc(doc(db, "profiles", uid), publicUpdates, { merge: true }).catch(error => {
+             console.error("Firestore Update Error (profiles):", error);
+          });
+        }
       }
     }, 1500);
   }, []);
