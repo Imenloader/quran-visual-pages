@@ -1,0 +1,3 @@
+## 2024-10-27 - Map lookups for surahs
+**Learning:** Replaced `Array.prototype.find()` on the `surahIndex` array with pre-computed O(1) `Map` lookups (`surahByName` and `surahByNumber`). This is a solid micro-optimization to avoid O(N) array traversals, particularly when looking up surahs in loops, such as inside `src/components/JuzCard.tsx`'s render methods and parsing loops in `src/lib/quranTextParser.ts`.
+**Action:** Always favor ES6 Maps for key-based lookups instead of iterating over arrays with `.find()`, especially in React render loops or parsing logic. Ensure types are correctly handled when querying Maps.
