@@ -11,13 +11,15 @@ interface QuranHeaderProps {
 }
 
 const QuranHeader = ({ 
-  title = "القرآن الكريم", 
+  title, 
   subtitle,
   showBack = true,
   variant = "full",
   children
 }: QuranHeaderProps) => {
+  const { t } = useTranslation();
   const isCompact = variant === "compact";
+  const displayTitle = title || t("hub.quran");
 
   return (
     <header className={`relative w-full overflow-x-hidden bg-emerald-deep flex items-center justify-center shadow-islamic ${
@@ -52,7 +54,7 @@ const QuranHeader = ({
         <div className="flex items-center gap-3 md:gap-6 mb-4 md:mb-12 transform-gpu">
           <div className="h-px w-6 bg-gradient-to-l from-gold/60 to-transparent" />
           <span className="text-[8px] md:text-[11px] uppercase tracking-[0.2em] md:tracking-[0.5em] font-bold text-gold drop-shadow-sm">
-            المصحف الإلكتروني الشامل
+            {t('app.title')}
           </span>
           <div className="h-px w-6 bg-gradient-to-r from-gold/60 to-transparent" />
         </div>
@@ -61,7 +63,7 @@ const QuranHeader = ({
         <div className="relative mb-6 md:mb-14 w-full max-w-full overflow-hidden">
           <div className="relative transform-gpu">
             <h1 className="font-serif text-3xl sm:text-5xl md:text-7xl lg:text-[8rem] font-light text-white leading-tight tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] break-words px-4">
-              {title}
+              {displayTitle}
             </h1>
             
             {/* Decorative Sparkles */}
@@ -80,7 +82,7 @@ const QuranHeader = ({
               </p>
             ) : (
               <p className="font-quran text-2xl sm:text-4xl md:text-5xl text-gold leading-relaxed italic drop-shadow-md">
-                بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+                {t('quran.bismillah')}
               </p>
             )}
             
@@ -98,7 +100,7 @@ const QuranHeader = ({
         {!isCompact && (
           <div className="absolute bottom-10 md:bottom-16 flex flex-col items-center gap-3 md:gap-4 opacity-60 transform-gpu">
             <span className="text-[8px] md:text-[10px] uppercase tracking-[0.4em] md:tracking-[0.6em] font-bold text-white/80">
-              تلاوة • تدبّر • حفظ
+              {t('app.subtitle')}
             </span>
             <div className="w-px h-8 bg-gold/30" />
           </div>

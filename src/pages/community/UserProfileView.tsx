@@ -23,10 +23,14 @@ import { Badge } from '@/components/ui/badge';
 import { toArabicNumber } from '@/data/quranData';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { setDoc, serverTimestamp } from 'firebase/firestore';
+
+import { useUser } from '@/contexts/UserContext';
 
 const UserProfileView: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const { t, i18n } = useTranslation();
+  const { profile: currentUserProfile } = useUser();
   const navigate = useNavigate();
   const isArabic = i18n.language === 'ar';
   
@@ -73,6 +77,23 @@ const UserProfileView: React.FC = () => {
 
     return () => unsubProfile();
   }, [userId, navigate, t, isArabic]);
+
+  const sendRequest = async () => {
+    if (!auth.currentUser || !userId) return;
+    
+    try {
+      const shipId = [auth.currentUser.uid, userId].sort().join('_');
+      await setDoc(doc(db, 'friendships', shipId), {
+        users: [auth.currentUser.uid, userId],
+        status: 'pending',
+        requester: auth.currentUser.uid,
+        createdAt: serverTimestamp()
+      });
+      toast.success(isArabic ? 'تم إرسال طلب الصداقة' : 'Friend request sent');
+    } catch (e) {
+      toast.error(isArabic ? 'فشل إرسال الطلب' : 'Failed to send request');
+    }
+  };
 
   if (loading) {
     return (
@@ -131,7 +152,16 @@ const UserProfileView: React.FC = () => {
             {!isOwnProfile && (
               <div className="flex gap-3 mb-2">
                 {friendshipStatus === 'none' ? (
-                  <Button className="bg-gold hover:bg-gold/90 text-white rounded-2xl px-6 py-6 h-auto shadow-lg shadow-gold/20 flex items-center gap-2 group">
+                  <Button 
+                    onClick={() => {
+                      if (currentUserProfile.gender !== 'unspecified' && profile.gender !== 'unspecified' && currentUserProfile.gender !== profile.gender) {
+                        toast.error(t('common.genderMismatch'));
+                        return;
+                      }
+                      sendRequest();
+                    }}
+                    className="bg-gold hover:bg-gold/90 text-white rounded-2xl px-6 py-6 h-auto shadow-lg shadow-gold/20 flex items-center gap-2 group"
+                  >
                     <UserPlus size={20} className="group-hover:scale-110 transition-transform" />
                     <span className="font-bold">{t('profile.addFriend') || (isArabic ? 'إضافة صديق' : 'Add Friend')}</span>
                   </Button>

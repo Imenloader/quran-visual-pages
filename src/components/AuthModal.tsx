@@ -36,6 +36,7 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [gender, setGender] = useState<'male' | 'female'>('male');
 
   const reset = () => {
     setEmail("");
@@ -119,7 +120,13 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
           return;
         }
         const result = await createUserWithEmailAndPassword(auth, trimmedEmail, trimmedPassword);
+        // We'll update the name in Firebase Auth and we'll rely on UserContext to sync the gender to Firestore
         await updateProfile(result.user, { displayName: name.trim() });
+        // Since UserContext might not have picked up the new user yet, we might need a way to pass gender
+        // But UserContext listens to onAuthStateChanged and will create DEFAULT_PROFILE.
+        // We should probably have a way to set initial profile data.
+        // For now, we'll store it in localStorage or a temporary global and UserContext can pick it up.
+        (window as any)._initialGender = gender;
         toast.success(isAr ? "تم إنشاء الحساب بنجاح!" : "Account created successfully!");
       }
       handleClose();
@@ -228,6 +235,33 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
                   className="w-full px-4 py-3 rounded-xl bg-primary/5 border border-primary/10 focus:border-accent outline-none font-serif text-sm text-primary placeholder:text-primary/30 transition-all"
                 />
                 <UserPlus size={14} className={`absolute ${isAr ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-primary/30`} />
+              </div>
+            )}
+
+            {tab === "signup" && (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setGender('male')}
+                  className={`flex-1 py-3 rounded-xl border font-serif text-sm transition-all ${
+                    gender === 'male' 
+                      ? "bg-primary/10 border-primary text-primary shadow-sm" 
+                      : "bg-transparent border-primary/10 text-primary/40 hover:bg-primary/5"
+                  }`}
+                >
+                  {isAr ? "ذكر" : "Male"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGender('female')}
+                  className={`flex-1 py-3 rounded-xl border font-serif text-sm transition-all ${
+                    gender === 'female' 
+                      ? "bg-rose-500/10 border-rose-500 text-rose-600 shadow-sm" 
+                      : "bg-transparent border-primary/10 text-primary/40 hover:bg-primary/5"
+                  }`}
+                >
+                  {isAr ? "أنثى" : "Female"}
+                </button>
               </div>
             )}
 

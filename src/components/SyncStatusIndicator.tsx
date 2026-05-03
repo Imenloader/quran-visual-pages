@@ -36,12 +36,12 @@ const SyncStatusIndicator: React.FC = () => {
         addSuffix: true, 
         locale: isArabic ? ar : enUS 
       })
-    : (isArabic ? 'لم يتم المزامنة بعد' : 'Not synced yet');
+    : t('sync.notSynced');
 
   return (
     <div 
       className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-card/40 backdrop-blur-md border border-border/40 text-[10px] md:text-[11px] font-medium shadow-sm transition-all"
-      title={isArabic ? 'حالة المزامنة السحابية' : 'Cloud Sync Status'}
+      title={t('sync.statusTitle')}
     >
       <div className="relative">
         {isOnline ? (
@@ -56,10 +56,10 @@ const SyncStatusIndicator: React.FC = () => {
       
       <div className="flex flex-col leading-tight">
         <span className={isOnline ? "text-primary" : "text-muted-foreground"}>
-          {isOnline ? (isArabic ? 'متصل سحابياً' : 'Cloud Connected') : (isArabic ? 'وضع الأوفلاين' : 'Offline Mode')}
+          {isOnline ? t('sync.connected') : t('sync.offline')}
         </span>
         <span className="text-[8px] text-muted-foreground opacity-70">
-          {isArabic ? 'آخر مزامنة: ' : 'Last sync: '} {timeAgo}
+          {t('sync.lastSync')} {timeAgo}
         </span>
       </div>
     </div>

@@ -23,6 +23,7 @@ interface UserProfile {
   lastQuestDate?: string;
   dailyReadingHistory?: { date: string; pages: number }[];
   lastKhatmaSyncPages?: number;
+  gender?: 'male' | 'female' | 'unspecified';
   privacySettings?: {
     profileVisible: boolean;
     showStats: boolean;
@@ -75,6 +76,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     lastQuestDate: new Date().toISOString().split("T")[0],
     dailyReadingHistory: [],
     lastKhatmaSyncPages: 0,
+    gender: 'unspecified',
     privacySettings: {
       profileVisible: true,
       showStats: true,
@@ -102,7 +104,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // 2. Update public profile doc (only if profile is visible)
         // We only mirror fields that are safe to show publicly
-        const publicFields = ['name', 'avatar', 'points', 'totalAyahsRead', 'totalPagesRead', 'totalJuzCompleted', 'totalAthkarRecited', 'daysActive', 'role', 'privacySettings', 'friendCount'];
+        const publicFields = ['name', 'avatar', 'points', 'totalAyahsRead', 'totalPagesRead', 'totalJuzCompleted', 'totalAthkarRecited', 'daysActive', 'role', 'privacySettings', 'friendCount', 'gender'];
         const publicUpdates: Record<string, any> = {};
         let hasPublicUpdate = false;
         
@@ -249,7 +251,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
               name: user.displayName || DEFAULT_PROFILE.name,
               avatar: user.photoURL || DEFAULT_PROFILE.avatar,
               joinedDate: new Date().toISOString(),
+              gender: (window as any)._initialGender || DEFAULT_PROFILE.gender
             };
+            delete (window as any)._initialGender;
             await setDoc(userRef, newProfile);
             setProfile(newProfile);
             activityService.log('USER_JOINED', 'انضم إلى المنصة حديثاً');

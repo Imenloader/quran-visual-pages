@@ -33,9 +33,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { toArabicNumber } from '@/data/quranData';
+import { useUser } from '@/contexts/UserContext';
 
 const FriendsManager: React.FC = () => {
   const { t, i18n } = useTranslation();
+  const { profile: currentUserProfile } = useUser();
   const isArabic = i18n.language === 'ar';
   
   const [searchQuery, setSearchQuery] = useState('');
@@ -115,13 +117,18 @@ const FriendsManager: React.FC = () => {
     }
   };
 
-  const sendRequest = async (targetUserId: string) => {
+  const sendRequest = async (targetUser: any) => {
     if (!auth.currentUser) return;
     
+    if (currentUserProfile.gender !== 'unspecified' && targetUser.gender !== 'unspecified' && currentUserProfile.gender !== targetUser.gender) {
+      toast.error(t('common.genderMismatch'));
+      return;
+    }
+
     try {
-      const shipId = [auth.currentUser.uid, targetUserId].sort().join('_');
+      const shipId = [auth.currentUser.uid, targetUser.id].sort().join('_');
       await setDoc(doc(db, 'friendships', shipId), {
-        users: [auth.currentUser.uid, targetUserId],
+        users: [auth.currentUser.uid, targetUser.id],
         status: 'pending',
         requester: auth.currentUser.uid,
         createdAt: serverTimestamp()
@@ -278,7 +285,7 @@ const FriendsManager: React.FC = () => {
                 {searchResults.map(user => (
                    <UserCard key={user.id} user={user} isArabic={isArabic}>
                       <Button 
-                        onClick={() => sendRequest(user.id)}
+                        onClick={() => sendRequest(user)}
                         disabled={friends.some(f => f.id === user.id) || requests.some(r => r.id === user.id)}
                         className="bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-xl border-none font-bold"
                       >

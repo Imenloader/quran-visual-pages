@@ -158,8 +158,12 @@ const resources = {
         "favorites": "Favourites",
         "favourites": "Favourites",
         "recitersAndSurahs": "Reciters & Surahs",
+        "playlists": "Playlists",
         "fetchError": "Failed to fetch recitations. Please try again.",
-        "playlists": "Playlists"
+        "quran": "The Holy Quran"
+      },
+      "quran": {
+        "bismillah": "In the name of Allah, the Entirely Merciful, the Especially Merciful"
       },
       "tasbih": {
         "reset": "Reset Counter",
@@ -215,7 +219,19 @@ const resources = {
         "close": "Close",
         "confirm": "Confirm",
         "loading": "Loading...",
-        "loginRequired": "Please sign in first"
+        "loginRequired": "Please sign in first",
+        "genderMismatch": "You can only add users of the same gender."
+      },
+      "sync": {
+        "connected": "Cloud Connected",
+        "offline": "Offline Mode",
+        "lastSync": "Last sync: ",
+        "notSynced": "Not synced yet",
+        "statusTitle": "Cloud Sync Status"
+      },
+      "app": {
+        "title": "Comprehensive Digital Quran",
+        "subtitle": "Recitation • Reflection • Memorization"
       },
       "search": {
         "placeholder": "Search in Quran (Surah or Ayah)...",
@@ -696,7 +712,8 @@ const resources = {
           "deleteDuaSuccess": "تم حذف طلب الدعاء",
           "deleteDuaError": "فشل حذف الطلب",
           "membersCount": "{{count}} أعضاء"
-        }
+        },
+        "quran": "القرآن الكريم"
       },
       "prayerTimes": {
         "title": "مواقيت الصلاة"
@@ -707,7 +724,11 @@ const resources = {
         "favourites": "المفضلات",
         "recitersAndSurahs": "القراء والسور",
         "playlists": "قوائم التشغيل",
-        "fetchError": "فشل في جلب التلاوات. يرجى المحاولة مرة أخرى."
+        "fetchError": "فشل في جلب التلاوات. يرجى المحاولة مرة أخرى.",
+        "quran": "القرآن الكريم"
+      },
+      "quran": {
+        "bismillah": "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ"
       },
       "tasbih": {
         "reset": "إعادة ضبط العداد",
@@ -762,7 +783,19 @@ const resources = {
         "close": "إغلاق",
         "confirm": "تأكيد",
         "loading": "جاري التحميل...",
-        "loginRequired": "يرجى تسجيل الدخول أولاً"
+        "loginRequired": "يرجى تسجيل الدخول أولاً",
+        "genderMismatch": "يمكنك إضافة المستخدمين من نفس الجنس فقط."
+      },
+      "sync": {
+        "connected": "متصل سحابياً",
+        "offline": "وضع الأوفلاين",
+        "lastSync": "آخر مزامنة: ",
+        "notSynced": "لم يتم المزامنة بعد",
+        "statusTitle": "حالة المزامنة السحابية"
+      },
+      "app": {
+        "title": "المصحف الإلكتروني الشامل",
+        "subtitle": "تلاوة • تدبّر • حفظ"
       },
       "search": {
         "placeholder": "ابحث في القرآن (سورة أو آية)...",
