@@ -1,6 +1,7 @@
 import { BookOpen, Sparkles } from "lucide-react";
 import BackButton from "./BackButton";
 import SyncStatusIndicator from "./SyncStatusIndicator";
+import { useTranslation } from "react-i18next"; // Required for i18n support
 
 interface QuranHeaderProps {
   title?: string;
