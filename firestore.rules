@@ -39,6 +39,11 @@ service cloud.firestore {
     match /global_stats/{id} {
       allow read: if true;
       allow write: if isAuthenticated() && (canWrite() || isAdmin());
+
+      match /participants/{userId} {
+        allow read: if true;
+        allow write: if isAuthenticated() && (request.auth.uid == userId) && (canWrite() || isAdmin());
+      }
     }
 
     match /stats/dhikr {
