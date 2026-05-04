@@ -76,8 +76,8 @@ jobs:
           
           echo "--- DEBUG: Checking for problematic assets ---"
           find . -name "ic_launcher_background.png" -exec ls -l {} +
-          echo "--- DEBUG: Deleting potential problematic assets ---"
-          find . -name "ic_launcher_background.png" -delete
+          echo "--- DEBUG: Not deleting ic_launcher_background.png to prevent compilation errors ---"
+          # find . -name "ic_launcher_background.png" -delete
           
           # Delete legacy density folders that often cause compilation issues with modern assets
           echo "--- CLEANING LEGACY MISMITS ---"
