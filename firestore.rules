@@ -127,6 +127,11 @@ service cloud.firestore {
       allow write: if isAuthenticated() && canWrite();
     }
 
+    match /reading_circles/{circleId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && canWrite();
+    }
+
     match /community_posts/{postId} {
       allow read: if true;
       allow create: if isAuthenticated() && canWrite();
