@@ -18,13 +18,19 @@ import {
   Search,
   ArrowRight,
   Star,
+  Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import QuranHeader from "@/components/QuranHeader";
 import { useUser } from "@/contexts/UserContext";
 import { toArabicNumber } from "@/data/quranData";
 import FriendsManager from "./FriendsManager";
-import { communityService, Notification as CommunityNotification } from "@/services/communityService";
+import {
+  communityService,
+  CommunityReport,
+  Notification as CommunityNotification,
+  ReportCategory,
+} from "@/services/communityService";
 import { toast } from "sonner";
 import ActivityFeed from "@/components/community/ActivityFeed";
 import SpiritualDuels from "@/components/community/SpiritualDuels";
@@ -32,6 +38,16 @@ import NotificationsModal from "@/components/community/NotificationsModal";
 import Leaderboard from "@/components/community/Leaderboard";
 import EpicQuests from "@/components/community/EpicQuests";
 import GrowthTree from "@/components/community/GrowthTree";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type CommunityTab = "today" | "feed" | "friends" | "duels" | "leaderboard" | "quests";
 
@@ -57,8 +73,13 @@ const CommunityHub = () => {
   const { profile, level, isAdmin } = useUser();
   const [activeTab, setActiveTab] = useState<CommunityTab>("today");
   const [notifications, setNotifications] = useState<CommunityNotification[]>([]);
+  const [communityReports, setCommunityReports] = useState<CommunityReport[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showReportDialog, setShowReportDialog] = useState(false);
+  const [reportCategory, setReportCategory] = useState<ReportCategory>("abuse");
+  const [reportDetails, setReportDetails] = useState("");
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
 
   useEffect(() => {
     if (!profile?.uid) return;
@@ -68,6 +89,12 @@ const CommunityHub = () => {
     });
     return () => unsub();
   }, [profile?.uid]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    const unsub = communityService.subscribeToCommunityReports(setCommunityReports);
+    return () => unsub();
+  }, [isAdmin]);
 
   const today = new Date().toISOString().split("T")[0];
   const todayPages = profile.dailyReadingHistory?.find(day => day.date === today)?.pages || 0;
@@ -153,26 +180,74 @@ const CommunityHub = () => {
     isAr ? "بلّغ عن الإساءة أو التضليل أو الرسائل التجارية غير المناسبة." : "Report abuse, misinformation, harassment, or inappropriate solicitation.",
   ];
 
-  const reportCategories = [
-    isAr ? "إساءة أو مضايقة" : "Abuse or harassment",
-    isAr ? "معلومة دينية مضللة" : "Religious misinformation",
-    isAr ? "خصوصية أو بيانات شخصية" : "Privacy or personal data",
-    isAr ? "رسائل مزعجة أو تجارية" : "Spam or solicitation",
+  const reportCategories: { id: ReportCategory; label: string; helper: string }[] = [
+    {
+      id: "abuse",
+      label: isAr ? "إساءة أو مضايقة" : "Abuse or harassment",
+      helper: isAr ? "خطاب جارح، تهديد، تنمر، أو سلوك غير لائق." : "Harmful speech, threats, bullying, or inappropriate behavior.",
+    },
+    {
+      id: "misinformation",
+      label: isAr ? "معلومة دينية مضللة" : "Religious misinformation",
+      helper: isAr ? "ادعاءات شرعية غير موثقة أو فتوى بلا أهلية." : "Unsupported religious claims or rulings without qualification.",
+    },
+    {
+      id: "privacy",
+      label: isAr ? "خصوصية أو بيانات شخصية" : "Privacy or personal data",
+      helper: isAr ? "نشر بيانات شخصية أو صور أو تفاصيل حساسة." : "Personal information, images, or sensitive details were shared.",
+    },
+    {
+      id: "spam",
+      label: isAr ? "رسائل مزعجة أو تجارية" : "Spam or solicitation",
+      helper: isAr ? "روابط مزعجة، إعلانات، أو طلبات مالية غير مناسبة." : "Spam links, ads, or inappropriate commercial/financial requests.",
+    },
+    {
+      id: "other",
+      label: isAr ? "سبب آخر" : "Other concern",
+      helper: isAr ? "أي مشكلة أخرى تحتاج مراجعة المشرفين." : "Anything else that needs moderator review.",
+    },
   ];
+
+  const openReports = communityReports.filter(report => report.status === "new" || report.status === "reviewing");
 
   const adminMetrics = [
     { label: isAr ? "تنشيط الأعضاء" : "Activation", value: `${formatCount(readinessScore, isAr)}/4` },
     { label: isAr ? "التنبيهات غير المقروءة" : "Unread alerts", value: formatCount(unreadCount, isAr) },
-    { label: isAr ? "الأصدقاء" : "Friends", value: formatCount(friendCount, isAr) },
+    { label: isAr ? "البلاغات المفتوحة" : "Open reports", value: formatCount(openReports.length, isAr) },
     { label: isAr ? "المهمات المكتملة" : "Quest completions", value: formatCount(completedQuests, isAr) },
   ];
 
-  const showReportToast = () => {
-    toast.info(
-      isAr
-        ? "تم تجهيز تصنيفات البلاغات. اربطها بلوحة الإشراف عند تفعيل إدارة البلاغات."
-        : "Report categories are ready. Connect them to the moderation queue when report management is enabled."
-    );
+  const handleSubmitReport = async () => {
+    if (!profile.uid) {
+      toast.error(isAr ? "سجّل الدخول لإرسال البلاغ" : "Sign in to submit a report");
+      return;
+    }
+
+    if (reportDetails.trim().length < 12) {
+      toast.error(isAr ? "اكتب وصفاً أوضح للبلاغ" : "Please add a clearer report description");
+      return;
+    }
+
+    setIsSubmittingReport(true);
+    try {
+      await communityService.submitCommunityReport({
+        reporterId: profile.uid,
+        reporterName: profile.name,
+        category: reportCategory,
+        details: reportDetails.trim(),
+        source: "community_hub",
+        locale: i18n.language,
+      });
+      toast.success(isAr ? "تم إرسال البلاغ للمراجعة" : "Report sent for moderator review");
+      setReportDetails("");
+      setReportCategory("abuse");
+      setShowReportDialog(false);
+    } catch (error) {
+      console.error("Community report failed:", error);
+      toast.error(isAr ? "تعذر إرسال البلاغ" : "Could not submit the report");
+    } finally {
+      setIsSubmittingReport(false);
+    }
   };
 
   return (
@@ -353,7 +428,7 @@ const CommunityHub = () => {
                           <p className="text-xs text-muted-foreground">{isAr ? "قواعد مختصرة قبل توسيع الخلاصة والنقاشات." : "Lightweight guidelines before scaling posts and discussions."}</p>
                         </div>
                       </div>
-                      <button onClick={showReportToast} className="p-2 rounded-xl bg-rose-500/10 text-rose-600 hover:bg-rose-500 hover:text-white transition-all" aria-label={isAr ? "إبلاغ" : "Report"}>
+                      <button onClick={() => setShowReportDialog(true)} className="p-2 rounded-xl bg-rose-500/10 text-rose-600 hover:bg-rose-500 hover:text-white transition-all" aria-label={isAr ? "إبلاغ" : "Report"}>
                         <Flag size={18} />
                       </button>
                     </div>
@@ -367,8 +442,8 @@ const CommunityHub = () => {
                     </ul>
                     <div className="flex flex-wrap gap-2 pt-2 border-t border-border/30">
                       {reportCategories.map(category => (
-                        <span key={category} className="rounded-full bg-muted/60 px-3 py-1 text-[10px] font-bold text-muted-foreground">
-                          {category}
+                        <span key={category.id} className="rounded-full bg-muted/60 px-3 py-1 text-[10px] font-bold text-muted-foreground">
+                          {category.label}
                         </span>
                       ))}
                     </div>
@@ -394,6 +469,32 @@ const CommunityHub = () => {
                         </div>
                       ))}
                     </div>
+
+                    <div className="rounded-2xl bg-card border border-border/30 p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-bold text-primary">{isAr ? "أحدث البلاغات" : "Latest reports"}</h4>
+                        <span className="text-[10px] font-bold text-muted-foreground">{formatCount(communityReports.length, isAr)}</span>
+                      </div>
+                      {communityReports.length === 0 ? (
+                        <p className="text-xs text-muted-foreground">{isAr ? "لا توجد بلاغات حالياً." : "No reports yet."}</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {communityReports.slice(0, 3).map(report => (
+                            <div key={report.id} className="rounded-xl bg-muted/40 p-3">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-xs font-bold text-primary">
+                                  {reportCategories.find(category => category.id === report.category)?.label || report.category}
+                                </span>
+                                <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${report.priority === "high" ? "bg-rose-500/10 text-rose-600" : "bg-primary/10 text-primary"}`}>
+                                  {report.priority === "high" ? (isAr ? "عاجل" : "High") : (isAr ? "عادي" : "Normal")}
+                                </span>
+                              </div>
+                              <p className="mt-1 line-clamp-2 text-[11px] text-muted-foreground">{report.details}</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </section>
                 )}
               </div>
@@ -406,6 +507,64 @@ const CommunityHub = () => {
           </div>
         </div>
       </main>
+
+      <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
+        <DialogContent className="sm:max-w-lg rounded-[2rem]">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-primary">{isAr ? "إرسال بلاغ للمشرفين" : "Send a report to moderators"}</DialogTitle>
+            <DialogDescription>
+              {isAr
+                ? "اختر التصنيف واكتب وصفاً مختصراً. البلاغات تظهر للمشرفين فقط."
+                : "Choose a category and add a short description. Reports are visible to moderators only."}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <label className="space-y-2 block">
+              <span className="text-xs font-bold text-primary">{isAr ? "تصنيف البلاغ" : "Report category"}</span>
+              <select
+                value={reportCategory}
+                onChange={(event) => setReportCategory(event.target.value as ReportCategory)}
+                className="w-full rounded-2xl border border-border/50 bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30"
+              >
+                {reportCategories.map(category => (
+                  <option key={category.id} value={category.id}>
+                    {category.label}
+                  </option>
+                ))}
+              </select>
+              <span className="block text-[11px] text-muted-foreground">
+                {reportCategories.find(category => category.id === reportCategory)?.helper}
+              </span>
+            </label>
+
+            <label className="space-y-2 block">
+              <span className="text-xs font-bold text-primary">{isAr ? "وصف مختصر" : "Short description"}</span>
+              <Textarea
+                value={reportDetails}
+                onChange={(event) => setReportDetails(event.target.value)}
+                maxLength={600}
+                dir="auto"
+                className="min-h-[130px] rounded-2xl resize-none"
+                placeholder={isAr ? "اشرح ما حدث أو أين ظهرت المشكلة..." : "Explain what happened or where the issue appeared..."}
+              />
+              <span className="block text-[10px] text-muted-foreground">
+                {formatCount(reportDetails.length, isAr)} / {formatCount(600, isAr)}
+              </span>
+            </label>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setShowReportDialog(false)} disabled={isSubmittingReport}>
+              {isAr ? "إلغاء" : "Cancel"}
+            </Button>
+            <Button onClick={handleSubmitReport} disabled={isSubmittingReport || reportDetails.trim().length < 12} className="bg-rose-600 hover:bg-rose-700 text-white">
+              {isSubmittingReport && <Loader2 className="animate-spin" size={16} />}
+              {isAr ? "إرسال البلاغ" : "Submit report"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <NotificationsModal
         isOpen={showNotifications}
