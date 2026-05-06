@@ -127,8 +127,9 @@ const StoryReader = lazyWithRetry(() => import("./pages/StoryReader"));
 const SalahGuide = lazyWithRetry(() => import("./pages/SalahGuide"));
 const SahabaEncyclopedia = lazyWithRetry(() => import("./pages/SahabaEncyclopedia"));
 const IslamicRoadmap = lazyWithRetry(() => import("./pages/tools/IslamicRoadmap"));
-const PrayerCircles = lazyWithRetry(() => import("./pages/tools/PrayerCircles"));
-const UserProfileView = lazyWithRetry(() => import("./pages/community/UserProfileView"));
+const CommunityFriends = lazy(() => import("./pages/community/FriendsManager"));
+const CommunityHub = lazy(() => import("./pages/community/CommunityHub"));
+const UserProfileView = lazy(() => import("./pages/community/UserProfileView"));
 const FriendsManager = lazyWithRetry(() => import("./pages/community/FriendsManager"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 
@@ -376,8 +377,9 @@ const AppContent = () => {
                         <Route path="/knowledge-sessions" element={<KnowledgeSessions />} />
                         <Route path="/islamic-roadmap" element={<IslamicRoadmap />} />
                         <Route path="/prayer-circles" element={<PrayerCircles />} />
-                        <Route path="/profile/:userId" element={<UserProfileView />} />
-                        <Route path="/community/friends" element={<FriendsManager />} />
+                        <Route path="/community/friends" element={<Suspense fallback={<div />}><CommunityFriends /></Suspense>} />
+                        <Route path="/community/hub" element={<Suspense fallback={<div />}><CommunityHub /></Suspense>} />
+                        <Route path="/profile/:userId" element={<Suspense fallback={<div />}><UserProfileView /></Suspense>} />
                         <Route path="/embed/:siteId" element={<EmbedView />} />
                         
                         {/* Admin Routes */}

@@ -220,9 +220,9 @@ const Hub = () => {
         title: t("hub.planning"),
         icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />,
         tools: [
+          { id: 'community-hub', name: i18n.language === 'ar' ? 'مركز المجتمع' : 'Community Hub', icon: <Users className="w-5 h-5 text-gold" />, path: "/community/hub" },
           { id: 'khatma', name: t("hub.khatma"), icon: <BookOpen className="w-5 h-5" />, path: "/khatma" },
           { id: 'collab-khatma', name: t("hub.collaborativeKhatma"), icon: <Users className="w-5 h-5" />, path: "/khatma-jamaaiya" },
-          { id: 'community', name: t("hub.community") || "المجتمع", icon: <MessageSquare className="w-5 h-5" />, path: "/community" },
           { id: 'prayer-circles', name: i18n.language === 'ar' ? 'حلقات الدعاء' : 'Prayer Circles', icon: <Users className="w-5 h-5" />, path: "/prayer-circles" },
           { id: 'reading-circles', name: t("hub.readingCircles") || "حلقات القراءة", icon: <Users className="w-5 h-5" />, path: "/reading-circles" },
           { id: 'hifz', name: t("hub.hifzTester"), icon: <GradIcon className="w-5 h-5" />, path: "/tools/hifz-tester" },

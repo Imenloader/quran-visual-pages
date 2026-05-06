@@ -1,39 +1,82 @@
-import { db, auth } from "@/firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "@/firebase";
+import { 
+  collection, 
+  addDoc, 
+  serverTimestamp, 
+  query, 
+  where, 
+  orderBy, 
+  limit, 
+  onSnapshot,
+  doc,
+  getDoc
+} from "firebase/firestore";
 
 export type ActivityType = 
-  | 'USER_JOINED' 
-  | 'KHATMA_CREATED' 
-  | 'POST_CREATED' 
-  | 'CIRCLE_CREATED' 
+  | 'JUZ_COMPLETE' 
+  | 'KHATMA_COMPLETE' 
+  | 'BADGE_EARNED' 
+  | 'QUEST_COMPLETE' 
   | 'DHIKR_MILESTONE' 
-  | 'QUEST_COMPLETED';
+  | 'DUEL_WON';
 
-interface ActivityLog {
+export interface Activity {
+  id?: string;
   userId: string;
   userName: string;
-  action: string;
+  userAvatar?: string;
   type: ActivityType;
-  metadata?: any;
-  createdAt: any;
+  payload: any;
+  timestamp: any;
+  gender: 'male' | 'female' | 'unspecified';
 }
 
 export const activityService = {
-  log: async (type: ActivityType, action: string, metadata?: any) => {
+  async logActivity(userId: string, type: ActivityType, payload: any = {}) {
     try {
-      const user = auth.currentUser;
-      const activity: ActivityLog = {
-        userId: user?.uid || 'anonymous',
-        userName: user?.displayName || 'مستخدم',
-        action,
+      // Get user info for the activity
+      const userDoc = await getDoc(doc(db, "users", userId));
+      if (!userDoc.exists()) return;
+      
+      const userData = userDoc.data();
+      
+      const activityData: Omit<Activity, 'id'> = {
+        userId,
+        userName: userData.name || 'مستخدم',
+        userAvatar: userData.avatar,
         type,
-        metadata: metadata || {},
-        createdAt: serverTimestamp()
+        payload,
+        gender: userData.gender || 'unspecified',
+        timestamp: serverTimestamp(),
       };
       
-      await addDoc(collection(db, "admin_activities"), activity);
+      await addDoc(collection(db, "activities"), activityData);
     } catch (error) {
-      console.error("Failed to log activity:", error);
+      console.error("Error logging activity:", error);
     }
+  },
+
+  subscribeToFriendActivities(friendIds: string[], gender: string, callback: (activities: Activity[]) => void) {
+    if (friendIds.length === 0) {
+      callback([]);
+      return () => {};
+    }
+
+    // Filter by friends AND same gender (as per existing rules)
+    const q = query(
+      collection(db, "activities"),
+      where("userId", "in", friendIds),
+      where("gender", "==", gender),
+      orderBy("timestamp", "desc"),
+      limit(50)
+    );
+
+    return onSnapshot(q, (snapshot) => {
+      const activities = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Activity[];
+      callback(activities);
+    });
   }
 };

@@ -3,7 +3,17 @@ import { useTranslation } from "react-i18next";
 import { toArabicNumber } from "@/data/quranData";
 import { auth, db } from "@/firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, setDoc, onSnapshot, updateDoc } from "firebase/firestore";
+import { 
+  doc, 
+  getDoc, 
+  setDoc, 
+  onSnapshot, 
+  updateDoc,
+  collection,
+  query,
+  where,
+  getDocs
+} from "firebase/firestore";
 import { activityService } from "@/services/activityService";
 
 
@@ -30,6 +40,7 @@ interface UserProfile {
     allowRequests: boolean;
   };
   friendCount?: number;
+  friendIds?: string[];
 }
 
 interface UserContextType {
@@ -83,6 +94,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       allowRequests: true,
     },
     friendCount: 0,
+    friendIds: [],
   }), [t, i18n.language]);
 
   const [profile, setProfile] = useState<UserProfile>(DEFAULT_PROFILE);
@@ -104,7 +116,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // 2. Update public profile doc (only if profile is visible)
         // We only mirror fields that are safe to show publicly
-        const publicFields = ['name', 'avatar', 'points', 'totalAyahsRead', 'totalPagesRead', 'totalJuzCompleted', 'totalAthkarRecited', 'daysActive', 'role', 'privacySettings', 'friendCount', 'gender'];
+        const publicFields = ['name', 'avatar', 'points', 'totalAyahsRead', 'totalPagesRead', 'totalJuzCompleted', 'totalAthkarRecited', 'daysActive', 'role', 'privacySettings', 'friendCount', 'gender', 'friendIds'];
         const publicUpdates: Record<string, any> = {};
         let hasPublicUpdate = false;
         
@@ -183,6 +195,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         points: prev.points + 3000,
       };
       syncToFirestore(updates);
+      activityService.logActivity(auth.currentUser!.uid, 'JUZ_COMPLETE', { detail: `الجزء ${prev.totalJuzCompleted + 1}` });
       return { ...prev, ...updates };
     });
   }, [syncToFirestore]);
@@ -227,6 +240,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         lastQuestDate: today
       };
       syncToFirestore(updates);
+      activityService.logActivity(auth.currentUser!.uid, 'QUEST_COMPLETE', { detail: questId });
       return { ...prev, ...updates };
     });
   }, [syncToFirestore]);
@@ -263,9 +277,23 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         // Real-time sync: update local state when Firestore changes (e.g., from another device)
-        snapshotUnsubscribeRef.current = onSnapshot(userRef, (snap) => {
+        snapshotUnsubscribeRef.current = onSnapshot(userRef, async (snap) => {
           if (snap.exists()) {
-            setProfile(snap.data() as UserProfile);
+            const data = snap.data() as UserProfile;
+            
+            // Also sync friends list if not present or stale
+            const friendsQuery = query(
+              collection(db, "friendships"),
+              where("users", "array-contains", user.uid),
+              where("status", "==", "accepted")
+            );
+            const friendsSnap = await getDocs(friendsQuery);
+            const friendIds = friendsSnap.docs.map(d => {
+              const u = d.data().users;
+              return u[0] === user.uid ? u[1] : u[0];
+            });
+
+            setProfile({ ...data, friendIds });
           }
         }, (error) => console.warn("Profile Sync Error:", error));
       } else {
