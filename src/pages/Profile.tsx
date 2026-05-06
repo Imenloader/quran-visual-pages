@@ -1148,40 +1148,53 @@ const Profile = () => {
                       <p className="text-[8px] text-primary/70">{t("profile.syncDesc") || "Sync your progress across devices"}</p>
                     </div>
 
-                    <div className="space-y-3">
-                       <p className={`text-[10px] font-bold text-primary/60 uppercase tracking-widest ${isAr ? 'text-right' : 'text-left'}`}>
-                          {isAr ? 'الجنس' : 'Gender'}
-                       </p>
-                       <div className="flex gap-2">
-                          <button
-                            onClick={() => updateProfile({ gender: 'male' })}
-                            className={`flex-1 py-3 rounded-2xl border font-serif text-xs transition-all flex items-center justify-center gap-2 ${
-                              profile.gender === 'male' 
-                                ? "bg-primary/10 border-primary text-primary shadow-sm" 
-                                : "bg-primary/5 border-primary/5 text-primary/40 hover:bg-primary/10"
-                            }`}
-                          >
-                             <div className={`w-2 h-2 rounded-full ${profile.gender === 'male' ? 'bg-primary' : 'bg-transparent'}`} />
-                             {isAr ? "ذكر" : "Male"}
-                          </button>
-                          <button
-                            onClick={() => updateProfile({ gender: 'female' })}
-                            className={`flex-1 py-3 rounded-2xl border font-serif text-xs transition-all flex items-center justify-center gap-2 ${
-                              profile.gender === 'female' 
-                                ? "bg-rose-500/10 border-rose-500 text-rose-600 shadow-sm" 
-                                : "bg-primary/5 border-primary/5 text-primary/40 hover:bg-rose-500/10"
-                            }`}
-                          >
-                             <div className={`w-2 h-2 rounded-full ${profile.gender === 'female' ? 'bg-rose-500' : 'bg-transparent'}`} />
-                             {isAr ? "أنثى" : "Female"}
-                          </button>
-                       </div>
-                       <p className="text-[8px] text-muted-foreground italic text-center">
-                          {isAr 
-                            ? "* يستخدم لضمان الخصوصية في التواصل الاجتماعي (يمكنك فقط إضافة أصدقاء من نفس جنسك)" 
-                            : "* Used for privacy in social features (you can only add friends of the same gender)"}
-                       </p>
-                    </div>
+                     <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                           <p className={`text-[10px] font-bold text-primary/60 uppercase tracking-widest ${isAr ? 'text-right' : 'text-left'}`}>
+                              {isAr ? 'الجنس' : 'Gender'}
+                           </p>
+                           {profile.gender !== 'unspecified' && (
+                              <span className="text-[8px] font-bold text-gold uppercase tracking-widest bg-gold/5 px-2 py-0.5 rounded-full border border-gold/10">
+                                 {isAr ? "دائم" : "PERMANENT"}
+                              </span>
+                           )}
+                        </div>
+                        <div className="flex gap-2">
+                           <button
+                             onClick={() => profile.gender === 'unspecified' && updateProfile({ gender: 'male' })}
+                             disabled={profile.gender !== 'unspecified'}
+                             className={`flex-1 py-3 rounded-2xl border font-serif text-xs transition-all flex items-center justify-center gap-2 ${
+                               profile.gender === 'male' 
+                                 ? "bg-primary/10 border-primary text-primary shadow-sm" 
+                                 : "bg-primary/5 border-primary/5 text-primary/40 hover:bg-primary/10"
+                             } ${profile.gender !== 'unspecified' ? 'cursor-default' : ''}`}
+                           >
+                              <div className={`w-2 h-2 rounded-full ${profile.gender === 'male' ? 'bg-primary' : 'bg-transparent'}`} />
+                              {isAr ? "ذكر" : "Male"}
+                           </button>
+                           <button
+                             onClick={() => profile.gender === 'unspecified' && updateProfile({ gender: 'female' })}
+                             disabled={profile.gender !== 'unspecified'}
+                             className={`flex-1 py-3 rounded-2xl border font-serif text-xs transition-all flex items-center justify-center gap-2 ${
+                               profile.gender === 'female' 
+                                 ? "bg-rose-500/10 border-rose-500 text-rose-600 shadow-sm" 
+                                 : "bg-primary/5 border-primary/5 text-primary/40 hover:bg-rose-500/10"
+                             } ${profile.gender !== 'unspecified' ? 'cursor-default' : ''}`}
+                           >
+                              <div className={`w-2 h-2 rounded-full ${profile.gender === 'female' ? 'bg-rose-500' : 'bg-transparent'}`} />
+                              {isAr ? "أنثى" : "Female"}
+                           </button>
+                        </div>
+                        <p className="text-[8px] text-muted-foreground italic text-center">
+                           {profile.gender === 'unspecified' 
+                             ? (isAr 
+                                ? "* يرجى الاختيار بدقة، لا يمكن تغيير الجنس لاحقاً لأسباب الخصوصية" 
+                                : "* Please choose carefully, gender cannot be changed later for privacy reasons")
+                             : (isAr 
+                                ? "* يستخدم لضمان الخصوصية في التواصل الاجتماعي" 
+                                : "* Used for privacy in social features")}
+                        </p>
+                     </div>
                     
                     <div className="p-4 rounded-2xl bg-primary/5 border border-primary/5 space-y-4">
                       {auth.currentUser ? (
