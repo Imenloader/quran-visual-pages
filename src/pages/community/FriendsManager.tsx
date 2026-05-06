@@ -323,7 +323,6 @@ const FriendsManager: React.FC<FriendsManagerProps> = ({ standalone = true }) =>
     </div>
   );
 };
-};
 
 const UserCard = ({ user, isArabic, children }: { user: any, isArabic: boolean, children: React.ReactNode }) => (
   <div className="p-4 rounded-[2rem] bg-card border border-border/40 shadow-sm flex items-center justify-between group hover:border-gold/20 transition-all">
