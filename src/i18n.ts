@@ -117,37 +117,38 @@ const resources = {
         "contactUs": "Contact Us",
         "readingCircles": "Private Reading Circles",
         "community": "Faith Community",
-      "prayerCircles": {
-        "title": "Prayer & Dhikr Circles",
-        "subtitle": "Support each other in righteousness",
-        "createTitle": "Create New Circle",
-        "createDesc": "Invite friends and family",
-        "requestDua": "Request Dua",
-        "requestDuaDesc": "Ask others to pray for you",
-        "activeCircles": "Your Active Circles",
-        "noCircles": "You haven't joined any circles yet",
-        "comingSoon": "Chat rooms coming soon",
-        "duaRequestsTitle": "Dua Requests",
-        "noDuas": "No dua requests yet",
-        "sayAmeen": "Say Ameen",
-        "ameen": "Ameen",
-        "deleteConfirm": "Are you sure you want to delete this circle?",
-        "deleteDuaConfirm": "Are you sure you want to delete this dua request?",
-        "requestModal": {
-          "title": "Request Community Dua",
-          "placeholder": "What is your Dua?",
-          "submit": "Post Request",
-          "success": "Dua request posted successfully",
-          "error": "Failed to post request"
-        },
-        "promptName": "Enter circle name:",
-        "createSuccess": "Circle created successfully",
-        "createError": "Failed to create circle",
-        "deleteSuccess": "Circle deleted",
-        "deleteError": "Failed to delete circle",
-        "deleteDuaSuccess": "Request deleted",
-        "deleteDuaError": "Failed to delete request",
-        "membersCount": "{{count}} members"
+        "prayerCircles": {
+          "title": "Prayer & Dhikr Circles",
+          "subtitle": "Support each other in righteousness",
+          "createTitle": "Create New Circle",
+          "createDesc": "Invite friends and family",
+          "requestDua": "Request Dua",
+          "requestDuaDesc": "Ask others to pray for you",
+          "activeCircles": "Your Active Circles",
+          "noCircles": "You haven't joined any circles yet",
+          "comingSoon": "Chat rooms coming soon",
+          "duaRequestsTitle": "Dua Requests",
+          "noDuas": "No dua requests yet",
+          "sayAmeen": "Say Ameen",
+          "ameen": "Ameen",
+          "deleteConfirm": "Are you sure you want to delete this circle?",
+          "deleteDuaConfirm": "Are you sure you want to delete this dua request?",
+          "requestModal": {
+            "title": "Request Community Dua",
+            "placeholder": "What is your Dua?",
+            "submit": "Post Request",
+            "success": "Dua request posted successfully",
+            "error": "Failed to post request"
+          },
+          "promptName": "Enter circle name:",
+          "createSuccess": "Circle created successfully",
+          "createError": "Failed to create circle",
+          "deleteSuccess": "Circle deleted",
+          "deleteError": "Failed to delete circle",
+          "deleteDuaSuccess": "Request deleted",
+          "deleteDuaError": "Failed to delete request",
+          "membersCount": "{{count}} members"
+        }
       },
       "prayerTimes": {
         "title": "Prayer Times"
@@ -680,9 +681,8 @@ const resources = {
         "contactUs": "تواصل معنا",
         "readingCircles": "حلقات القراءة الخاصة",
         "community": "مجتمع قرآنيات",
-        "quran": "القرآن الكريم"
-      },
-      "prayerCircles": {
+        "quran": "القرآن الكريم",
+        "prayerCircles": {
           "title": "حلقات الذكر والدعاء",
           "subtitle": "تعاونوا على البر والتقوى",
           "createTitle": "إنشاء حلقة جديدة",
@@ -713,6 +713,7 @@ const resources = {
           "deleteDuaSuccess": "تم حذف طلب الدعاء",
           "deleteDuaError": "فشل حذف الطلب",
           "membersCount": "{{count}} أعضاء"
+        },
       },
       "prayerTimes": {
         "title": "مواقيت الصلاة"
