@@ -143,5 +143,15 @@ service cloud.firestore {
       );
       allow delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
     }
+    match /notifications/{notifId} {
+      allow read, update, delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      allow create: if isAuthenticated();
+    }
+
+    match /duels/{duelId} {
+      allow read, update: if isAuthenticated() && (request.auth.uid == resource.data.initiatorId || request.auth.uid == resource.data.targetId);
+      allow create: if isAuthenticated() && request.resource.data.initiatorId == request.auth.uid;
+      allow delete: if false;
+    }
   }
 }
