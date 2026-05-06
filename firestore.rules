@@ -48,7 +48,7 @@ service cloud.firestore {
 
     // --- PROFILES & SOCIAL ---
     match /profiles/{userId} {
-      allow read: if isAuthenticated();
+      allow get, list: if isAuthenticated();
       allow write: if isOwner(userId);
     }
 

@@ -91,26 +91,37 @@ export async function fetchWithCache(
             }
           }
 
-          // Using allorigins as a proxy fallback
+          // 1. Try corsproxy.io first (usually more reliable)
           try {
-            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+            const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
             const proxyResponse = await fetch(proxyUrl, { signal: controller.signal });
             if (proxyResponse.ok) {
-              const proxyData = await proxyResponse.json();
-              return typeof proxyData.contents === 'string' ? JSON.parse(proxyData.contents) : proxyData.contents;
+              return await proxyResponse.json();
             }
           } catch (proxyError) {
-            console.warn("AllOrigins proxy failed, trying corsproxy.io...", proxyError);
+            console.warn("CorsProxy.io failed, trying AllOrigins...", proxyError);
             
-            // Secondary proxy: corsproxy.io
+            // 2. Try AllOrigins
             try {
-              const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+              const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
               const proxyResponse = await fetch(proxyUrl, { signal: controller.signal });
               if (proxyResponse.ok) {
-                return await proxyResponse.json();
+                const proxyData = await proxyResponse.json();
+                return typeof proxyData.contents === 'string' ? JSON.parse(proxyData.contents) : proxyData.contents;
               }
             } catch (secondaryProxyError) {
-              console.error("All fallbacks and proxies failed", secondaryProxyError);
+              console.warn("AllOrigins proxy failed, trying ThingProxy...", secondaryProxyError);
+
+              // 3. Try ThingProxy
+              try {
+                const proxyUrl = `https://thingproxy.freeboard.io/fetch/${url}`;
+                const proxyResponse = await fetch(proxyUrl, { signal: controller.signal });
+                if (proxyResponse.ok) {
+                   return await proxyResponse.json();
+                }
+              } catch (tertiaryProxyError) {
+                 console.error("All fallbacks and proxies failed", tertiaryProxyError);
+              }
             }
           }
           
