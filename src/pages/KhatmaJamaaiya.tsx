@@ -18,6 +18,7 @@ import {
   Maximize2,
   LogOut,
   LogIn,
+  X,
   User as UserIcon
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
