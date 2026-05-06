@@ -132,7 +132,7 @@ const CommunityHub = () => {
           
           <div className="relative z-10">
             {activeTab === 'feed' && <ActivityFeed />}
-            {activeTab === 'friends' && <FriendsManager />}
+            {activeTab === 'friends' && <FriendsManager standalone={false} />}
             {activeTab === 'duels' && <SpiritualDuels />}
             {activeTab === 'leaderboard' && <Leaderboard />}
             {activeTab === 'quests' && <EpicQuests />}

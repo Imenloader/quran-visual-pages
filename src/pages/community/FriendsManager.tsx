@@ -37,7 +37,11 @@ import { toast } from 'sonner';
 import { toArabicNumber } from '@/data/quranData';
 import { useUser } from '@/contexts/UserContext';
 
-const FriendsManager: React.FC = () => {
+interface FriendsManagerProps {
+  standalone?: boolean;
+}
+
+const FriendsManager: React.FC<FriendsManagerProps> = ({ standalone = true }) => {
   const { t, i18n } = useTranslation();
   const { profile: currentUserProfile } = useUser();
   const isArabic = i18n.language === 'ar';
@@ -161,6 +165,149 @@ const FriendsManager: React.FC = () => {
     }
   };
 
+  const content = (
+    <Tabs defaultValue="friends" className="space-y-8" dir={isArabic ? 'rtl' : 'ltr'}>
+      <TabsList className="grid grid-cols-3 bg-muted/40 p-1.5 rounded-[2rem] h-16 shadow-inner border border-border/20">
+        <TabsTrigger value="friends" className="rounded-[1.5rem] data-[state=active]:bg-card data-[state=active]:shadow-lg font-serif">
+          {isArabic ? 'أصدقائي' : 'My Friends'}
+          {friends.length > 0 && (
+             <Badge className="mr-2 bg-primary/10 text-primary border-none">
+                {isArabic ? toArabicNumber(friends.length) : friends.length}
+             </Badge>
+          )}
+        </TabsTrigger>
+        <TabsTrigger value="requests" className="rounded-[1.5rem] data-[state=active]:bg-card data-[state=active]:shadow-lg font-serif">
+          {isArabic ? 'الطلبات' : 'Requests'}
+          {requests.filter(r => !r.isRequester).length > 0 && (
+             <Badge className="mr-2 bg-gold text-white border-none animate-pulse">
+                {isArabic ? toArabicNumber(requests.filter(r => !r.isRequester).length) : requests.filter(r => !r.isRequester).length}
+             </Badge>
+          )}
+        </TabsTrigger>
+        <TabsTrigger value="search" className="rounded-[1.5rem] data-[state=active]:bg-card data-[state=active]:shadow-lg font-serif">
+          {isArabic ? 'البحث' : 'Search'}
+        </TabsTrigger>
+      </TabsList>
+
+      {/* My Friends Tab */}
+      <TabsContent value="friends" className="space-y-4">
+         {friends.length === 0 ? (
+           <EmptyState 
+             icon={<Users size={48} />} 
+             title={isArabic ? 'لا يوجد أصدقاء بعد' : 'No friends yet'}
+             desc={isArabic ? 'ابدأ بالبحث عن أصدقائك وإضافتهم' : 'Start by searching and adding your friends'}
+           />
+         ) : (
+           <div className="grid grid-cols-1 gap-4">
+              {friends.map(friend => (
+                <UserCard key={friend.id} user={friend} isArabic={isArabic}>
+                   <Link to={`/profile/${friend.id}`}>
+                      <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/5 text-primary">
+                         <ArrowRight size={20} className={isArabic ? 'rotate-180' : ''} />
+                      </Button>
+                   </Link>
+                </UserCard>
+              ))}
+           </div>
+         )}
+      </TabsContent>
+
+      {/* Requests Tab */}
+      <TabsContent value="requests" className="space-y-6">
+         {requests.length === 0 ? (
+            <EmptyState 
+              icon={<Clock size={48} />} 
+              title={isArabic ? 'لا توجد طلبات معلقة' : 'No pending requests'}
+              desc={isArabic ? 'طلبات الصداقة الجديدة ستظهر هنا' : 'New friend requests will appear here'}
+            />
+         ) : (
+            <div className="space-y-4">
+               {requests.map(req => (
+                 <UserCard key={req.id} user={req} isArabic={isArabic}>
+                    {req.isRequester ? (
+                       <Button 
+                         variant="outline" 
+                         onClick={() => cancelRequest(req.friendshipId)}
+                         className="rounded-xl border-border/40 text-muted-foreground hover:text-red-500"
+                       >
+                          {isArabic ? 'إلغاء الطلب' : 'Cancel Request'}
+                       </Button>
+                    ) : (
+                       <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            onClick={() => acceptRequest(req.friendshipId)}
+                            className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl"
+                          >
+                             <Check size={18} />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => cancelRequest(req.friendshipId)}
+                            className="border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white rounded-xl"
+                          >
+                             <X size={18} />
+                          </Button>
+                       </div>
+                    )}
+                 </UserCard>
+               ))}
+            </div>
+         )}
+      </TabsContent>
+
+      {/* Search Tab */}
+      <TabsContent value="search" className="space-y-8">
+         <div className="flex gap-3">
+            <div className="relative flex-1">
+               <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+               <Input 
+                 placeholder={isArabic ? 'ابحث بالاسم...' : 'Search by name...'} 
+                 className="pr-12 h-14 rounded-2xl bg-card border-border/40 shadow-soft focus-visible:ring-gold/30"
+                 value={searchQuery}
+                 onChange={(e) => setSearchQuery(e.target.value)}
+                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+               />
+            </div>
+            <Button 
+              onClick={handleSearch}
+              className="h-14 px-8 rounded-2xl bg-gold hover:bg-gold/90 text-white font-bold"
+            >
+               {isArabic ? 'بحث' : 'Search'}
+            </Button>
+         </div>
+
+         <div className="grid grid-cols-1 gap-4">
+            {searchResults.map(user => (
+               <UserCard key={user.id} user={user} isArabic={isArabic}>
+                  <Button 
+                    onClick={() => sendRequest(user)}
+                    disabled={friends.some(f => f.id === user.id) || requests.some(r => r.id === user.id)}
+                    className="bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-xl border-none font-bold"
+                  >
+                     <UserPlus size={18} className="ml-2" />
+                     {friends.some(f => f.id === user.id) ? (isArabic ? 'صديق' : 'Friend') : 
+                      requests.some(r => r.id === user.id) ? (isArabic ? 'معلق' : 'Pending') : 
+                      (isArabic ? 'إضافة' : 'Add')}
+                  </Button>
+               </UserCard>
+            ))}
+            {searchResults.length === 0 && searchQuery && !loading && (
+               <div className="text-center py-20 opacity-50">
+                  <Ghost size={48} className="mx-auto mb-4" />
+                  <p>{isArabic ? 'لم نجد أحداً بهذا الاسم' : 'No users found with this name'}</p>
+               </div>
+            )}
+         </div>
+      </TabsContent>
+    </Tabs>
+  );
+
+  if (!standalone) {
+    return <div className="p-6">{content}</div>;
+  }
+
   return (
     <div className="min-h-screen bg-background pb-32">
       <QuranHeader 
@@ -171,145 +318,11 @@ const FriendsManager: React.FC = () => {
       />
 
       <main className="container max-w-4xl mx-auto px-4 -mt-12 relative z-20">
-        <Tabs defaultValue="friends" className="space-y-8" dir={isArabic ? 'rtl' : 'ltr'}>
-          <TabsList className="grid grid-cols-3 bg-muted/40 p-1.5 rounded-[2rem] h-16 shadow-inner border border-border/20">
-            <TabsTrigger value="friends" className="rounded-[1.5rem] data-[state=active]:bg-card data-[state=active]:shadow-lg font-serif">
-              {isArabic ? 'أصدقائي' : 'My Friends'}
-              {friends.length > 0 && (
-                 <Badge className="mr-2 bg-primary/10 text-primary border-none">
-                    {isArabic ? toArabicNumber(friends.length) : friends.length}
-                 </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="requests" className="rounded-[1.5rem] data-[state=active]:bg-card data-[state=active]:shadow-lg font-serif">
-              {isArabic ? 'الطلبات' : 'Requests'}
-              {requests.filter(r => !r.isRequester).length > 0 && (
-                 <Badge className="mr-2 bg-gold text-white border-none animate-pulse">
-                    {isArabic ? toArabicNumber(requests.filter(r => !r.isRequester).length) : requests.filter(r => !r.isRequester).length}
-                 </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="search" className="rounded-[1.5rem] data-[state=active]:bg-card data-[state=active]:shadow-lg font-serif">
-              {isArabic ? 'البحث' : 'Search'}
-            </TabsTrigger>
-          </TabsList>
-
-          {/* My Friends Tab */}
-          <TabsContent value="friends" className="space-y-4">
-             {friends.length === 0 ? (
-               <EmptyState 
-                 icon={<Users size={48} />} 
-                 title={isArabic ? 'لا يوجد أصدقاء بعد' : 'No friends yet'}
-                 desc={isArabic ? 'ابدأ بالبحث عن أصدقائك وإضافتهم' : 'Start by searching and adding your friends'}
-               />
-             ) : (
-               <div className="grid grid-cols-1 gap-4">
-                  {friends.map(friend => (
-                    <UserCard key={friend.id} user={friend} isArabic={isArabic}>
-                       <Link to={`/profile/${friend.id}`}>
-                          <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/5 text-primary">
-                             <ArrowRight size={20} className={isArabic ? 'rotate-180' : ''} />
-                          </Button>
-                       </Link>
-                    </UserCard>
-                  ))}
-               </div>
-             )}
-          </TabsContent>
-
-          {/* Requests Tab */}
-          <TabsContent value="requests" className="space-y-6">
-             {requests.length === 0 ? (
-                <EmptyState 
-                  icon={<Clock size={48} />} 
-                  title={isArabic ? 'لا توجد طلبات معلقة' : 'No pending requests'}
-                  desc={isArabic ? 'طلبات الصداقة الجديدة ستظهر هنا' : 'New friend requests will appear here'}
-                />
-             ) : (
-                <div className="space-y-4">
-                   {requests.map(req => (
-                     <UserCard key={req.id} user={req} isArabic={isArabic}>
-                        {req.isRequester ? (
-                           <Button 
-                             variant="outline" 
-                             onClick={() => cancelRequest(req.friendshipId)}
-                             className="rounded-xl border-border/40 text-muted-foreground hover:text-red-500"
-                           >
-                              {isArabic ? 'إلغاء الطلب' : 'Cancel Request'}
-                           </Button>
-                        ) : (
-                           <div className="flex gap-2">
-                              <Button 
-                                size="sm" 
-                                onClick={() => acceptRequest(req.friendshipId)}
-                                className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl"
-                              >
-                                 <Check size={18} />
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={() => cancelRequest(req.friendshipId)}
-                                className="border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white rounded-xl"
-                              >
-                                 <X size={18} />
-                              </Button>
-                           </div>
-                        )}
-                     </UserCard>
-                   ))}
-                </div>
-             )}
-          </TabsContent>
-
-          {/* Search Tab */}
-          <TabsContent value="search" className="space-y-8">
-             <div className="flex gap-3">
-                <div className="relative flex-1">
-                   <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
-                   <Input 
-                     placeholder={isArabic ? 'ابحث بالاسم...' : 'Search by name...'} 
-                     className="pr-12 h-14 rounded-2xl bg-card border-border/40 shadow-soft focus-visible:ring-gold/30"
-                     value={searchQuery}
-                     onChange={(e) => setSearchQuery(e.target.value)}
-                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                   />
-                </div>
-                <Button 
-                  onClick={handleSearch}
-                  className="h-14 px-8 rounded-2xl bg-gold hover:bg-gold/90 text-white font-bold"
-                >
-                   {isArabic ? 'بحث' : 'Search'}
-                </Button>
-             </div>
-
-             <div className="grid grid-cols-1 gap-4">
-                {searchResults.map(user => (
-                   <UserCard key={user.id} user={user} isArabic={isArabic}>
-                      <Button 
-                        onClick={() => sendRequest(user)}
-                        disabled={friends.some(f => f.id === user.id) || requests.some(r => r.id === user.id)}
-                        className="bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-xl border-none font-bold"
-                      >
-                         <UserPlus size={18} className="ml-2" />
-                         {friends.some(f => f.id === user.id) ? (isArabic ? 'صديق' : 'Friend') : 
-                          requests.some(r => r.id === user.id) ? (isArabic ? 'معلق' : 'Pending') : 
-                          (isArabic ? 'إضافة' : 'Add')}
-                      </Button>
-                   </UserCard>
-                ))}
-                {searchResults.length === 0 && searchQuery && !loading && (
-                   <div className="text-center py-20 opacity-50">
-                      <Ghost size={48} className="mx-auto mb-4" />
-                      <p>{isArabic ? 'لم نجد أحداً بهذا الاسم' : 'No users found with this name'}</p>
-                   </div>
-                )}
-             </div>
-          </TabsContent>
-        </Tabs>
+        {content}
       </main>
     </div>
   );
+};
 };
 
 const UserCard = ({ user, isArabic, children }: { user: any, isArabic: boolean, children: React.ReactNode }) => (
