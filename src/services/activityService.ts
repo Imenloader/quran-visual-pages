@@ -77,6 +77,9 @@ export const activityService = {
         ...doc.data()
       })) as Activity[];
       callback(activities);
+    }, (error) => {
+      console.warn("Activities sync error:", error);
+      callback([]);
     });
   }
 };
