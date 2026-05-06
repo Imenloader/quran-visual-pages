@@ -100,7 +100,18 @@ export async function fetchWithCache(
               return typeof proxyData.contents === 'string' ? JSON.parse(proxyData.contents) : proxyData.contents;
             }
           } catch (proxyError) {
-            console.error("All fallbacks and proxies failed", proxyError);
+            console.warn("AllOrigins proxy failed, trying corsproxy.io...", proxyError);
+            
+            // Secondary proxy: corsproxy.io
+            try {
+              const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+              const proxyResponse = await fetch(proxyUrl, { signal: controller.signal });
+              if (proxyResponse.ok) {
+                return await proxyResponse.json();
+              }
+            } catch (secondaryProxyError) {
+              console.error("All fallbacks and proxies failed", secondaryProxyError);
+            }
           }
           
           throw fetchError;
