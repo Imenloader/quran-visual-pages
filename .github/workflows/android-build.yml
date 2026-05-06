@@ -76,8 +76,9 @@ jobs:
           
           echo "--- DEBUG: Checking for problematic assets ---"
           find . -name "ic_launcher_background.png" -exec ls -l {} +
-          echo "--- DEBUG: Deleting potential problematic assets ---"
-          find . -name "ic_launcher_background.png" -delete
+
+          # Keep ic_launcher_background.png as Android adaptive icons rely on it
+          # Do not delete these files!
           
           # Delete legacy density folders that often cause compilation issues with modern assets
           echo "--- CLEANING LEGACY MISMITS ---"
