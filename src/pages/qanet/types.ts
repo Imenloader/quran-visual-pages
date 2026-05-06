@@ -35,5 +35,6 @@ export interface QanetState {
   notificationsEnabled: boolean;
   reminderTime: string;
   logs: QanetLog[];
+  totalJuzTracked: number;
   settings: QanetSettings;
 }

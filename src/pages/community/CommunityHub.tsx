@@ -31,7 +31,7 @@ const CommunityHub = () => {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === "ar";
   const navigate = useNavigate();
-  const { profile } = useUser();
+  const { profile, level } = useUser();
   const [activeTab, setActiveTab] = useState<'feed' | 'friends' | 'duels' | 'leaderboard' | 'quests'>('feed');
   const [notifications, setNotifications] = useState<CommunityNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);

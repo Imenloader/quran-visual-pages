@@ -18,6 +18,7 @@ import { activityService } from "@/services/activityService";
 
 
 interface UserProfile {
+  uid?: string;
   name: string;
   avatar: string;
   joinedDate: string;
@@ -258,10 +259,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           const snap = await getDoc(userRef);
           if (snap.exists()) {
-            setProfile(snap.data() as UserProfile);
+            setProfile({ uid: user.uid, ...snap.data() } as UserProfile);
           } else {
             const newProfile: UserProfile = {
               ...DEFAULT_PROFILE,
+              uid: user.uid,
               name: user.displayName || DEFAULT_PROFILE.name,
               avatar: user.photoURL || DEFAULT_PROFILE.avatar,
               joinedDate: new Date().toISOString(),
@@ -293,7 +295,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
               return u[0] === user.uid ? u[1] : u[0];
             });
 
-            setProfile({ ...data, friendIds });
+            setProfile({ uid: user.uid, ...data, friendIds });
           }
         }, (error) => console.warn("Profile Sync Error:", error));
       } else {

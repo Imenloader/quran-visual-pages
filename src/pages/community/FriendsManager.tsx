@@ -30,6 +30,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { toArabicNumber } from '@/data/quranData';
