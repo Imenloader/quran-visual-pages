@@ -13,7 +13,8 @@ import {
   deleteDoc, 
   getDocs,
   limit,
-  orderBy
+  orderBy,
+  getDoc
 } from 'firebase/firestore';
 import QuranHeader from '@/components/QuranHeader';
 import { 

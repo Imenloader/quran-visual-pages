@@ -272,7 +272,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             delete (window as any)._initialGender;
             await setDoc(userRef, newProfile);
             setProfile(newProfile);
-            activityService.log('USER_JOINED', 'انضم إلى المنصة حديثاً');
+            activityService.logActivity(user.uid, 'USER_JOINED', { detail: 'انضم إلى المنصة حديثاً' });
           }
         } catch (e) {
           console.error("Firestore Profile Error:", e);
