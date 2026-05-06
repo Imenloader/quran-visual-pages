@@ -28,16 +28,36 @@ const Leaderboard = () => {
       setLoading(true);
       try {
         // Filter by gender (as per project rules)
-        const q = query(
+        let q = query(
           collection(db, "profiles"),
           where("gender", "==", currentUserProfile.gender || 'unspecified'),
           orderBy("points", "desc"),
           limit(20)
         );
-        const snap = await getDocs(q);
-        setTopUsers(snap.docs.map((d, i) => ({ id: d.id, rank: i + 1, ...d.data() })));
+        
+        let snap;
+        try {
+          snap = await getDocs(q);
+        } catch (queryErr: any) {
+          console.error("Primary Leaderboard Query Failed:", queryErr);
+          // If it's a permission/index error, try a simpler query as fallback
+          if (queryErr.code === 'permission-denied' || queryErr.message?.includes('index')) {
+             q = query(
+               collection(db, "profiles"),
+               orderBy("points", "desc"),
+               limit(20)
+             );
+             snap = await getDocs(q);
+          } else {
+            throw queryErr;
+          }
+        }
+        
+        if (snap) {
+          setTopUsers(snap.docs.map((d, i) => ({ id: d.id, rank: i + 1, ...d.data() })));
+        }
       } catch (e) {
-        console.error("Leaderboard Error:", e);
+        console.error("Leaderboard Final Error:", e);
       } finally {
         setLoading(false);
       }

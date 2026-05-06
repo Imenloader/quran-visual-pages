@@ -101,23 +101,47 @@ const FriendsManager: React.FC<FriendsManagerProps> = ({ standalone = true }) =>
     if (!searchQuery.trim()) return;
     
     setLoading(true);
+    setSearchResults([]);
     try {
-      // Very basic search by exact name or we could use prefix search for better UX
+      // Normalize search query for basic case-insensitivity (capitalizing first letter)
+      const queryLower = searchQuery.toLowerCase();
+      const queryCapitalized = searchQuery.charAt(0).toUpperCase() + searchQuery.slice(1);
+      
+      // We can't do OR with range filters in Firestore easily, 
+      // so we try the user's exact query first.
       const q = query(
         collection(db, 'profiles'),
         where('name', '>=', searchQuery),
         where('name', '<=', searchQuery + '\uf8ff'),
-        limit(10)
+        limit(20)
       );
       
       const snap = await getDocs(q);
-      const results = snap.docs
+      let results = snap.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .filter(u => u.id !== auth.currentUser?.uid);
+
+      // If no results and it was lowercase, try capitalized
+      if (results.length === 0 && searchQuery !== queryCapitalized) {
+        const q2 = query(
+          collection(db, 'profiles'),
+          where('name', '>=', queryCapitalized),
+          where('name', '<=', queryCapitalized + '\uf8ff'),
+          limit(20)
+        );
+        const snap2 = await getDocs(q2);
+        results = snap2.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .filter(u => u.id !== auth.currentUser?.uid);
+      }
         
       setSearchResults(results);
+      if (results.length === 0) {
+        console.log("No users found matching:", searchQuery);
+      }
     } catch (e) {
-      toast.error(isArabic ? 'فشل البحث' : 'Search failed');
+      console.error("Search Error:", e);
+      toast.error(isArabic ? 'فشل البحث: تأكد من الاتصال بالانترنت' : 'Search failed: Check your connection');
     } finally {
       setLoading(false);
     }
