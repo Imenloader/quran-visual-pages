@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { communityService, KnowledgeSession } from "@/services/communityService";
+import { toArabicNumber } from "@/data/quranData";
 import { SCHOLARS_DATA, ZAD_ACADEMY_LEVELS } from "@/data/videoData";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
