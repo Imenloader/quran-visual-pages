@@ -7,17 +7,28 @@ const GrowthTree = () => {
   const isAr = i18n.language === "ar";
   const { profile, level } = useUser();
 
-  // Determine tree stage based on level
   const stage = useMemo(() => {
-    if (level <= 2) return 'seed';
-    if (level <= 7) return 'sprout';
-    if (level <= 15) return 'sapling';
-    if (level <= 25) return 'tree';
-    return 'mighty_tree';
+    if (level <= 2) return "seed";
+    if (level <= 7) return "sprout";
+    if (level <= 15) return "sapling";
+    if (level <= 25) return "tree";
+    return "mighty_tree";
   }, [level]);
 
-  // Leaf color based on gender/vibe (can be customized)
-  const leafColor = profile?.gender === 'female' ? '#10b981' : '#059669';
+  const stageImage = useMemo(() => {
+    switch (stage) {
+      case "seed":
+        return "/assets/growth-tree/seed.svg";
+      case "sprout":
+        return "/assets/growth-tree/sprout.svg";
+      case "sapling":
+        return "/assets/growth-tree/sapling.svg";
+      case "tree":
+        return "/assets/growth-tree/tree.svg";
+      default:
+        return "/assets/growth-tree/mighty-tree.svg";
+    }
+  }, [stage]);
 
   return (
     <div className="flex flex-col items-center justify-center p-6 bg-card/70 backdrop-blur-xl rounded-[2.5rem] border border-border/60 shadow-xl group relative overflow-hidden h-full">
@@ -153,27 +164,31 @@ const GrowthTree = () => {
 
       <div className="mt-4 text-center relative z-10">
         <h4 className="text-lg font-serif font-bold text-primary tracking-tight">
-          {isAr ? 'شجرة النمو الروحاني' : 'Spiritual Growth Tree'}
+          {isAr ? "شجرة النمو الروحاني" : "Spiritual Growth Tree"}
         </h4>
         <div className="flex items-center justify-center gap-2 mt-1">
           <div className="h-1 w-8 rounded-full bg-emerald-500/20">
             <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(level % 10) * 10}%` }} />
           </div>
-          <p className="text-[10px] font-bold text-muted-foreground/80 uppercase tracking-widest">
-            {level < 5 ? (isAr ? 'بذرة صالحة' : 'Good Seed') : 
-             level < 15 ? (isAr ? 'نبتة يافعة' : 'Young Sprout') :
-             level < 25 ? (isAr ? 'شجرة مثمرة' : 'Fruitful Tree') :
-             (isAr ? 'شجرة طيبة' : 'Mighty Tree')}
+          <p className="text-[10px] font-bold text-muted-foreground/90 uppercase tracking-widest">
+            {level < 5
+              ? isAr
+                ? "بذرة صالحة"
+                : "Good Seed"
+              : level < 15
+                ? isAr
+                  ? "نبتة يافعة"
+                  : "Young Sprout"
+                : level < 25
+                  ? isAr
+                    ? "شجرة مثمرة"
+                    : "Fruitful Tree"
+                  : isAr
+                    ? "شجرة طيبة"
+                    : "Mighty Tree"}
           </p>
         </div>
       </div>
-
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes float {
-          from { transform: translateY(0px) rotate(0deg); }
-          to { transform: translateY(-3px) rotate(5deg); }
-        }
-      `}} />
     </div>
   );
 };
