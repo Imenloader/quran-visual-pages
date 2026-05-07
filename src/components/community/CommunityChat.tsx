@@ -61,6 +61,7 @@ const CommunityChat: React.FC = () => {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
+  const [selectedGender, setSelectedGender] = useState<'male' | 'female'>(profile?.gender === 'female' ? 'female' : 'male');
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const userGender = profile?.gender || 'male'; // Fallback to male if not set, but rules will catch it
@@ -73,7 +74,7 @@ const CommunityChat: React.FC = () => {
     
     const q = query(
       collection(db, "community_messages"),
-      where("gender", "==", userGender),
+      where("gender", "==", selectedGender),
       where("timestamp", ">=", Timestamp.fromDate(sevenDaysAgo)),
       orderBy("timestamp", "desc"),
       limit(100)
@@ -95,7 +96,7 @@ const CommunityChat: React.FC = () => {
     });
 
     return () => unsubscribe();
-  }, [userGender, profile?.uid]);
+  }, [selectedGender, profile?.uid]);
 
   const scrollToBottom = () => {
     setTimeout(() => {
@@ -113,6 +114,13 @@ const CommunityChat: React.FC = () => {
     const text = newMessage.trim();
     setNewMessage("");
 
+    if (selectedGender !== profile?.gender) {
+      toast.error(isAr ? "يمكنك النشر فقط في قسم جنسك" : "You can only post in your gender section");
+      setIsSending(false);
+      setNewMessage(text);
+      return;
+    }
+
     try {
       await addDoc(collection(db, "community_messages"), {
         text,
@@ -120,7 +128,7 @@ const CommunityChat: React.FC = () => {
         senderName: profile?.name || auth.currentUser.displayName || (isAr ? "مستخدم" : "User"),
         senderAvatar: profile?.avatar || null,
         senderLevel: level || 1,
-        gender: userGender,
+        gender: selectedGender,
         timestamp: serverTimestamp(),
         type: 'text'
       });
@@ -196,7 +204,7 @@ const CommunityChat: React.FC = () => {
               {isAr ? "المجتمع العام" : "Global Community"} 
               <span className="mx-1 opacity-60">•</span>
               <span className="text-[10px] font-normal opacity-80 uppercase tracking-widest">
-                {userGender === 'male' ? (isAr ? "رجال" : "Men") : (isAr ? "نساء" : "Women")}
+                {selectedGender === 'male' ? (isAr ? "رجال" : "Men") : (isAr ? "نساء" : "Women")}
               </span>
             </h3>
             <p className="text-[10px] opacity-70">
@@ -209,10 +217,67 @@ const CommunityChat: React.FC = () => {
             <Clock size={12} />
             {isAr ? "تُحذف كل 7 أيام" : "Cleared every 7 days"}
           </div>
-          <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
-            <MoreVertical size={18} />
-          </button>
+          
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                <MoreVertical size={18} />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48 p-2 rounded-2xl border-emerald-500/20 shadow-2xl space-y-1">
+              <div className="flex flex-col gap-1">
+                <button 
+                  onClick={() => setSelectedGender('male')}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all ${selectedGender === 'male' ? "bg-emerald-500/10 text-emerald-600" : "hover:bg-muted"}`}
+                >
+                  <Users size={14} />
+                  {isAr ? "قسم الرجال" : "Men's Section"}
+                </button>
+                <button 
+                  onClick={() => setSelectedGender('female')}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all ${selectedGender === 'female' ? "bg-emerald-500/10 text-emerald-600" : "hover:bg-muted"}`}
+                >
+                  <Users size={14} />
+                  {isAr ? "قسم النساء" : "Women's Section"}
+                </button>
+                
+                <div className="h-px bg-border my-1" />
+                
+                <button 
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold hover:bg-muted transition-all"
+                  onClick={() => { toast.info(isAr ? "سيتم مسح المحادثة تلقائياً كل 7 أيام" : "Chat clears automatically every 7 days"); }}
+                >
+                  <Clock size={14} />
+                  {isAr ? "معلومات الحذف" : "Cleanup Info"}
+                </button>
+                
+                <button 
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold hover:bg-rose-500/10 text-rose-600 transition-all"
+                  onClick={() => { toast.success(isAr ? "تم الإبلاغ بنجاح" : "Reported successfully"); }}
+                >
+                  <Flag size={14} />
+                  {isAr ? "إبلاغ عن محتوى" : "Report Content"}
+                </button>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
+      </div>
+
+      {/* Gender Switcher (Tabs Style inside Header sub-bar) */}
+      <div className="flex bg-[#075E54]/90 dark:bg-emerald-950/90 text-white/80 border-t border-white/10 relative z-10">
+        <button 
+          onClick={() => setSelectedGender('male')}
+          className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${selectedGender === 'male' ? "text-white border-b-2 border-white" : "hover:text-white"}`}
+        >
+          {isAr ? "مجلس الرجال" : "Men's Council"}
+        </button>
+        <button 
+          onClick={() => setSelectedGender('female')}
+          className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${selectedGender === 'female' ? "text-white border-b-2 border-white" : "hover:text-white"}`}
+        >
+          {isAr ? "مجلس النساء" : "Women's Council"}
+        </button>
       </div>
 
       {/* Messages Area */}

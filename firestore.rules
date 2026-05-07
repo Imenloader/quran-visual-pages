@@ -160,12 +160,9 @@ service cloud.firestore {
     }
 
     match /community_messages/{messageId} {
-      allow read: if isAuthenticated() && (
-        !exists(/databases/$(database)/documents/users/$(request.auth.uid)) ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.gender == resource.data.gender
-      );
+      allow read: if isAuthenticated();
       allow create: if isAuthenticated() && canWrite() && (
-        !exists(/databases/$(database)/documents/users/$(request.auth.uid)) ||
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.gender == request.resource.data.gender
       );
       allow delete: if isAdmin() || (isAuthenticated() && resource.data.senderId == request.auth.uid);
