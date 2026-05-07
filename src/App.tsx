@@ -37,6 +37,7 @@ import { QanetProvider, useQanet } from "./pages/qanet/QanetContext";
 import { lazyWithRetry } from "./lib/lazyRetry";
 import { checkNetworkReliability } from "./lib/networkCheck";
 import DynamicThemeWrapper from "./components/DynamicThemeWrapper";
+import GenderGuard from "./components/community/GenderGuard";
 
 // --- التعديل هنا: تحميل الصفحات الأساسية بشكل LazyRetry لمحاولة حل مشكلة الـ ReferenceError و Chunk errors ---
 const Index = lazyWithRetry(() => import("./pages/Index"));
@@ -275,17 +276,18 @@ const AppContent = () => {
     <TooltipProvider>
       <AudioPlayerProvider>
         <DynamicThemeWrapper>
-          <NotificationInitializer />
-          <QanetNotificationBridge />
-          <SplashScreen />
-          <ServiceWorkerRegistration />
-          <LanguageHandler />
-          <NetworkStatus />
-          <CommandPalette />
-          <div className="page-dimming-overlay" />
-          <Toaster />
-          <Sonner />
-          <ScrollRestoration />
+          <GenderGuard>
+            <NotificationInitializer />
+            <QanetNotificationBridge />
+            <SplashScreen />
+            <ServiceWorkerRegistration />
+            <LanguageHandler />
+            <NetworkStatus />
+            <CommandPalette />
+            <div className="page-dimming-overlay" />
+            <Toaster />
+            <Sonner />
+            <ScrollRestoration />
         
         {/* Qanet Add Button (FAB) - Only in Qanet section */}
         {location.pathname.startsWith('/qanet') && (
@@ -410,10 +412,11 @@ const AppContent = () => {
                       </Routes>
                     </Suspense>
                     </MaintenanceGuard>
-      <BottomNav />
-                  </DynamicThemeWrapper>
-                </AudioPlayerProvider>
-              </TooltipProvider>
+                  </GenderGuard>
+                  <BottomNav />
+                </DynamicThemeWrapper>
+              </AudioPlayerProvider>
+            </TooltipProvider>
   );
 };
 

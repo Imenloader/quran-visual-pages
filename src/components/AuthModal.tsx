@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Mail, Lock, Eye, EyeOff, LogIn, UserPlus, Globe, Loader2, AlertCircle } from "lucide-react";
+import { X, Mail, Lock, Eye, EyeOff, LogIn, UserPlus, Globe, Loader2, AlertCircle, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { auth } from "@/firebase";
 import {
@@ -36,7 +36,7 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [gender, setGender] = useState<'male' | 'female'>('male');
+  const [gender, setGender] = useState<'male' | 'female' | null>(null);
 
   const reset = () => {
     setEmail("");
@@ -111,6 +111,11 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
       } else {
         if (!name.trim()) {
           setError(isAr ? "يرجى إدخال اسمك." : "Please enter your name.");
+          setLoading(false);
+          return;
+        }
+        if (!gender) {
+          setError(isAr ? "يرجى تحديد الجنس (ذكر/أنثى) للمتابعة." : "Please select your gender (Male/Female) to continue.");
           setLoading(false);
           return;
         }
@@ -239,29 +244,36 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
             )}
 
             {tab === "signup" && (
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setGender('male')}
-                  className={`flex-1 py-3 rounded-xl border font-serif text-sm transition-all ${
-                    gender === 'male' 
-                      ? "bg-primary/10 border-primary text-primary shadow-sm" 
-                      : "bg-transparent border-primary/10 text-primary/40 hover:bg-primary/5"
-                  }`}
-                >
-                  {isAr ? "ذكر" : "Male"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setGender('female')}
-                  className={`flex-1 py-3 rounded-xl border font-serif text-sm transition-all ${
-                    gender === 'female' 
-                      ? "bg-rose-500/10 border-rose-500 text-rose-600 shadow-sm" 
-                      : "bg-transparent border-primary/10 text-primary/40 hover:bg-primary/5"
-                  }`}
-                >
-                  {isAr ? "أنثى" : "Female"}
-                </button>
+              <div className="space-y-2">
+                <p className={`text-[10px] font-bold text-primary/70 uppercase tracking-widest px-1 ${isAr ? 'text-right' : 'text-left'}`}>
+                  {isAr ? "تحديد الجنس (إجباري)" : "Select Gender (Mandatory)"}
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setGender('male')}
+                    className={`flex-1 py-3 rounded-xl border font-serif text-sm transition-all flex items-center justify-center gap-2 ${
+                      gender === 'male' 
+                        ? "bg-primary/10 border-primary text-primary shadow-sm" 
+                        : "bg-transparent border-primary/10 text-primary/40 hover:bg-primary/5"
+                    }`}
+                  >
+                    <User size={14} className="text-blue-500" />
+                    {isAr ? "ذكر" : "Male"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setGender('female')}
+                    className={`flex-1 py-3 rounded-xl border font-serif text-sm transition-all flex items-center justify-center gap-2 ${
+                      gender === 'female' 
+                        ? "bg-rose-500/10 border-rose-500 text-rose-600 shadow-sm" 
+                        : "bg-transparent border-primary/10 text-primary/40 hover:bg-primary/5"
+                    }`}
+                  >
+                    <User size={14} className="text-rose-500" />
+                    {isAr ? "أنثى" : "Female"}
+                  </button>
+                </div>
               </div>
             )}
 

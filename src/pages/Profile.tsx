@@ -1316,12 +1316,13 @@ const Profile = () => {
                   ].map(g => (
                     <button
                       key={g.id}
-                      onClick={() => updateProfile({ gender: g.id })}
+                      onClick={() => profile.gender === 'unspecified' && updateProfile({ gender: g.id })}
+                      disabled={profile.gender !== 'unspecified'}
                       className={`p-3 rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${
                         profile.gender === g.id
                           ? "border-accent bg-accent/5 text-primary shadow-lg"
                           : "border-primary/5 bg-primary/5 text-primary/40 hover:border-accent/30"
-                      }`}
+                      } ${profile.gender !== 'unspecified' ? "cursor-not-allowed opacity-80" : ""}`}
                     >
                       {g.icon}
                       <span className="font-serif font-bold text-xs">{g.label}</span>
