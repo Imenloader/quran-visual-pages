@@ -128,6 +128,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         });
 
+        // Add searchName field for robust searching
+        if ('name' in publicUpdates && publicUpdates.name) {
+          publicUpdates.searchName = String(publicUpdates.name).toLowerCase();
+        }
+
         if (hasPublicUpdate) {
           setDoc(doc(db, "profiles", uid), publicUpdates, { merge: true }).catch(error => {
              console.error("Firestore Update Error (profiles):", error);
@@ -271,6 +276,26 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             };
             delete (window as any)._initialGender;
             await setDoc(userRef, newProfile);
+
+            // Also create their initial public profile document
+            try {
+              const publicFields = ['name', 'avatar', 'points', 'totalAyahsRead', 'totalPagesRead', 'totalJuzCompleted', 'totalAthkarRecited', 'daysActive', 'role', 'privacySettings', 'friendCount', 'gender', 'friendIds'];
+              const publicProfile: Record<string, any> = {};
+              publicFields.forEach(field => {
+                if (field in newProfile) {
+                  publicProfile[field] = (newProfile as any)[field];
+                }
+              });
+
+              if (publicProfile.name) {
+                publicProfile.searchName = String(publicProfile.name).toLowerCase();
+              }
+
+              await setDoc(doc(db, "profiles", user.uid), publicProfile);
+            } catch (err) {
+               console.error("Error creating public profile:", err);
+            }
+
             setProfile(newProfile);
             activityService.logActivity(user.uid, 'USER_JOINED', { detail: 'انضم إلى المنصة حديثاً' });
           }

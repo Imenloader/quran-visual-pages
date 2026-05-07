@@ -98,48 +98,51 @@ const FriendsManager: React.FC<FriendsManagerProps> = ({ standalone = true }) =>
   }, []);
 
   const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
+    const trimmedQuery = searchQuery.trim();
+    if (!trimmedQuery) return;
     
     setLoading(true);
     setSearchResults([]);
     try {
-      // Normalize search query for basic case-insensitivity (capitalizing first letter)
-      const queryLower = searchQuery.toLowerCase();
-      const queryCapitalized = searchQuery.charAt(0).toUpperCase() + searchQuery.slice(1);
+      const queryLower = trimmedQuery.toLowerCase();
+      const queryCapitalized = trimmedQuery.charAt(0).toUpperCase() + trimmedQuery.slice(1);
+      const queryUpper = trimmedQuery.toUpperCase();
       
-      // We can't do OR with range filters in Firestore easily, 
-      // so we try the user's exact query first.
       let results: any[] = [];
       try {
-        const q = query(
-          collection(db, 'profiles'),
-          where('name', '>=', searchQuery),
-          where('name', '<=', searchQuery + '\uf8ff'),
-          limit(20)
-        );
+        // Run multiple queries in parallel to cover new 'searchName' field
+        // as well as multiple permutations of the old 'name' field
+        const queries = [
+          // New dedicated searchName field
+          query(collection(db, 'profiles'), where('searchName', '>=', queryLower), where('searchName', '<=', queryLower + '\uf8ff'), limit(20)),
+          // Legacy exact trimmed search
+          query(collection(db, 'profiles'), where('name', '>=', trimmedQuery), where('name', '<=', trimmedQuery + '\uf8ff'), limit(20)),
+          // Legacy lowercase
+          query(collection(db, 'profiles'), where('name', '>=', queryLower), where('name', '<=', queryLower + '\uf8ff'), limit(20)),
+          // Legacy capitalized
+          query(collection(db, 'profiles'), where('name', '>=', queryCapitalized), where('name', '<=', queryCapitalized + '\uf8ff'), limit(20)),
+          // Legacy uppercase
+          query(collection(db, 'profiles'), where('name', '>=', queryUpper), where('name', '<=', queryUpper + '\uf8ff'), limit(20)),
+        ];
 
-        const snap = await getDocs(q);
-        results = snap.docs
-          .map(d => ({ id: d.id, ...d.data() }))
-          .filter(u => u.id !== auth.currentUser?.uid);
+        // Deduplicate requests safely catching errors for each query
+        const snaps = await Promise.allSettled(queries.map(q => getDocs(q)));
 
-        // If no results and it was lowercase, try capitalized
-        if (results.length === 0 && searchQuery !== queryCapitalized) {
-          const q2 = query(
-            collection(db, 'profiles'),
-            where('name', '>=', queryCapitalized),
-            where('name', '<=', queryCapitalized + '\uf8ff'),
-            limit(20)
-          );
-          const snap2 = await getDocs(q2);
-          results = snap2.docs
-            .map(d => ({ id: d.id, ...d.data() }))
-            .filter(u => u.id !== auth.currentUser?.uid);
-        }
+        const uniqueIds = new Set<string>();
+
+        snaps.forEach(result => {
+          if (result.status === 'fulfilled') {
+            result.value.docs.forEach(d => {
+              if (d.id !== auth.currentUser?.uid && !uniqueIds.has(d.id)) {
+                uniqueIds.add(d.id);
+                results.push({ id: d.id, ...d.data() });
+              }
+            });
+          }
+        });
+
       } catch (queryError: any) {
         console.warn("Firestore Range Query failed, falling back to client-side filtering", queryError);
-        // Fallback: fetch recent profiles or do a simpler query and filter on client side.
-        // This is necessary if indexes are missing or Firebase restricts range queries on this collection.
         const fallbackQ = query(collection(db, 'profiles'), limit(100));
         const fallbackSnap = await getDocs(fallbackQ);
         results = fallbackSnap.docs
@@ -147,13 +150,13 @@ const FriendsManager: React.FC<FriendsManagerProps> = ({ standalone = true }) =>
           .filter((u: any) =>
             u.id !== auth.currentUser?.uid &&
             u.name &&
-            u.name.toLowerCase().includes(searchQuery.toLowerCase())
+            u.name.toLowerCase().includes(queryLower)
           );
       }
         
       setSearchResults(results);
       if (results.length === 0) {
-        console.log("No users found matching:", searchQuery);
+        console.log("No users found matching:", trimmedQuery);
       }
     } catch (e) {
       console.error("Search Error:", e);
