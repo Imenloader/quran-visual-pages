@@ -1307,6 +1307,34 @@ const Profile = () => {
                 />
               </div>
 
+              <div className="space-y-1.5">
+                <label className={`text-[9px] font-bold text-primary/70 uppercase tracking-widest px-2 block ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{isAr ? "الجنس" : "Gender"}</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { id: 'male' as const, label: isAr ? 'ذكر' : 'Male', icon: <User size={16} className="text-blue-500" /> },
+                    { id: 'female' as const, label: isAr ? 'أنثى' : 'Female', icon: <User size={16} className="text-rose-500" /> }
+                  ].map(g => (
+                    <button
+                      key={g.id}
+                      onClick={() => updateProfile({ gender: g.id })}
+                      className={`p-3 rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${
+                        profile.gender === g.id
+                          ? "border-accent bg-accent/5 text-primary shadow-lg"
+                          : "border-primary/5 bg-primary/5 text-primary/40 hover:border-accent/30"
+                      }`}
+                    >
+                      {g.icon}
+                      <span className="font-serif font-bold text-xs">{g.label}</span>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[8px] text-muted-foreground px-2 mt-1">
+                  {isAr 
+                    ? "يتم استخدام الجنس لتحديد غرفة الدردشة المناسبة لك." 
+                    : "Gender is used to determine the appropriate chat room for you."}
+                </p>
+              </div>
+
               <div className="space-y-3">
                 <label className={`text-[9px] font-bold text-primary/70 uppercase tracking-widest px-2 block ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t("profile.chooseAvatar")}</label>
                 
