@@ -34,7 +34,7 @@ import { Textarea } from "@/components/ui/textarea";
 interface Circle {
   id: string;
   name: string;
-  members: string[];
+  members: string[] | Record<string, { uid: string; name?: string }>;
   createdBy: string;
   lastMessage?: string;
 }
@@ -106,12 +106,15 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
     }
   };
 
-  const joinCircle = async (circleId: string, members: string[]) => {
+  const joinCircle = async (circleId: string, members: Circle["members"]) => {
     if (!auth.currentUser) {
        toast.error(t('common.loginRequired'));
        return;
     }
-    if (members.includes(auth.currentUser.uid)) return;
+    const memberIds = Array.isArray(members)
+      ? members
+      : Object.values(members || {}).map((m: any) => m?.uid).filter(Boolean);
+    if (memberIds.includes(auth.currentUser.uid)) return;
     try {
       const { arrayUnion } = await import('firebase/firestore');
       await updateDoc(doc(db, 'prayer_circles', circleId), {
@@ -207,22 +210,27 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
       <div className="space-y-4">
          <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">{t('prayerCircles.activeCircles')}</h2>
          <div className="grid grid-cols-1 gap-3">
-            {circles.map(circle => (
-               <div key={circle.id} onClick={() => !circle.members.includes(auth.currentUser?.uid || '') && joinCircle(circle.id, circle.members)} className="p-4 rounded-2xl bg-card border flex items-center justify-between group cursor-pointer">
+            {circles.map(circle => {
+               const memberIds = Array.isArray(circle.members)
+                 ? circle.members
+                 : Object.values(circle.members || {}).map((m: any) => m?.uid).filter(Boolean);
+               const isMember = memberIds.includes(auth.currentUser?.uid || '');
+               return (
+               <div key={circle.id} onClick={() => !isMember && joinCircle(circle.id, circle.members as any)} className="p-4 rounded-2xl bg-card border flex items-center justify-between group cursor-pointer">
                   <div className="flex items-center gap-4 text-right">
                      <Users size={20} className="text-primary" />
                      <div>
                         <h4 className="font-bold text-sm">{circle.name}</h4>
-                        <p className="text-[10px] text-muted-foreground">{t('prayerCircles.membersCount', { count: isArabic ? toArabicNumber(circle.members.length) : circle.members.length })}</p>
+                        <p className="text-[10px] text-muted-foreground">{t('prayerCircles.membersCount', { count: isArabic ? toArabicNumber(memberIds.length) : memberIds.length })}</p>
                      </div>
                   </div>
-                  {!circle.members.includes(auth.currentUser?.uid || '') ? (
-                     <Button size="sm" variant="outline" className="text-[10px] font-bold">{isArabic ? 'انضمام' : 'Join'}</Button>
+                  {!isMember ? (
+                     <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); joinCircle(circle.id, circle.members as any); }} className="text-[10px] font-bold">{isArabic ? 'انضمام' : 'Join'}</Button>
                   ) : (
                      <ChevronRight size={16} className={isArabic ? "rotate-180" : ""} />
                   )}
                </div>
-            ))}
+            )})}
          </div>
       </div>
 

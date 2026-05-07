@@ -14,6 +14,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 interface ActivityFeedProps {
@@ -22,6 +23,7 @@ interface ActivityFeedProps {
 
 const ActivityFeed = ({ onFindFriends }: ActivityFeedProps) => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const isAr = i18n.language === "ar";
   const { profile } = useUser();
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -106,7 +108,13 @@ const ActivityFeed = ({ onFindFriends }: ActivityFeedProps) => {
           </p>
         </div>
         <button 
-          onClick={onFindFriends} 
+          onClick={() => {
+            if (onFindFriends) {
+              onFindFriends();
+              return;
+            }
+            navigate('/community/hub?tab=friends');
+          }} 
           className="px-6 py-2 rounded-xl bg-primary text-white font-serif font-bold text-sm shadow-lg hover:scale-105 transition-all"
         >
           {isAr ? 'ابحث عن أصدقاء' : 'Find Friends'}

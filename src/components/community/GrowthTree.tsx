@@ -20,9 +20,9 @@ const GrowthTree = () => {
   const leafColor = profile?.gender === 'female' ? '#10b981' : '#059669';
 
   return (
-    <div className="flex flex-col items-center justify-center p-6 bg-card/40 backdrop-blur-xl rounded-[2.5rem] border border-border/40 shadow-xl group relative overflow-hidden h-full">
+    <div className="flex flex-col items-center justify-center p-6 bg-card/70 backdrop-blur-xl rounded-[2.5rem] border border-border/60 shadow-xl group relative overflow-hidden h-full">
       {/* Background Glow */}
-      <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/5 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/15 via-emerald-400/5 to-transparent pointer-events-none" />
       
       <div className="relative w-full aspect-[4/5] flex items-center justify-center">
         <svg 
@@ -49,8 +49,8 @@ const GrowthTree = () => {
           </defs>
 
           {/* Ground with better depth */}
-          <ellipse cx="100" cy="230" rx="70" ry="12" fill="url(#trunkGradient)" fillOpacity="0.05" />
-          <ellipse cx="100" cy="230" rx="40" ry="6" fill="url(#trunkGradient)" fillOpacity="0.1" />
+          <ellipse cx="100" cy="230" rx="70" ry="12" fill="url(#trunkGradient)" fillOpacity="0.14" />
+          <ellipse cx="100" cy="230" rx="40" ry="6" fill="url(#trunkGradient)" fillOpacity="0.2" />
           
           {/* Trunk & Branches (Organic Paths) */}
           <g className="transition-all duration-1000">
@@ -67,10 +67,10 @@ const GrowthTree = () => {
                   "M100,230 Q100,160 100,70 M100,200 Q60,160 55,110 M100,180 Q140,140 145,90 M100,140 Q75,110 70,60 M100,110 Q125,80 130,40"
                 }
                 stroke="url(#trunkGradient)" 
-                strokeWidth={level > 15 ? "10" : level > 7 ? "6" : "3"} 
+                strokeWidth={level > 15 ? "10" : level > 7 ? "7" : "4"} 
                 strokeLinecap="round"
                 fill="none"
-                className="transition-all duration-1000"
+                className="transition-all duration-1000 drop-shadow-[0_2px_6px_rgba(120,53,15,0.35)]"
               />
             )}
           </g>
@@ -88,12 +88,12 @@ const GrowthTree = () => {
                    <path 
                      key={i}
                      d="M0,0 Q5,-10 10,0 Q5,10 0,0"
-                     transform={`translate(${cx}, ${cy}) rotate(${angle}) scale(${0.5 + Math.random() * 0.5})`}
+                     transform={`translate(${cx}, ${cy}) rotate(${angle}) scale(${0.55 + ((i % 5) * 0.08)})`}
                      fill="url(#leafGradient)"
-                     className="transition-all duration-1000 opacity-80 hover:opacity-100"
+                     className="transition-all duration-1000 opacity-95 hover:opacity-100"
                      style={{ 
                        transitionDelay: `${i * 30}ms`,
-                       animation: `float ${2 + Math.random() * 2}s ease-in-out infinite alternate`,
+                       animation: `float ${2 + (i % 4) * 0.5}s ease-in-out infinite alternate`,
                        animationDelay: `${i * 100}ms`
                      }}
                    />
@@ -125,11 +125,11 @@ const GrowthTree = () => {
         </svg>
 
         {/* Level Indicator (Modern Glassmorphism) */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-           <div className="w-14 h-14 rounded-3xl bg-white/20 backdrop-blur-xl border border-white/40 flex items-center justify-center shadow-[0_8px_32px_rgba(0,0,0,0.1)] group-hover:scale-110 transition-transform duration-500">
+        <div className="absolute top-4 right-4 flex flex-col items-center">
+           <div className="w-14 h-14 rounded-2xl bg-emerald-900/90 border border-emerald-200/40 flex items-center justify-center shadow-[0_8px_24px_rgba(0,0,0,0.35)] group-hover:scale-105 transition-transform duration-500">
              <div className="text-center">
-               <span className="block text-[8px] uppercase tracking-tighter text-white/60 font-bold">Lvl</span>
-               <span className="text-xl font-black text-white leading-none">{level}</span>
+               <span className="block text-[8px] uppercase tracking-tighter text-emerald-100 font-extrabold">Lvl</span>
+               <span className="text-xl font-black text-white leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]">{level}</span>
              </div>
            </div>
         </div>
@@ -139,10 +139,10 @@ const GrowthTree = () => {
           {[...Array(6)].map((_, i) => (
             <div 
               key={i}
-              className="absolute w-1 h-1 bg-emerald-400/30 rounded-full animate-ping"
+              className="absolute w-1 h-1 bg-emerald-500/50 rounded-full animate-ping"
               style={{
-                top: `${20 + Math.random() * 60}%`,
-                left: `${20 + Math.random() * 60}%`,
+                top: `${20 + ((i * 13) % 60)}%`,
+                left: `${20 + ((i * 17) % 60)}%`,
                 animationDelay: `${i * 800}ms`,
                 animationDuration: '3s'
               }}
