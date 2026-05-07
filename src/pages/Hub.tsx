@@ -59,6 +59,21 @@ const Hub = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [hubSettings, setHubSettings] = useState<any>(null);
 
+  interface HubTool {
+    id: string;
+    name: string;
+    icon: React.ReactNode;
+    path: string;
+    visible?: boolean;
+  }
+
+  interface HubCategory {
+    id: string;
+    title: string;
+    icon: React.ReactNode;
+    tools: HubTool[];
+  }
+
   const totalPages = 604;
 
   useEffect(() => {
@@ -145,6 +160,7 @@ const Hub = () => {
       
       const combinedState = (pages.state === "running" || text.state === "running") ? "running" 
                           : (pages.state === "completed" && text.state === "completed") ? "completed"
+                          : (pages.state === "error" || text.state === "error") ? "error"
                           : (pages.state === "paused" || text.state === "paused") ? "paused"
                           : "idle";
 
@@ -193,7 +209,7 @@ const Hub = () => {
   }, []);
 
   const categories = useMemo(() => {
-    const base = [
+    const base: HubCategory[] = [
       {
         id: 'spiritual',
         title: t("hub.spiritual"),
@@ -207,10 +223,10 @@ const Hub = () => {
           { id: 'zakat', name: t("hub.zakat"), icon: <Calculator className="w-5 h-5" />, path: "/zakat" },
           { id: 'sadaqah', name: t("hub.sadaqahLogger"), icon: <Heart className="w-5 h-5" />, path: "/sadaqah-logger" },
           { id: 'dua', name: t("hub.duaLibrary"), icon: <Sparkles className="w-5 h-5" />, path: "/dua-library" },
-           { id: 'qanet', name: t("hub.qiyam") || "من القانتين", icon: <Moon className="w-5 h-5" />, path: "/qanet" },
-           { id: 'qiyam-100', name: t("hub.qiyam100") || "١٠٠ آية", icon: <Sparkles className="w-5 h-5" />, path: "/qiyam" },
-           { id: 'strong-believer', name: "المؤمن القوي", icon: <Dumbbell className="w-5 h-5" />, path: "/strong-believer" },
-           { id: 'salah-guide', name: i18n.language === 'ar' ? 'دليل الصلاة' : 'Salah Guide', icon: <BookOpen className="w-5 h-5" />, path: "/salah-guide" },
+          { id: 'qanet', name: t("hub.qiyam") || "من القانتين", icon: <Moon className="w-5 h-5" />, path: "/qanet" },
+          { id: 'qiyam-100', name: t("hub.qiyam100") || "١٠٠ آية", icon: <Sparkles className="w-5 h-5" />, path: "/qiyam" },
+          { id: 'strong-believer', name: "المؤمن القوي", icon: <Dumbbell className="w-5 h-5" />, path: "/strong-believer" },
+          { id: 'salah-guide', name: i18n.language === 'ar' ? 'دليل الصلاة' : 'Salah Guide', icon: <BookOpen className="w-5 h-5" />, path: "/salah-guide" },
           { id: 'names', name: t("hub.namesOfAllah"), icon: <Heart className="w-5 h-5" />, path: "/names-of-allah" },
           { id: 'islamic-roadmap', name: i18n.language === 'ar' ? 'خارطة الطريق' : 'Islamic Roadmap', icon: <Sparkles className="w-5 h-5" />, path: "/islamic-roadmap" },
         ]
@@ -261,10 +277,10 @@ const Hub = () => {
           { id: 'sunan', name: t("hub.propheticSunnan"), icon: <Sparkles className="w-5 h-5" />, path: "/daily-adhkar" },
           { id: 'hadith', name: t("hub.hadith"), icon: <Book className="w-5 h-5" />, path: "/hadith" },
           { id: 'hijri', name: t("hub.hijri"), icon: <Calendar className="w-5 h-5" />, path: "/hijri" },
-           { id: 'daily-verse', name: t("hub.dailyVerse"), icon: <BookOpen className="w-5 h-5" />, path: "/daily-verse" },
-           { id: 'knowledge-sessions', name: "جلسات علمية", icon: <GradIcon className="w-5 h-5" />, path: "/knowledge-sessions" },
-           { id: 'marriage-guide', name: "دليل الزواج", icon: <Heart className="w-5 h-5" />, path: "/marriage-guide" },
-           { id: 'tafsir', name: t("hub.tafsir"), icon: <BookOpen className="w-5 h-5" />, path: "/tafsir" },
+          { id: 'daily-verse', name: t("hub.dailyVerse"), icon: <BookOpen className="w-5 h-5" />, path: "/daily-verse" },
+          { id: 'knowledge-sessions', name: "جلسات علمية", icon: <GradIcon className="w-5 h-5" />, path: "/knowledge-sessions" },
+          { id: 'marriage-guide', name: "دليل الزواج", icon: <Heart className="w-5 h-5" />, path: "/marriage-guide" },
+          { id: 'tafsir', name: t("hub.tafsir"), icon: <BookOpen className="w-5 h-5" />, path: "/tafsir" },
           { id: 'search', name: t("hub.search"), icon: <Search className="w-5 h-5" />, path: "/search" },
           { id: 'tajweed', name: t("hub.tajweed"), icon: <Sparkles className="w-5 h-5" />, path: "/tajweed" },
           { id: 'guide', name: t("hub.guide"), icon: <BookOpen className="w-5 h-5" />, path: "/how-to-use" },
@@ -289,14 +305,14 @@ const Hub = () => {
 
       return {
         ...section,
-        tools: section.tools.map(tool => {
+        tools: section.tools.map((tool): HubTool => {
           const remoteTool = remoteSection.tools.find((t: any) => t.id === tool.id);
           if (!remoteTool) return tool;
           return { ...tool, name: remoteTool.name || tool.name, visible: remoteTool.visible !== false };
         }).filter(t => t.visible !== false)
       };
     });
-  }, [t, hubSettings]);
+  }, [t, hubSettings, i18n.language]);
 
   return (
     <div className="relative min-h-screen bg-background pb-24 overflow-x-hidden">

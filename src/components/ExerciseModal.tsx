@@ -36,7 +36,7 @@ const ExerciseModal: React.FC<Props> = ({ item, onClose }) => {
               <div>
                 <h2 className="text-2xl font-bold font-naskh mb-2">{'name' in item ? item.name : item.title}</h2>
                 <p className="text-sm text-muted-foreground font-naskh leading-relaxed">
-                  {item.content || ('description' in item ? item.description : '')}
+                  {'content' in item ? item.content : ('description' in item ? item.description : '')}
                 </p>
               </div>
 

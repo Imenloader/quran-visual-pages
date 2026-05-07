@@ -53,7 +53,7 @@ import { juzData, toArabicNumber } from "@/data/quranData";
 import QuranTextViewer from "@/components/QuranTextViewer";
 import QuranPlayerBar from "@/components/QuranPlayerBar";
 import AuthModal from "@/components/AuthModal";
-import { activityService } from "@/services/activityService";
+import { activityService, ActivityType } from "@/services/activityService";
 
 
 // --- Types ---

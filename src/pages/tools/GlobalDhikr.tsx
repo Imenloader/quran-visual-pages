@@ -8,7 +8,7 @@ import { Capacitor } from "@capacitor/core";
 import { useUser } from "@/contexts/UserContext";
 import { db } from "@/firebase";
 import { doc, onSnapshot, setDoc, increment } from "firebase/firestore";
-import { activityService } from "@/services/activityService";
+import { activityService, ActivityType } from "@/services/activityService";
 
 
 // Persist personal daily count in localStorage keyed by today's date

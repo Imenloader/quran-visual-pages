@@ -30,7 +30,7 @@ const IslamicQuiz = () => {
     const fetchRemoteQuestions = async () => {
       try {
         const snap = await getDocs(collection(db, "content_quiz"));
-        setRemoteQuestions(snap.docs.map(d => ({ id: d.id, ...d.data() } as Question)));
+        setRemoteQuestions(snap.docs.map(d => ({ id: d.id, ...d.data() } as any as Question)));
       } catch (err) {
         console.error("Quiz fetch error:", err);
       }

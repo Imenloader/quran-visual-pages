@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ChevronRight, Share2, BookOpen, CheckCircle2, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useQanet } from './QanetContext';
-import { toHijri } from './hijriUtils';
+import { toHijri, formatHijriDate } from './hijriUtils';
 import { toast } from 'sonner';
 
 const AYA_SECTIONS = [

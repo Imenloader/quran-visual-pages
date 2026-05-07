@@ -140,20 +140,20 @@ function NextPrayerCountdown({
       const DeviceOrientationEventWithPermission = DeviceOrientationEvent as any;
       if (typeof DeviceOrientationEventWithPermission.requestPermission === "function") {
         DeviceOrientationEventWithPermission.requestPermission().then((state: string) => {
-          if (state === "granted") window.addEventListener("deviceorientation", handleOrientation);
+          if (state === "granted") (window as any).addEventListener("deviceorientation", handleOrientation);
         });
       } else {
         if ('ondeviceorientationabsolute' in window) {
-          window.addEventListener("deviceorientationabsolute", handleOrientation);
+          (window as any).addEventListener("deviceorientationabsolute", handleOrientation);
         } else {
-          window.addEventListener("deviceorientation", handleOrientation);
+          (window as any).addEventListener("deviceorientation", handleOrientation);
         }
       }
     }
 
     return () => {
-      window.removeEventListener("deviceorientation", handleOrientation);
-      if ('ondeviceorientationabsolute' in window) window.removeEventListener("deviceorientationabsolute", handleOrientation);
+      (window as any).removeEventListener("deviceorientation", handleOrientation);
+      if ('ondeviceorientationabsolute' in window) (window as any).removeEventListener("deviceorientationabsolute", handleOrientation);
     };
   }, [settings.latitude, settings.longitude]);
 
@@ -893,7 +893,7 @@ export default function PrayerTimes() {
                     <CustomSelect
                       label="طريقة الحساب"
                       value={settings.method}
-                      onChange={(val) => updateSettings({ method: val })}
+                      onChange={(val) => updateSettings({ method: Number(val) })}
                       options={CALCULATION_METHODS}
                     />
                   </div>
@@ -921,7 +921,7 @@ export default function PrayerTimes() {
                         <div className="w-32">
                           <CustomSelect
                             value={settings.prePrayerMinutes}
-                            onChange={(val) => updateSettings({ prePrayerMinutes: val })}
+                            onChange={(val) => updateSettings({ prePrayerMinutes: Number(val) })}
                             options={[5, 10, 15, 20, 30].map(m => ({ id: m, label: `${m} دقائق` }))}
                           />
                         </div>

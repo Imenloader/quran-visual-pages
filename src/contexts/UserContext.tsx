@@ -14,7 +14,7 @@ import {
   where,
   getDocs
 } from "firebase/firestore";
-import { activityService } from "@/services/activityService";
+import { activityService, ActivityType } from "@/services/activityService";
 
 
 interface UserProfile {
@@ -42,6 +42,7 @@ interface UserProfile {
   };
   friendCount?: number;
   friendIds?: string[];
+  searchName?: string;
 }
 
 interface UserContextType {
@@ -117,7 +118,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // 2. Update public profile doc (only if profile is visible)
         // We only mirror fields that are safe to show publicly
-        const publicFields = ['name', 'avatar', 'points', 'totalAyahsRead', 'totalPagesRead', 'totalJuzCompleted', 'totalAthkarRecited', 'daysActive', 'role', 'privacySettings', 'friendCount', 'gender', 'friendIds'];
+        const publicFields = ['name', 'avatar', 'points', 'totalAyahsRead', 'totalPagesRead', 'totalJuzCompleted', 'totalAthkarRecited', 'daysActive', 'role', 'privacySettings', 'friendCount', 'gender', 'friendIds', 'searchName'];
         const publicUpdates: Record<string, any> = {};
         let hasPublicUpdate = false;
         
@@ -142,8 +143,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
    * Firestore sync. No side-effects inside the React updater.
    */
   const updateProfile = useCallback((updates: Partial<UserProfile>) => {
-    setProfile(prev => ({ ...prev, ...updates }));
-    syncToFirestore(updates);
+    const finalUpdates = { ...updates };
+    if (updates.name) {
+      finalUpdates.searchName = updates.name.toLowerCase().trim();
+    }
+    setProfile(prev => ({ ...prev, ...finalUpdates }));
+    syncToFirestore(finalUpdates);
   }, [syncToFirestore]);
 
   const addPoints = useCallback((amount: number) => {
@@ -261,16 +266,39 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (snap.exists()) {
             setProfile({ uid: user.uid, ...snap.data() } as UserProfile);
           } else {
+            const name = user.displayName || DEFAULT_PROFILE.name;
             const newProfile: UserProfile = {
               ...DEFAULT_PROFILE,
               uid: user.uid,
-              name: user.displayName || DEFAULT_PROFILE.name,
+              name,
+              searchName: name.toLowerCase().trim(),
               avatar: user.photoURL || DEFAULT_PROFILE.avatar,
               joinedDate: new Date().toISOString(),
               gender: (window as any)._initialGender || DEFAULT_PROFILE.gender
             };
             delete (window as any)._initialGender;
-            await setDoc(userRef, newProfile);
+            
+            // Create both private and public records
+            await Promise.all([
+              setDoc(userRef, newProfile),
+              setDoc(doc(db, "profiles", user.uid), {
+                name: newProfile.name,
+                searchName: newProfile.searchName,
+                avatar: newProfile.avatar,
+                points: newProfile.points,
+                totalAyahsRead: newProfile.totalAyahsRead,
+                totalPagesRead: newProfile.totalPagesRead,
+                totalJuzCompleted: newProfile.totalJuzCompleted,
+                totalAthkarRecited: newProfile.totalAthkarRecited,
+                daysActive: newProfile.daysActive,
+                role: newProfile.role,
+                privacySettings: newProfile.privacySettings,
+                friendCount: newProfile.friendCount,
+                gender: newProfile.gender,
+                friendIds: newProfile.friendIds
+              })
+            ]);
+            
             setProfile(newProfile);
             activityService.logActivity(user.uid, 'USER_JOINED', { detail: 'انضم إلى المنصة حديثاً' });
           }

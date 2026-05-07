@@ -1,4 +1,4 @@
-import { db } from "@/firebase";
+import { auth, db } from "@/firebase";
 import { 
   collection, 
   addDoc, 
@@ -15,10 +15,15 @@ import {
 export type ActivityType = 
   | 'JUZ_COMPLETE' 
   | 'KHATMA_COMPLETE' 
+  | 'KHATMA_CREATED'
   | 'BADGE_EARNED' 
   | 'QUEST_COMPLETE' 
+  | 'QUEST_COMPLETED'
   | 'DHIKR_MILESTONE' 
-  | 'DUEL_WON';
+  | 'DUEL_WON'
+  | 'USER_JOINED'
+  | 'POST_CREATED'
+  | 'CIRCLE_CREATED';
 
 export interface Activity {
   id?: string;
@@ -31,7 +36,13 @@ export interface Activity {
   gender: 'male' | 'female' | 'unspecified';
 }
 
-export const activityService = {
+export interface ActivityService {
+  logActivity(userId: string, type: ActivityType, payload?: any): Promise<void>;
+  log(type: ActivityType, payload?: any): Promise<void>;
+  subscribeToFriendActivities(friendIds: string[], gender: string, callback: (activities: Activity[]) => void): () => void;
+}
+
+export const activityService: ActivityService = {
   async logActivity(userId: string, type: ActivityType, payload: any = {}) {
     try {
       // Get user info for the activity
@@ -54,6 +65,15 @@ export const activityService = {
     } catch (error) {
       console.error("Error logging activity:", error);
     }
+  },
+
+  /**
+   * Alias for logActivity to support legacy calls
+   */
+  async log(type: ActivityType, payload: any = {}) {
+    const userId = auth.currentUser?.uid;
+    if (!userId) return;
+    return this.logActivity(userId, type, payload);
   },
 
   subscribeToFriendActivities(friendIds: string[], gender: string, callback: (activities: Activity[]) => void) {

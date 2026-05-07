@@ -85,10 +85,10 @@ export const usePrayerNotifications = () => {
             4: CalculationMethod.UmmAlQura(),
             5: CalculationMethod.Egyptian(),
             7: CalculationMethod.Tehran(),
-            8: CalculationMethod.Gulf(),
+            8: CalculationMethod.Dubai(),
             10: CalculationMethod.Qatar(),
             11: CalculationMethod.Singapore(),
-            12: CalculationMethod.France(),
+            12: CalculationMethod.Other(),
             13: CalculationMethod.Turkey(),
             14: CalculationMethod.Dubai(),
             15: CalculationMethod.MoonsightingCommittee(),
@@ -217,7 +217,7 @@ export const usePrayerNotifications = () => {
                       renotify: true,
                       vibrate: [200, 100, 200, 100, 200],
                       data: { url: "/prayer-times" }
-                    });
+                    } as any);
                   });
                 } else {
                   const winNotif = (window as any).Notification;

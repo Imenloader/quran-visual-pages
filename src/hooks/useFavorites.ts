@@ -70,10 +70,13 @@ export const useFavorites = () => {
 
   const updateFavorite = useCallback(async (item: FavoriteItem, updates: Partial<FavoriteItem>) => {
     const next = favorites.map(f => {
-      const isMatch = f.type === item.type && f.id === item.id && 
-        (f.type !== "recitation" || (f.reciterId === item.reciterId && f.moshafId === item.moshafId));
+      let isMatch = f.type === item.type && f.id === item.id;
       
-      return isMatch ? { ...f, ...updates } : f;
+      if (isMatch && f.type === "recitation" && item.type === "recitation") {
+        isMatch = f.reciterId === item.reciterId && f.moshafId === item.moshafId;
+      }
+      
+      return isMatch ? ({ ...f, ...updates } as FavoriteItem) : f;
     });
     setFavorites(next);
     await saveFavorites(next);
@@ -82,8 +85,9 @@ export const useFavorites = () => {
   const toggleFavorite = useCallback(async (item: FavoriteItem) => {
     let exists: boolean;
     if (item.type === "recitation") {
+      const recitationItem = item;
       exists = favorites.some(
-        f => f.type === "recitation" && f.id === item.id && f.reciterId === item.reciterId && f.moshafId === item.moshafId
+        f => f.type === "recitation" && f.id === recitationItem.id && f.reciterId === recitationItem.reciterId && f.moshafId === recitationItem.moshafId
       );
     } else if (item.type === "reciter") {
       exists = favorites.some(f => f.type === "reciter" && f.id === item.id);
@@ -94,7 +98,8 @@ export const useFavorites = () => {
     let next: FavoriteItem[];
     if (exists) {
       if (item.type === "recitation") {
-        next = favorites.filter(f => !(f.type === "recitation" && f.id === item.id && f.reciterId === item.reciterId && f.moshafId === item.moshafId));
+        const recitationItem = item;
+        next = favorites.filter(f => !(f.type === "recitation" && f.id === recitationItem.id && f.reciterId === recitationItem.reciterId && f.moshafId === recitationItem.moshafId));
       } else if (item.type === "reciter") {
         next = favorites.filter(f => !(f.type === "reciter" && f.id === item.id));
       } else {
@@ -125,7 +130,7 @@ export const useFavorites = () => {
     await saveCollections(next);
     
     // Remove collectionId from items in this collection
-    const nextFavs = favorites.map(f => f.collectionId === id ? { ...f, collectionId: undefined } : f);
+    const nextFavs = favorites.map(f => f.collectionId === id ? ({ ...f, collectionId: undefined } as FavoriteItem) : f);
     setFavorites(nextFavs);
     await saveFavorites(nextFavs);
   }, [collections, favorites, saveCollections, saveFavorites]);

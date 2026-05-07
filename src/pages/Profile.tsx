@@ -17,6 +17,7 @@ import BackButton from "@/components/BackButton";
 
 import { useUser } from "@/contexts/UserContext";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
+import { useAudioUnlock } from "@/hooks/useAudioUnlock";
 import { auth } from "@/firebase";
 import { signOut } from "firebase/auth";
 import AuthModal from "@/components/AuthModal";
@@ -33,7 +34,8 @@ const Profile = () => {
   const navigate = useNavigate();
   const { theme, setTheme, dimming, setDimming, tajweedMode, setTajweedMode } = useTheme();
   const { profile, updateProfile, level, levelName, levelProgress, nextLevelPoints, prevLevelPoints, completeQuest, isAdmin } = useUser();
-  const { testPrayerNotification, unlockAudio } = usePrayerTimes();
+  const { testPrayerNotification } = usePrayerTimes();
+  const { unlockAudio } = useAudioUnlock();
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isExpGuideOpen, setIsExpGuideOpen] = useState(false);

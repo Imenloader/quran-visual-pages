@@ -78,8 +78,8 @@ const CommunityTopics = () => {
       const cached = await communityCache.getAll<Post>("posts");
       if (cached.length > 0) {
         setPosts(cached.sort((a, b) => {
-          const timeA = a.createdAt?.toMillis?.() || new Date(a.createdAt).getTime() || 0;
-          const timeB = b.createdAt?.toMillis?.() || new Date(b.createdAt).getTime() || 0;
+          const timeA = (a.createdAt as any)?.toMillis?.() || (a.createdAt as any)?.seconds * 1000 || 0;
+          const timeB = (b.createdAt as any)?.toMillis?.() || (b.createdAt as any)?.seconds * 1000 || 0;
           return timeB - timeA;
         }));
       }
