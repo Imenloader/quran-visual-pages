@@ -45,6 +45,7 @@ import { Button } from "@/components/ui/button";
 import { privateChatService, PrivateChat, PrivateMessage } from "@/services/privateChatService";
 import { profanityFilter } from "@/lib/profanityFilter";
 import { reportService } from "@/services/reportService";
+import imageCompression from 'browser-image-compression';
 
 interface ChatMessage {
   id: string;
@@ -260,9 +261,16 @@ const CommunityChat: React.FC = () => {
     try {
       let uploadedImageUrl = null;
       if (imageFile) {
-        const uniqueName = `${Math.random().toString(36).substring(2)}_${Date.now()}_${imageFile.name}`;
+        const options = {
+          maxSizeMB: 0.3,
+          maxWidthOrHeight: 1024,
+          useWebWorker: true
+        };
+        const compressedFile = await imageCompression(imageFile, options);
+        
+        const uniqueName = `${Math.random().toString(36).substring(2)}_${Date.now()}_${compressedFile.name}`;
         const storageRef = ref(storage, `chat_images/${uniqueName}`);
-        const snapshot = await uploadBytes(storageRef, imageFile);
+        const snapshot = await uploadBytes(storageRef, compressedFile);
         uploadedImageUrl = await getDownloadURL(snapshot.ref);
         removeImage();
       }

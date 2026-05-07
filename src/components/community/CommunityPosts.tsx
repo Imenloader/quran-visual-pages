@@ -22,6 +22,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
+import imageCompression from 'browser-image-compression';
 
 const CommunityPosts = () => {
   const { t, i18n } = useTranslation();
@@ -78,9 +79,16 @@ const CommunityPosts = () => {
     try {
       let uploadedImageUrl = null;
       if (imageFile) {
-        const uniqueName = `${Math.random().toString(36).substring(2)}_${Date.now()}_${imageFile.name}`;
+        const options = {
+          maxSizeMB: 0.3,
+          maxWidthOrHeight: 1024,
+          useWebWorker: true
+        };
+        const compressedFile = await imageCompression(imageFile, options);
+        
+        const uniqueName = `${Math.random().toString(36).substring(2)}_${Date.now()}_${compressedFile.name}`;
         const storageRef = ref(storage, `community_posts/${uniqueName}`);
-        const snapshot = await uploadBytes(storageRef, imageFile);
+        const snapshot = await uploadBytes(storageRef, compressedFile);
         uploadedImageUrl = await getDownloadURL(snapshot.ref);
       }
 
