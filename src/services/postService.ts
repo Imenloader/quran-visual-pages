@@ -79,10 +79,18 @@ export const postService = {
   },
 
   async toggleLike(postId: string, userId: string, isCurrentlyLiked: boolean) {
-    const postRef = doc(db, 'community_posts', postId);
-    await updateDoc(postRef, {
-      likes: isCurrentlyLiked ? arrayRemove(userId) : arrayUnion(userId)
-    });
+    try {
+      const postRef = doc(db, 'community_posts', postId);
+      await updateDoc(postRef, {
+        likes: isCurrentlyLiked ? arrayRemove(userId) : arrayUnion(userId)
+      });
+    } catch (error: any) {
+      if (error?.code === 'not-found') {
+        console.warn('Post not found (may have been deleted).');
+      } else {
+        throw error;
+      }
+    }
   },
 
   subscribeToComments(postId: string, callback: (comments: PostComment[]) => void) {
@@ -104,21 +112,29 @@ export const postService = {
     userRole?: string;
     text: string;
   }) {
-    // 1. Add comment to subcollection
-    const commentsRef = collection(db, 'community_posts', postId, 'comments');
-    await addDoc(commentsRef, {
-      ...commentData,
-      timestamp: serverTimestamp()
-    });
-
-    // 2. Increment comment count (using naive increment for simplicity, better with FieldValue.increment)
-    const postRef = doc(db, 'community_posts', postId);
-    const snap = await getDoc(postRef);
-    if (snap.exists()) {
-      const currentCount = snap.data().commentsCount || 0;
-      await updateDoc(postRef, {
-        commentsCount: currentCount + 1
+    try {
+      // 1. Add comment to subcollection
+      const commentsRef = collection(db, 'community_posts', postId, 'comments');
+      await addDoc(commentsRef, {
+        ...commentData,
+        timestamp: serverTimestamp()
       });
+
+      // 2. Increment comment count
+      const postRef = doc(db, 'community_posts', postId);
+      const snap = await getDoc(postRef);
+      if (snap.exists()) {
+        const currentCount = snap.data().commentsCount || 0;
+        await updateDoc(postRef, {
+          commentsCount: currentCount + 1
+        });
+      }
+    } catch (error: any) {
+      if (error?.code === 'not-found') {
+        console.warn('Post not found (may have been deleted).');
+      } else {
+        throw error;
+      }
     }
   }
 };

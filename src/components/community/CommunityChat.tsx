@@ -649,7 +649,7 @@ const CommunityChat: React.FC = () => {
 
                     <div className={`absolute -top-2 ${isMe ? "right-full mr-2" : "left-full ml-2"} flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity`}>
                       <button 
-                        onClick={() => setReplyTo({ id: msg.id, text: msg.text, senderName: msg.senderName })}
+                        onClick={() => setReplyTo(msg)}
                         className="p-1.5 bg-card/80 backdrop-blur text-muted-foreground hover:text-primary rounded-full shadow-sm hover:scale-110 transition-all border border-border/40"
                         title={isAr ? "رد" : "Reply"}
                       >
