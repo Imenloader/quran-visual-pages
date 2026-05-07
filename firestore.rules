@@ -10,14 +10,14 @@ service cloud.firestore {
     function isBanned() {
       return isAuthenticated() && 
              exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isBanned == true;
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('isBanned', false) == true;
     }
 
     function isAdmin() {
       return isAuthenticated() && (
         request.auth.token.email == "3wdkyarb@gmail.com" ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'user') == 'admin')
       );
     }
 
@@ -27,7 +27,8 @@ service cloud.firestore {
 
     function isMaintenanceOff() {
       let globalSettingsPath = /databases/$(database)/documents/settings/global;
-      return !exists(globalSettingsPath) || get(globalSettingsPath).data.maintenanceMode == false;
+      return !exists(globalSettingsPath) || 
+             get(globalSettingsPath).data.get('maintenanceMode', false) == false;
     }
 
     function canWrite() {
