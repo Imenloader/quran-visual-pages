@@ -31,6 +31,7 @@ import QuranHeader from "@/components/QuranHeader";
 import { useUser } from "@/contexts/UserContext";
 import { toArabicNumber } from "@/data/quranData";
 import FriendsManager from "./FriendsManager";
+import { syncService } from "@/services/syncService";
 import {
   communityService,
   CommunityReport,
@@ -100,6 +101,15 @@ const CommunityHub = () => {
   const [reportDetails, setReportDetails] = useState("");
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [bookmark, setBookmark] = useState<any>(null);
+
+  useEffect(() => {
+    const loadBookmark = async () => {
+      const data = await syncService.loadData("quran-bookmark", null);
+      setBookmark(data);
+    };
+    loadBookmark();
+  }, []);
 
   useEffect(() => {
     if (!profile?.uid) return;
@@ -200,8 +210,16 @@ const CommunityHub = () => {
       meta: isAr ? `${formatCount(todayPages, isAr)} صفحة اليوم` : `${formatCount(todayPages, isAr)} pages today`,
       icon: BookOpen,
       accent: "bg-emerald-500/10 text-emerald-600",
-      action: () => navigate("/juz/1"),
-      actionLabel: isAr ? "افتح المصحف" : "Open Quran",
+      action: () => {
+        if (bookmark) {
+          navigate(`/juz/${bookmark.juz}#page-${bookmark.page}`);
+        } else {
+          navigate("/juz/1");
+        }
+      },
+      actionLabel: bookmark 
+        ? (isAr ? `استكمل من صـ ${toArabicNumber(bookmark.page)}` : `Resume from p. ${bookmark.page}`)
+        : (isAr ? "افتح المصحف" : "Open Quran"),
     },
     {
       id: "recommended-chat",
