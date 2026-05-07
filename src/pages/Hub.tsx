@@ -238,9 +238,6 @@ const Hub = () => {
         tools: [
           { id: 'community-hub', name: i18n.language === 'ar' ? 'مركز المجتمع' : 'Community Hub', icon: <Users className="w-5 h-5 text-gold" />, path: "/community/hub" },
           { id: 'khatma', name: t("hub.khatma"), icon: <BookOpen className="w-5 h-5" />, path: "/khatma" },
-          { id: 'collab-khatma', name: t("hub.collaborativeKhatma"), icon: <Users className="w-5 h-5" />, path: "/community/hub?tab=khatma" },
-          { id: 'prayer-circles', name: i18n.language === 'ar' ? 'حلقات الدعاء' : 'Prayer Circles', icon: <Users className="w-5 h-5" />, path: "/community/hub?tab=prayer" },
-          { id: 'reading-circles', name: t("hub.readingCircles") || "حلقات القراءة", icon: <Users className="w-5 h-5" />, path: "/community/hub?tab=circles" },
           { id: 'hifz', name: t("hub.hifzTester"), icon: <GradIcon className="w-5 h-5" />, path: "/tools/hifz-tester" },
           { id: 'routine', name: t("hub.routineBuilder"), icon: <Zap className="w-5 h-5" />, path: "/routine-builder" },
           { id: 'fasting', name: t("hub.fastingTracker"), icon: <Moon className="w-5 h-5" />, path: "/fasting-tracker" },
@@ -278,7 +275,6 @@ const Hub = () => {
           { id: 'hadith', name: t("hub.hadith"), icon: <Book className="w-5 h-5" />, path: "/hadith" },
           { id: 'hijri', name: t("hub.hijri"), icon: <Calendar className="w-5 h-5" />, path: "/hijri" },
           { id: 'daily-verse', name: t("hub.dailyVerse"), icon: <BookOpen className="w-5 h-5" />, path: "/daily-verse" },
-          { id: 'knowledge-sessions', name: "جلسات علمية", icon: <GradIcon className="w-5 h-5" />, path: "/community/hub?tab=sessions" },
           { id: 'marriage-guide', name: "دليل الزواج", icon: <Heart className="w-5 h-5" />, path: "/marriage-guide" },
           { id: 'tafsir', name: t("hub.tafsir"), icon: <BookOpen className="w-5 h-5" />, path: "/tafsir" },
           { id: 'search', name: t("hub.search"), icon: <Search className="w-5 h-5" />, path: "/search" },
