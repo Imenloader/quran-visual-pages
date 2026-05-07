@@ -1,0 +1,15 @@
+<svg width="400" height="520" viewBox="0 0 400 520" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d2efdf"/><stop offset="1" stop-color="#f5fbf7"/></linearGradient>
+    <linearGradient id="trunk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a47245"/><stop offset="1" stop-color="#6f472c"/></linearGradient>
+    <radialGradient id="soil" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#8a5a38"/><stop offset="1" stop-color="#5b3a22"/></radialGradient>
+  </defs>
+  <rect width="400" height="520" fill="url(#bg)"/>
+  <ellipse cx="200" cy="430" rx="130" ry="28" fill="#b9d5c4" opacity="0.4"/>
+  <ellipse cx="200" cy="430" rx="84" ry="18" fill="url(#soil)" opacity="0.9"/>
+  <path d="M200 420 C198 365 198 270 202 176" stroke="url(#trunk)" stroke-width="18" fill="none" stroke-linecap="round"/>
+  <path d="M200 330 C165 300 140 267 121 220" stroke="#7a4c2f" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <path d="M202 300 C240 270 265 234 284 186" stroke="#7a4c2f" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <path d="M201 250 C176 224 160 198 150 165" stroke="#7a4c2f" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <g fill="#3fae6b"><circle cx="116" cy="210" r="34"/><circle cx="165" cy="164" r="40"/><circle cx="226" cy="150" r="42"/><circle cx="283" cy="180" r="36"/><circle cx="208" cy="215" r="44"/></g>
+</svg>

@@ -10,7 +10,7 @@ import {
   Loader2
 } from "lucide-react";
 import { db } from "@/firebase";
-import { collection, query, orderBy, limit, getDocs, where } from "firebase/firestore";
+import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { useUser } from "@/contexts/UserContext";
 import { toArabicNumber } from "@/data/quranData";
 import { Link } from "react-router-dom";
@@ -104,11 +104,11 @@ const Leaderboard = () => {
         ))}
       </div>
 
-      {/* Top 3 Podium */}
-      {topUsers.length >= 3 && (
+      {/* Top Podium */}
+      {topUsers.length > 0 && (
         <div className="flex items-end justify-center gap-4 py-8">
           {/* 2nd Place */}
-          <div className="flex flex-col items-center gap-3">
+          {topUsers[1] && <div className="flex flex-col items-center gap-3">
             <Link to={`/profile/${topUsers[1].id}`} className="relative">
               <div className="w-16 h-16 rounded-2xl bg-slate-100 border-2 border-slate-300 overflow-hidden shadow-lg">
                 <img src={topUsers[1].avatar || "/avatar-man-1.svg"} className="w-full h-full object-cover" />
@@ -116,7 +116,7 @@ const Leaderboard = () => {
               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-slate-300 flex items-center justify-center text-[10px] font-bold text-slate-700 shadow-md">٢</div>
             </Link>
             <p className="text-[10px] font-bold text-center truncate w-20">{topUsers[1].name}</p>
-          </div>
+          </div>}
 
           {/* 1st Place */}
           <div className="flex flex-col items-center gap-3 -translate-y-4">
@@ -131,7 +131,7 @@ const Leaderboard = () => {
           </div>
 
           {/* 3rd Place */}
-          <div className="flex flex-col items-center gap-3">
+          {topUsers[2] && <div className="flex flex-col items-center gap-3">
              <Link to={`/profile/${topUsers[2].id}`} className="relative">
               <div className="w-14 h-14 rounded-2xl bg-amber-100 border-2 border-amber-600/30 overflow-hidden shadow-lg">
                 <img src={topUsers[2].avatar || "/avatar-man-1.svg"} className="w-full h-full object-cover" />
@@ -139,13 +139,13 @@ const Leaderboard = () => {
               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-amber-600/30 flex items-center justify-center text-[10px] font-bold text-amber-900 shadow-md">٣</div>
             </Link>
             <p className="text-[10px] font-bold text-center truncate w-20">{topUsers[2].name}</p>
-          </div>
+          </div>}
         </div>
       )}
 
       {/* List */}
       <div className="space-y-2">
-        {topUsers.slice(3).map((user) => (
+        {topUsers.slice(Math.min(3, topUsers.length)).map((user) => (
           <Link 
             key={user.id} 
             to={`/profile/${user.id}`}
