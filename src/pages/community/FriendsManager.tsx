@@ -36,6 +36,7 @@ import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { toArabicNumber } from '@/data/quranData';
 import { useUser } from '@/contexts/UserContext';
+import { normalizeArabic } from '@/lib/arabicUtils';
 
 interface FriendsManagerProps {
   standalone?: boolean;
@@ -105,35 +106,42 @@ const FriendsManager: React.FC<FriendsManagerProps> = ({ standalone = true }) =>
     setSearchResults([]);
     try {
       const queryLower = trimmedQuery.toLowerCase();
+      const queryNormalized = normalizeArabic(trimmedQuery);
       const queryCapitalized = trimmedQuery.charAt(0).toUpperCase() + trimmedQuery.slice(1).toLowerCase();
-      const queryUpper = trimmedQuery.toUpperCase();
       
-      // Define multiple queries to increase chance of finding matches
+      // Define multiple queries for prefix matching across both collections
       const queryConfigs = [
-        // 1. Search by new searchName field (lowercase) in profiles
+        // 1. Search by normalized searchName in profiles (best for Arabic & Case-insensitivity)
+        query(
+          collection(db, 'profiles'),
+          where('searchName', '>=', queryNormalized),
+          where('searchName', '<=', queryNormalized + '\uf8ff'),
+          limit(10)
+        ),
+        // 2. Search by lowercase searchName in profiles (for legacy searchName format)
         query(
           collection(db, 'profiles'),
           where('searchName', '>=', queryLower),
           where('searchName', '<=', queryLower + '\uf8ff'),
           limit(10)
         ),
-        // 2. Search by raw name in profiles
-        query(
-          collection(db, 'profiles'),
-          where('name', '>=', trimmedQuery),
-          where('name', '<=', trimmedQuery + '\uf8ff'),
-          limit(10)
-        ),
         // 3. Search by raw name in users (legacy fallback)
         query(
           collection(db, 'users'),
-          where('name', '>=', trimmedQuery),
-          where('name', '<=', trimmedQuery + '\uf8ff'),
+          where('name', '>=', queryCapitalized),
+          where('name', '<=', queryCapitalized + '\uf8ff'),
           limit(10)
         ),
-        // 4. Search by capitalized name in users (legacy fallback)
+        // 4. Search by lowercase name in users (legacy fallback)
         query(
           collection(db, 'users'),
+          where('name', '>=', queryLower),
+          where('name', '<=', queryLower + '\uf8ff'),
+          limit(10)
+        ),
+        // 5. Search by raw name in profiles
+        query(
+          collection(db, 'profiles'),
           where('name', '>=', queryCapitalized),
           where('name', '<=', queryCapitalized + '\uf8ff'),
           limit(10)

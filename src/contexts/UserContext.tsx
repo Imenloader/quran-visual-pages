@@ -15,6 +15,7 @@ import {
   getDocs
 } from "firebase/firestore";
 import { activityService, ActivityType } from "@/services/activityService";
+import { normalizeArabic } from "@/lib/arabicUtils";
 
 
 interface UserProfile {
@@ -145,7 +146,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateProfile = useCallback((updates: Partial<UserProfile>) => {
     const finalUpdates = { ...updates };
     if (updates.name) {
-      finalUpdates.searchName = updates.name.toLowerCase().trim();
+      finalUpdates.searchName = normalizeArabic(updates.name);
     }
     setProfile(prev => ({ ...prev, ...finalUpdates }));
     syncToFirestore(finalUpdates);
@@ -271,7 +272,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
               ...DEFAULT_PROFILE,
               uid: user.uid,
               name,
-              searchName: name.toLowerCase().trim(),
+              searchName: normalizeArabic(name),
               avatar: user.photoURL || DEFAULT_PROFILE.avatar,
               joinedDate: new Date().toISOString(),
               gender: (window as any)._initialGender || DEFAULT_PROFILE.gender
