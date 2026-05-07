@@ -39,6 +39,7 @@ import { cn } from '@/lib/utils';
 import { setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 
 import { useUser } from '@/contexts/UserContext';
+import { calculateLevel, getLevelThreshold } from '@/lib/userUtils';
 
 const formatDate = (date: any, isArabic: boolean) => {
   if (!date) return '';
@@ -249,7 +250,7 @@ const UserProfileView: React.FC = () => {
                   {profile.name}
                 </h1>
                 <Badge variant="outline" className="bg-white/10 text-white border-white/20 px-4 py-1 rounded-full text-xs font-naskh">
-                  {t(`profile.levels.${Math.floor(profile.points / 1000) + 1}`)}
+                  {t(`profile.levels.${Math.min(20, calculateLevel(profile.points || 0))}`)}
                 </Badge>
               </div>
               <p className="text-white/60 text-sm font-naskh flex items-center justify-center md:justify-start gap-2">
@@ -316,8 +317,8 @@ const UserProfileView: React.FC = () => {
       {/* Stats Grid */}
       <main className="container max-w-5xl mx-auto px-6 -mt-8 relative z-20">
         {(() => {
-          const profileLevel = Math.floor((profile.points || 0) / 1000) + 1;
-          const nextLevelPoints = profileLevel * 1000;
+          const profileLevel = calculateLevel(profile.points || 0);
+          const nextLevelPoints = getLevelThreshold(profileLevel + 1);
           const pointsToNext = nextLevelPoints - (profile.points || 0);
 
           return (
@@ -384,7 +385,7 @@ const UserProfileView: React.FC = () => {
             </h2>
             <div className="grid grid-cols-3 sm:grid-cols-3 gap-3">
               {(() => {
-                const pLevel = Math.floor((profile.points || 0) / 1000) + 1;
+                const pLevel = calculateLevel(profile.points || 0);
                 const badges = [
                   { id: "early-bird", icon: <Sun className="w-5 h-5" />, label: t("profile.badges.earlyBird"), earned: true, color: "text-amber-500", bg: "bg-amber-500/10" },
                   { id: "quran-lover", icon: <BookOpen className="w-5 h-5" />, label: t("profile.badges.quranLover"), earned: (profile.totalAyahsRead || 0) >= 500, color: "text-emerald-500", bg: "bg-emerald-500/10" },

@@ -16,6 +16,7 @@ import {
 } from "firebase/firestore";
 import { activityService, ActivityType } from "@/services/activityService";
 import { normalizeArabic } from "@/lib/arabicUtils";
+import { calculateLevel, getLevelThreshold } from "@/lib/userUtils";
 
 
 interface UserProfile {
@@ -385,20 +386,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem("user-profile", JSON.stringify(profile));
   }, [profile]);
 
-  const calculateLevel = (pts: number) => {
-    const lvl = Math.floor((Math.sqrt(8 * pts / 5000 + 1) - 1) / 2);
-    return Math.max(1, lvl + 1);
-  };
-
-  const getThreshold = (lvl: number) => {
-    if (lvl <= 1) return 0;
-    const l = lvl - 1;
-    return 5000 * l * (l + 1) / 2;
-  };
-
   const currentLevel = calculateLevel(profile.points);
-  const nextLevelThreshold = getThreshold(currentLevel + 1);
-  const prevLevelThreshold = getThreshold(currentLevel);
+  const nextLevelThreshold = getLevelThreshold(currentLevel + 1);
+  const prevLevelThreshold = getLevelThreshold(currentLevel);
   const progress = Math.min(100, Math.max(0,
     ((profile.points - prevLevelThreshold) / (nextLevelThreshold - prevLevelThreshold)) * 100
   ));

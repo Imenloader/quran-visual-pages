@@ -31,34 +31,22 @@ const GrowthTree = () => {
   }, [stage]);
 
   return (
-    <div className="flex flex-col items-center justify-center p-4 bg-card/80 backdrop-blur-xl rounded-[2.5rem] border border-border/60 shadow-xl group relative overflow-hidden h-full">
-      <div className="relative w-full aspect-[4/5] rounded-[1.8rem] overflow-hidden border border-emerald-900/10 shadow-inner">
+    <div className="flex flex-col md:flex-row items-center gap-4 p-5 bg-card/80 backdrop-blur-xl rounded-[2.5rem] border border-border/60 shadow-xl group relative overflow-hidden h-full">
+      <div className="relative w-24 h-24 md:w-32 md:h-32 shrink-0 rounded-[1.8rem] overflow-hidden border border-emerald-900/10 shadow-inner bg-emerald-500/5">
         <img
           src={stageImage}
           alt={isAr ? "شجرة النمو الروحاني" : "Spiritual Growth Tree"}
-          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+          className="w-full h-full object-contain p-2 transition-transform duration-1000 group-hover:scale-110"
           loading="lazy"
         />
-
-        <div className="absolute top-4 right-4">
-          <div className="w-14 h-14 rounded-2xl bg-emerald-900/92 border border-emerald-200/50 flex items-center justify-center shadow-[0_8px_24px_rgba(0,0,0,0.35)] group-hover:scale-105 transition-transform duration-500">
-            <div className="text-center">
-              <span className="block text-[8px] uppercase tracking-tighter text-emerald-100 font-extrabold">Lvl</span>
-              <span className="text-xl font-black text-white leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]">{level}</span>
-            </div>
-          </div>
-        </div>
       </div>
 
-      <div className="mt-4 text-center relative z-10">
-        <h4 className="text-lg font-serif font-bold text-primary tracking-tight">
-          {isAr ? "شجرة النمو الروحاني" : "Spiritual Growth Tree"}
-        </h4>
-        <div className="flex items-center justify-center gap-2 mt-1">
-          <div className="h-1 w-8 rounded-full bg-emerald-500/20">
-            <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(level % 10) * 10}%` }} />
-          </div>
-          <p className="text-[10px] font-bold text-muted-foreground/90 uppercase tracking-widest">
+      <div className="flex-1 text-center md:text-right space-y-2 relative z-10">
+        <div>
+          <h4 className="text-sm font-serif font-bold text-primary tracking-tight">
+            {isAr ? "شجرة النمو الروحاني" : "Spiritual Growth Tree"}
+          </h4>
+          <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-0.5">
             {level < 5
               ? isAr
                 ? "بذرة صالحة"
@@ -75,6 +63,15 @@ const GrowthTree = () => {
                     ? "شجرة طيبة"
                     : "Mighty Tree"}
           </p>
+        </div>
+        
+        <div className="flex items-center justify-center md:justify-end gap-3">
+          <div className="flex-1 max-w-[100px] h-1.5 rounded-full bg-emerald-500/20 overflow-hidden">
+            <div className="h-full bg-emerald-500 rounded-full transition-all duration-1000" style={{ width: `${(level % 10) * 10}%` }} />
+          </div>
+          <div className="px-2.5 py-1 rounded-lg bg-emerald-900 text-white text-[10px] font-black shadow-lg">
+            LVL {level}
+          </div>
         </div>
       </div>
     </div>

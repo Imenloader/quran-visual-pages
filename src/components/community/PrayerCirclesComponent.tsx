@@ -53,9 +53,10 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
   const [circles, setCircles] = useState<Circle[]>([]);
   const [duaRequests, setDuaRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showDuaModal, setShowDuaModal] = useState(false);
   const [duaText, setDuaText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showMembersDialog, setShowMembersDialog] = useState(false);
+  const [selectedCircle, setSelectedCircle] = useState<Circle | null>(null);
 
   useEffect(() => {
     if (!auth.currentUser) {
@@ -160,9 +161,11 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
       }));
 
       toast.success(isArabic ? 'تم الانضمام للحلقة بنجاح' : 'Joined circle successfully');
-    } catch (e) {
+    } catch (e: any) {
       console.error('Join circle failed:', e);
-      toast.error(isArabic ? 'فشل الانضمام' : 'Failed to join');
+      toast.error(isArabic 
+        ? `فشل الانضمام: ${e.message || 'خطأ غير معروف'}` 
+        : `Failed to join: ${e.message || 'Unknown error'}`);
     }
   };
 
@@ -254,7 +257,18 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
                const memberIds = getCircleMemberIds(circle.members);
                const isMember = memberIds.includes(auth.currentUser?.uid || '');
                return (
-               <div key={circle.id} onClick={() => !isMember && joinCircle(circle.id, circle.members as any)} className="p-4 rounded-2xl bg-card border flex items-center justify-between group cursor-pointer">
+               <div 
+                 key={circle.id} 
+                 onClick={() => {
+                   if (isMember) {
+                     setSelectedCircle(circle);
+                     setShowMembersDialog(true);
+                   } else {
+                     joinCircle(circle.id, circle.members as any);
+                   }
+                 }} 
+                 className="p-4 rounded-2xl bg-card border flex items-center justify-between group cursor-pointer hover:bg-primary/5 transition-all"
+               >
                   <div className="flex items-center gap-4 text-right">
                      <Users size={20} className="text-primary" />
                      <div>
@@ -302,6 +316,47 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
            <DialogHeader><DialogTitle className="text-center font-serif">{t('prayerCircles.requestModal.title')}</DialogTitle></DialogHeader>
            <Textarea value={duaText} onChange={e => setDuaText(e.target.value)} maxLength={500} className="min-h-[120px] rounded-2xl p-4 font-naskh" dir="auto" />
            <DialogFooter><Button onClick={handleSubmitDua} disabled={!duaText.trim() || isSubmitting} className="w-full h-12 rounded-xl bg-gold text-white font-bold">{t('prayerCircles.requestModal.submit')}</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showMembersDialog} onOpenChange={setShowMembersDialog}>
+        <DialogContent className="sm:max-w-md rounded-[2.5rem]">
+           <DialogHeader>
+             <DialogTitle className="text-center font-serif">
+               {selectedCircle?.name}
+             </DialogTitle>
+           </DialogHeader>
+           <div className="space-y-4 py-4">
+             <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-2">
+               {isArabic ? 'الأعضاء المنضمون' : 'Circle Members'}
+             </h4>
+             <div className="max-h-[300px] overflow-y-auto no-scrollbar space-y-3">
+               {selectedCircle && getCircleMemberIds(selectedCircle.members).map((uid, idx) => (
+                 <div key={uid + idx} className="flex items-center gap-3 p-2 rounded-xl bg-primary/5">
+                   <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
+                     {idx + 1}
+                   </div>
+                   <div className="flex-1">
+                     <p className="text-xs font-bold text-primary">
+                       {typeof selectedCircle.members === 'object' && !Array.isArray(selectedCircle.members) 
+                         ? (selectedCircle.members[uid]?.name || (isArabic ? 'عضو' : 'Member'))
+                         : (uid === auth.currentUser?.uid ? (auth.currentUser?.displayName || (isArabic ? 'أنا' : 'Me')) : (isArabic ? 'عضو' : 'Member'))}
+                     </p>
+                   </div>
+                   {uid === auth.currentUser?.uid && (
+                     <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-bold">
+                       {isArabic ? 'أنت' : 'You'}
+                     </span>
+                   )}
+                 </div>
+               ))}
+             </div>
+           </div>
+           <DialogFooter>
+             <Button onClick={() => setShowMembersDialog(false)} className="w-full h-12 rounded-xl bg-primary text-white font-bold">
+               {isArabic ? 'إغلاق' : 'Close'}
+             </Button>
+           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
