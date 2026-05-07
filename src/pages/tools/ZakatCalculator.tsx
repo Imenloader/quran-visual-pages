@@ -17,12 +17,21 @@ const ZakatCalculator = () => {
 
   const fetchPrices = async () => {
     try {
-      // In a real production app, we would fetch from a gold price API
-      // For this implementation, we simulate the hourly update mechanism
-      // and add a small random variation to show it's working
-      const variation = (Math.random() - 0.5) * 5;
-      setGoldPrice(prev => Math.round(prev + variation));
-      setSilverPrice(prev => Math.round((prev + (variation / 50)) * 100) / 100);
+      const [goldRes, silverRes, rateRes] = await Promise.all([
+        fetch("https://api.gold-api.com/price/XAU"),
+        fetch("https://api.gold-api.com/price/XAG"),
+        fetch("https://api.exchangerate-api.com/v4/latest/USD")
+      ]);
+
+      const goldData = await goldRes.json();
+      const silverData = await silverRes.json();
+      const rateData = await rateRes.json();
+
+      const egpRate = rateData.rates.EGP || 50; // Fallback to 50
+      
+      // Prices come in USD, convert to EGP
+      setGoldPrice(Math.round(goldData.price * egpRate));
+      setSilverPrice(Math.round(silverData.price * egpRate));
       setLastUpdated(new Date());
     } catch (error) {
       console.error("Failed to update prices:", error);
@@ -30,18 +39,19 @@ const ZakatCalculator = () => {
   };
 
   useEffect(() => {
-    // Initial fetch
     fetchPrices();
-
-    // Set up hourly interval (3600000 ms = 1 hour)
     const interval = setInterval(fetchPrices, 3600000);
-    
     return () => clearInterval(interval);
   }, []);
 
-  const totalWealth = savings + (gold * goldPrice) + (silver * silverPrice) + other;
-  const nisabGold = 85 * goldPrice;
-  const zakatAmount = totalWealth >= nisabGold ? totalWealth * 0.025 : 0;
+  const totalWealth = savings + (gold * (goldPrice / 31.1035)) + (silver * (silverPrice / 31.1035)) + other;
+  // Gold Nisab: 85g of 24k gold. Silver Nisab: 595g of silver.
+  const nisabGold = 85 * (goldPrice / 31.1035);
+  const nisabSilver = 595 * (silverPrice / 31.1035);
+  
+  // Sharia: Use the lower of the two nisabs to be more cautious (usually silver)
+  const effectiveNisab = Math.min(nisabGold, nisabSilver);
+  const zakatAmount = totalWealth >= effectiveNisab ? totalWealth * 0.025 : 0;
 
   return (
     <div className="min-h-screen bg-background pb-24 pt-6 px-4">

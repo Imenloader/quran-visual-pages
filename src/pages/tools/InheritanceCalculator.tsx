@@ -25,6 +25,7 @@ const InheritanceCalculator = () => {
   const [hasSpouse, setHasSpouse] = useState<boolean>(false);
   const [numSons, setNumSons] = useState<number>(0);
   const [numDaughters, setNumDaughters] = useState<number>(0);
+  const [numSiblings, setNumSiblings] = useState<number>(0);
   const [hasFather, setHasFather] = useState<boolean>(false);
   const [hasMother, setHasMother] = useState<boolean>(false);
   const [results, setResults] = useState<Result[] | null>(null);
@@ -36,12 +37,12 @@ const InheritanceCalculator = () => {
     const heirs: Result[] = [];
     let remainingEstate = estate;
     const hasChildren = numSons > 0 || numDaughters > 0;
+    const hasMaleChildren = numSons > 0;
 
-    // 1. Spouse Share
+    // 1. Spouse Share (Fixed)
     if (hasSpouse) {
       let spouseShare = 0;
       if (deceasedGender === "male") {
-        // Wife's share
         spouseShare = hasChildren ? 1/8 : 1/4;
         const amount = estate * spouseShare;
         heirs.push({
@@ -54,7 +55,6 @@ const InheritanceCalculator = () => {
         });
         remainingEstate -= amount;
       } else {
-        // Husband's share
         spouseShare = hasChildren ? 1/4 : 1/2;
         const amount = estate * spouseShare;
         heirs.push({
@@ -69,30 +69,11 @@ const InheritanceCalculator = () => {
       }
     }
 
-    // 2. Parents Share
-    if (hasFather) {
-      let fatherShare = 0;
-      if (hasChildren) {
-        fatherShare = 1/6;
-      } else {
-        // Asab (takes remainder) - simplified
-        fatherShare = 1/6; // Minimum
-      }
-      const amount = estate * 1/6;
-      heirs.push({
-        heir: "Father",
-        heirAr: "الأب",
-        share: "1/6",
-        shareAr: "١/٦",
-        amount,
-        percentage: (1/6) * 100
-      });
-      remainingEstate -= amount;
-    }
-
+    // 2. Mother's Share (Fixed)
     if (hasMother) {
       let motherShare = 0;
-      if (hasChildren) {
+      // 1/6 if children exist OR 2+ siblings exist
+      if (hasChildren || numSiblings >= 2) {
         motherShare = 1/6;
       } else {
         motherShare = 1/3;
@@ -109,32 +90,102 @@ const InheritanceCalculator = () => {
       remainingEstate -= amount;
     }
 
-    // 3. Children Share (Remainder)
-    if (hasChildren && remainingEstate > 0) {
-      const totalParts = (numSons * 2) + numDaughters;
-      const partValue = remainingEstate / totalParts;
-
-      if (numSons > 0) {
-        const amountPerSon = partValue * 2;
-        heirs.push({
-          heir: `Sons (${numSons})`,
-          heirAr: `الأبناء (${numSons})`,
-          share: "Remainder (2:1)",
-          shareAr: "الباقي (للذكر مثل حظ الأنثيين)",
-          amount: amountPerSon * numSons,
-          percentage: ((amountPerSon * numSons) / estate) * 100
-        });
+    // 3. Father's Share (Fixed + Asabah)
+    if (hasFather) {
+      let fatherFixedShare = 0;
+      let isAsabah = false;
+      
+      if (hasMaleChildren) {
+        fatherFixedShare = 1/6; // Fixed 1/6 only if sons exist
+      } else if (numDaughters > 0) {
+        fatherFixedShare = 1/6; // 1/6 + Asabah (remainder) if only daughters
+        isAsabah = true;
+      } else {
+        isAsabah = true; // Full Asabah (remainder) if no children
       }
 
-      if (numDaughters > 0) {
-        const amountPerDaughter = partValue;
+      if (fatherFixedShare > 0) {
+        const amount = estate * fatherFixedShare;
         heirs.push({
-          heir: `Daughters (${numDaughters})`,
-          heirAr: `البنات (${numDaughters})`,
-          share: numSons === 0 ? (numDaughters === 1 ? "1/2" : "2/3") : "Remainder (2:1)",
-          shareAr: numSons === 0 ? (numDaughters === 1 ? "١/٢" : "٢/٣") : "الباقي (للذكر مثل حظ الأنثيين)",
-          amount: amountPerDaughter * numDaughters,
-          percentage: ((amountPerDaughter * numDaughters) / estate) * 100
+          heir: "Father (Fixed)",
+          heirAr: "الأب (فرضاً)",
+          share: "1/6",
+          shareAr: "١/٦",
+          amount,
+          percentage: (1/6) * 100
+        });
+        remainingEstate -= amount;
+      }
+
+      // If Father is Asabah and there are no sons, he takes the remainder after daughters
+      if (isAsabah && !hasMaleChildren) {
+         // We will calculate his Asabah share after daughters in step 4
+      }
+    }
+
+    // 4. Daughters Share (if no sons)
+    if (numDaughters > 0 && !hasMaleChildren) {
+      let daughterShare = numDaughters === 1 ? 1/2 : 2/3;
+      const amount = estate * daughterShare;
+      heirs.push({
+        heir: `Daughters (${numDaughters})`,
+        heirAr: `البنات (${numDaughters})`,
+        share: numDaughters === 1 ? "1/2" : "2/3",
+        shareAr: numDaughters === 1 ? "١/٢" : "٢/٣",
+        amount,
+        percentage: daughterShare * 100
+      });
+      remainingEstate -= amount;
+    }
+
+    // 5. Remainder (Asabah)
+    if (remainingEstate > 0) {
+      if (hasMaleChildren) {
+        // Sons and Daughters (2:1)
+        const totalParts = (numSons * 2) + numDaughters;
+        const partValue = remainingEstate / totalParts;
+        
+        if (numSons > 0) {
+          const sonTotal = partValue * 2 * numSons;
+          heirs.push({
+            heir: `Sons (${numSons})`,
+            heirAr: `الأبناء (${numSons})`,
+            share: "Asabah (2:1)",
+            shareAr: "بالتعصيب (للذكر مثل حظ الأنثيين)",
+            amount: sonTotal,
+            percentage: (sonTotal / estate) * 100
+          });
+        }
+        if (numDaughters > 0) {
+          const daughterTotal = partValue * numDaughters;
+          heirs.push({
+            heir: `Daughters (${numDaughters})`,
+            heirAr: `البنات (${numDaughters})`,
+            share: "Asabah (1:2)",
+            shareAr: "بالتعصيب (للذكر مثل حظ الأنثيين)",
+            amount: daughterTotal,
+            percentage: (daughterTotal / estate) * 100
+          });
+        }
+      } else if (hasFather) {
+        // Father takes everything else as Asabah
+        heirs.push({
+          heir: "Father (Asabah)",
+          heirAr: "الأب (تعصيباً)",
+          share: "Remainder",
+          shareAr: "الباقي تعصيباً",
+          amount: remainingEstate,
+          percentage: (remainingEstate / estate) * 100
+        });
+      } else if (numSiblings > 0) {
+        // Simplified: Siblings take the rest
+        heirs.push({
+          heir: `Siblings (${numSiblings})`,
+          heirAr: `الإخوة (${numSiblings})`,
+          share: "Remainder",
+          shareAr: "الباقي تعصيباً",
+          amount: remainingEstate,
+          percentage: (remainingEstate / estate) * 100
         });
       }
     }
@@ -211,6 +262,16 @@ const InheritanceCalculator = () => {
                   className="h-12 rounded-xl"
                   value={numDaughters}
                   onChange={(e) => setNumDaughters(parseInt(e.target.value) || 0)}
+                />
+              </div>
+              <div className="space-y-3">
+                <Label className="text-sm font-bold">{isAr ? "عدد الإخوة" : "Number of Siblings"}</Label>
+                <Input 
+                  type="number" 
+                  min="0" 
+                  className="h-12 rounded-xl"
+                  value={numSiblings}
+                  onChange={(e) => setNumSiblings(parseInt(e.target.value) || 0)}
                 />
               </div>
               <div className="space-y-3 flex flex-col justify-end">
