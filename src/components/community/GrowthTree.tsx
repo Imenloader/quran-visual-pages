@@ -88,12 +88,12 @@ const GrowthTree = () => {
                    <path 
                      key={i}
                      d="M0,0 Q5,-10 10,0 Q5,10 0,0"
-                     transform={`translate(${cx}, ${cy}) rotate(${angle}) scale(${0.5 + Math.random() * 0.5})`}
+                     transform={`translate(${cx}, ${cy}) rotate(${angle}) scale(${0.55 + ((i % 5) * 0.08)})`}
                      fill="url(#leafGradient)"
                      className="transition-all duration-1000 opacity-80 hover:opacity-100"
                      style={{ 
                        transitionDelay: `${i * 30}ms`,
-                       animation: `float ${2 + Math.random() * 2}s ease-in-out infinite alternate`,
+                       animation: `float ${2 + (i % 4) * 0.5}s ease-in-out infinite alternate`,
                        animationDelay: `${i * 100}ms`
                      }}
                    />
@@ -141,8 +141,8 @@ const GrowthTree = () => {
               key={i}
               className="absolute w-1 h-1 bg-emerald-400/30 rounded-full animate-ping"
               style={{
-                top: `${20 + Math.random() * 60}%`,
-                left: `${20 + Math.random() * 60}%`,
+                top: `${20 + ((i * 13) % 60)}%`,
+                left: `${20 + ((i * 17) % 60)}%`,
                 animationDelay: `${i * 800}ms`,
                 animationDuration: '3s'
               }}
