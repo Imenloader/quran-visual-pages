@@ -15,6 +15,20 @@ import type { FieldValue, Timestamp } from "firebase/firestore";
 
 type FirestoreDate = Timestamp | FieldValue;
 
+export interface KnowledgeSession {
+  id?: string;
+  title: string;
+  description: string;
+  topic: string;
+  dateTime: FirestoreDate;
+  createdBy: string;
+  creatorName: string;
+  members: string[]; // array of UIDs
+  status: 'planned' | 'ongoing' | 'completed';
+  meetingLink?: string;
+  createdAt: FirestoreDate;
+}
+
 export interface Notification {
   id?: string;
   userId: string;
@@ -156,4 +170,46 @@ export const communityService = {
   async markNotificationRead(notifId: string) {
     await updateDoc(doc(db, "notifications", notifId), { read: true });
   },
+
+  async createKnowledgeSession(session: Omit<KnowledgeSession, "id" | "createdAt" | "members" | "status">) {
+    const newSession: Omit<KnowledgeSession, "id"> = {
+      ...session,
+      members: [session.createdBy],
+      status: 'planned',
+      createdAt: serverTimestamp(),
+    };
+    return await addDoc(collection(db, "knowledge_sessions"), newSession);
+  },
+
+  async joinKnowledgeSession(sessionId: string, userId: string) {
+    const sessionRef = doc(db, "knowledge_sessions", sessionId);
+    // In a real app, you'd use arrayUnion, but let's keep it simple or check if user already in
+    // I'll use a direct update for now as a simple implementation
+    // Better: use arrayUnion if possible
+    const { arrayUnion } = await import("firebase/firestore");
+    await updateDoc(sessionRef, {
+      members: arrayUnion(userId)
+    });
+  },
+
+  async leaveKnowledgeSession(sessionId: string, userId: string) {
+    const sessionRef = doc(db, "knowledge_sessions", sessionId);
+    const { arrayRemove } = await import("firebase/firestore");
+    await updateDoc(sessionRef, {
+      members: arrayRemove(userId)
+    });
+  },
+
+  subscribeToKnowledgeSessions(callback: (sessions: KnowledgeSession[]) => void) {
+    const q = query(
+      collection(db, "knowledge_sessions"),
+      where("status", "!=", "completed"),
+      orderBy("status"),
+      orderBy("dateTime", "asc"),
+      limit(20)
+    );
+    return onSnapshot(q, (snap) => {
+      callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as KnowledgeSession[]);
+    });
+  }
 };

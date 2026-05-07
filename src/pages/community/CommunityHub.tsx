@@ -21,7 +21,8 @@ import {
   Loader2,
   MessageSquare,
   BookMarked,
-  Heart
+  Heart,
+  GraduationCap
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import QuranHeader from "@/components/QuranHeader";
@@ -45,6 +46,7 @@ import CommunityChat from "@/components/community/CommunityChat";
 import GroupKhatma from "@/components/community/GroupKhatma";
 import ReadingCirclesComponent from "@/components/community/ReadingCirclesComponent";
 import PrayerCirclesComponent from "@/components/community/PrayerCirclesComponent";
+import KnowledgeSessionsComponent from "@/components/community/KnowledgeSessionsComponent";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -56,7 +58,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-type CommunityTab = "today" | "chat" | "feed" | "friends" | "khatma" | "circles" | "prayer" | "duels" | "leaderboard" | "quests";
+type CommunityTab = "today" | "chat" | "feed" | "friends" | "khatma" | "circles" | "sessions" | "prayer" | "duels" | "leaderboard" | "quests";
 
 type CommunityAction = {
   id: string;
@@ -115,6 +117,7 @@ const CommunityHub = () => {
     { id: "chat", label: isAr ? "المحادثة" : "Chat", icon: MessageSquare },
     { id: "khatma", label: isAr ? "الختمة" : "Khatma", icon: BookMarked },
     { id: "circles", label: isAr ? "الحلقات" : "Circles", icon: BookOpen },
+    { id: "sessions", label: isAr ? "الجلسات" : "Sessions", icon: GraduationCap },
     { id: "prayer", label: isAr ? "الدعاء" : "Dua", icon: Heart },
     { id: "feed", label: isAr ? "الخلاصة" : "Feed", icon: ActivityIcon },
     { id: "friends", label: isAr ? "الأصدقاء" : "Friends", icon: Users },
@@ -161,6 +164,18 @@ const CommunityHub = () => {
       actionLabel: isAr ? "استكشف الحلقات" : "Explore circles",
     },
     {
+      id: "recommended-session",
+      title: isAr ? "نظم مجلساً علمياً" : "Organize a learning session",
+      description: isAr
+        ? "اجتمع مع الآخرين لمدارسة العلم أو مراجعة الحفظ في جلسة تفاعلية."
+        : "Gather with others to study knowledge or review memorization in an interactive session.",
+      meta: isAr ? "تعلم جماعي" : "Group Learning",
+      icon: GraduationCap,
+      accent: "bg-purple-500/10 text-purple-600",
+      action: () => setActiveTab("sessions"),
+      actionLabel: isAr ? "استكشف الجلسات" : "Explore sessions",
+    },
+    {
       id: "friend-milestone",
       title: isAr ? "ابنِ صحبة صالحة" : "Build supportive friendships",
       description: isAr
@@ -182,6 +197,7 @@ const CommunityHub = () => {
     { label: isAr ? "القيام" : "Qiyam", path: "/qiyam" },
     { label: isAr ? "الصدقة" : "Sadaqah", path: "/sadaqah-logger" },
     { label: isAr ? "الختمة" : "Khatma", path: "/khatma-jamaaiya" },
+    { label: isAr ? "الجلسات" : "Sessions", path: "/community/hub?tab=sessions" },
     { label: isAr ? "رمضان" : "Ramadan", path: "/ramadan" },
   ];
 
@@ -517,6 +533,7 @@ const CommunityHub = () => {
             {activeTab === "chat" && <div className="p-4 md:p-8"><CommunityChat /></div>}
             {activeTab === "khatma" && <div className="p-4 md:p-8"><GroupKhatma standalone={false} /></div>}
             {activeTab === "circles" && <div className="p-4 md:p-8"><ReadingCirclesComponent standalone={false} /></div>}
+            {activeTab === "sessions" && <div className="p-4 md:p-8"><KnowledgeSessionsComponent standalone={false} /></div>}
             {activeTab === "prayer" && <div className="p-4 md:p-8"><PrayerCirclesComponent standalone={false} /></div>}
             {activeTab === "feed" && <ActivityFeed />}
             {activeTab === "friends" && <FriendsManager standalone={false} />}

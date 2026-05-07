@@ -8,6 +8,7 @@ import { SCHOLARS_DATA, ZAD_ACADEMY_LEVELS } from "@/data/videoData";
 import ActivityPlanner from "@/components/ActivityPlanner";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import KnowledgeSessionsComponent from "@/components/community/KnowledgeSessionsComponent";
 
 const KnowledgeSessions = () => {
   const { t } = useTranslation();
@@ -28,8 +29,12 @@ const KnowledgeSessions = () => {
         <header className="flex items-center gap-4 mb-8">
           <BackButton />
           <div className="h-10 w-[1px] bg-border/40" />
-          <p className="text-sm text-muted-foreground font-naskh">دليل القنوات الإسلامية</p>
+          <p className="text-sm text-muted-foreground font-naskh">دليل القنوات الإسلامية والمجالس العلمية</p>
         </header>
+
+        <section className="mb-16">
+          <KnowledgeSessionsComponent standalone={true} />
+        </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Main Content */}

@@ -171,5 +171,15 @@ service cloud.firestore {
       allow update: if isAuthenticated() && canWrite() && (request.auth.uid == resource.data.initiatorId || request.auth.uid == resource.data.targetId);
       allow delete: if false;
     }
+
+    match /knowledge_sessions/{sessionId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && canWrite();
+      allow update: if isAuthenticated() && (
+        resource.data.createdBy == request.auth.uid || 
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members'])
+      );
+      allow delete: if isAdmin() || (isAuthenticated() && resource.data.createdBy == request.auth.uid);
+    }
   }
 }
