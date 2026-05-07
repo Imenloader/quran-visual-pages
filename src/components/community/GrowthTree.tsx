@@ -3,94 +3,177 @@ import { useTranslation } from "react-i18next";
 import { useUser } from "@/contexts/UserContext";
 
 const GrowthTree = () => {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
   const { profile, level } = useUser();
 
   // Determine tree stage based on level
   const stage = useMemo(() => {
-    if (level <= 1) return 'seed';
-    if (level <= 5) return 'sprout';
-    if (level <= 10) return 'sapling';
-    if (level <= 20) return 'tree';
+    if (level <= 2) return 'seed';
+    if (level <= 7) return 'sprout';
+    if (level <= 15) return 'sapling';
+    if (level <= 25) return 'tree';
     return 'mighty_tree';
   }, [level]);
 
-  // SVG dimensions
-  const width = 200;
-  const height = 240;
+  // Leaf color based on gender/vibe (can be customized)
+  const leafColor = profile?.gender === 'female' ? '#10b981' : '#059669';
 
   return (
-    <div className="flex flex-col items-center justify-center p-6 bg-card/30 backdrop-blur-md rounded-[2.5rem] border border-border/20 shadow-inner group">
-      <div className="relative w-[200px] h-[240px]">
+    <div className="flex flex-col items-center justify-center p-6 bg-card/40 backdrop-blur-xl rounded-[2.5rem] border border-border/40 shadow-xl group relative overflow-hidden h-full">
+      {/* Background Glow */}
+      <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/5 to-transparent pointer-events-none" />
+      
+      <div className="relative w-full aspect-[4/5] flex items-center justify-center">
         <svg 
-          viewBox={`0 0 ${width} ${height}`} 
-          className="w-full h-full drop-shadow-[0_10px_15px_rgba(16,185,129,0.2)] transition-all duration-1000 group-hover:scale-105"
+          viewBox="0 0 200 250" 
+          className="w-full h-full drop-shadow-[0_15px_25px_rgba(16,185,129,0.15)] transition-all duration-1000 group-hover:scale-105"
         >
-          {/* Ground */}
-          <ellipse cx="100" cy="220" rx="60" ry="10" fill="currentColor" className="text-primary/5" />
-          
-          {/* Trunk & Branches (Simplified SVG shapes) */}
-          <path 
-            d={
-              stage === 'seed' ? "M100,220 L100,210" :
-              stage === 'sprout' ? "M100,220 L100,180" :
-              stage === 'sapling' ? "M100,220 L100,140 M100,180 L80,160 M100,170 L120,150" :
-              stage === 'tree' ? "M100,220 L100,100 M100,180 L70,140 M100,150 L130,120 M100,120 L80,90" :
-              "M100,220 L100,80 M100,180 L60,130 M100,150 L140,110 M100,120 L70,70 M100,90 L130,60"
-            }
-            stroke="currentColor" 
-            strokeWidth={level > 10 ? "8" : "4"} 
-            strokeLinecap="round"
-            className="text-amber-900/40 transition-all duration-1000"
-          />
+          <defs>
+            <linearGradient id="trunkGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#78350f" />
+              <stop offset="50%" stopColor="#92400e" />
+              <stop offset="100%" stopColor="#78350f" />
+            </linearGradient>
+            <linearGradient id="leafGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#34d399" />
+              <stop offset="100%" stopColor="#059669" />
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
 
-          {/* Leaves */}
-          {level >= 2 && (
-            <g className="transition-opacity duration-1000">
-               {/* Growing leaves based on progress */}
-               {[...Array(Math.min(20, level * 2))].map((_, i) => {
+          {/* Ground with better depth */}
+          <ellipse cx="100" cy="230" rx="70" ry="12" fill="url(#trunkGradient)" fillOpacity="0.05" />
+          <ellipse cx="100" cy="230" rx="40" ry="6" fill="url(#trunkGradient)" fillOpacity="0.1" />
+          
+          {/* Trunk & Branches (Organic Paths) */}
+          <g className="transition-all duration-1000">
+            {stage === 'seed' && (
+              <circle cx="100" cy="225" r="4" fill="#92400e" className="animate-bounce" />
+            )}
+            
+            {(stage !== 'seed') && (
+              <path 
+                d={
+                  stage === 'sprout' ? "M100,230 Q100,210 105,190" :
+                  stage === 'sapling' ? "M100,230 Q100,200 100,160 M100,200 Q80,180 75,165 M100,190 Q120,175 125,160" :
+                  stage === 'tree' ? "M100,230 Q100,180 100,100 M100,190 Q70,160 65,130 M100,170 Q130,140 135,110 M100,130 Q85,110 80,90" :
+                  "M100,230 Q100,160 100,70 M100,200 Q60,160 55,110 M100,180 Q140,140 145,90 M100,140 Q75,110 70,60 M100,110 Q125,80 130,40"
+                }
+                stroke="url(#trunkGradient)" 
+                strokeWidth={level > 15 ? "10" : level > 7 ? "6" : "3"} 
+                strokeLinecap="round"
+                fill="none"
+                className="transition-all duration-1000"
+              />
+            )}
+          </g>
+
+          {/* Leaves with more organic look */}
+          {level >= 3 && (
+            <g>
+               {[...Array(Math.min(40, level * 2))].map((_, i) => {
                  const angle = (i * 137.5) % 360;
-                 const radius = Math.sqrt(i) * (level > 10 ? 15 : 10);
+                 const radius = Math.sqrt(i) * (level > 15 ? 18 : 12);
                  const cx = 100 + radius * Math.cos(angle * Math.PI / 180);
-                 const cy = (height - 60) - radius * Math.sin(angle * Math.PI / 180) - (level * 2);
+                 const cy = (stage === 'sprout' ? 190 : stage === 'sapling' ? 160 : stage === 'tree' ? 110 : 70) - radius * Math.sin(angle * Math.PI / 180);
                  
                  return (
-                   <circle 
+                   <path 
                      key={i}
-                     cx={cx} 
-                     cy={cy} 
-                     r={Math.random() * 5 + 3} 
-                     className="fill-emerald-500/60 transition-all duration-1000"
-                     style={{ transitionDelay: `${i * 50}ms` }}
+                     d="M0,0 Q5,-10 10,0 Q5,10 0,0"
+                     transform={`translate(${cx}, ${cy}) rotate(${angle}) scale(${0.5 + Math.random() * 0.5})`}
+                     fill="url(#leafGradient)"
+                     className="transition-all duration-1000 opacity-80 hover:opacity-100"
+                     style={{ 
+                       transitionDelay: `${i * 30}ms`,
+                       animation: `float ${2 + Math.random() * 2}s ease-in-out infinite alternate`,
+                       animationDelay: `${i * 100}ms`
+                     }}
                    />
                  );
                })}
             </g>
           )}
 
-          {/* Special Fruits for Achievements */}
+          {/* Achievement Fruits (Glowy) */}
           {profile.totalJuzCompleted > 0 && (
-            <circle cx="100" cy="90" r="6" className="fill-gold animate-pulse" />
+            <circle 
+              cx="100" cy={stage === 'mighty_tree' ? 50 : 90} 
+              r="6" 
+              fill="#fbbf24" 
+              filter="url(#glow)"
+              className="animate-pulse"
+            />
+          )}
+          {level > 10 && (
+             <circle 
+              cx="70" cy="120" 
+              r="4" 
+              fill="#fbbf24" 
+              filter="url(#glow)"
+              className="animate-pulse"
+              style={{ animationDelay: '500ms' }}
+            />
           )}
         </svg>
 
-        {/* Level Badge Overlay */}
+        {/* Level Indicator (Modern Glassmorphism) */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-           <div className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm border-2 border-emerald-500 flex items-center justify-center shadow-lg">
-             <span className="text-xs font-bold text-emerald-600">{level}</span>
+           <div className="w-14 h-14 rounded-3xl bg-white/20 backdrop-blur-xl border border-white/40 flex items-center justify-center shadow-[0_8px_32px_rgba(0,0,0,0.1)] group-hover:scale-110 transition-transform duration-500">
+             <div className="text-center">
+               <span className="block text-[8px] uppercase tracking-tighter text-white/60 font-bold">Lvl</span>
+               <span className="text-xl font-black text-white leading-none">{level}</span>
+             </div>
            </div>
+        </div>
+
+        {/* Floating Particles */}
+        <div className="absolute inset-0 pointer-events-none">
+          {[...Array(6)].map((_, i) => (
+            <div 
+              key={i}
+              className="absolute w-1 h-1 bg-emerald-400/30 rounded-full animate-ping"
+              style={{
+                top: `${20 + Math.random() * 60}%`,
+                left: `${20 + Math.random() * 60}%`,
+                animationDelay: `${i * 800}ms`,
+                animationDuration: '3s'
+              }}
+            />
+          ))}
         </div>
       </div>
 
-      <div className="mt-4 text-center">
-        <h4 className="text-sm font-serif font-bold text-primary">{isAr ? 'شجرة النمو الروحاني' : 'Spiritual Growth Tree'}</h4>
-        <p className="text-[10px] text-muted-foreground italic">
-          {level < 5 ? (isAr ? 'تعهدها بالريّ (الأذكار)' : 'Keep watering it (Dhikr)') : 
-           level < 15 ? (isAr ? 'بدأت تؤتي أكلها' : 'Starting to bear fruit') :
-           (isAr ? 'شجرة طيبة أصلها ثابت' : 'A good tree with firm roots')}
-        </p>
+      <div className="mt-4 text-center relative z-10">
+        <h4 className="text-lg font-serif font-bold text-primary tracking-tight">
+          {isAr ? 'شجرة النمو الروحاني' : 'Spiritual Growth Tree'}
+        </h4>
+        <div className="flex items-center justify-center gap-2 mt-1">
+          <div className="h-1 w-8 rounded-full bg-emerald-500/20">
+            <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(level % 10) * 10}%` }} />
+          </div>
+          <p className="text-[10px] font-bold text-muted-foreground/80 uppercase tracking-widest">
+            {level < 5 ? (isAr ? 'بذرة صالحة' : 'Good Seed') : 
+             level < 15 ? (isAr ? 'نبتة يافعة' : 'Young Sprout') :
+             level < 25 ? (isAr ? 'شجرة مثمرة' : 'Fruitful Tree') :
+             (isAr ? 'شجرة طيبة' : 'Mighty Tree')}
+          </p>
+        </div>
       </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes float {
+          from { transform: translateY(0px) rotate(0deg); }
+          to { transform: translateY(-3px) rotate(5deg); }
+        }
+      `}} />
     </div>
   );
 };

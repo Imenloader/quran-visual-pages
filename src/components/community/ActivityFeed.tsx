@@ -16,7 +16,11 @@ import { ar, enUS } from "date-fns/locale";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
-const ActivityFeed = () => {
+interface ActivityFeedProps {
+  onFindFriends?: () => void;
+}
+
+const ActivityFeed = ({ onFindFriends }: ActivityFeedProps) => {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === "ar";
   const { profile } = useUser();
@@ -102,8 +106,8 @@ const ActivityFeed = () => {
           </p>
         </div>
         <button 
-          onClick={() => {/* Switch to friends tab */}} 
-          className="px-6 py-2 rounded-xl bg-primary text-white font-serif font-bold text-sm"
+          onClick={onFindFriends} 
+          className="px-6 py-2 rounded-xl bg-primary text-white font-serif font-bold text-sm shadow-lg hover:scale-105 transition-all"
         >
           {isAr ? 'ابحث عن أصدقاء' : 'Find Friends'}
         </button>

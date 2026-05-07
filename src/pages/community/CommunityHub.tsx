@@ -600,7 +600,10 @@ const CommunityHub = () => {
             {activeTab === "circles" && <div className="p-4 md:p-8"><ReadingCirclesComponent standalone={false} /></div>}
             {activeTab === "sessions" && <div className="p-4 md:p-8"><KnowledgeSessionsComponent standalone={false} /></div>}
             {activeTab === "prayer" && <div className="p-4 md:p-8"><PrayerCirclesComponent standalone={false} /></div>}
-            {activeTab === "feed" && <ActivityFeed />}
+            {activeTab === "feed" && <ActivityFeed onFindFriends={() => {
+              setActiveTab("friends");
+              setSearchParams({ tab: "friends" });
+            }} />}
             {activeTab === "friends" && <FriendsManager standalone={false} />}
             {activeTab === "duels" && <SpiritualDuels />}
             {activeTab === "leaderboard" && <Leaderboard />}
