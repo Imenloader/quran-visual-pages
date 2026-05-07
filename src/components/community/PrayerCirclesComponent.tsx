@@ -1,20 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { db, auth } from '@/firebase';
-import { collection, query, where, onSnapshot, doc, setDoc, addDoc, serverTimestamp, orderBy, limit, updateDoc, increment, deleteDoc } from 'firebase/firestore';
-import QuranHeader from '@/components/QuranHeader';
+import { collection, query, onSnapshot, doc, getDoc, addDoc, serverTimestamp, orderBy, limit, updateDoc, increment, arrayUnion, runTransaction } from 'firebase/firestore';
+import BackButton from '@/components/BackButton';
 import { 
   Users, 
-  MessageSquare, 
   Heart, 
   Plus, 
   ChevronRight, 
-  Sparkles,
   HandHelping,
-  Trash2,
-  Clock,
-  Send,
-  X,
   Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -34,10 +28,20 @@ import { Textarea } from "@/components/ui/textarea";
 interface Circle {
   id: string;
   name: string;
-  members: string[];
+  members: string[] | Record<string, { uid: string; name?: string }>;
   createdBy: string;
   lastMessage?: string;
 }
+
+const getCircleMemberIds = (members: Circle['members'] | any): string[] => {
+  if (Array.isArray(members)) {
+    return members.map((m: any) => (typeof m === 'string' ? m : m?.uid)).filter(Boolean);
+  }
+  if (members && typeof members === 'object') {
+    return Object.entries(members).map(([key, value]: any) => value?.uid || key).filter(Boolean);
+  }
+  return [];
+};
 
 interface PrayerCirclesComponentProps {
   standalone?: boolean;
@@ -106,19 +110,55 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
     }
   };
 
-  const joinCircle = async (circleId: string, members: string[]) => {
+  const joinCircle = async (circleId: string, members: Circle["members"]) => {
     if (!auth.currentUser) {
        toast.error(t('common.loginRequired'));
        return;
     }
-    if (members.includes(auth.currentUser.uid)) return;
+    const memberIds = getCircleMemberIds(members);
+    if (memberIds.includes(auth.currentUser.uid)) {
+      toast.message(isArabic ? 'أنت منضم بالفعل لهذه الحلقة' : 'You are already in this circle');
+      return;
+    }
     try {
-      const { arrayUnion } = await import('firebase/firestore');
-      await updateDoc(doc(db, 'prayer_circles', circleId), {
-        members: arrayUnion(auth.currentUser.uid)
+      const circleRef = doc(db, 'prayer_circles', circleId);
+      await runTransaction(db, async (tx) => {
+        const snap = await tx.get(circleRef);
+        const latestMembers = (snap.data()?.members ?? members) as Circle['members'];
+        const latestIds = getCircleMemberIds(latestMembers);
+        if (latestIds.includes(auth.currentUser!.uid)) return;
+
+        if (Array.isArray(latestMembers)) {
+          tx.update(circleRef, { members: arrayUnion(auth.currentUser!.uid) });
+          return;
+        }
+
+        tx.update(circleRef, {
+          [`members.${auth.currentUser!.uid}`]: {
+            uid: auth.currentUser!.uid,
+            name: auth.currentUser!.displayName || (isArabic ? 'مستخدم' : 'User'),
+            joinedAt: serverTimestamp(),
+          }
+        });
       });
+
+      setCircles((prev) => prev.map((c) => {
+        if (c.id !== circleId) return c;
+        if (Array.isArray(c.members)) {
+          return { ...c, members: [...c.members, auth.currentUser!.uid] };
+        }
+        return {
+          ...c,
+          members: {
+            ...(c.members || {}),
+            [auth.currentUser!.uid]: { uid: auth.currentUser!.uid, name: auth.currentUser!.displayName || (isArabic ? 'مستخدم' : 'User') }
+          }
+        };
+      }));
+
       toast.success(isArabic ? 'تم الانضمام للحلقة بنجاح' : 'Joined circle successfully');
     } catch (e) {
+      console.error('Join circle failed:', e);
       toast.error(isArabic ? 'فشل الانضمام' : 'Failed to join');
     }
   };
@@ -207,22 +247,25 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
       <div className="space-y-4">
          <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">{t('prayerCircles.activeCircles')}</h2>
          <div className="grid grid-cols-1 gap-3">
-            {circles.map(circle => (
-               <div key={circle.id} onClick={() => !circle.members.includes(auth.currentUser?.uid || '') && joinCircle(circle.id, circle.members)} className="p-4 rounded-2xl bg-card border flex items-center justify-between group cursor-pointer">
+            {circles.map(circle => {
+               const memberIds = getCircleMemberIds(circle.members);
+               const isMember = memberIds.includes(auth.currentUser?.uid || '');
+               return (
+               <div key={circle.id} onClick={() => !isMember && joinCircle(circle.id, circle.members as any)} className="p-4 rounded-2xl bg-card border flex items-center justify-between group cursor-pointer">
                   <div className="flex items-center gap-4 text-right">
                      <Users size={20} className="text-primary" />
                      <div>
                         <h4 className="font-bold text-sm">{circle.name}</h4>
-                        <p className="text-[10px] text-muted-foreground">{t('prayerCircles.membersCount', { count: isArabic ? toArabicNumber(circle.members.length) : circle.members.length })}</p>
+                        <p className="text-[10px] text-muted-foreground">{t('prayerCircles.membersCount', { count: isArabic ? toArabicNumber(memberIds.length) : memberIds.length })}</p>
                      </div>
                   </div>
-                  {!circle.members.includes(auth.currentUser?.uid || '') ? (
-                     <Button size="sm" variant="outline" className="text-[10px] font-bold">{isArabic ? 'انضمام' : 'Join'}</Button>
+                  {!isMember ? (
+                     <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); joinCircle(circle.id, circle.members as any); }} className="text-[10px] font-bold">{isArabic ? 'انضمام' : 'Join'}</Button>
                   ) : (
                      <ChevronRight size={16} className={isArabic ? "rotate-180" : ""} />
                   )}
                </div>
-            ))}
+            )})}
          </div>
       </div>
 
