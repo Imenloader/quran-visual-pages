@@ -52,6 +52,7 @@ import KnowledgeSessionsComponent from "@/components/community/KnowledgeSessions
 import CommunityPosts from "@/components/community/CommunityPosts";
 import AdminPanel from "@/components/community/AdminPanel";
 import { invitationService, CommunityInvitation } from "@/services/invitationService";
+import AuthModal from "@/components/AuthModal";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -98,6 +99,7 @@ const CommunityHub = () => {
   const [reportCategory, setReportCategory] = useState<ReportCategory>("abuse");
   const [reportDetails, setReportDetails] = useState("");
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
     if (!profile?.uid) return;
@@ -135,6 +137,31 @@ const CommunityHub = () => {
     const unsub = communityService.subscribeToCommunityReports(setCommunityReports);
     return () => unsub();
   }, [isAdmin]);
+
+  if (!profile?.uid) {
+    return (
+      <div className="min-h-screen bg-background">
+        <QuranHeader />
+        <div className="pt-24 pb-32 flex flex-col items-center justify-center text-center px-6 min-h-[80vh]">
+          <div className="bg-primary/5 p-6 rounded-full mb-6 text-primary">
+            <Users size={64} />
+          </div>
+          <h1 className="text-3xl md:text-4xl font-serif font-bold mb-4">{isAr ? "مجتمع القرآن" : "Quran Community"}</h1>
+          <p className="text-muted-foreground text-lg max-w-md mb-8">
+            {isAr 
+              ? "انضم إلى إخوتك في تلاوة القرآن، شارك في الختمات الجماعية، وتنافس في الخيرات." 
+              : "Join your siblings in reciting the Quran, participate in group Khatmas, and compete in good deeds."}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <Button size="lg" className="px-8 font-bold text-lg rounded-xl h-14" onClick={() => setShowAuthModal(true)}>
+              {isAr ? "تسجيل الدخول / حساب جديد" : "Sign In / Sign Up"}
+            </Button>
+          </div>
+        </div>
+        <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      </div>
+    );
+  }
 
   const today = new Date().toISOString().split("T")[0];
   const todayPages = profile.dailyReadingHistory?.find(day => day.date === today)?.pages || 0;
