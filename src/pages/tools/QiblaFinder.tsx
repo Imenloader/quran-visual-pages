@@ -82,16 +82,16 @@ const QiblaFinder = () => {
         DeviceOrientationEventWithPermission.requestPermission()
           .then((state: string) => {
             if (state === "granted") {
-              window.addEventListener("deviceorientation", handleOrientation);
+              (window as any).addEventListener("deviceorientation", handleOrientation);
             } else {
               setError("يرجى منح إذن الوصول للمستشعرات");
             }
           });
       } else {
         if ('ondeviceorientationabsolute' in window) {
-          window.addEventListener("deviceorientationabsolute", handleOrientation);
+          (window as any).addEventListener("deviceorientationabsolute", handleOrientation);
         } else {
-          window.addEventListener("deviceorientation", handleOrientation);
+          (window as any).addEventListener("deviceorientation", handleOrientation);
         }
       }
     } else {
@@ -99,9 +99,9 @@ const QiblaFinder = () => {
     }
 
     return () => {
-      window.removeEventListener("deviceorientation", handleOrientation);
+      (window as any).removeEventListener("deviceorientation", handleOrientation);
       if ('ondeviceorientationabsolute' in window) {
-        window.removeEventListener("deviceorientationabsolute", handleOrientation);
+        (window as any).removeEventListener("deviceorientationabsolute", handleOrientation);
       }
     };
   }, []);

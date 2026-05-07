@@ -13,6 +13,7 @@ interface LeaderboardUser {
   points: number;
   level: number;
   totalAyahsRead?: number;
+  totalJuzCompleted?: number;
 }
 
 const Leaderboard: React.FC = () => {

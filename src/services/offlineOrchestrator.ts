@@ -548,8 +548,8 @@ class OfflineOrchestrator {
   private withRequest<T>(request: IDBRequest<T>, onUpgradeNeeded?: (db: IDBDatabase) => void): Promise<T> {
     return new Promise((resolve, reject) => {
       if ("onupgradeneeded" in request && typeof onUpgradeNeeded === "function") {
-        (request as IDBOpenDBRequest).onupgradeneeded = () => {
-          const db = (request as IDBOpenDBRequest).result;
+        (request as any).onupgradeneeded = () => {
+          const db = (request as any).result;
           onUpgradeNeeded(db);
         };
       }

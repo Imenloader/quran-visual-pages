@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { HandHeart, Moon, Sun, Star } from "lucide-react";
+import { HandHeart, Moon, Sun, Star, Sparkles, BookOpen } from "lucide-react";
 import RamadanSectionLayout from "@/components/ramadan/RamadanSectionLayout";
 import ScrollReveal from "@/components/ScrollReveal";
 

@@ -1,5 +1,5 @@
 
-import axios from 'axios';
+
 
 const videoIds = [
   'YRhFSWz_J3I', // Pushups
@@ -17,9 +17,9 @@ async function checkThumbnails() {
   for (const id of videoIds) {
     try {
       const url = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
-      const response = await axios.head(url);
-      console.log(`[${id}] Status: ${response.status} - ${response.status === 200 ? 'VALID' : 'FAIL'}`);
-    } catch (error) {
+      const response = await fetch(url, { method: 'HEAD' });
+      console.log(`[${id}] Status: ${response.status} - ${response.ok ? 'VALID' : 'FAIL'}`);
+    } catch (error: any) {
       console.log(`[${id}] FAILED - ${error.message}`);
     }
   }

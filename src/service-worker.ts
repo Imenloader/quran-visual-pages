@@ -107,12 +107,14 @@ const metricsPlugin = (bundle: string, endpoint: string, cacheName: string) => (
     const metric = getMetricSnapshot(bundle, endpoint, cacheName);
     metric.networkFailures += 1;
     publishMetricLog('error', 'network_failure', metric, request, { error: error.message });
+    return undefined;
   },
 
   handlerDidError: async ({ error, request }: { error: Error; request: Request }) => {
     const metric = getMetricSnapshot(bundle, endpoint, cacheName);
     metric.handlerFailures += 1;
     publishMetricLog('error', 'handler_failure', metric, request, { error: error.message });
+    return undefined;
   },
 });
 
@@ -160,11 +162,13 @@ const cacheEventPlugin = {
       resource: request.url,
       error: error?.message ?? 'Failed to fetch resource',
     });
+    return undefined;
   },
   handlerDidComplete: async ({ request }: { request: Request }) => {
     broadcastCacheEvent('CACHE_DONE', {
       resource: request.url,
     });
+    return undefined;
   },
 };
 

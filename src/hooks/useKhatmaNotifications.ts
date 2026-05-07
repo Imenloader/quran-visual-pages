@@ -80,7 +80,7 @@ export const useKhatmaNotifications = () => {
                 lang: "ar",
                 renotify: true,
                 data: { url: "/khatma" }
-              });
+              } as any);
             });
           } else {
             const winNotif2 = (window as unknown as { Notification: typeof Notification }).Notification;

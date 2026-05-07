@@ -102,7 +102,7 @@ const RoutineBuilder: React.FC = () => {
       if (r.id === routineId) {
         return {
           ...r,
-          tasks: [...r.tasks, { id: Date.now().toString(), title, type: 'other', completed: false }]
+          tasks: [...r.tasks, { id: Date.now().toString(), title, type: 'other' as const, completed: false }]
         };
       }
       return r;

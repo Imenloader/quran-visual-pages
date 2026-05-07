@@ -51,7 +51,7 @@ const Favorites = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddCollection, setShowAddCollection] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState("");
-  const [editingItem, setEditingItem] = useState<{ id: number; type: string; nickname: string; collectionId?: string } | null>(null);
+  const [editingItem, setEditingItem] = useState<{ id: number | string; type: string; nickname: string; collectionId?: string } | null>(null);
 
   const counts = useMemo(() => {
     return {

@@ -195,7 +195,7 @@ const Library = () => {
     } catch (error) {
       console.error("Failed to fetch books:", error);
       if (error instanceof Error && error.name === 'AbortError') {
-        setError(isAr ? "انتهت مهلة الطلب. يرجى التحقق من اتصالك بالإنترنت." : "Request timed out. Please check your connection.");
+        setError(i18n.language === 'ar' ? "انتهت مهلة الطلب. يرجى التحقق من اتصالك بالإنترنت." : "Request timed out. Please check your connection.");
       } else {
         setError(error instanceof Error ? error.message : "Failed to fetch books");
       }
