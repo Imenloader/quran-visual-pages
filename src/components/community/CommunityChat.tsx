@@ -647,13 +647,13 @@ const CommunityChat: React.FC = () => {
                       {isMe && <CheckCheck size={10} />}
                     </div>
 
-                    <div className={`absolute -top-2 ${isMe ? "right-full mr-2" : "left-full ml-2"} flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity`}>
+                    <div className={`absolute -top-8 ${isMe ? "right-0" : "left-0"} flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-50`}>
                       <button 
                         onClick={() => setReplyTo(msg)}
-                        className="p-1.5 bg-card/80 backdrop-blur text-muted-foreground hover:text-primary rounded-full shadow-sm hover:scale-110 transition-all border border-border/40"
+                        className="p-1.5 bg-background/95 backdrop-blur-xl text-primary border border-primary/20 rounded-full shadow-xl hover:scale-110 active:scale-90 transition-all"
                         title={isAr ? "رد" : "Reply"}
                       >
-                        <MessageSquare size={12} />
+                        <MessageSquare size={14} />
                       </button>
                       
                       {!isMe && (
@@ -789,7 +789,7 @@ const CommunityChat: React.FC = () => {
                 }
               }}
               placeholder={isAr ? "اكتب رسالتك..." : "Type a message..."}
-              className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 px-2 max-h-32 min-h-[40px] resize-none font-naskh"
+              className="flex-1 bg-transparent border-none focus:ring-0 text-base py-2 px-2 max-h-32 min-h-[40px] resize-none font-naskh"
               dir="auto"
               rows={1}
             />
