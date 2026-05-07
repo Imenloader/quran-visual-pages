@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { db, auth } from '@/firebase';
-import { collection, query, onSnapshot, doc, getDoc, addDoc, serverTimestamp, orderBy, limit, updateDoc, increment, arrayUnion } from 'firebase/firestore';
+import { collection, query, onSnapshot, doc, getDoc, addDoc, serverTimestamp, orderBy, limit, updateDoc, increment, arrayUnion, runTransaction } from 'firebase/firestore';
 import BackButton from '@/components/BackButton';
 import { 
   Users, 
@@ -32,6 +32,16 @@ interface Circle {
   createdBy: string;
   lastMessage?: string;
 }
+
+const getCircleMemberIds = (members: Circle['members'] | any): string[] => {
+  if (Array.isArray(members)) {
+    return members.map((m: any) => (typeof m === 'string' ? m : m?.uid)).filter(Boolean);
+  }
+  if (members && typeof members === 'object') {
+    return Object.entries(members).map(([key, value]: any) => value?.uid || key).filter(Boolean);
+  }
+  return [];
+};
 
 interface PrayerCirclesComponentProps {
   standalone?: boolean;
@@ -102,58 +112,57 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
 
   const joinCircle = async (circleId: string, members: Circle["members"]) => {
     if (!auth.currentUser) {
-       toast.error(isArabic ? 'يرجى تسجيل الدخول أولاً' : 'Please sign in first');
+       toast.error(t('common.loginRequired'));
        return;
     }
-    
-    const currentUid = auth.currentUser.uid;
-    
+    const memberIds = getCircleMemberIds(members);
+    if (memberIds.includes(auth.currentUser.uid)) {
+      toast.message(isArabic ? 'أنت منضم بالفعل لهذه الحلقة' : 'You are already in this circle');
+      return;
+    }
     try {
       const circleRef = doc(db, 'prayer_circles', circleId);
-      const latest = await getDoc(circleRef);
-      
-      if (!latest.exists()) {
-        toast.error(isArabic ? 'الحلقة غير موجودة' : 'Circle not found');
-        return;
-      }
+      await runTransaction(db, async (tx) => {
+        const snap = await tx.get(circleRef);
+        const latestMembers = (snap.data()?.members ?? members) as Circle['members'];
+        const latestIds = getCircleMemberIds(latestMembers);
+        if (latestIds.includes(auth.currentUser!.uid)) return;
 
-      const data = latest.data();
-      const latestMembers = data.members || [];
-      
-      // Better member ID extraction
-      const getMemberIds = (m: any) => {
-        if (Array.isArray(m)) return m;
-        if (m && typeof m === 'object') {
-          return Object.values(m).map((val: any) => typeof val === 'string' ? val : val?.uid).filter(Boolean);
+        if (Array.isArray(latestMembers)) {
+          tx.update(circleRef, { members: arrayUnion(auth.currentUser!.uid) });
+          return;
         }
-        return [];
-      };
 
-      const memberIds = getMemberIds(latestMembers);
-      
-      if (memberIds.includes(currentUid)) {
-        toast.info(isArabic ? 'أنت عضو بالفعل في هذه الحلقة' : 'You are already a member');
-        return;
-      }
-
-      if (Array.isArray(latestMembers)) {
-        await updateDoc(circleRef, {
-          members: arrayUnion(currentUid)
-        });
-      } else {
-        // Handle legacy object structure if it exists
-        await updateDoc(circleRef, {
-          [`members.${currentUid}`]: {
-            uid: currentUid,
-            name: auth.currentUser.displayName || (isArabic ? 'مستخدم' : 'User'),
-            joinedAt: serverTimestamp()
+        tx.update(circleRef, {
+          [`members.${auth.currentUser!.uid}`]: {
+            uid: auth.currentUser!.uid,
+            name: auth.currentUser!.displayName || (isArabic ? 'مستخدم' : 'User'),
+            joinedAt: serverTimestamp(),
           }
         });
-      }
+      });
+
+      setCircles((prev) => prev.map((c) => {
+        if (c.id !== circleId) return c;
+        const currentMemberIds = getCircleMemberIds(c.members);
+        if (currentMemberIds.includes(auth.currentUser!.uid)) return c;
+
+        if (Array.isArray(c.members)) {
+          return { ...c, members: [...c.members, auth.currentUser!.uid] };
+        }
+        return {
+          ...c,
+          members: {
+            ...(c.members || {}),
+            [auth.currentUser!.uid]: { uid: auth.currentUser!.uid, name: auth.currentUser!.displayName || (isArabic ? 'مستخدم' : 'User') }
+          }
+        };
+      }));
+
       toast.success(isArabic ? 'تم الانضمام للحلقة بنجاح' : 'Joined circle successfully');
     } catch (e) {
       console.error('Join circle failed:', e);
-      toast.error(isArabic ? 'عذراً، فشل الانضمام. يرجى المحاولة لاحقاً' : 'Failed to join. Please try again later');
+      toast.error(isArabic ? 'فشل الانضمام' : 'Failed to join');
     }
   };
 
@@ -189,7 +198,7 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
     try {
       await updateDoc(doc(db, 'dua_requests', id), {
         ameenCount: increment(1),
-        ameeners: [...currentAmeeners, auth.currentUser.uid]
+        ameeners: arrayUnion(auth.currentUser.uid)
       });
     } catch (e) {
       console.error(e);
@@ -203,7 +212,7 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
       return formatDistanceToNow(date, { 
         addSuffix: true, 
         locale: isArabic ? ar : enUS 
-      });
+    });
     } catch (e) {
       return '';
     }
@@ -242,14 +251,7 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
          <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">{t('prayerCircles.activeCircles')}</h2>
          <div className="grid grid-cols-1 gap-3">
             {circles.map(circle => {
-               const getMemberIds = (m: any) => {
-                 if (Array.isArray(m)) return m;
-                 if (m && typeof m === 'object') {
-                   return Object.values(m).map((val: any) => typeof val === 'string' ? val : val?.uid).filter(Boolean);
-                 }
-                 return [];
-               };
-               const memberIds = getMemberIds(circle.members);
+               const memberIds = getCircleMemberIds(circle.members);
                const isMember = memberIds.includes(auth.currentUser?.uid || '');
                return (
                <div key={circle.id} onClick={() => !isMember && joinCircle(circle.id, circle.members as any)} className="p-4 rounded-2xl bg-card border flex items-center justify-between group cursor-pointer">
