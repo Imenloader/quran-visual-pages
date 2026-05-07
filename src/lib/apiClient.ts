@@ -21,7 +21,7 @@ export async function fetchWithCache(
     expiry = CACHE_EXPIRY, 
     retries = 2, 
     signal, 
-    timeout = 15000 
+    timeout = 20000 
   } = options;
   
   const cacheKey = CACHE_PREFIX + safeEncode(url);
@@ -46,7 +46,7 @@ export async function fetchWithCache(
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), timeout);
+      const timeoutId = setTimeout(() => controller.abort("Request Timeout"), timeout);
 
       // If a parent signal is provided, abort our controller when the parent aborts
       if (signal) {
@@ -100,27 +100,38 @@ export async function fetchWithCache(
               return typeof proxyData.contents === 'string' ? JSON.parse(proxyData.contents) : proxyData.contents;
             }
           } catch (proxyError) {
-            console.warn("AllOrigins proxy failed, trying CorsProxy.io...", proxyError);
+            console.warn("AllOrigins proxy failed, trying Codetabs...", proxyError);
             
-            // 2. Try corsproxy.io
+            // 2. Try Codetabs (fast)
             try {
-              const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
+              const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
               const proxyResponse = await fetch(proxyUrl, { signal: controller.signal });
               if (proxyResponse.ok) {
                 return await proxyResponse.json();
               }
             } catch (secondaryProxyError) {
-              console.warn("CorsProxy.io failed, trying ThingProxy...", secondaryProxyError);
+              console.warn("Codetabs failed, trying CorsProxy.io...", secondaryProxyError);
 
-              // 3. Try ThingProxy
+              // 3. Try corsproxy.io
               try {
-                const proxyUrl = `https://thingproxy.freeboard.io/fetch/${url}`;
+                const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
                 const proxyResponse = await fetch(proxyUrl, { signal: controller.signal });
                 if (proxyResponse.ok) {
-                   return await proxyResponse.json();
+                  return await proxyResponse.json();
                 }
               } catch (tertiaryProxyError) {
-                 console.error("All fallbacks and proxies failed", tertiaryProxyError);
+                console.warn("CorsProxy.io failed, trying ThingProxy...", tertiaryProxyError);
+
+                // 4. Try ThingProxy
+                try {
+                  const proxyUrl = `https://thingproxy.freeboard.io/fetch/${url}`;
+                  const proxyResponse = await fetch(proxyUrl, { signal: controller.signal });
+                  if (proxyResponse.ok) {
+                     return await proxyResponse.json();
+                  }
+                } catch (quaternaryProxyError) {
+                   console.error("All fallbacks and proxies failed", quaternaryProxyError);
+                }
               }
             }
           }

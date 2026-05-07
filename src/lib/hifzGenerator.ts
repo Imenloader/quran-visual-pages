@@ -14,15 +14,13 @@ export interface HifzQuestion {
 }
 
 export const generatePageQuiz = async (pageNumber: number, difficulty: "beginner" | "advanced" = "beginner"): Promise<HifzQuestion[]> => {
-  const ayahs = await fetchPageVerses(pageNumber);
-  if (!ayahs || ayahs.length === 0) return [];
-
-  // Fetch previous and next page for transitional questions
-  let prevPageAyahs: any[] = [];
-  let nextPageAyahs: any[] = [];
+  const [ayahs, prevPageAyahs, nextPageAyahs] = await Promise.all([
+    fetchPageVerses(pageNumber),
+    pageNumber > 1 ? fetchPageVerses(pageNumber - 1) : Promise.resolve([]),
+    pageNumber < 604 ? fetchPageVerses(pageNumber + 1) : Promise.resolve([])
+  ]);
   
-  if (pageNumber > 1) prevPageAyahs = await fetchPageVerses(pageNumber - 1);
-  if (pageNumber < 604) nextPageAyahs = await fetchPageVerses(pageNumber + 1);
+  if (!ayahs || ayahs.length === 0) return [];
 
   const questions: HifzQuestion[] = [];
 
