@@ -39,6 +39,15 @@ interface KnowledgeSessionsComponentProps {
   standalone?: boolean;
 }
 
+const ensureAbsoluteUrl = (url: string) => {
+  if (!url) return "";
+  const trimmed = url.trim();
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+};
+
 const KnowledgeSessionsComponent = ({ standalone = false }: KnowledgeSessionsComponentProps) => {
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
@@ -57,10 +66,14 @@ const KnowledgeSessionsComponent = ({ standalone = false }: KnowledgeSessionsCom
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const unsub = communityService.subscribeToKnowledgeSessions(setSessions);
-    setIsLoading(false);
+    if (!profile?.gender) return;
+    const gender = profile.gender === 'female' ? 'female' : 'male';
+    const unsub = communityService.subscribeToKnowledgeSessions(gender, (data) => {
+      setSessions(data);
+      setIsLoading(false);
+    });
     return () => unsub();
-  }, []);
+  }, [profile?.gender]);
 
   const handleCreateSession = async () => {
     if (!profile?.uid) {
@@ -82,7 +95,8 @@ const KnowledgeSessionsComponent = ({ standalone = false }: KnowledgeSessionsCom
         dateTime: new Date(newSession.dateTime) as any,
         createdBy: profile.uid,
         creatorName: profile.name || (isAr ? "فاعل خير" : "Anonymous"),
-        meetingLink: newSession.meetingLink
+        meetingLink: newSession.meetingLink,
+        gender: profile.gender === 'female' ? 'female' : 'male'
       });
       toast.success(isAr ? "تم إنشاء الجلسة بنجاح" : "Session created successfully");
       setShowCreateDialog(false);
@@ -297,7 +311,7 @@ const KnowledgeSessionsComponent = ({ standalone = false }: KnowledgeSessionsCom
                           <Button 
                             size="sm" 
                             className="rounded-xl bg-primary text-[10px] h-8 px-4 gap-2"
-                            onClick={() => window.open(session.meetingLink, "_blank")}
+                            onClick={() => window.open(ensureAbsoluteUrl(session.meetingLink!), "_blank")}
                           >
                             <Video size={12} />
                             {isAr ? "دخول اللقاء" : "Join Call"}

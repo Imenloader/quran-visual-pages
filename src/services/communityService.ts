@@ -26,6 +26,7 @@ export interface KnowledgeSession {
   members: string[]; // array of UIDs
   status: 'planned' | 'ongoing' | 'completed';
   meetingLink?: string;
+  gender: 'male' | 'female';
   createdAt: FirestoreDate;
 }
 
@@ -200,9 +201,10 @@ export const communityService = {
     });
   },
 
-  subscribeToKnowledgeSessions(callback: (sessions: KnowledgeSession[]) => void) {
+  subscribeToKnowledgeSessions(gender: string, callback: (sessions: KnowledgeSession[]) => void) {
     const q = query(
       collection(db, "knowledge_sessions"),
+      where("gender", "==", gender),
       where("status", "!=", "completed"),
       orderBy("status"),
       orderBy("dateTime", "asc"),

@@ -28,6 +28,26 @@ const THEME_KEY = "quran-theme";
 const FONT_SIZE_KEY = "quran-font-size";
 const DIMMING_KEY = "quran-page-dimming";
 
+const formatDate = (date: any, isArabic: boolean) => {
+  if (!date) return '';
+  let d: Date;
+  try {
+    if (typeof date.toDate === 'function') {
+      d = date.toDate();
+    } else {
+      d = new Date(date);
+    }
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', { 
+      year: 'numeric', 
+      month: 'long',
+      day: 'numeric'
+    });
+  } catch (e) {
+    return '';
+  }
+};
+
 const Profile = () => {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === "ar";
@@ -1261,7 +1281,7 @@ const Profile = () => {
                       <div className="grid grid-cols-2 gap-1.5">
                         <div className="p-1.5 rounded-lg bg-card border border-border/20">
                           <p className="text-[6px] font-bold text-primary/70 uppercase tracking-widest">{t("profile.joinedDate")}</p>
-                          <p className="font-serif font-bold text-primary mt-0.5 text-[9px]">{new Date(profile.joinedDate).toLocaleDateString(i18n.language === 'ar' ? 'ar-EG' : 'en-US')}</p>
+                          <p className="font-serif font-bold text-primary mt-0.5 text-[9px]">{formatDate(profile.joinedDate, isAr)}</p>
                         </div>
                         <div className="p-1.5 rounded-lg bg-card border border-border/20">
                           <p className="text-[6px] font-bold text-primary/70 uppercase tracking-widest">{t("profile.totalPoints")}</p>

@@ -40,6 +40,29 @@ import { setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 
 import { useUser } from '@/contexts/UserContext';
 
+const formatDate = (date: any, isArabic: boolean) => {
+  if (!date) return '';
+  let d: Date;
+  
+  try {
+    if (typeof date.toDate === 'function') {
+      d = date.toDate();
+    } else {
+      d = new Date(date);
+    }
+    
+    if (isNaN(d.getTime())) return '';
+    
+    return d.toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', { 
+      year: 'numeric', 
+      month: 'long',
+      day: 'numeric'
+    });
+  } catch (e) {
+    return '';
+  }
+};
+
 const UserProfileView: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const { t, i18n } = useTranslation();
@@ -188,13 +211,15 @@ const UserProfileView: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-deep/90 via-emerald-900 to-black/80" />
         <div className="absolute inset-0 opacity-20 pattern-islamic scale-150 rotate-12" />
         
-        <div className="absolute top-6 left-6 z-30" dir="ltr">
+        {/* Back Button */}
+        <div className="absolute top-4 safe-top left-4 z-50">
           <Button 
-            variant="outline" 
+            variant="ghost" 
             onClick={() => navigate(-1)} 
-            className="bg-black/20 border-white/20 text-white hover:bg-black/40 rounded-full w-12 h-12 p-0 flex items-center justify-center backdrop-blur-md transition-all shadow-lg hover:scale-105"
+            className="bg-black/40 border border-white/20 text-white hover:bg-black/60 rounded-full h-12 px-5 flex items-center gap-2 backdrop-blur-xl transition-all shadow-2xl active:scale-95"
           >
-            {isArabic ? <ArrowRight size={24} /> : <ArrowLeft size={24} />}
+            {isArabic ? <ArrowRight size={20} /> : <ArrowLeft size={20} />}
+            <span className="font-bold text-sm">{isArabic ? 'رجوع' : 'Back'}</span>
           </Button>
         </div>
 
@@ -229,7 +254,7 @@ const UserProfileView: React.FC = () => {
               </div>
               <p className="text-white/60 text-sm font-naskh flex items-center justify-center md:justify-start gap-2">
                 <Calendar size={14} />
-                {t('profile.joinedDate')}: {profile.joinedDate ? (profile.joinedDate.toDate ? profile.joinedDate.toDate() : new Date(profile.joinedDate)).toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'long' }) : ''}
+                {t('profile.joinedDate')}: {formatDate(profile.joinedDate, isArabic)}
               </p>
             </div>
 
