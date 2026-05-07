@@ -14,7 +14,8 @@ import {
   Trash2,
   Clock,
   Send,
-  X
+  X,
+  Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { toArabicNumber } from '@/data/quranData';
