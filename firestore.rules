@@ -140,12 +140,12 @@ service cloud.firestore {
       allow read: if isAuthenticated() && (
         isAdmin() || 
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.gender == resource.data.gender)
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('gender', 'unspecified') == resource.data.gender)
       );
       allow create: if isAuthenticated() && !isBanned() && canWrite() && (
         isAdmin() ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.gender == request.resource.data.gender)
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('gender', 'unspecified') == request.resource.data.gender)
       );
       allow update: if isAuthenticated() && (canWrite() || isAdmin());
       allow delete: if isAdmin() || (isAuthenticated() && resource.data.authorId == request.auth.uid);
@@ -154,12 +154,12 @@ service cloud.firestore {
         allow read: if isAuthenticated() && (
           isAdmin() || 
           (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.gender == get(/databases/$(database)/documents/community_posts/$(postId)).data.gender)
+           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('gender', 'unspecified') == get(/databases/$(database)/documents/community_posts/$(postId)).data.gender)
         );
         allow create: if isAuthenticated() && !isBanned() && canWrite() && (
           isAdmin() || 
           (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.gender == get(/databases/$(database)/documents/community_posts/$(postId)).data.gender)
+           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('gender', 'unspecified') == get(/databases/$(database)/documents/community_posts/$(postId)).data.gender)
         );
       }
     }
@@ -174,26 +174,30 @@ service cloud.firestore {
       allow delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
     }
 
-
     match /community_reports/{reportId} {
       allow create: if isAuthenticated() && canWrite() && request.resource.data.reporterId == request.auth.uid;
       allow read, update, delete: if isAdmin();
     }
+    
     match /notifications/{notifId} {
       allow read, update, delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
       allow create: if isAuthenticated() && canWrite();
+    }
+
+    match /community_typing/{roomId} {
+      allow read, write: if isAuthenticated();
     }
 
     match /community_messages/{messageId} {
       allow read: if isAuthenticated() && (
         isAdmin() || 
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.gender == resource.data.gender)
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('gender', 'unspecified') == resource.data.gender)
       );
       allow create: if isAuthenticated() && !isBanned() && canWrite() && (
         isAdmin() ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.gender == request.resource.data.gender)
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('gender', 'unspecified') == request.resource.data.gender)
       );
       allow delete: if isAdmin() || (isAuthenticated() && resource.data.senderId == request.auth.uid);
     }
