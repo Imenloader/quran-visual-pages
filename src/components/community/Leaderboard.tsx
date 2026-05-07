@@ -27,12 +27,10 @@ const Leaderboard = () => {
     const fetchLeaderboard = async () => {
       setLoading(true);
       try {
-        // Filter by gender (as per project rules)
         let q = query(
           collection(db, "profiles"),
-          where("gender", "==", currentUserProfile.gender || 'unspecified'),
           orderBy("points", "desc"),
-          limit(20)
+          limit(100) // fetch more, then filter by gender in JS
         );
         
         let snap;
@@ -40,12 +38,11 @@ const Leaderboard = () => {
           snap = await getDocs(q);
         } catch (queryErr: any) {
           console.error("Primary Leaderboard Query Failed:", queryErr);
-          // If it's a permission/index error, try a simpler query as fallback
+          // If it's a permission/index error, try a simpler query as fallback without orderBy
           if (queryErr.code === 'permission-denied' || queryErr.message?.includes('index')) {
              q = query(
                collection(db, "profiles"),
-               orderBy("points", "desc"),
-               limit(20)
+               limit(100)
              );
              snap = await getDocs(q);
           } else {
@@ -54,7 +51,20 @@ const Leaderboard = () => {
         }
         
         if (snap) {
-          setTopUsers(snap.docs.map((d, i) => ({ id: d.id, rank: i + 1, ...d.data() })));
+          let users = snap.docs.map(d => ({ id: d.id, ...d.data() } as any));
+
+          // If the fallback without orderBy was used, we sort in JS
+          if (users.length > 0 && typeof users[0].points === 'number') {
+            users.sort((a, b) => (b.points || 0) - (a.points || 0));
+          }
+
+          // Filter by gender (as per project rules)
+          const targetGender = currentUserProfile.gender || 'unspecified';
+          users = users.filter(u => (u.gender || 'unspecified') === targetGender);
+
+          // Take top 20
+          users = users.slice(0, 20).map((u, i) => ({ ...u, rank: i + 1 }));
+          setTopUsers(users);
         }
       } catch (e) {
         console.error("Leaderboard Final Error:", e);

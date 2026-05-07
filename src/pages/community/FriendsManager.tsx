@@ -109,30 +109,46 @@ const FriendsManager: React.FC<FriendsManagerProps> = ({ standalone = true }) =>
       
       // We can't do OR with range filters in Firestore easily, 
       // so we try the user's exact query first.
-      const q = query(
-        collection(db, 'profiles'),
-        where('name', '>=', searchQuery),
-        where('name', '<=', searchQuery + '\uf8ff'),
-        limit(20)
-      );
-      
-      const snap = await getDocs(q);
-      let results = snap.docs
-        .map(d => ({ id: d.id, ...d.data() }))
-        .filter(u => u.id !== auth.currentUser?.uid);
-
-      // If no results and it was lowercase, try capitalized
-      if (results.length === 0 && searchQuery !== queryCapitalized) {
-        const q2 = query(
+      let results: any[] = [];
+      try {
+        const q = query(
           collection(db, 'profiles'),
-          where('name', '>=', queryCapitalized),
-          where('name', '<=', queryCapitalized + '\uf8ff'),
+          where('name', '>=', searchQuery),
+          where('name', '<=', searchQuery + '\uf8ff'),
           limit(20)
         );
-        const snap2 = await getDocs(q2);
-        results = snap2.docs
+
+        const snap = await getDocs(q);
+        results = snap.docs
           .map(d => ({ id: d.id, ...d.data() }))
           .filter(u => u.id !== auth.currentUser?.uid);
+
+        // If no results and it was lowercase, try capitalized
+        if (results.length === 0 && searchQuery !== queryCapitalized) {
+          const q2 = query(
+            collection(db, 'profiles'),
+            where('name', '>=', queryCapitalized),
+            where('name', '<=', queryCapitalized + '\uf8ff'),
+            limit(20)
+          );
+          const snap2 = await getDocs(q2);
+          results = snap2.docs
+            .map(d => ({ id: d.id, ...d.data() }))
+            .filter(u => u.id !== auth.currentUser?.uid);
+        }
+      } catch (queryError: any) {
+        console.warn("Firestore Range Query failed, falling back to client-side filtering", queryError);
+        // Fallback: fetch recent profiles or do a simpler query and filter on client side.
+        // This is necessary if indexes are missing or Firebase restricts range queries on this collection.
+        const fallbackQ = query(collection(db, 'profiles'), limit(100));
+        const fallbackSnap = await getDocs(fallbackQ);
+        results = fallbackSnap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .filter((u: any) =>
+            u.id !== auth.currentUser?.uid &&
+            u.name &&
+            u.name.toLowerCase().includes(searchQuery.toLowerCase())
+          );
       }
         
       setSearchResults(results);

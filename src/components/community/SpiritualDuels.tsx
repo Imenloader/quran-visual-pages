@@ -14,7 +14,7 @@ import {
   Loader2
 } from "lucide-react";
 import { db } from "@/firebase";
-import { collection, query, where, onSnapshot, doc, getDocs } from "firebase/firestore";
+import { collection, query, where, onSnapshot, doc, getDocs, or } from "firebase/firestore";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
@@ -31,23 +31,33 @@ const SpiritualDuels = () => {
   useEffect(() => {
     if (!profile?.uid) return;
 
+    // We must query by initiatorId or targetId to bypass Firestore security rules correctly.
+    // However, onSnapshot with `or` might not work correctly if indexes are missing or depending on firebase version.
+    // If it fails, we catch the error to stop infinite loading.
     const q = query(
       collection(db, "duels"),
-      where("gender", "==", profile.gender || 'unspecified'),
-      where("status", "in", ["active", "pending"])
+      or(
+        where("initiatorId", "==", profile.uid),
+        where("targetId", "==", profile.uid)
+      )
     );
 
     const unsub = onSnapshot(q, (snap) => {
       const all = snap.docs.map(d => ({ id: d.id, ...d.data() })) as Duel[];
-      const relevant = all.filter(d => d.initiatorId === profile.uid || d.targetId === profile.uid);
+
+      // Filter out completed ones, and ensure gender matches if needed (though user is one of the parties anyway)
+      const relevant = all.filter(d => ["active", "pending"].includes(d.status));
       
       setActiveDuels(relevant.filter(d => d.status === 'active'));
       setPendingDuels(relevant.filter(d => d.status === 'pending'));
       setLoading(false);
+    }, (error) => {
+      console.error("Error fetching duels:", error);
+      setLoading(false);
     });
 
     return () => unsub();
-  }, [profile?.uid, profile?.gender]);
+  }, [profile?.uid]);
 
   useEffect(() => {
     const fetchFriends = async () => {
