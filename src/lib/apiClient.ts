@@ -91,26 +91,26 @@ export async function fetchWithCache(
             }
           }
 
-          // 1. Try corsproxy.io first (usually more reliable)
+          // 1. Try AllOrigins first (very reliable)
           try {
-            const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
             const proxyResponse = await fetch(proxyUrl, { signal: controller.signal });
             if (proxyResponse.ok) {
-              return await proxyResponse.json();
+              const proxyData = await proxyResponse.json();
+              return typeof proxyData.contents === 'string' ? JSON.parse(proxyData.contents) : proxyData.contents;
             }
           } catch (proxyError) {
-            console.warn("CorsProxy.io failed, trying AllOrigins...", proxyError);
+            console.warn("AllOrigins proxy failed, trying CorsProxy.io...", proxyError);
             
-            // 2. Try AllOrigins
+            // 2. Try corsproxy.io
             try {
-              const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+              const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
               const proxyResponse = await fetch(proxyUrl, { signal: controller.signal });
               if (proxyResponse.ok) {
-                const proxyData = await proxyResponse.json();
-                return typeof proxyData.contents === 'string' ? JSON.parse(proxyData.contents) : proxyData.contents;
+                return await proxyResponse.json();
               }
             } catch (secondaryProxyError) {
-              console.warn("AllOrigins proxy failed, trying ThingProxy...", secondaryProxyError);
+              console.warn("CorsProxy.io failed, trying ThingProxy...", secondaryProxyError);
 
               // 3. Try ThingProxy
               try {
