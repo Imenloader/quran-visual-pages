@@ -53,6 +53,7 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
   const [circles, setCircles] = useState<Circle[]>([]);
   const [duaRequests, setDuaRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showDuaModal, setShowDuaModal] = useState(false);
   const [duaText, setDuaText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showMembersDialog, setShowMembersDialog] = useState(false);
@@ -260,6 +261,7 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
                <div 
                  key={circle.id} 
                  onClick={() => {
+                   console.log('Circle clicked:', circle.id, 'isMember:', isMember);
                    if (isMember) {
                      setSelectedCircle(circle);
                      setShowMembersDialog(true);
