@@ -114,7 +114,7 @@ const CommunityChat: React.FC = () => {
     const text = newMessage.trim();
     setNewMessage("");
 
-    if (selectedGender !== profile?.gender) {
+    if (!isAdmin && selectedGender !== profile?.gender) {
       toast.error(isAr ? "يمكنك النشر فقط في قسم جنسك" : "You can only post in your gender section");
       setIsSending(false);
       setNewMessage(text);
@@ -226,22 +226,25 @@ const CommunityChat: React.FC = () => {
             </PopoverTrigger>
             <PopoverContent className="w-48 p-2 rounded-2xl border-emerald-500/20 shadow-2xl space-y-1">
               <div className="flex flex-col gap-1">
-                <button 
-                  onClick={() => setSelectedGender('male')}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all ${selectedGender === 'male' ? "bg-emerald-500/10 text-emerald-600" : "hover:bg-muted"}`}
-                >
-                  <Users size={14} />
-                  {isAr ? "قسم الرجال" : "Men's Section"}
-                </button>
-                <button 
-                  onClick={() => setSelectedGender('female')}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all ${selectedGender === 'female' ? "bg-emerald-500/10 text-emerald-600" : "hover:bg-muted"}`}
-                >
-                  <Users size={14} />
-                  {isAr ? "قسم النساء" : "Women's Section"}
-                </button>
-                
-                <div className="h-px bg-border my-1" />
+                {isAdmin && (
+                  <>
+                    <button 
+                      onClick={() => setSelectedGender('male')}
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all ${selectedGender === 'male' ? "bg-emerald-500/10 text-emerald-600" : "hover:bg-muted"}`}
+                    >
+                      <Users size={14} />
+                      {isAr ? "قسم الرجال" : "Men's Section"}
+                    </button>
+                    <button 
+                      onClick={() => setSelectedGender('female')}
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all ${selectedGender === 'female' ? "bg-emerald-500/10 text-emerald-600" : "hover:bg-muted"}`}
+                    >
+                      <Users size={14} />
+                      {isAr ? "قسم النساء" : "Women's Section"}
+                    </button>
+                    <div className="h-px bg-border my-1" />
+                  </>
+                )}
                 
                 <button 
                   className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold hover:bg-muted transition-all"
@@ -264,21 +267,23 @@ const CommunityChat: React.FC = () => {
         </div>
       </div>
 
-      {/* Gender Switcher (Tabs Style inside Header sub-bar) */}
-      <div className="flex bg-[#075E54]/90 dark:bg-emerald-950/90 text-white/80 border-t border-white/10 relative z-10">
-        <button 
-          onClick={() => setSelectedGender('male')}
-          className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${selectedGender === 'male' ? "text-white border-b-2 border-white" : "hover:text-white"}`}
-        >
-          {isAr ? "مجلس الرجال" : "Men's Council"}
-        </button>
-        <button 
-          onClick={() => setSelectedGender('female')}
-          className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${selectedGender === 'female' ? "text-white border-b-2 border-white" : "hover:text-white"}`}
-        >
-          {isAr ? "مجلس النساء" : "Women's Council"}
-        </button>
-      </div>
+      {/* Gender Switcher (Only for Admins) */}
+      {isAdmin && (
+        <div className="flex bg-[#075E54]/90 dark:bg-emerald-950/90 text-white/80 border-t border-white/10 relative z-10">
+          <button 
+            onClick={() => setSelectedGender('male')}
+            className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${selectedGender === 'male' ? "text-white border-b-2 border-white" : "hover:text-white"}`}
+          >
+            {isAr ? "مجلس الرجال" : "Men's Council"}
+          </button>
+          <button 
+            onClick={() => setSelectedGender('female')}
+            className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${selectedGender === 'female' ? "text-white border-b-2 border-white" : "hover:text-white"}`}
+          >
+            {isAr ? "مجلس النساء" : "Women's Council"}
+          </button>
+        </div>
+      )}
 
       {/* Messages Area */}
       <div 
