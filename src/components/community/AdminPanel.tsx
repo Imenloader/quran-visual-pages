@@ -5,11 +5,43 @@ import { PrivateChat, privateChatService } from '@/services/privateChatService';
 import { ShieldCheck, MessageSquare, Search, ChevronLeft, ChevronRight, User, AlertTriangle, Trash2, Ban } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Link } from 'react-router-dom';
-import PrivateChatComponent from './PrivateChat';
-import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, deleteDoc, collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '@/firebase';
 import { reportService, ContentReport } from '@/services/reportService';
 import { toast } from 'sonner';
+
+const AdminPrivateChatViewer = ({ chatId, onBack }: { chatId: string, onBack: () => void }) => {
+  const [messages, setMessages] = useState<any[]>([]);
+
+  useEffect(() => {
+    const q = query(
+      collection(db, "private_chats", chatId, "messages"),
+      orderBy("timestamp", "asc")
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      setMessages(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+    return () => unsub();
+  }, [chatId]);
+
+  return (
+    <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar h-[400px]">
+      {messages.length === 0 ? (
+        <div className="text-center text-muted-foreground py-10">No messages yet.</div>
+      ) : (
+        messages.map((msg) => (
+          <div key={msg.id} className="bg-muted/20 p-3 rounded-2xl max-w-[80%] mx-auto border border-border/40">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-xs font-bold text-primary">{msg.senderId}</span>
+              <span className="text-[10px] text-muted-foreground">{msg.timestamp?.toDate ? msg.timestamp.toDate().toLocaleString() : ''}</span>
+            </div>
+            <p className="text-sm font-naskh leading-relaxed">{msg.text}</p>
+          </div>
+        ))
+      )}
+    </div>
+  );
+};
 
 const AdminPanel = () => {
   const { t, i18n } = useTranslation();
@@ -114,14 +146,8 @@ const AdminPanel = () => {
             </div>
           </div>
           <div className="flex-1 relative">
-            <PrivateChatComponent
+            <AdminPrivateChatViewer
               chatId={selectedChat.id}
-              targetUserId={selectedChat.participants.find(id => id !== profile?.uid) || selectedChat.participants[0]}
-              targetUser={{
-                name: "Admin Oversight",
-                avatar: "/avatar-man-1.svg",
-                gender: selectedChat.gender
-              }}
               onBack={() => setSelectedChat(null)}
             />
             {/* Overlay to prevent admin from typing accidentally, though rules block it too */}
