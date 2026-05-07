@@ -238,9 +238,9 @@ const Hub = () => {
         tools: [
           { id: 'community-hub', name: i18n.language === 'ar' ? 'مركز المجتمع' : 'Community Hub', icon: <Users className="w-5 h-5 text-gold" />, path: "/community/hub" },
           { id: 'khatma', name: t("hub.khatma"), icon: <BookOpen className="w-5 h-5" />, path: "/khatma" },
-          { id: 'collab-khatma', name: t("hub.collaborativeKhatma"), icon: <Users className="w-5 h-5" />, path: "/khatma-jamaaiya" },
-          { id: 'prayer-circles', name: i18n.language === 'ar' ? 'حلقات الدعاء' : 'Prayer Circles', icon: <Users className="w-5 h-5" />, path: "/prayer-circles" },
-          { id: 'reading-circles', name: t("hub.readingCircles") || "حلقات القراءة", icon: <Users className="w-5 h-5" />, path: "/reading-circles" },
+          { id: 'collab-khatma', name: t("hub.collaborativeKhatma"), icon: <Users className="w-5 h-5" />, path: "/community/hub?tab=khatma" },
+          { id: 'prayer-circles', name: i18n.language === 'ar' ? 'حلقات الدعاء' : 'Prayer Circles', icon: <Users className="w-5 h-5" />, path: "/community/hub?tab=prayer" },
+          { id: 'reading-circles', name: t("hub.readingCircles") || "حلقات القراءة", icon: <Users className="w-5 h-5" />, path: "/community/hub?tab=circles" },
           { id: 'hifz', name: t("hub.hifzTester"), icon: <GradIcon className="w-5 h-5" />, path: "/tools/hifz-tester" },
           { id: 'routine', name: t("hub.routineBuilder"), icon: <Zap className="w-5 h-5" />, path: "/routine-builder" },
           { id: 'fasting', name: t("hub.fastingTracker"), icon: <Moon className="w-5 h-5" />, path: "/fasting-tracker" },

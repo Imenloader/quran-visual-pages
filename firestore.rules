@@ -159,6 +159,12 @@ service cloud.firestore {
       allow create: if isAuthenticated() && canWrite();
     }
 
+    match /community_messages/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && canWrite();
+      allow delete: if isAdmin() || (isAuthenticated() && resource.data.senderId == request.auth.uid);
+    }
+
     match /duels/{duelId} {
       allow read: if isAuthenticated() && (request.auth.uid == resource.data.initiatorId || request.auth.uid == resource.data.targetId);
       allow create: if isAuthenticated() && canWrite() && request.resource.data.initiatorId == request.auth.uid;

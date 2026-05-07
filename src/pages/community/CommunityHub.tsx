@@ -19,8 +19,11 @@ import {
   ArrowRight,
   Star,
   Loader2,
+  MessageSquare,
+  BookMarked,
+  Heart
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import QuranHeader from "@/components/QuranHeader";
 import { useUser } from "@/contexts/UserContext";
 import { toArabicNumber } from "@/data/quranData";
@@ -38,6 +41,10 @@ import NotificationsModal from "@/components/community/NotificationsModal";
 import Leaderboard from "@/components/community/Leaderboard";
 import EpicQuests from "@/components/community/EpicQuests";
 import GrowthTree from "@/components/community/GrowthTree";
+import CommunityChat from "@/components/community/CommunityChat";
+import GroupKhatma from "@/components/community/GroupKhatma";
+import ReadingCirclesComponent from "@/components/community/ReadingCirclesComponent";
+import PrayerCirclesComponent from "@/components/community/PrayerCirclesComponent";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -49,7 +56,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-type CommunityTab = "today" | "feed" | "friends" | "duels" | "leaderboard" | "quests";
+type CommunityTab = "today" | "chat" | "feed" | "friends" | "khatma" | "circles" | "prayer" | "duels" | "leaderboard" | "quests";
 
 type CommunityAction = {
   id: string;
@@ -71,7 +78,8 @@ const CommunityHub = () => {
   const isAr = i18n.language === "ar";
   const navigate = useNavigate();
   const { profile, level, isAdmin } = useUser();
-  const [activeTab, setActiveTab] = useState<CommunityTab>("today");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<CommunityTab>((searchParams.get("tab") as CommunityTab) || "today");
   const [notifications, setNotifications] = useState<CommunityNotification[]>([]);
   const [communityReports, setCommunityReports] = useState<CommunityReport[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -104,6 +112,10 @@ const CommunityHub = () => {
 
   const tabs: { id: CommunityTab; label: string; icon: React.ElementType }[] = [
     { id: "today", label: isAr ? "اليوم" : "Today", icon: CalendarDays },
+    { id: "chat", label: isAr ? "المحادثة" : "Chat", icon: MessageSquare },
+    { id: "khatma", label: isAr ? "الختمة" : "Khatma", icon: BookMarked },
+    { id: "circles", label: isAr ? "الحلقات" : "Circles", icon: BookOpen },
+    { id: "prayer", label: isAr ? "الدعاء" : "Dua", icon: Heart },
     { id: "feed", label: isAr ? "الخلاصة" : "Feed", icon: ActivityIcon },
     { id: "friends", label: isAr ? "الأصدقاء" : "Friends", icon: Users },
     { id: "duels", label: isAr ? "التحديات" : "Duels", icon: Zap },
@@ -125,6 +137,18 @@ const CommunityHub = () => {
       actionLabel: isAr ? "افتح المصحف" : "Open Quran",
     },
     {
+      id: "recommended-chat",
+      title: isAr ? "شارك في المحادثة" : "Join the conversation",
+      description: isAr
+        ? "تواصل مع المسلمين حول العالم في محادثة مباشرة يسودها الأدب والإخاء."
+        : "Connect with Muslims worldwide in a live chat built on adab and brotherhood.",
+      meta: isAr ? "دردشة مباشرة" : "Live Chat",
+      icon: MessageSquare,
+      accent: "bg-gold/10 text-gold",
+      action: () => setActiveTab("chat"),
+      actionLabel: isAr ? "افتح المحادثة" : "Open Chat",
+    },
+    {
       id: "recommended-circle",
       title: isAr ? "انضم إلى حلقة صغيرة" : "Join a small circle",
       description: isAr
@@ -133,7 +157,7 @@ const CommunityHub = () => {
       meta: isAr ? "قراءة • دعاء • أذكار" : "Reading • Dua • Dhikr",
       icon: HeartHandshake,
       accent: "bg-gold/10 text-gold",
-      action: () => navigate("/reading-circles"),
+      action: () => setActiveTab("circles"),
       actionLabel: isAr ? "استكشف الحلقات" : "Explore circles",
     },
     {
@@ -147,18 +171,6 @@ const CommunityHub = () => {
       accent: "bg-blue-500/10 text-blue-600",
       action: () => setActiveTab("friends"),
       actionLabel: isAr ? "اذهب للأصدقاء" : "Find friends",
-    },
-    {
-      id: "active-quest",
-      title: isAr ? "تابع مهمة هذا الأسبوع" : "Continue this week's quest",
-      description: isAr
-        ? "المهمات الموسمية تجعل المنافسة متجددة وعادلة بين الأعضاء."
-        : "Seasonal quests keep competition fresh, fair, and focused on meaningful habits.",
-      meta: isAr ? `${formatCount(completedQuests, isAr)} مهمة مكتملة` : `${formatCount(completedQuests, isAr)} completed quests`,
-      icon: Sparkles,
-      accent: "bg-purple-500/10 text-purple-600",
-      action: () => setActiveTab("quests"),
-      actionLabel: isAr ? "افتح المهمات" : "Open quests",
     },
   ];
 
@@ -309,7 +321,10 @@ const CommunityHub = () => {
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => {
+                setActiveTab(tab.id);
+                setSearchParams({ tab: tab.id });
+              }}
               className={`flex-1 min-w-[100px] flex items-center justify-center gap-2 py-3 rounded-2xl text-xs font-bold font-serif transition-all ${
                 activeTab === tab.id
                   ? "bg-emerald-deep shadow-lg text-gold"
@@ -499,6 +514,10 @@ const CommunityHub = () => {
                 )}
               </div>
             )}
+            {activeTab === "chat" && <div className="p-4 md:p-8"><CommunityChat /></div>}
+            {activeTab === "khatma" && <div className="p-4 md:p-8"><GroupKhatma standalone={false} /></div>}
+            {activeTab === "circles" && <div className="p-4 md:p-8"><ReadingCirclesComponent standalone={false} /></div>}
+            {activeTab === "prayer" && <div className="p-4 md:p-8"><PrayerCirclesComponent standalone={false} /></div>}
             {activeTab === "feed" && <ActivityFeed />}
             {activeTab === "friends" && <FriendsManager standalone={false} />}
             {activeTab === "duels" && <SpiritualDuels />}
