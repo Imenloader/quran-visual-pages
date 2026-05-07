@@ -12,11 +12,12 @@ import {
   Clock,
   BookOpen,
   ArrowRight,
-  Info
+  Info,
+  Youtube
 } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { communityService, KnowledgeSession } from "@/services/communityService";
-import { toArabicNumber } from "@/data/quranData";
+import { SCHOLARS_DATA, ZAD_ACADEMY_LEVELS } from "@/data/videoData";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -330,6 +331,48 @@ const KnowledgeSessionsComponent = ({ standalone = false }: KnowledgeSessionsCom
           </p>
         </div>
       </div>
+
+      <section className="space-y-6">
+        <div className="flex items-center justify-between px-2">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-rose-500/10 text-rose-600 flex items-center justify-center shadow-sm">
+              <Youtube size={20} />
+            </div>
+            <h3 className="text-xl font-serif font-bold text-primary">{isAr ? "قنوات ومجالس مقترحة" : "Recommended Channels"}</h3>
+          </div>
+          <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">{isAr ? "مصادر موثوقة" : "Trusted Sources"}</p>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {[...SCHOLARS_DATA, ...ZAD_ACADEMY_LEVELS].map((channel: any) => (
+            <a 
+              key={channel.id} 
+              href={channel.channelUrl || channel.url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="bg-card border border-border/40 rounded-[2rem] p-5 flex flex-col items-center text-center group hover:border-rose-500/30 transition-all hover:shadow-lg h-full"
+            >
+              <div className="w-16 h-16 rounded-full bg-muted/50 mb-4 overflow-hidden border-2 border-transparent group-hover:border-rose-500/20 transition-all">
+                {channel.thumbnail ? (
+                  <img src={channel.thumbnail} alt={channel.name || channel.title} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-rose-500/5 text-rose-600">
+                    <Youtube size={24} />
+                  </div>
+                )}
+              </div>
+              <h4 className="font-bold text-sm text-primary mb-2 line-clamp-1">{channel.name || channel.title}</h4>
+              <p className="text-[10px] text-muted-foreground line-clamp-2 leading-relaxed h-8">
+                {channel.description}
+              </p>
+              <div className="mt-4 flex items-center gap-1 text-[9px] font-bold text-rose-600 opacity-0 group-hover:opacity-100 transition-all">
+                {isAr ? "زيارة القناة" : "Visit Channel"}
+                <ExternalLink size={10} />
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
     </div>
   );
 };
