@@ -443,7 +443,6 @@ function registerShellRoutes() {
 
 cleanupOutdatedCaches();
 
-// @ts-expect-error: __WB_MANIFEST is injected by vite-plugin-pwa
 precacheAndRoute(self.__WB_MANIFEST);
 
 // Register modular routes
