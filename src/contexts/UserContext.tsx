@@ -44,6 +44,7 @@ interface UserProfile {
   friendCount?: number;
   friendIds?: string[];
   searchName?: string;
+  isBanned?: boolean;
 }
 
 interface UserContextType {

@@ -16,14 +16,25 @@ import {
   Award,
   ShieldCheck,
   Ban,
-  MoreVertical
+  MoreVertical,
+  Sparkles,
+  Flame,
+  Wand2,
+  Sun,
+  Shield,
+  GraduationCap,
+  LayoutGrid,
+  RotateCcw,
+  Heart,
+  Moon,
+  Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toArabicNumber } from '@/data/quranData';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { setDoc, serverTimestamp } from 'firebase/firestore';
+import { setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 
 import { useUser } from '@/contexts/UserContext';
 
@@ -37,7 +48,48 @@ const UserProfileView: React.FC = () => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [friendshipStatus, setFriendshipStatus] = useState<'none' | 'pending' | 'accepted'>('none');
-  const [isBlocking, setIsBlocking] = useState(false);
+  const [isBanning, setIsBanning] = useState(false);
+  const [selectedBadge, setSelectedBadge] = useState<{ id: string; label: string; desc: string; icon: React.ReactNode; earned: boolean; color: string; bg: string } | null>(null);
+
+  const getBadgeDescAr = (id: string) => {
+    const descs: Record<string, string> = {
+      "early-bird": "تحية لكل من يبدأ يومه بذكر الله والقرآن الكريم.",
+      "quran-lover": "قراءة أكثر من ٥٠٠ آية كريمة من كتاب الله.",
+      "tasbih-master": "التسبيح والذكر لأكثر من ١,٠٠٠ مرة.",
+      "streak-7": "المحافظة على الورد اليومي لمدة ٧ أيام متتالية.",
+      "khatma-1": "إكمال قراءة جزء كامل من القرآن الكريم.",
+      "consistent": "الاستمرار في الطاعات والذكر لمدة شهر كامل.",
+      "scholar": "قراءة أكثر من ٥,٠٠٠ آية (رحلة في أعماق كتاب الله).",
+      "juz-master": "إنجاز عظيم بإكمال ١٥ جزءاً من القرآن الكريم.",
+      "juz-expert": "ختم القرآن الكريم كاملاً (٣٠ جزءاً) - مبارك لك هذا الفوز.",
+      "tasbih-pro": "ذكر الله لأكثر من ١٠,٠٠٠ مرة (بذكر الله تطمئن القلوب).",
+      "spiritualLegend": "الوصول إلى مستوى روحي رفيع (المستوى ١٥).",
+      "pure-heart": "ذكر الله لأكثر من ٢٠,٠٠٠ مرة - جعل الله قلبك عامراً بذكره.",
+      "night-owl": "المحافظة على ورد الليل والذكر والقرآن في وقت السحر.",
+      "devout": "الوصول للمستوى ٢٠ - من المخلصين في عبادة الله."
+    };
+    return descs[id] || "وسام تقديري لمجهوداتك الروحية.";
+  };
+
+  const getBadgeDescEn = (id: string) => {
+    const descs: Record<string, string> = {
+      "early-bird": "A tribute to those who start their day with Quran and Dhikr.",
+      "quran-lover": "Read over 500 verses from the Holy Quran.",
+      "tasbih-master": "Recited Dhikr and Tasbih over 1,000 times.",
+      "streak-7": "Maintained a daily spiritual routine for 7 consecutive days.",
+      "khatma-1": "Completed the reading of one full Juz.",
+      "consistent": "Stayed dedicated to spiritual goals for a full month.",
+      "scholar": "Read over 5,000 verses (A deep journey through the Quran).",
+      "juz-master": "A great achievement: 15 Juz completed.",
+      "juz-expert": "Completed the entire Quran (30 Juz) - MashaAllah!",
+      "tasbih-pro": "Recited Dhikr over 10,000 times.",
+      "spiritualLegend": "Reached a high spiritual level (Level 15).",
+      "pure-heart": "Recited Dhikr over 20,000 times - May your heart be filled with light.",
+      "night-owl": "Maintained spiritual devotion during the late night hours.",
+      "devout": "Reached Level 20 - A dedicated servant of Allah."
+    };
+    return descs[id] || "An honorary badge for your spiritual efforts.";
+  };
 
   useEffect(() => {
     if (!userId) return;
@@ -95,6 +147,26 @@ const UserProfileView: React.FC = () => {
     }
   };
 
+  const handleBanToggle = async () => {
+    if (!auth.currentUser || currentUserProfile?.role !== 'admin' || !userId) return;
+    try {
+      // Update both profiles and users collections for redundancy, though users is the source of truth for rules
+      await updateDoc(doc(db, 'users', userId), {
+        isBanned: !profile.isBanned
+      });
+      await updateDoc(doc(db, 'profiles', userId), {
+        isBanned: !profile.isBanned
+      });
+      toast.success(isArabic 
+        ? (!profile.isBanned ? 'تم حظر المستخدم بنجاح' : 'تم رفع الحظر عن المستخدم')
+        : (!profile.isBanned ? 'User banned successfully' : 'User unbanned successfully')
+      );
+    } catch (e) {
+      console.error(e);
+      toast.error(isArabic ? 'فشل تحديث حالة الحظر' : 'Failed to update ban status');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -126,8 +198,9 @@ const UserProfileView: React.FC = () => {
                 />
               </div>
               {profile.role === 'admin' && (
-                <div className="absolute -top-2 -right-2 bg-gold text-white p-2 rounded-xl shadow-lg border-2 border-white">
-                  <ShieldCheck size={20} />
+                <div className="absolute -top-2 -right-2 bg-gold text-white px-3 py-1.5 rounded-xl shadow-lg border-2 border-white flex items-center gap-1.5 text-xs font-bold">
+                  <ShieldCheck size={16} />
+                  <span>{isArabic ? 'المشرف' : 'Admin'}</span>
                 </div>
               )}
             </div>
@@ -171,12 +244,29 @@ const UserProfileView: React.FC = () => {
                     {t('profile.requestSent') || (isArabic ? 'تم إرسال الطلب' : 'Request Sent')}
                   </Button>
                 ) : (
-                  <Button variant="outline" className="bg-white/5 border-white/20 text-white hover:bg-white/10 rounded-2xl px-6 py-6 h-auto">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => navigate(`/community?tab=chat&privateId=${profile.uid}`)}
+                    className="bg-white/5 border-white/20 text-white hover:bg-white/10 rounded-2xl px-6 py-6 h-auto"
+                  >
                     <MessageCircle size={20} className="ml-2" />
                     {t('profile.sendMessage') || (isArabic ? 'مراسلة' : 'Message')}
                   </Button>
                 )}
                 
+                {currentUserProfile?.role === 'admin' && (
+                  <Button 
+                    onClick={handleBanToggle}
+                    variant="outline" 
+                    className={`border-white/20 text-white hover:bg-white/10 rounded-2xl p-4 h-auto ${profile.isBanned ? 'bg-rose-500 hover:bg-rose-600 border-none' : 'bg-white/5'}`}
+                  >
+                    <Ban size={20} className={isArabic ? 'ml-2' : 'mr-2'} />
+                    {profile.isBanned 
+                      ? (isArabic ? 'رفع الحظر' : 'Unban')
+                      : (isArabic ? 'حظر المستخدم' : 'Ban User')}
+                  </Button>
+                )}
+
                 <Button variant="outline" className="bg-white/5 border-white/20 text-white hover:bg-white/10 rounded-2xl p-4 h-auto">
                   <MoreVertical size={20} />
                 </Button>
@@ -188,48 +278,119 @@ const UserProfileView: React.FC = () => {
 
       {/* Stats Grid */}
       <main className="container max-w-5xl mx-auto px-6 -mt-8 relative z-20">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard 
-            icon={<BookOpen className="text-emerald-500" />} 
-            label={t('profile.pagesRead')} 
-            value={isArabic ? toArabicNumber(profile.totalPagesRead || 0) : (profile.totalPagesRead || 0)}
-            color="emerald"
-          />
-          <StatCard 
-            icon={<Trophy className="text-gold" />} 
-            label={t('profile.points')} 
-            value={isArabic ? toArabicNumber(profile.points || 0) : (profile.points || 0)}
-            color="gold"
-          />
-          <StatCard 
-            icon={<Target className="text-rose-500" />} 
-            label={t('profile.juzCompleted')} 
-            value={isArabic ? toArabicNumber(profile.totalJuzCompleted || 0) : (profile.totalJuzCompleted || 0)}
-            color="rose"
-          />
-          <StatCard 
-            icon={<Award className="text-blue-500" />} 
-            label={t('profile.level')} 
-            value={isArabic ? toArabicNumber(Math.floor(profile.points / 1000) + 1) : (Math.floor(profile.points / 1000) + 1)}
-            color="blue"
-          />
-        </div>
+        {(() => {
+          const profileLevel = Math.floor((profile.points || 0) / 1000) + 1;
+          const nextLevelPoints = profileLevel * 1000;
+          const pointsToNext = nextLevelPoints - (profile.points || 0);
+
+          return (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <StatCard 
+                icon={<BookOpen className="text-emerald-500" />} 
+                label={t('profile.ayahsRead') || (isArabic ? 'آيات مقروءة' : 'Ayahs Read')} 
+                value={isArabic ? toArabicNumber(profile.totalAyahsRead || 0) : (profile.totalAyahsRead || 0)}
+                color="emerald"
+              />
+              <StatCard 
+                icon={<BookOpen className="text-emerald-500" />} 
+                label={t('profile.pagesRead')} 
+                value={isArabic ? toArabicNumber(profile.totalPagesRead || 0) : (profile.totalPagesRead || 0)}
+                color="emerald"
+              />
+              <StatCard 
+                icon={<Target className="text-rose-500" />} 
+                label={t('profile.juzCompleted')} 
+                value={isArabic ? toArabicNumber(profile.totalJuzCompleted || 0) : (profile.totalJuzCompleted || 0)}
+                color="rose"
+              />
+              <StatCard 
+                icon={<Sparkles className="text-accent" />} 
+                label={t('profile.athkarRecited') || (isArabic ? 'ذكر مسبح' : 'Dhikr Count')} 
+                value={isArabic ? toArabicNumber(profile.totalAthkarRecited || 0) : (profile.totalAthkarRecited || 0)}
+                color="accent"
+              />
+              <StatCard 
+                icon={<Flame className="text-orange-500" />} 
+                label={t('profile.dayStreak') || (isArabic ? 'أيام الاستمرارية' : 'Streak Days')} 
+                value={isArabic ? toArabicNumber(profile.daysActive || 0) : (profile.daysActive || 0)}
+                color="orange"
+              />
+              <StatCard 
+                icon={<Award className="text-blue-500" />} 
+                label={t('profile.level')} 
+                value={isArabic ? toArabicNumber(profileLevel) : profileLevel}
+                color="blue"
+              />
+              <StatCard 
+                icon={<Trophy className="text-gold" />} 
+                label={t('profile.points')} 
+                value={isArabic ? toArabicNumber(profile.points || 0) : (profile.points || 0)}
+                color="gold"
+              />
+              <StatCard 
+                icon={<Wand2 className="text-gold" />} 
+                label={t('profile.pointsToNext') || (isArabic ? 'نقاط للمستوى التالي' : 'Next Level')} 
+                value={isArabic ? toArabicNumber(pointsToNext) : pointsToNext}
+                color="gold"
+              />
+            </div>
+          );
+        })()}
 
         {/* Content Tabs/Sections */}
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Left Column: Badges */}
           <div className="md:col-span-1 space-y-6">
             <h2 className="text-xl font-serif font-bold text-primary flex items-center gap-2">
               <Award className="text-gold" />
-              {t('profile.badgesTitle')}
+              {t('profile.badgesTitle') || (isArabic ? 'الأوسمة والإنجازات' : 'Badges & Achievements')}
             </h2>
-            <div className="grid grid-cols-3 gap-3">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="aspect-square rounded-2xl bg-muted/40 flex items-center justify-center group cursor-help relative">
-                  <Trophy size={24} className="text-muted-foreground/30 group-hover:scale-110 transition-transform" />
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-muted-foreground/20 rounded-full" />
-                </div>
-              ))}
+            <div className="grid grid-cols-3 sm:grid-cols-3 gap-3">
+              {(() => {
+                const pLevel = Math.floor((profile.points || 0) / 1000) + 1;
+                const badges = [
+                  { id: "early-bird", icon: <Sun className="w-5 h-5" />, label: t("profile.badges.earlyBird"), earned: true, color: "text-amber-500", bg: "bg-amber-500/10" },
+                  { id: "quran-lover", icon: <BookOpen className="w-5 h-5" />, label: t("profile.badges.quranLover"), earned: (profile.totalAyahsRead || 0) >= 500, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+                  { id: "tasbih-master", icon: <Sparkles className="w-5 h-5" />, label: t("profile.badges.tasbihMaster"), earned: (profile.totalAthkarRecited || 0) >= 1000, color: "text-blue-500", bg: "bg-blue-500/10" },
+                  { id: "streak-7", icon: <Calendar className="w-5 h-5" />, label: t("profile.badges.sevenDayStreak"), earned: (profile.daysActive || 0) >= 7, color: "text-rose-500", bg: "bg-rose-500/10" },
+                  { id: "khatma-1", icon: <Trophy className="w-5 h-5" />, label: t("profile.badges.firstKhatma"), earned: (profile.totalJuzCompleted || 0) >= 1, color: "text-gold", bg: "bg-gold/10" },
+                  { id: "consistent", icon: <Shield className="w-5 h-5" />, label: t("profile.badges.consistent"), earned: (profile.daysActive || 0) >= 30, color: "text-emerald-600", bg: "bg-emerald-600/10" },
+                  { id: "scholar", icon: <GraduationCap className="w-5 h-5" />, label: t("profile.badges.scholar"), earned: (profile.totalAyahsRead || 0) >= 5000, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+                  { id: "juz-master", icon: <LayoutGrid className="w-5 h-5" />, label: t("profile.badges.juzMaster"), earned: (profile.totalJuzCompleted || 0) >= 15, color: "text-primary", bg: "bg-primary/10" },
+                  { id: "juz-expert", icon: <Sparkles className="w-5 h-5" />, label: isArabic ? "خاتم الأجزاء" : "Juz Expert", earned: (profile.totalJuzCompleted || 0) >= 30, color: "text-purple-500", bg: "bg-purple-500/10" },
+                  { id: "tasbih-pro", icon: <RotateCcw className="w-5 h-5" />, label: t("profile.badges.tasbihPro"), earned: (profile.totalAthkarRecited || 0) >= 10000, color: "text-cyan-500", bg: "bg-cyan-500/10" },
+                  { id: "legend", icon: <Sparkles className="w-5 h-5" />, label: t("profile.badges.spiritualLegend"), earned: pLevel >= 15, color: "text-gold", bg: "bg-gold/15" },
+                  { id: "pure-heart", icon: <Heart className="w-5 h-5" />, label: t("profile.badges.pureHeart"), earned: (profile.totalAthkarRecited || 0) >= 20000, color: "text-rose-600", bg: "bg-rose-600/10" },
+                  { id: "night-owl", icon: <Moon className="w-5 h-5" />, label: t("profile.badges.nightOwl"), earned: (profile.totalAthkarRecited || 0) >= 500 && (profile.totalAyahsRead || 0) >= 500, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+                  { id: "devout", icon: <Flame className="w-5 h-5" />, label: isArabic ? "عابد مخلص" : "Devout", earned: pLevel >= 20, color: "text-orange-500", bg: "bg-orange-500/10" },
+                ];
+                
+                return badges.map((badge) => (
+                  <button 
+                    key={badge.id} 
+                    onClick={() => setSelectedBadge({
+                      ...badge,
+                      desc: isArabic ? getBadgeDescAr(badge.id) : getBadgeDescEn(badge.id)
+                    })}
+                    className="flex flex-col items-center gap-1.5 group outline-none"
+                  >
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border-2 transition-all relative ${
+                      badge.earned 
+                        ? `${badge.bg} ${badge.color.replace('text-', 'border-').replace('500', '500/30')} shadow-md hover:scale-110` 
+                        : "bg-muted/50 border-border/20 grayscale opacity-40 hover:opacity-60"
+                    }`}>
+                      {badge.icon}
+                      {badge.earned && (
+                        <div 
+                          className="absolute -top-1 -right-1 w-4 h-4 bg-gold text-emerald-deep rounded-full flex items-center justify-center border-2 border-white dark:border-black"
+                        >
+                          <Check size={8} strokeWidth={4} />
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                ));
+              })()}
             </div>
           </div>
 
@@ -266,6 +427,45 @@ const UserProfileView: React.FC = () => {
           </div>
         </div>
       </main>
+
+      {/* Badge Detail Modal */}
+      {selectedBadge && (
+        <div
+          onClick={() => setSelectedBadge(null)}
+          className="fixed inset-0 z-[700] bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm bg-card rounded-[2.5rem] border border-border/20 shadow-2xl p-8 text-center space-y-6 relative overflow-hidden"
+          >
+            <div className="absolute inset-0 pattern-islamic opacity-[0.03] pointer-events-none" />
+            
+            <div className={`w-20 h-20 mx-auto rounded-3xl flex items-center justify-center border-2 shadow-xl ${
+              selectedBadge.earned ? `${selectedBadge.bg} ${selectedBadge.color.replace('text-', 'border-').replace('500', '500/30')}` : "bg-muted/50 border-border/20 grayscale"
+            }`}>
+              {selectedBadge.icon && React.cloneElement(selectedBadge.icon as React.ReactElement, { size: 40 })}
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-2xl font-serif font-bold text-primary">{selectedBadge.label}</h3>
+              <div className="inline-flex px-3 py-1 rounded-full bg-primary/5 text-[10px] font-bold uppercase tracking-widest text-primary/60">
+                {selectedBadge.earned ? (isArabic ? "مكتمل" : "EARNED") : (isArabic ? "قيد التقدم" : "IN PROGRESS")}
+              </div>
+            </div>
+
+            <p className="text-sm text-primary/70 font-serif italic leading-relaxed">
+              {selectedBadge.desc}
+            </p>
+
+            <button 
+              onClick={() => setSelectedBadge(null)}
+              className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-serif font-bold hover:opacity-90 transition-opacity"
+            >
+              {isArabic ? "إغلاق" : "Close"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -293,25 +493,6 @@ const StatCard: React.FC<StatCardProps> = ({ icon, label, value, color }) => (
   </div>
 );
 
-const Sparkles = ({ className, size }: { className?: string; size?: number }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width={size || 24} 
-    height={size || 24} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-  >
-    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
-    <path d="M5 3v4"/>
-    <path d="M19 17v4"/>
-    <path d="M3 5h4"/>
-    <path d="M17 19h4"/>
-  </svg>
-);
+
 
 export default UserProfileView;

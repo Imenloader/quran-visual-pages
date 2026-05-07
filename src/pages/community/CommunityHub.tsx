@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { db } from "@/firebase";
+import { collection, query, limit, onSnapshot, where } from "firebase/firestore";
 import { useTranslation } from "react-i18next";
 import {
   Users,
@@ -47,6 +49,9 @@ import GroupKhatma from "@/components/community/GroupKhatma";
 import ReadingCirclesComponent from "@/components/community/ReadingCirclesComponent";
 import PrayerCirclesComponent from "@/components/community/PrayerCirclesComponent";
 import KnowledgeSessionsComponent from "@/components/community/KnowledgeSessionsComponent";
+import CommunityPosts from "@/components/community/CommunityPosts";
+import AdminPanel from "@/components/community/AdminPanel";
+import { invitationService, CommunityInvitation } from "@/services/invitationService";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -58,7 +63,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-type CommunityTab = "today" | "chat" | "feed" | "friends" | "khatma" | "circles" | "sessions" | "prayer" | "duels" | "leaderboard" | "quests";
+type CommunityTab = "today" | "posts" | "chat" | "feed" | "friends" | "khatma" | "circles" | "sessions" | "prayer" | "duels" | "leaderboard" | "quests" | "admin";
 
 type CommunityAction = {
   id: string;
@@ -83,6 +88,9 @@ const CommunityHub = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<CommunityTab>((searchParams.get("tab") as CommunityTab) || "today");
   const [notifications, setNotifications] = useState<CommunityNotification[]>([]);
+  const [invitations, setInvitations] = useState<CommunityInvitation[]>([]);
+  const [readingCircles, setReadingCircles] = useState<any[]>([]);
+  const [activeSessions, setActiveSessions] = useState<any[]>([]);
   const [communityReports, setCommunityReports] = useState<CommunityReport[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -93,11 +101,33 @@ const CommunityHub = () => {
 
   useEffect(() => {
     if (!profile?.uid) return;
-    const unsub = communityService.subscribeToNotifications(profile.uid, (notifs) => {
+    const unsubNotifs = communityService.subscribeToNotifications(profile.uid, (notifs) => {
       setNotifications(notifs);
       setUnreadCount(notifs.filter(n => !n.read).length);
     });
-    return () => unsub();
+
+    const unsubInvites = invitationService.subscribeToInvitations(profile.uid, (invites) => {
+      setInvitations(invites);
+    });
+
+    // Listen for reading circles
+    const qCircles = query(collection(db, "reading_circles"), limit(5));
+    const unsubCircles = onSnapshot(qCircles, (snap) => {
+      setReadingCircles(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+
+    // Listen for knowledge sessions
+    const qSessions = query(collection(db, "knowledge_sessions"), where("status", "==", "ongoing"), limit(5));
+    const unsubSessions = onSnapshot(qSessions, (snap) => {
+      setActiveSessions(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+
+    return () => {
+      unsubNotifs();
+      unsubInvites();
+      unsubCircles();
+      unsubSessions();
+    };
   }, [profile?.uid]);
 
   useEffect(() => {
@@ -114,6 +144,7 @@ const CommunityHub = () => {
 
   const tabs: { id: CommunityTab; label: string; icon: React.ElementType }[] = [
     { id: "today", label: isAr ? "اليوم" : "Today", icon: CalendarDays },
+    { id: "posts", label: isAr ? "منشورات" : "Posts", icon: MessageSquare },
     { id: "chat", label: isAr ? "المحادثة" : "Chat", icon: MessageSquare },
     { id: "khatma", label: isAr ? "الختمة" : "Khatma", icon: BookMarked },
     { id: "circles", label: isAr ? "الحلقات" : "Circles", icon: BookOpen },
@@ -125,6 +156,10 @@ const CommunityHub = () => {
     { id: "leaderboard", label: isAr ? "المتصدرون" : "Leaderboard", icon: Trophy },
     { id: "quests", label: isAr ? "المهمات" : "Quests", icon: Sparkles },
   ];
+
+  if (isAdmin) {
+    tabs.push({ id: "admin", label: isAr ? "المشرف" : "Admin Panel", icon: ShieldCheck });
+  }
 
   const todayActions: CommunityAction[] = [
     {
@@ -530,6 +565,7 @@ const CommunityHub = () => {
                 )}
               </div>
             )}
+            {activeTab === "posts" && <div className="p-4 md:p-8"><CommunityPosts /></div>}
             {activeTab === "chat" && <div className="p-4 md:p-8"><CommunityChat /></div>}
             {activeTab === "khatma" && <div className="p-4 md:p-8"><GroupKhatma standalone={false} /></div>}
             {activeTab === "circles" && <div className="p-4 md:p-8"><ReadingCirclesComponent standalone={false} /></div>}
@@ -540,6 +576,7 @@ const CommunityHub = () => {
             {activeTab === "duels" && <SpiritualDuels />}
             {activeTab === "leaderboard" && <Leaderboard />}
             {activeTab === "quests" && <EpicQuests />}
+            {activeTab === "admin" && isAdmin && <AdminPanel />}
           </div>
         </div>
       </main>
@@ -606,6 +643,7 @@ const CommunityHub = () => {
         isOpen={showNotifications}
         onClose={() => setShowNotifications(false)}
         notifications={notifications}
+        invitations={invitations}
       />
     </div>
   );

@@ -13,8 +13,10 @@ import {
   BookOpen,
   ArrowRight,
   Info,
-  Youtube
+  Youtube,
+  UserPlus
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useUser } from "@/contexts/UserContext";
 import { communityService, KnowledgeSession } from "@/services/communityService";
 import { toArabicNumber } from "@/data/quranData";
@@ -40,6 +42,7 @@ interface KnowledgeSessionsComponentProps {
 const KnowledgeSessionsComponent = ({ standalone = false }: KnowledgeSessionsComponentProps) => {
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
+  const navigate = useNavigate();
   const { profile } = useUser();
   const [sessions, setSessions] = useState<KnowledgeSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -311,6 +314,15 @@ const KnowledgeSessionsComponent = ({ standalone = false }: KnowledgeSessionsCom
                         {isAr ? "انضمام" : "Join"}
                       </Button>
                     )}
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="rounded-xl text-primary h-8 px-3"
+                      onClick={() => navigate('/community?tab=friends')}
+                      title={isAr ? "دعوة صديق" : "Invite Friend"}
+                    >
+                      <UserPlus size={14} />
+                    </Button>
                   </div>
                 </div>
               </div>

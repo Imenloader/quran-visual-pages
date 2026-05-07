@@ -26,8 +26,21 @@ import {
   X, 
   ArrowRight,
   ShieldAlert,
-  Ghost
+  Ghost,
+  Share2,
+  BookOpen,
+  GraduationCap,
+  Plus
 } from 'lucide-react';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription,
+  DialogFooter
+} from "@/components/ui/dialog";
+import { invitationService } from '@/services/invitationService';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -52,6 +65,9 @@ const FriendsManager: React.FC<FriendsManagerProps> = ({ standalone = true }) =>
   const [friends, setFriends] = useState<any[]>([]);
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedFriend, setSelectedFriend] = useState<any>(null);
+  const [activeActivities, setActiveActivities] = useState<{ id: string, title: string, type: string }[]>([]);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
   useEffect(() => {
     if (!auth.currentUser) return;
@@ -97,6 +113,57 @@ const FriendsManager: React.FC<FriendsManagerProps> = ({ standalone = true }) =>
 
     return () => unsub();
   }, []);
+
+  const fetchActiveActivities = async () => {
+    if (!auth.currentUser) return;
+    try {
+      // Fetch Reading Circles
+      const qCircles = query(
+        collection(db, 'reading_circles'),
+        where(`members.${auth.currentUser.uid}.uid`, '==', auth.currentUser.uid),
+        limit(10)
+      );
+      const snapCircles = await getDocs(qCircles);
+      const circles = snapCircles.docs.map(d => ({ id: d.id, title: d.data().title, type: 'reading_circle' }));
+
+      // Fetch Knowledge Sessions created by user
+      const qSessions = query(
+        collection(db, 'knowledge_sessions'),
+        where('createdBy', '==', auth.currentUser.uid),
+        limit(10)
+      );
+      const snapSessions = await getDocs(qSessions);
+      const sessions = snapSessions.docs.map(d => ({ id: d.id, title: d.data().title, type: 'knowledge_session' }));
+
+      setActiveActivities([...circles, ...sessions]);
+    } catch (err) {
+      console.error("Fetch activities error:", err);
+    }
+  };
+
+  const handleOpenInvite = (friend: any) => {
+    setSelectedFriend(friend);
+    fetchActiveActivities();
+    setIsInviteModalOpen(true);
+  };
+
+  const sendInvitation = async (activity: any) => {
+    if (!selectedFriend || !auth.currentUser) return;
+    try {
+      await invitationService.sendInvitation({
+        senderId: auth.currentUser.uid,
+        senderName: currentUserProfile?.name || auth.currentUser.displayName || "User",
+        receiverId: selectedFriend.id,
+        type: activity.type as any,
+        targetId: activity.id,
+        targetTitle: activity.title
+      });
+      toast.success(isArabic ? `تم إرسال الدعوة لـ ${selectedFriend.name}` : `Invitation sent to ${selectedFriend.name}`);
+      setIsInviteModalOpen(false);
+    } catch (err) {
+      toast.error(isArabic ? 'فشل إرسال الدعوة' : 'Failed to send invitation');
+    }
+  };
 
   const handleSearch = async () => {
     const trimmedQuery = searchQuery.trim();
@@ -219,6 +286,7 @@ const FriendsManager: React.FC<FriendsManagerProps> = ({ standalone = true }) =>
   };
 
   const content = (
+    <>
     <Tabs defaultValue="friends" className="space-y-8" dir={isArabic ? 'rtl' : 'ltr'}>
       <TabsList className="grid grid-cols-3 bg-muted/40 p-1.5 rounded-[2rem] h-16 shadow-inner border border-border/20">
         <TabsTrigger value="friends" className="rounded-[1.5rem] data-[state=active]:bg-card data-[state=active]:shadow-lg font-serif">
@@ -254,11 +322,22 @@ const FriendsManager: React.FC<FriendsManagerProps> = ({ standalone = true }) =>
            <div className="grid grid-cols-1 gap-4">
               {friends.map(friend => (
                 <UserCard key={friend.id} user={friend} isArabic={isArabic}>
-                   <Link to={`/profile/${friend.id}`}>
-                      <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/5 text-primary">
-                         <ArrowRight size={20} className={isArabic ? 'rotate-180' : ''} />
+                   <div className="flex items-center gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleOpenInvite(friend)}
+                        className="rounded-xl hover:bg-gold/10 text-gold flex items-center gap-2 px-3 h-9"
+                      >
+                         <Share2 size={16} />
+                         <span className="text-[10px] font-bold">{isArabic ? 'دعوة' : 'Invite'}</span>
                       </Button>
-                   </Link>
+                      <Link to={`/profile/${friend.id}`}>
+                         <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/5 text-primary">
+                            <ArrowRight size={20} className={isArabic ? 'rotate-180' : ''} />
+                         </Button>
+                      </Link>
+                   </div>
                 </UserCard>
               ))}
            </div>
@@ -352,10 +431,60 @@ const FriendsManager: React.FC<FriendsManagerProps> = ({ standalone = true }) =>
                   <p>{isArabic ? 'لم نجد أحداً بهذا الاسم' : 'No users found with this name'}</p>
                </div>
             )}
-         </div>
-      </TabsContent>
-    </Tabs>
-  );
+          </div>
+       </TabsContent>
+     </Tabs>
+
+     <Dialog open={isInviteModalOpen} onOpenChange={setIsInviteModalOpen}>
+        <DialogContent className="sm:max-w-md rounded-[2.5rem]">
+           <DialogHeader>
+              <DialogTitle className="font-serif text-xl text-primary">{isArabic ? 'إرسال دعوة' : 'Send Invitation'}</DialogTitle>
+              <DialogDescription>
+                 {isArabic 
+                   ? `اختر النشاط الذي تود دعوة ${selectedFriend?.name} إليه` 
+                   : `Select the activity you want to invite ${selectedFriend?.name} to`}
+              </DialogDescription>
+           </DialogHeader>
+           <div className="space-y-3 py-4 max-h-[300px] overflow-y-auto no-scrollbar">
+              {activeActivities.length === 0 ? (
+                 <div className="text-center py-8 opacity-50 space-y-2">
+                    <Ghost size={32} className="mx-auto" />
+                    <p className="text-xs">{isArabic ? 'لا توجد أنشطة نشطة لدعوتهم إليها' : 'No active activities to invite them to'}</p>
+                 </div>
+              ) : (
+                 activeActivities.map(activity => (
+                    <button 
+                      key={activity.id}
+                      onClick={() => sendInvitation(activity)}
+                      className="w-full p-4 rounded-2xl bg-card border border-border/40 hover:border-gold/30 hover:bg-gold/5 flex items-center justify-between transition-all group"
+                    >
+                       <div className="flex items-center gap-3">
+                          {activity.type === 'reading_circle' ? <BookOpen size={18} className="text-emerald-600" /> : <GraduationCap size={18} className="text-blue-600" />}
+                          <div className="text-right">
+                             <p className="font-bold text-sm text-primary">{activity.title}</p>
+                             <p className="text-[10px] text-muted-foreground uppercase tracking-widest">
+                                {activity.type === 'reading_circle' ? (isArabic ? 'حلقة قراءة' : 'Reading Circle') : (isArabic ? 'جلسة علمية' : 'Knowledge Session')}
+                             </p>
+                          </div>
+                       </div>
+                       <Plus size={16} className="text-gold opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </button>
+                 ))
+              )}
+           </div>
+           <DialogFooter>
+              <Button 
+                variant="ghost" 
+                onClick={() => setIsInviteModalOpen(false)}
+                className="w-full rounded-xl"
+              >
+                 {isArabic ? 'إلغاء' : 'Cancel'}
+              </Button>
+           </DialogFooter>
+        </DialogContent>
+     </Dialog>
+    </>
+   );
 
   if (!standalone) {
     return <div className="p-6">{content}</div>;
