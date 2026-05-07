@@ -147,20 +147,20 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
 
   return (
     <div
-      className="fixed inset-0 z-[700] bg-black/70 backdrop-blur-md flex items-center justify-center p-4 transition-opacity duration-300 opacity-100"
+      className="fixed inset-0 z-[700] bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center transition-opacity duration-300 opacity-100"
       onClick={(e) => e.target === e.currentTarget && handleClose()}
     >
       <div
-        className="w-full max-w-sm bg-card rounded-[2.5rem] border border-border/20 shadow-2xl overflow-hidden transition-all duration-300 transform scale-100 opacity-100 translate-y-0"
+        className="w-full sm:max-w-sm bg-card sm:rounded-[2.5rem] rounded-t-[2.5rem] border border-border/20 shadow-2xl overflow-y-auto max-h-[90vh] transition-all duration-300 transform scale-100 opacity-100 translate-y-0"
       >
         {/* Header */}
         <div className="relative bg-emerald-deep p-6 pb-8 text-center overflow-hidden">
           <div className="absolute inset-0 pattern-islamic opacity-10" />
           <button
             onClick={handleClose}
-            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:bg-white/20 transition-colors z-10"
+            className="absolute top-3 right-3 w-11 h-11 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:bg-white/20 active:bg-white/30 transition-colors z-10"
           >
-            <X size={14} />
+            <X size={18} />
           </button>
           <div className="relative z-10">
             <div className="w-14 h-14 rounded-2xl bg-gold/20 border border-gold/30 flex items-center justify-center mx-auto mb-3">
@@ -237,7 +237,8 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
                   onChange={(e) => setName(e.target.value)}
                   placeholder={isAr ? "الاسم" : "Full name"}
                   dir={isAr ? "rtl" : "ltr"}
-                  className="w-full px-4 py-3 rounded-xl bg-primary/5 border border-primary/10 focus:border-accent outline-none font-serif text-sm text-primary placeholder:text-primary/30 transition-all"
+                  autoComplete="name"
+                  className="w-full px-4 py-3 rounded-xl bg-primary/5 border border-primary/10 focus:border-accent outline-none font-serif text-base text-primary placeholder:text-primary/30 transition-all"
                 />
                 <UserPlus size={14} className={`absolute ${isAr ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-primary/30`} />
               </div>
@@ -285,7 +286,9 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
                 onKeyDown={(e) => e.key === "Enter" && handleEmailAuth()}
                 placeholder={isAr ? "البريد الإلكتروني" : "Email address"}
                 dir="ltr"
-                className="w-full px-4 py-3 rounded-xl bg-primary/5 border border-primary/10 focus:border-accent outline-none font-serif text-sm text-primary placeholder:text-primary/30 transition-all text-start"
+                inputMode="email"
+                autoComplete="email"
+                className="w-full px-4 py-3 rounded-xl bg-primary/5 border border-primary/10 focus:border-accent outline-none font-serif text-base text-primary placeholder:text-primary/30 transition-all text-start"
               />
               <Mail size={14} className={`absolute ${isAr ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-primary/30`} />
             </div>
@@ -298,7 +301,8 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
                 onKeyDown={(e) => e.key === "Enter" && handleEmailAuth()}
                 placeholder={isAr ? "كلمة المرور" : "Password"}
                 dir="ltr"
-                className="w-full px-4 py-3 rounded-xl bg-primary/5 border border-primary/10 focus:border-accent outline-none font-serif text-sm text-primary placeholder:text-primary/30 transition-all text-start"
+                autoComplete={tab === 'signin' ? 'current-password' : 'new-password'}
+                className="w-full px-4 py-3 rounded-xl bg-primary/5 border border-primary/10 focus:border-accent outline-none font-serif text-base text-primary placeholder:text-primary/30 transition-all text-start"
               />
               <Lock size={14} className={`absolute ${isAr ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-primary/30`} />
               <button

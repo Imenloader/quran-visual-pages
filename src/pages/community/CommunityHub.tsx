@@ -140,23 +140,25 @@ const CommunityHub = () => {
 
   if (!profile?.uid) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <QuranHeader />
-        <div className="pt-24 pb-32 flex flex-col items-center justify-center text-center px-6 min-h-[80vh]">
-          <div className="bg-primary/5 p-6 rounded-full mb-6 text-primary">
-            <Users size={64} />
+        <div className="pt-20 pb-32 flex flex-col items-center justify-center text-center px-6 min-h-[85vh]">
+          <div className="bg-primary/5 p-5 rounded-full mb-6 text-primary">
+            <Users size={56} />
           </div>
-          <h1 className="text-3xl md:text-4xl font-serif font-bold mb-4">{isAr ? "مجتمع القرآن" : "Quran Community"}</h1>
-          <p className="text-muted-foreground text-lg max-w-md mb-8">
+          <h1 className="text-2xl md:text-4xl font-serif font-bold mb-4">{isAr ? "مجتمع القرآن" : "Quran Community"}</h1>
+          <p className="text-muted-foreground text-base max-w-sm mb-10 leading-relaxed">
             {isAr 
               ? "انضم إلى إخوتك في تلاوة القرآن، شارك في الختمات الجماعية، وتنافس في الخيرات." 
               : "Join your siblings in reciting the Quran, participate in group Khatmas, and compete in good deeds."}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <Button size="lg" className="px-8 font-bold text-lg rounded-xl h-14" onClick={() => setShowAuthModal(true)}>
-              {isAr ? "تسجيل الدخول / حساب جديد" : "Sign In / Sign Up"}
-            </Button>
-          </div>
+          <Button
+            size="lg"
+            className="w-full max-w-xs h-14 text-base font-bold rounded-2xl shadow-lg active:scale-95 transition-all"
+            onClick={() => setShowAuthModal(true)}
+          >
+            {isAr ? "تسجيل الدخول / حساب جديد" : "Sign In / Sign Up"}
+          </Button>
         </div>
         <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
       </div>
