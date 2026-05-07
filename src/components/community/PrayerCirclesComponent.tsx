@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { db, auth } from '@/firebase';
-import { collection, query, onSnapshot, doc, getDoc, addDoc, serverTimestamp, orderBy, limit, updateDoc, increment, arrayUnion, runTransaction } from 'firebase/firestore';
+import { collection, query, onSnapshot, doc, getDoc, addDoc, serverTimestamp, orderBy, limit, updateDoc, increment, arrayUnion, runTransaction, deleteField } from 'firebase/firestore';
 import BackButton from '@/components/BackButton';
 import { 
   Users, 
@@ -261,7 +261,11 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
                <div 
                  key={circle.id} 
                  onClick={() => {
-                   console.log('Circle clicked:', circle.id, 'isMember:', isMember);
+                   if (!auth.currentUser) {
+                     toast.error(t('common.loginRequired'));
+                     return;
+                   }
+                   toast.info(isArabic ? 'تم النقر على الحلقة' : 'Circle card clicked');
                    if (isMember) {
                      setSelectedCircle(circle);
                      setShowMembersDialog(true);
@@ -354,9 +358,31 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
                ))}
              </div>
            </div>
-           <DialogFooter>
+           <DialogFooter className="flex flex-col gap-2">
              <Button onClick={() => setShowMembersDialog(false)} className="w-full h-12 rounded-xl bg-primary text-white font-bold">
                {isArabic ? 'إغلاق' : 'Close'}
+             </Button>
+             <Button 
+               variant="ghost" 
+               onClick={async () => {
+                 if (!selectedCircle || !auth.currentUser) return;
+                 try {
+                   const circleRef = doc(db, 'prayer_circles', selectedCircle.id);
+                   if (Array.isArray(selectedCircle.members)) {
+                     const newMembers = selectedCircle.members.filter(m => m !== auth.currentUser?.uid);
+                     await updateDoc(circleRef, { members: newMembers });
+                   } else {
+                     await updateDoc(circleRef, { [`members.${auth.currentUser.uid}`]: deleteField() });
+                   }
+                   toast.success(isArabic ? 'تمت مغادرة الحلقة' : 'Left circle');
+                   setShowMembersDialog(false);
+                 } catch (e) {
+                   console.error(e);
+                 }
+               }} 
+               className="w-full text-xs text-rose-500 hover:text-rose-600 hover:bg-rose-50"
+             >
+               {isArabic ? 'مغادرة الحلقة' : 'Leave Circle'}
              </Button>
            </DialogFooter>
         </DialogContent>
