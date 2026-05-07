@@ -27,7 +27,9 @@ import {
   RotateCcw,
   Heart,
   Moon,
-  Check
+  Check,
+  ArrowRight,
+  ArrowLeft
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -186,6 +188,16 @@ const UserProfileView: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-deep/90 via-emerald-900 to-black/80" />
         <div className="absolute inset-0 opacity-20 pattern-islamic scale-150 rotate-12" />
         
+        <div className="absolute top-6 left-6 z-30" dir="ltr">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate(-1)} 
+            className="bg-black/20 border-white/20 text-white hover:bg-black/40 rounded-full w-12 h-12 p-0 flex items-center justify-center backdrop-blur-md transition-all shadow-lg hover:scale-105"
+          >
+            {isArabic ? <ArrowRight size={24} /> : <ArrowLeft size={24} />}
+          </Button>
+        </div>
+
         <div className="absolute inset-0 flex items-end">
           <div className="container max-w-5xl mx-auto px-6 pb-8 flex flex-col md:flex-row items-center md:items-end gap-6">
             {/* Avatar */}
@@ -217,7 +229,7 @@ const UserProfileView: React.FC = () => {
               </div>
               <p className="text-white/60 text-sm font-naskh flex items-center justify-center md:justify-start gap-2">
                 <Calendar size={14} />
-                {t('profile.joinedDate')}: {new Date(profile.joinedDate).toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'long' })}
+                {t('profile.joinedDate')}: {profile.joinedDate ? (profile.joinedDate.toDate ? profile.joinedDate.toDate() : new Date(profile.joinedDate)).toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'long' }) : ''}
               </p>
             </div>
 
