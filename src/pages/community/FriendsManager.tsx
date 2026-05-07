@@ -110,26 +110,33 @@ const FriendsManager: React.FC<FriendsManagerProps> = ({ standalone = true }) =>
       
       // Define multiple queries to increase chance of finding matches
       const queryConfigs = [
-        // 1. Search by new searchName field (lowercase)
+        // 1. Search by new searchName field (lowercase) in profiles
         query(
           collection(db, 'profiles'),
           where('searchName', '>=', queryLower),
           where('searchName', '<=', queryLower + '\uf8ff'),
-          limit(20)
+          limit(10)
         ),
-        // 2. Search by raw name (exact trimmed query)
+        // 2. Search by raw name in profiles
         query(
           collection(db, 'profiles'),
           where('name', '>=', trimmedQuery),
           where('name', '<=', trimmedQuery + '\uf8ff'),
-          limit(20)
+          limit(10)
         ),
-        // 3. Search by raw name (capitalized version)
+        // 3. Search by raw name in users (legacy fallback)
         query(
-          collection(db, 'profiles'),
+          collection(db, 'users'),
+          where('name', '>=', trimmedQuery),
+          where('name', '<=', trimmedQuery + '\uf8ff'),
+          limit(10)
+        ),
+        // 4. Search by capitalized name in users (legacy fallback)
+        query(
+          collection(db, 'users'),
           where('name', '>=', queryCapitalized),
           where('name', '<=', queryCapitalized + '\uf8ff'),
-          limit(20)
+          limit(10)
         )
       ];
 
