@@ -27,6 +27,7 @@ import { usePeriodicReminders } from "./hooks/usePeriodicReminders";
 import { usePrayerNotifications } from "./hooks/usePrayerNotifications";
 import { useGoalNotifications } from "./hooks/useGoalNotifications";
 import { useQanetNotifications } from "./hooks/useQanetNotifications";
+import { useCommunityNotifications } from "./hooks/useCommunityNotifications";
 import SplashScreen from "./components/SplashScreen";
 import ScrollRestoration from "./components/ScrollRestoration";
 import CommandPalette from "./components/CommandPalette";
@@ -178,6 +179,7 @@ const NotificationInitializer = () => {
   usePeriodicReminders();
   usePrayerNotifications();
   useGoalNotifications();
+  useCommunityNotifications();
   return null;
 };
 
