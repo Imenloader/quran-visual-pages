@@ -229,7 +229,7 @@ service cloud.firestore {
 
     // --- COMMUNITY V2 ENHANCEMENTS ---
     match /dua_wall/{id} {
-      allow read: if isAuthenticated();
+      allow read: if true;
       allow create: if isAuthenticated() && !isBanned() && canWrite() && request.resource.data.userId == request.auth.uid;
       allow update: if isAuthenticated() && canWrite() && (
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['prayedBy'])
@@ -244,7 +244,7 @@ service cloud.firestore {
     }
 
     match /live_dhikr_circles/{id} {
-      allow read: if isAuthenticated();
+      allow read: if true;
       allow create: if isAuthenticated() && !isBanned() && canWrite();
       allow update: if isAuthenticated() && canWrite() && (
         request.resource.data.diff(resource.data).affectedKeys().hasAny(['currentCount', 'participants', 'activeUsers'])
