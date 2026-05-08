@@ -160,6 +160,47 @@ const PrayerCircleDetail = () => {
     return [];
   };
 
+  const handleInviteFriend = async (friendId: string, friendName: string) => {
+    if (!id || !circle || !auth.currentUser) return;
+    
+    try {
+      await addDoc(collection(db, 'notifications'), {
+        userId: friendId,
+        fromId: auth.currentUser.uid,
+        fromName: profile?.name || auth.currentUser.displayName || (isAr ? 'مستخدم' : 'User'),
+        type: 'circle_invite',
+        payload: { 
+          circleId: id, 
+          circleName: circle.name 
+        },
+        read: false,
+        timestamp: serverTimestamp()
+      });
+      toast.success(isAr ? `تم إرسال دعوة لـ ${friendName}` : `Invitation sent to ${friendName}`);
+    } catch (e) {
+      toast.error(isAr ? 'فشل إرسال الدعوة' : 'Failed to send invitation');
+    }
+  };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: circle?.name || 'حلقة دعاء',
+      text: isAr ? `انضم إلي في حلقة الدعاء: ${circle?.name}` : `Join me in this prayer circle: ${circle?.name}`,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error('Share failed:', err);
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success(isAr ? 'تم نسخ الرابط' : 'Link copied');
+    }
+  };
+
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="animate-spin text-primary" /></div>;
   if (!circle) return null;
 
@@ -279,29 +320,68 @@ const PrayerCircleDetail = () => {
       </div>
 
       <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem]">
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle className="text-center font-serif">{isAr ? 'دعوة أصدقاء للحلقة' : 'Invite Friends to Circle'}</DialogTitle>
           </DialogHeader>
-          <div className="py-6 text-center space-y-4">
-            <div className="w-16 h-16 bg-emerald-500/10 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <UserPlus size={32} />
+          
+          <div className="flex-1 overflow-y-auto py-4 space-y-6 no-scrollbar">
+            {/* Direct Share Options */}
+            <div className="space-y-3">
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-1">{isAr ? 'مشاركة الرابط' : 'Share Link'}</h4>
+              <Button 
+                onClick={handleShare}
+                className="w-full rounded-2xl bg-emerald-600 text-white font-bold h-12 flex items-center gap-2 shadow-lg"
+              >
+                <Share2 size={18} />
+                {isAr ? 'مشاركة أو نسخ الرابط' : 'Share or Copy Link'}
+              </Button>
             </div>
-            <p className="text-sm text-muted-foreground">
-              {isAr 
-                ? 'ميزة دعوة الأصدقاء مباشرة ستتوفر قريباً. حالياً يمكنك نسخ رابط الصفحة ومشاركته معهم.' 
-                : 'Direct friend invites coming soon. For now, you can copy the page link and share it with them.'}
-            </p>
-            <Button 
-              onClick={() => {
-                navigator.clipboard.writeText(window.location.href);
-                toast.success(isAr ? 'تم نسخ الرابط' : 'Link copied');
-              }}
-              className="w-full rounded-xl bg-emerald-600 text-white font-bold"
-            >
-              {isAr ? 'نسخ رابط الدعوة' : 'Copy Invite Link'}
-            </Button>
+
+            {/* Friend List */}
+            <div className="space-y-3">
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-1">{isAr ? 'دعوة مباشرة للأصدقاء' : 'Invite Friends Directly'}</h4>
+              <div className="space-y-2">
+                {profile?.friendIds && profile.friendIds.length > 0 ? (
+                  profile.friendIds
+                    .filter(fid => !getMemberIds(circle.members).includes(fid))
+                    .map(fid => (
+                      <div key={fid} className="flex items-center justify-between p-3 bg-muted/30 rounded-2xl border border-border/10">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
+                            {fid.charAt(0).toUpperCase()}
+                          </div>
+                          <span className="text-xs font-bold">{isAr ? 'صديق' : 'Friend'}</span>
+                        </div>
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          onClick={() => handleInviteFriend(fid, isAr ? 'صديق' : 'Friend')}
+                          className="text-[10px] font-bold text-primary hover:bg-primary/10"
+                        >
+                          {isAr ? 'إرسال دعوة' : 'Send Invite'}
+                        </Button>
+                      </div>
+                    ))
+                ) : (
+                  <p className="text-[10px] text-muted-foreground italic px-1">
+                    {isAr ? 'لم تقم بإضافة أصدقاء بعد.' : 'No friends added yet.'}
+                  </p>
+                )}
+                {profile?.friendIds && profile.friendIds.length > 0 && profile.friendIds.filter(fid => !getMemberIds(circle.members).includes(fid)).length === 0 && (
+                   <p className="text-[10px] text-muted-foreground italic px-1">
+                    {isAr ? 'جميع أصدقائك في هذه الحلقة بالفعل.' : 'All your friends are already in this circle.'}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
+          
+          <DialogFooter className="pt-2 border-t border-border/10">
+            <Button variant="ghost" onClick={() => setShowInviteDialog(false)} className="w-full rounded-xl text-xs font-bold">
+              {isAr ? 'إغلاق' : 'Close'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

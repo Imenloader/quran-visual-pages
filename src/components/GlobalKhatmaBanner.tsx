@@ -122,7 +122,7 @@ const GlobalKhatmaBanner: React.FC = () => {
                </span>
             </div>
             <div className="text-left text-white/60 text-xs font-bold uppercase tracking-widest pb-2">
-               {isArabic ? toArabicNumber(stats.currentJuz) : stats.currentJuz} / {isArabic ? toArabicNumber(stats.targetJuz) : stats.targetJuz} جزء
+               {isArabic ? toArabicNumber(stats.currentJuz.toFixed(1)) : stats.currentJuz.toFixed(1)} / {isArabic ? toArabicNumber(stats.targetJuz) : stats.targetJuz} جزء
             </div>
           </div>
 
