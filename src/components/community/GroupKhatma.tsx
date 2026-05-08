@@ -259,7 +259,7 @@ const GroupKhatma: React.FC<GroupKhatmaProps> = ({ standalone = true }) => {
       
       toast.success(isAr ? "تم إنشاء الختمة بنجاح" : "Khatma created successfully", { 
         id: toastId,
-        duration: type === 'public' ? Infinity : 5000
+        duration: type === 'public' ? 15000 : 5000
       });
       setShowCreateModal(false);
       setNewKhatmaTitle("");
