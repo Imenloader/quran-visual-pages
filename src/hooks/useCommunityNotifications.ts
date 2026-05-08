@@ -59,19 +59,29 @@ export const useCommunityNotifications = () => {
   };
 
   useEffect(() => {
-    startListener();
+    const unsubAuth = auth.onAuthStateChanged((user) => {
+      if (user) {
+        startListener();
+      } else {
+        if (unsubscribeRef.current) {
+          unsubscribeRef.current();
+          unsubscribeRef.current = null;
+        }
+      }
+    });
 
-    // Re-sync when app comes back from background to ensure we didn't miss anything
+    // Re-sync when app comes back from background
     let stateListener: any = null;
     if (Capacitor.isNativePlatform()) {
       stateListener = CapApp.addListener('appStateChange', ({ isActive }) => {
-        if (isActive) {
+        if (isActive && auth.currentUser) {
           startListener();
         }
       });
     }
 
     return () => {
+      unsubAuth();
       if (unsubscribeRef.current) unsubscribeRef.current();
       if (stateListener) stateListener.then((l: any) => l.remove());
     };

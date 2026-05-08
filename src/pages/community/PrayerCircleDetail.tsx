@@ -27,7 +27,8 @@ import {
   Send,
   MoreVertical,
   LogOut,
-  Trash2
+  Trash2,
+  Share2
 } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from 'sonner';
