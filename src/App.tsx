@@ -257,6 +257,21 @@ const App = () => {
         backListener.then(l => l.remove());
       };
     }
+
+    // --- Background Task Persistence ---
+    if (Capacitor.isNativePlatform()) {
+      const stateListener = CapApp.addListener('appStateChange', ({ isActive }) => {
+        console.log('App state changed. Is Active:', isActive);
+        if (isActive) {
+          // Restart any paused listeners or sync data
+          toast.dismiss(); // Clear any persistent background toasts
+        }
+      });
+
+      return () => {
+        stateListener.then(l => l.remove());
+      };
+    }
   }, []);
 
   useEffect(() => {
