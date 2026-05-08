@@ -53,6 +53,9 @@ import WorshipSentinel from "@/components/community/WorshipSentinel";
 import KnowledgeSessionsComponent from "@/components/community/KnowledgeSessionsComponent";
 import CommunityPosts from "@/components/community/CommunityPosts";
 import AdminPanel from "@/components/community/AdminPanel";
+import CollectiveGoals from "@/components/community/CollectiveGoals";
+import DuaWall from "@/components/community/DuaWall";
+import LiveDhikrCircle from "@/components/community/LiveDhikrCircle";
 import { invitationService, CommunityInvitation } from "@/services/invitationService";
 import AuthModal from "@/components/AuthModal";
 import { Button } from "@/components/ui/button";
@@ -66,7 +69,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-type CommunityTab = "today" | "posts" | "chat" | "feed" | "friends" | "khatma" | "circles" | "sessions" | "prayer" | "sentinel" | "duels" | "leaderboard" | "quests" | "admin";
+type CommunityTab = "today" | "goals" | "dua_wall" | "dhikr_circles" | "posts" | "chat" | "feed" | "friends" | "khatma" | "circles" | "sessions" | "prayer" | "sentinel" | "duels" | "leaderboard" | "quests" | "admin";
 
 type CommunityAction = {
   id: string;
@@ -184,12 +187,15 @@ const CommunityHub = () => {
 
   const tabs: { id: CommunityTab; label: string; icon: React.ElementType }[] = [
     { id: "today", label: isAr ? "اليوم" : "Today", icon: CalendarDays },
+    { id: "goals", label: isAr ? "الأهداف" : "Goals", icon: Trophy },
+    { id: "dua_wall", label: isAr ? "حائط الدعاء" : "Dua Wall", icon: Heart },
+    { id: "dhikr_circles", label: isAr ? "حلقات الذكر" : "Dhikr Circles", icon: Zap },
     { id: "posts", label: isAr ? "منشورات" : "Posts", icon: MessageSquare },
     { id: "chat", label: isAr ? "المحادثة" : "Chat", icon: MessageSquare },
     { id: "khatma", label: isAr ? "الختمة" : "Khatma", icon: BookMarked },
     { id: "circles", label: isAr ? "الحلقات" : "Circles", icon: BookOpen },
     { id: "sessions", label: isAr ? "الجلسات" : "Sessions", icon: GraduationCap },
-    { id: "prayer", label: isAr ? "الدعاء" : "Dua", icon: Heart },
+    { id: "prayer", label: isAr ? "حلقات الدعاء" : "Prayer Circles", icon: HeartHandshake },
     { id: "sentinel", label: isAr ? "الحارس" : "Sentinel", icon: ShieldCheck },
     { id: "feed", label: isAr ? "الخلاصة" : "Feed", icon: ActivityIcon },
     { id: "friends", label: isAr ? "الأصدقاء" : "Friends", icon: Users },
@@ -612,8 +618,22 @@ const CommunityHub = () => {
                     </div>
                   </section>
                 )}
+
+                {/* Today's Collective Goals Preview */}
+                <section className="space-y-4">
+                  <div className="flex items-center justify-between px-2">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{isAr ? "الأهداف الجماعية" : "Collective Goals"}</h3>
+                    <button onClick={() => setActiveTab("goals")} className="text-[10px] font-bold text-gold hover:underline">
+                      {isAr ? "عرض الكل" : "View All"}
+                    </button>
+                  </div>
+                  <CollectiveGoals />
+                </section>
               </div>
             )}
+            {activeTab === "goals" && <div className="p-4 md:p-8"><CollectiveGoals /></div>}
+            {activeTab === "dua_wall" && <div className="p-4 md:p-8"><DuaWall /></div>}
+            {activeTab === "dhikr_circles" && <div className="p-4 md:p-8"><LiveDhikrCircle /></div>}
             {activeTab === "posts" && <div className="p-4 md:p-8"><CommunityPosts /></div>}
             {activeTab === "chat" && <div className="p-4 md:p-8"><CommunityChat /></div>}
             {activeTab === "khatma" && <div className="p-4 md:p-8"><GroupKhatma standalone={false} /></div>}

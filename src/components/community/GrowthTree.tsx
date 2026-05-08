@@ -1,6 +1,8 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useUser } from "@/contexts/UserContext";
+import { Flame } from "lucide-react";
+import { toArabicNumber } from "@/data/quranData";
 
 const GrowthTree = () => {
   const { i18n } = useTranslation();
@@ -64,6 +66,15 @@ const GrowthTree = () => {
                     : "Mighty Tree"}
           </p>
         </div>
+
+        {profile.currentStreak > 0 && (
+          <div className="flex items-center justify-center md:justify-end gap-1.5 text-orange-500 mb-2">
+            <Flame size={14} className="fill-current animate-pulse" />
+            <span className="text-[11px] font-bold">
+              {isAr ? toArabicNumber(profile.currentStreak) : profile.currentStreak} {isAr ? "يوم متواصل" : "Day Streak"}
+            </span>
+          </div>
+        )}
         
         <div className="flex items-center justify-center md:justify-end gap-3">
           <div className="flex-1 max-w-[100px] h-1.5 rounded-full bg-emerald-500/20 overflow-hidden">

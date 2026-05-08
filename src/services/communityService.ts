@@ -15,6 +15,34 @@ import type { FieldValue, Timestamp } from "firebase/firestore";
 
 type FirestoreDate = Timestamp | FieldValue;
 
+export interface DuaWallRequest {
+  id?: string;
+  userId: string;
+  userName: string;
+  text: string;
+  prayedBy: string[]; // array of UIDs
+  createdAt: FirestoreDate;
+}
+
+export interface GlobalMilestone {
+  id?: string;
+  type: 'quran_pages' | 'dhikr_total' | 'prayers_logged';
+  currentCount: number;
+  targetCount: number;
+  titleAr: string;
+  titleEn: string;
+}
+
+export interface LiveDhikrCircle {
+  id?: string;
+  title: string;
+  targetCount: number;
+  currentCount: number;
+  activeUsers: number;
+  participants: string[];
+  createdAt: FirestoreDate;
+}
+
 export interface KnowledgeSession {
   id?: string;
   title: string;
@@ -212,6 +240,75 @@ export const communityService = {
     );
     return onSnapshot(q, (snap) => {
       callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as KnowledgeSession[]);
+    });
+  },
+
+  async submitDuaWallRequest(userId: string, userName: string, text: string) {
+    const request: Omit<DuaWallRequest, "id"> = {
+      userId,
+      userName,
+      text,
+      prayedBy: [],
+      createdAt: serverTimestamp(),
+    };
+    await addDoc(collection(db, "dua_wall"), request);
+  },
+
+  async prayForDua(duaId: string, userId: string) {
+    const { arrayUnion, increment } = await import("firebase/firestore");
+    const duaRef = doc(db, "dua_wall", duaId);
+    await updateDoc(duaRef, {
+      prayedBy: arrayUnion(userId)
+    });
+  },
+
+  subscribeToDuaWall(callback: (duas: DuaWallRequest[]) => void) {
+    const q = query(
+      collection(db, "dua_wall"),
+      orderBy("createdAt", "desc"),
+      limit(50)
+    );
+    return onSnapshot(q, (snap) => {
+      callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as DuaWallRequest[]);
+    });
+  },
+
+  subscribeToGlobalMilestones(callback: (milestones: GlobalMilestone[]) => void) {
+    const q = query(collection(db, "global_milestones"));
+    return onSnapshot(q, (snap) => {
+      callback(snap.docs.map(d => ({ id: d.id, ...d.data() })) as GlobalMilestone[]);
+    });
+  },
+
+  async updateGlobalMilestone(type: string, amount: number) {
+    const { increment, getDocs, query, where, collection } = await import("firebase/firestore");
+    const q = query(collection(db, "global_milestones"), where("type", "==", type));
+    const snap = await getDocs(q);
+    if (!snap.empty) {
+      await updateDoc(doc(db, "global_milestones", snap.docs[0].id), {
+        currentCount: increment(amount)
+      });
+    }
+  },
+
+  async createLiveDhikrCircle(title: string, targetCount: number) {
+    const circle: Omit<LiveDhikrCircle, "id"> = {
+      title,
+      targetCount,
+      currentCount: 0,
+      activeUsers: 0,
+      participants: [],
+      createdAt: serverTimestamp(),
+    };
+    return await addDoc(collection(db, "live_dhikr_circles"), circle);
+  },
+
+  async updateDhikrCount(circleId: string, userId: string, amount: number) {
+    const { increment, arrayUnion } = await import("firebase/firestore");
+    const circleRef = doc(db, "live_dhikr_circles", circleId);
+    await updateDoc(circleRef, {
+      currentCount: increment(amount),
+      participants: arrayUnion(userId)
     });
   }
 };
