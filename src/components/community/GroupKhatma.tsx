@@ -87,6 +87,21 @@ const JUZ_NAMES_AR = [
 
 const JUZ_NAMES_EN = Array.from({ length: 30 }, (_, i) => `Juz ${i + 1}`);
 
+const ISLAMIC_KHATMA_NAMES = [
+  { ar: "ختمة التقوى", en: "Khatma of Taqwa" },
+  { ar: "ختمة الإخلاص", en: "Khatma of Ikhlas" },
+  { ar: "ختمة الهدى", en: "Khatma of Huda" },
+  { ar: "ختمة النور", en: "Khatma of Noor" },
+  { ar: "ختمة الفرقان", en: "Khatma of Furqan" },
+  { ar: "ختمة السكينة", en: "Khatma of Sakeenah" },
+  { ar: "ختمة الرضوان", en: "Khatma of Ridwan" },
+  { ar: "ختمة الفوز", en: "Khatma of Success" },
+  { ar: "ختمة الجنة", en: "Khatma of Jannah" },
+  { ar: "ختمة المغفرة", en: "Khatma of Forgiveness" },
+  { ar: "ختمة الرحمة", en: "Khatma of Mercy" },
+  { ar: "ختمة الصدق", en: "Khatma of Truth" }
+];
+
 interface GroupKhatmaProps {
   standalone?: boolean;
 }
@@ -228,15 +243,24 @@ const GroupKhatma: React.FC<GroupKhatmaProps> = ({ standalone = true }) => {
       };
     }
     try {
+      const randomNameObj = ISLAMIC_KHATMA_NAMES[Math.floor(Math.random() * ISLAMIC_KHATMA_NAMES.length)];
+      const defaultTitle = type === 'public' 
+        ? (isAr ? randomNameObj.ar : randomNameObj.en)
+        : (isAr ? "ختمة خاصة" : "Private Khatma");
+
       const docRef = await addDoc(collection(db, "khatmas"), {
-        title: newKhatmaTitle || (type === 'public' ? (isAr ? "ختمة عامة" : "Public Khatma") : (isAr ? "ختمة خاصة" : "Private Khatma")),
+        title: newKhatmaTitle || defaultTitle,
         type,
         createdBy: auth.currentUser.uid,
         createdAt: serverTimestamp(),
         status: 'active',
         portions: initialPortions
       });
-      toast.success(isAr ? "تم إنشاء الختمة بنجاح" : "Khatma created successfully", { id: toastId });
+      
+      toast.success(isAr ? "تم إنشاء الختمة بنجاح" : "Khatma created successfully", { 
+        id: toastId,
+        duration: type === 'public' ? Infinity : 5000
+      });
       setShowCreateModal(false);
       setNewKhatmaTitle("");
       setSearchParams({ id: docRef.id });
