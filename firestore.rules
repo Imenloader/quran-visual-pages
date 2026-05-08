@@ -127,6 +127,15 @@ service cloud.firestore {
     match /prayer_circles/{circleId} {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated();
+      
+      match /posts/{postId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated() && canWrite();
+        allow update: if isAuthenticated() && (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['heartCount', 'hearters'])
+        );
+        allow delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      }
     }
     
     match /athkar_circles/{circleId} {
