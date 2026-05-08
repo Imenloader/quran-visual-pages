@@ -61,7 +61,7 @@ const BottomNav = () => {
   if (settings.maintenanceMode && !isAdmin && !systemLoading) return null;
 
   return (
-    <div className="fixed left-0 right-0 bottom-0 z-50 flex flex-col items-center pointer-events-none pb-4 md:pb-6">
+    <div className="fixed left-0 right-0 bottom-0 z-50 flex flex-col items-center pointer-events-none pb-4 md:pb-6 safe-area-bottom">
       <div className="relative w-full max-w-xl flex flex-col items-center">
         {/* Collapsing Toggle Button */}
         <div className="pointer-events-auto mb-1 relative z-[120]">

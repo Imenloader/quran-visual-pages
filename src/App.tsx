@@ -38,6 +38,9 @@ import { lazyWithRetry } from "./lib/lazyRetry";
 import { checkNetworkReliability } from "./lib/networkCheck";
 import DynamicThemeWrapper from "./components/DynamicThemeWrapper";
 import GenderGuard from "./components/community/GenderGuard";
+import { App as CapApp } from "@capacitor/app";
+import { Capacitor } from "@capacitor/core";
+import { notificationService } from "./services/notificationService";
 
 // --- التعديل هنا: تحميل الصفحات الأساسية بشكل LazyRetry لمحاولة حل مشكلة الـ ReferenceError و Chunk errors ---
 const Index = lazyWithRetry(() => import("./pages/Index"));
@@ -204,6 +207,9 @@ const App = () => {
             scopes: ['profile', 'email'],
             grantOfflineAccess: true,
           });
+          
+          // Request notification permissions for Android 13+ in APK
+          notificationService.requestPermission();
         }
       } catch (e) {
         console.warn("Google Auth initialization skipped or failed:", e);
@@ -233,6 +239,22 @@ const App = () => {
           toast.error("هذا النطاق غير مصرح به. يرجى إضافة localhost و النطاق الحالي إلى Firebase.");
         }
       });
+
+    // --- Android Hardware Back Button Handling ---
+    if (Capacitor.isNativePlatform()) {
+      const backListener = CapApp.addListener('backButton', ({ canGoBack }) => {
+        if (canGoBack) {
+          window.history.back();
+        } else {
+          // If at the root, minimize the app instead of closing
+          CapApp.minimizeApp();
+        }
+      });
+
+      return () => {
+        backListener.then(l => l.remove());
+      };
+    }
   }, []);
 
   useEffect(() => {
