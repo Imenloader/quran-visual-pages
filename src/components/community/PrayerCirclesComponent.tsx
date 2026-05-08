@@ -8,9 +8,12 @@ import {
   Heart, 
   Plus, 
   ChevronRight, 
+  MoreVertical, 
+  Trash2,
   HandHelping,
   Loader2
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { toArabicNumber } from '@/data/quranData';
 import { formatDistanceToNow } from 'date-fns';
@@ -49,6 +52,7 @@ interface PrayerCirclesComponentProps {
 
 const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standalone = true }) => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const isArabic = i18n.language === 'ar';
   const [circles, setCircles] = useState<Circle[]>([]);
   const [duaRequests, setDuaRequests] = useState<any[]>([]);
@@ -56,8 +60,6 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
   const [showDuaModal, setShowDuaModal] = useState(false);
   const [duaText, setDuaText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showMembersDialog, setShowMembersDialog] = useState(false);
-  const [selectedCircle, setSelectedCircle] = useState<Circle | null>(null);
 
   useEffect(() => {
     if (!auth.currentUser) {
@@ -119,7 +121,7 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
     }
     const memberIds = getCircleMemberIds(members);
     if (memberIds.includes(auth.currentUser.uid)) {
-      toast.message(isArabic ? 'أنت منضم بالفعل لهذه الحلقة' : 'You are already in this circle');
+      navigate(`/community/circle/${circleId}`);
       return;
     }
     try {
@@ -162,6 +164,7 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
       }));
 
       toast.success(isArabic ? 'تم الانضمام للحلقة بنجاح' : 'Joined circle successfully');
+      navigate(`/community/circle/${circleId}`);
     } catch (e: any) {
       console.error('Join circle failed:', e);
       toast.error(isArabic 
@@ -265,10 +268,8 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
                      toast.error(t('common.loginRequired'));
                      return;
                    }
-                   toast.info(isArabic ? 'تم النقر على الحلقة' : 'Circle card clicked');
                    if (isMember) {
-                     setSelectedCircle(circle);
-                     setShowMembersDialog(true);
+                     navigate(`/community/circle/${circle.id}`);
                    } else {
                      joinCircle(circle.id, circle.members as any);
                    }
@@ -322,69 +323,6 @@ const PrayerCirclesComponent: React.FC<PrayerCirclesComponentProps> = ({ standal
            <DialogHeader><DialogTitle className="text-center font-serif">{t('prayerCircles.requestModal.title')}</DialogTitle></DialogHeader>
            <Textarea value={duaText} onChange={e => setDuaText(e.target.value)} maxLength={500} className="min-h-[120px] rounded-2xl p-4 font-naskh" dir="auto" />
            <DialogFooter><Button onClick={handleSubmitDua} disabled={!duaText.trim() || isSubmitting} className="w-full h-12 rounded-xl bg-gold text-white font-bold">{t('prayerCircles.requestModal.submit')}</Button></DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showMembersDialog} onOpenChange={setShowMembersDialog}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem]">
-           <DialogHeader>
-             <DialogTitle className="text-center font-serif">
-               {selectedCircle?.name}
-             </DialogTitle>
-           </DialogHeader>
-           <div className="space-y-4 py-4">
-             <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-2">
-               {isArabic ? 'الأعضاء المنضمون' : 'Circle Members'}
-             </h4>
-             <div className="max-h-[300px] overflow-y-auto no-scrollbar space-y-3">
-               {selectedCircle && getCircleMemberIds(selectedCircle.members).map((uid, idx) => (
-                 <div key={uid + idx} className="flex items-center gap-3 p-2 rounded-xl bg-primary/5">
-                   <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
-                     {idx + 1}
-                   </div>
-                   <div className="flex-1">
-                     <p className="text-xs font-bold text-primary">
-                       {typeof selectedCircle.members === 'object' && !Array.isArray(selectedCircle.members) 
-                         ? (selectedCircle.members[uid]?.name || (isArabic ? 'عضو' : 'Member'))
-                         : (uid === auth.currentUser?.uid ? (auth.currentUser?.displayName || (isArabic ? 'أنا' : 'Me')) : (isArabic ? 'عضو' : 'Member'))}
-                     </p>
-                   </div>
-                   {uid === auth.currentUser?.uid && (
-                     <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-bold">
-                       {isArabic ? 'أنت' : 'You'}
-                     </span>
-                   )}
-                 </div>
-               ))}
-             </div>
-           </div>
-           <DialogFooter className="flex flex-col gap-2">
-             <Button onClick={() => setShowMembersDialog(false)} className="w-full h-12 rounded-xl bg-primary text-white font-bold">
-               {isArabic ? 'إغلاق' : 'Close'}
-             </Button>
-             <Button 
-               variant="ghost" 
-               onClick={async () => {
-                 if (!selectedCircle || !auth.currentUser) return;
-                 try {
-                   const circleRef = doc(db, 'prayer_circles', selectedCircle.id);
-                   if (Array.isArray(selectedCircle.members)) {
-                     const newMembers = selectedCircle.members.filter(m => m !== auth.currentUser?.uid);
-                     await updateDoc(circleRef, { members: newMembers });
-                   } else {
-                     await updateDoc(circleRef, { [`members.${auth.currentUser.uid}`]: deleteField() });
-                   }
-                   toast.success(isArabic ? 'تمت مغادرة الحلقة' : 'Left circle');
-                   setShowMembersDialog(false);
-                 } catch (e) {
-                   console.error(e);
-                 }
-               }} 
-               className="w-full text-xs text-rose-500 hover:text-rose-600 hover:bg-rose-50"
-             >
-               {isArabic ? 'مغادرة الحلقة' : 'Leave Circle'}
-             </Button>
-           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

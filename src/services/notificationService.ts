@@ -37,6 +37,35 @@ export const notificationService = {
     }
   },
 
+  async triggerPeerNudge(title: string, body: string, sound: string = 'adhan.mp3') {
+    try {
+      // For Capacitor (Android/iOS)
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            title,
+            body,
+            id: Math.floor(Math.random() * 1000000),
+            schedule: { at: new Date(Date.now() + 100) },
+            sound: sound,
+            actionTypeId: 'OPEN_APP',
+          },
+        ],
+      });
+
+      // For Web (if in foreground)
+      if (typeof window !== 'undefined' && 'Audio' in window) {
+        const audio = new Audio(`/assets/audio/${sound}`);
+        audio.play().catch(e => console.warn('Sound play failed:', e));
+      }
+
+      return true;
+    } catch (e) {
+      console.error('Failed to trigger peer nudge:', e);
+      return false;
+    }
+  },
+
   async cancelReminder(id: string) {
     try {
       const numericId = Math.abs(this.hashCode(id));

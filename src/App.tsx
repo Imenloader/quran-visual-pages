@@ -132,6 +132,7 @@ const PrayerCircles = lazyWithRetry(() => import("./pages/tools/PrayerCircles"))
 const CommunityHub = lazyWithRetry(() => import("./pages/community/CommunityHub"));
 const UserProfileView = lazyWithRetry(() => import("./pages/community/UserProfileView"));
 const CommunityFriends = lazyWithRetry(() => import("./pages/community/FriendsManager"));
+const PrayerCircleDetail = lazyWithRetry(() => import("./pages/community/PrayerCircleDetail"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -381,6 +382,7 @@ const AppContent = () => {
                         <Route path="/prayer-circles" element={<PrayerCircles />} />
                         <Route path="/community/friends" element={<Suspense fallback={<div />}><CommunityFriends /></Suspense>} />
                         <Route path="/community/hub" element={<Suspense fallback={<div />}><CommunityHub /></Suspense>} />
+                        <Route path="/community/circle/:id" element={<Suspense fallback={<div />}><PrayerCircleDetail /></Suspense>} />
                         <Route path="/profile/:userId" element={<Suspense fallback={<div />}><UserProfileView /></Suspense>} />
                         <Route path="/embed/:siteId" element={<EmbedView />} />
                         

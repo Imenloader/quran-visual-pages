@@ -49,6 +49,7 @@ import CommunityChat from "@/components/community/CommunityChat";
 import GroupKhatma from "@/components/community/GroupKhatma";
 import ReadingCirclesComponent from "@/components/community/ReadingCirclesComponent";
 import PrayerCirclesComponent from "@/components/community/PrayerCirclesComponent";
+import WorshipSentinel from "@/components/community/WorshipSentinel";
 import KnowledgeSessionsComponent from "@/components/community/KnowledgeSessionsComponent";
 import CommunityPosts from "@/components/community/CommunityPosts";
 import AdminPanel from "@/components/community/AdminPanel";
@@ -65,7 +66,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-type CommunityTab = "today" | "posts" | "chat" | "feed" | "friends" | "khatma" | "circles" | "sessions" | "prayer" | "duels" | "leaderboard" | "quests" | "admin";
+type CommunityTab = "today" | "posts" | "chat" | "feed" | "friends" | "khatma" | "circles" | "sessions" | "prayer" | "sentinel" | "duels" | "leaderboard" | "quests" | "admin";
 
 type CommunityAction = {
   id: string;
@@ -189,6 +190,7 @@ const CommunityHub = () => {
     { id: "circles", label: isAr ? "الحلقات" : "Circles", icon: BookOpen },
     { id: "sessions", label: isAr ? "الجلسات" : "Sessions", icon: GraduationCap },
     { id: "prayer", label: isAr ? "الدعاء" : "Dua", icon: Heart },
+    { id: "sentinel", label: isAr ? "الحارس" : "Sentinel", icon: ShieldCheck },
     { id: "feed", label: isAr ? "الخلاصة" : "Feed", icon: ActivityIcon },
     { id: "friends", label: isAr ? "الأصدقاء" : "Friends", icon: Users },
     { id: "duels", label: isAr ? "التحديات" : "Duels", icon: Zap },
@@ -618,6 +620,7 @@ const CommunityHub = () => {
             {activeTab === "circles" && <div className="p-4 md:p-8"><ReadingCirclesComponent standalone={false} /></div>}
             {activeTab === "sessions" && <div className="p-4 md:p-8"><KnowledgeSessionsComponent standalone={false} /></div>}
             {activeTab === "prayer" && <div className="p-4 md:p-8"><PrayerCirclesComponent standalone={false} /></div>}
+            {activeTab === "sentinel" && <div className="p-4 md:p-8"><WorshipSentinel /></div>}
             {activeTab === "feed" && <ActivityFeed onFindFriends={() => {
               setActiveTab("friends");
               setSearchParams({ tab: "friends" });
