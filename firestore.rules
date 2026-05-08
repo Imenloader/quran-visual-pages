@@ -217,5 +217,30 @@ service cloud.firestore {
         allow delete: if isAdmin() || (isAuthenticated() && resource.data.senderId == request.auth.uid);
       }
     }
+
+    // --- COMMUNITY V2 ENHANCEMENTS ---
+    match /dua_wall/{id} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && !isBanned() && canWrite() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && canWrite() && (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['prayedBy'])
+      );
+      allow delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+    }
+
+    match /global_milestones/{id} {
+      allow read: if true;
+      allow update: if isAuthenticated() && canWrite();
+      allow create, delete: if isAdmin();
+    }
+
+    match /live_dhikr_circles/{id} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && !isBanned() && canWrite();
+      allow update: if isAuthenticated() && canWrite() && (
+        request.resource.data.diff(resource.data).affectedKeys().hasAny(['currentCount', 'participants', 'activeUsers'])
+      );
+      allow delete: if isAdmin();
+    }
   }
 }
