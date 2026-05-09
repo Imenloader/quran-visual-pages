@@ -1,4 +1,4 @@
-# v1.0.3 - Final Secret Update Trigger
+# v1.0.4 - Build after secret update
 name: Android Build & Release
 on:
   push:
