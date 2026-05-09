@@ -43,29 +43,6 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Decode Keystore
-        id: decode_keystore
-        if: env.KEYSTORE_EXIST != ''
-        env:
-          BASE64_KEY: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-        run: |
-          # Use printf to avoid trailing newline/interpretation issues
-          printf "%s" "$BASE64_KEY" | tr -d '\n\r ' | base64 --decode > android/app/release-key.keystore
-          
-          # Troubleshooting info (visible in logs)
-          echo "Checking file size..."
-          ls -l android/app/release-key.keystore
-          echo "Checking file type..."
-          file android/app/release-key.keystore
-
-      - name: Verify Keystore Integrity
-        if: env.KEYSTORE_EXIST != ''
-        env:
-          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-        run: |
-          echo "Testing keystore access..."
-          keytool -list -keystore android/app/release-key.keystore -storepass "$STORE_PASSWORD"
-
       - name: Build Android Artifacts
         env:
           STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -75,32 +52,13 @@ jobs:
           cd android
           chmod +x gradlew
           
-          echo "--- DEBUG: Checking for problematic assets ---"
-          find . -name "ic_launcher_background.png" -exec ls -l {} +
-          echo "--- DEBUG: Deleting potential problematic assets ---"
-
-          
-          # Delete legacy density folders that often cause compilation issues with modern assets
-          echo "--- CLEANING LEGACY MISMITS ---"
-          rm -rf app/src/main/res/mipmap-ldpi
-          rm -rf app/src/main/res/mipmap-mdpi
-          
-          # Fix for AAPT: error: file failed to compile (PNG errors)
-          echo "--- FIXING PNG ASSETS (CRITICAL) ---"
-          # Strip all profiles and metadata that AAPT2 dislikes
-          find app/src/main/res -name "*.png" -exec mogrify -strip {} + || true
+          # Force use the keystore committed to the repo
+          KEYSTORE_PATH="$GITHUB_WORKSPACE/quran-app-key.jks"
           
           echo "Building Debug APK..."
           ./gradlew clean assembleDebug
           
-          # Logic to determine which keystore to use
-          if [ -f "app/release-key.keystore" ]; then
-            KEYSTORE_PATH="$GITHUB_WORKSPACE/android/app/release-key.keystore"
-          elif [ -f "../quran-app-key.jks" ]; then
-            KEYSTORE_PATH="$GITHUB_WORKSPACE/quran-app-key.jks"
-          fi
-
-          if [ -n "$KEYSTORE_PATH" ]; then
+          if [ -f "$KEYSTORE_PATH" ]; then
             echo "Using keystore at $KEYSTORE_PATH"
             echo "Building Signed Release App Bundle (.aab)..."
             ./gradlew bundleRelease \
@@ -116,7 +74,8 @@ jobs:
               -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
               -Pandroid.injected.signing.key.password="$KEY_PASSWORD"
           else
-            echo "No keystore found, skipping Signed Release artifacts."
+            echo "CRITICAL ERROR: quran-app-key.jks not found in repo!"
+            exit 1
           fi
 
       - name: Get SHA Fingerprints
