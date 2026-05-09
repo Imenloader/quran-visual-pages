@@ -1,3 +1,4 @@
+# v1.0.2 - Triggering build with new package config
 name: Android Build & Release
 on:
   push:
