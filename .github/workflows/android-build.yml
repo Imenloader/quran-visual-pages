@@ -1,4 +1,4 @@
-# v1.0.2 - Triggering build with new package config
+# v1.0.3 - Final Secret Update Trigger
 name: Android Build & Release
 on:
   push:
