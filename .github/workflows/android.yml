@@ -1,4 +1,5 @@
 name: Android Build
+
 on:
   push:
     branches:
@@ -8,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,6 +40,11 @@ jobs:
 
       - name: Sync Capacitor
         run: npx cap sync android
+
+      - name: Create ADI registration file
+        run: |
+          mkdir -p android/app/src/main/assets
+          echo "CANUIZDSUMW6QAAAAAAAAAAAAA" > android/app/src/main/assets/adi-registration.properties
 
       - name: Fix Android Build Tools
         run: |
