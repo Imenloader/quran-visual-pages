@@ -99,8 +99,15 @@ jobs:
               -Pandroid.injected.signing.store.password="$STORE_PASSWORD" \
               -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
               -Pandroid.injected.signing.key.password="$KEY_PASSWORD"
+            
+            echo "Building Signed Release APK (.apk)..."
+            ./gradlew assembleRelease \
+              -Pandroid.injected.signing.store.file=$GITHUB_WORKSPACE/android/app/release-key.keystore \
+              -Pandroid.injected.signing.store.password="$STORE_PASSWORD" \
+              -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
+              -Pandroid.injected.signing.key.password="$KEY_PASSWORD"
           else
-            echo "No keystore found, skipping Signed Release Bundle."
+            echo "No keystore found, skipping Signed Release artifacts."
           fi
 
       - name: Get SHA Fingerprints
@@ -122,6 +129,14 @@ jobs:
           name: quraaniat-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 7
+
+      - name: Upload Release APK
+        if: env.KEYSTORE_EXIST != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: quraaniat-release-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 30
 
       - name: Upload Release Bundle (.aab)
         if: env.KEYSTORE_EXIST != ''

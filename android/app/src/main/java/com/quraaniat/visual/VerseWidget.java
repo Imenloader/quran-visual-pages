@@ -1,4 +1,4 @@
-package com.quraaniat.app;
+package com.quraaniat.visual;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;

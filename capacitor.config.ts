@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.quraaniat.app',
+  appId: 'com.quraaniat.visual',
   appName: 'Quraaniat',
   webDir: 'dist',
   bundledWebRuntime: false,

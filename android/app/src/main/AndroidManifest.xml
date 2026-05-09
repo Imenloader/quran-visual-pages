@@ -31,7 +31,7 @@
         <receiver android:name=".PrayerWidget" android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.quraaniat.app.ACTION_UPDATE_COUNTDOWN" />
+                <action android:name="com.quraaniat.visual.ACTION_UPDATE_COUNTDOWN" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/prayer_widget_info" />
         </receiver>

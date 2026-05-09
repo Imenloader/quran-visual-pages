@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.quraaniat.app"
+    namespace = "com.quraaniat.visual"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.quraaniat.app"
+        applicationId "com.quraaniat.visual"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 2

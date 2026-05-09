@@ -43,9 +43,9 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Mobile Signing Keys
-*.jks
-*.keystore
+# Mobile Signing Keys (Commented out to allow tracking)
+# *.jks
+# *.keystore
 *.p12
 *.jks.gpg
 

@@ -1,4 +1,4 @@
-package com.quraaniat.app;
+package com.quraaniat.visual;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -19,7 +19,7 @@ import java.util.Locale;
 
 public class PrayerWidget extends AppWidgetProvider {
 
-    private static final String ACTION_UPDATE_COUNTDOWN = "com.quraaniat.app.ACTION_UPDATE_COUNTDOWN";
+    private static final String ACTION_UPDATE_COUNTDOWN = "com.quraaniat.visual.ACTION_UPDATE_COUNTDOWN";
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
