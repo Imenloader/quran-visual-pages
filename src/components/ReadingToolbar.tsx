@@ -86,9 +86,9 @@ const ReadingToolbar = ({
 
   return (
     <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md md:backdrop-blur-xl border-b border-border/40 shadow-soft transform-gpu transition-all" dir="ltr">
-      <div className="container max-w-7xl mx-auto px-2 md:px-4 py-1.5 md:py-2 flex items-center gap-1 md:gap-4">
+      <div className="container max-w-7xl mx-auto px-2 md:px-4 py-1.5 md:py-2 flex items-center gap-1 md:gap-2">
         
-        {/* Left Actions Group */}
+        {/* Essential Actions (Left) */}
         <div className="flex items-center gap-0.5 md:gap-1 shrink-0">
           <button
             onClick={(e) => { e.stopPropagation(); onSaveBookmark(); }}
@@ -106,28 +106,33 @@ const ReadingToolbar = ({
         {/* Separator */}
         <div className="h-6 w-px bg-border/40 mx-1 shrink-0" />
 
-        {/* Scrollable Center: Tools & Settings */}
+        {/* Scrollable Center: View & Mode Tools */}
         <div className="flex-1 flex items-center gap-1 md:gap-2 overflow-x-auto no-scrollbar py-1">
-          {/* Display & Theme Group */}
-          <div className="flex items-center gap-0.5 md:gap-1">
-            <button onClick={(e) => { e.stopPropagation(); toggleTheme(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0">
-              {theme === "dark" ? <Moon className="size-[18px] md:size-[20px]" /> : <Sun className="size-[18px] md:size-[20px]" />}
-            </button>
+          <button onClick={(e) => { e.stopPropagation(); toggleTheme(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0">
+            {theme === "dark" ? <Moon className="size-[18px] md:size-[20px]" /> : <Sun className="size-[18px] md:size-[20px]" />}
+          </button>
 
-            <button onClick={(e) => { e.stopPropagation(); onDownloadAudio?.(); }} className={cn("toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0", isDownloadingAudio && "animate-pulse text-accent")}>
-              <DownloadCloud className="size-[18px] md:size-[20px]" />
-            </button>
+          <button onClick={(e) => { e.stopPropagation(); toggleReadingMode(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0">
+            {readingMode === "image" ? <Type className="size-[18px] md:size-[20px]" /> : <FileImage className="size-[18px] md:size-[20px]" />}
+          </button>
 
-            <button onClick={(e) => { e.stopPropagation(); toggleScrollDirection(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0">
-              {scrollDirection === "vertical" ? <ArrowDown className="size-[18px] md:size-[20px]" /> : <ArrowRightLeft className="size-[18px] md:size-[20px]" />}
-            </button>
+          <button onClick={(e) => { e.stopPropagation(); onToggleSourceSelector(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0" title="مصدر الصور">
+            <Server className="size-[18px] md:size-[20px]" />
+          </button>
 
-            <button onClick={(e) => { e.stopPropagation(); setAtmosphericBackground(!atmosphericBackground); }} className={cn("toolbar-btn !p-2 md:!p-2.5 shrink-0", atmosphericBackground ? "text-accent" : "text-primary/70")}>
-              <Wand2 className="size-[18px] md:size-[20px]" />
-            </button>
-          </div>
+          <button onClick={(e) => { e.stopPropagation(); setAtmosphericBackground(!atmosphericBackground); }} className={cn("toolbar-btn !p-2 md:!p-2.5 shrink-0", atmosphericBackground ? "text-accent" : "text-primary/70")}>
+            <Wand2 className="size-[18px] md:size-[20px]" />
+          </button>
 
-          {/* Learning Group Pill */}
+          <button onClick={(e) => { e.stopPropagation(); toggleScrollDirection(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0">
+            {scrollDirection === "vertical" ? <ArrowDown className="size-[18px] md:size-[20px]" /> : <ArrowRightLeft className="size-[18px] md:size-[20px]" />}
+          </button>
+
+          <button onClick={(e) => { e.stopPropagation(); onDownloadAudio?.(); }} className={cn("toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0", isDownloadingAudio && "animate-pulse text-accent")}>
+            <DownloadCloud className="size-[18px] md:size-[20px]" />
+          </button>
+
+          {/* Hifz Group Pill */}
           <div className="flex items-center gap-0.5 bg-muted/40 rounded-full p-0.5 border border-border/20 mx-1 shrink-0">
             <button
               onClick={(e) => { e.stopPropagation(); setIsQuizOpen(true); }}
@@ -144,30 +149,25 @@ const ReadingToolbar = ({
               <EyeOff className="size-[16px] md:size-[18px]" />
             </button>
           </div>
+        </div>
 
-          {/* Source & Mode Group */}
-          <div className="flex items-center gap-0.5 md:gap-1">
-            <button onClick={(e) => { e.stopPropagation(); onToggleSourceSelector(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0" title="مصدر الصور">
-              <Server className="size-[18px] md:size-[20px]" />
-            </button>
+        {/* Separator */}
+        <div className="h-6 w-px bg-border/40 mx-1 shrink-0" />
 
-            <button onClick={(e) => { e.stopPropagation(); toggleReadingMode(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0">
-              {readingMode === "image" ? <Type className="size-[18px] md:size-[20px]" /> : <FileImage className="size-[18px] md:size-[20px]" />}
-            </button>
-          </div>
-
+        {/* Zoom & Nav Group (Right) */}
+        <div className="flex items-center gap-1 md:gap-2 shrink-0 ml-auto">
           {/* Zoom Group Pill */}
-          <div className="flex items-center gap-1 bg-muted/40 rounded-full px-1.5 py-0.5 border border-border/20 mx-1 shrink-0 h-10">
+          <div className="flex items-center gap-1 bg-muted/40 rounded-full px-1.5 py-0.5 border border-border/20 mx-0.5 h-10">
             <button
               onClick={(e) => { e.stopPropagation(); onZoomOut(); }}
               className="p-1 rounded-full text-primary/60 hover:text-primary transition-all active:scale-90"
               title="تصغير"
             >
-              <ZoomOut className="size-[16px] md:size-[18px]" />
+              <ZoomOut className="size-[16px]" />
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); onResetZoom(); }}
-              className="px-1 text-[10px] md:text-[11px] font-bold text-primary hover:text-accent transition-colors tabular-nums min-w-[36px] text-center"
+              className="px-1 text-[10px] font-bold text-primary hover:text-accent transition-colors tabular-nums min-w-[32px] text-center"
             >
               {Math.round(zoom)}%
             </button>
@@ -176,16 +176,10 @@ const ReadingToolbar = ({
               className="p-1 rounded-full text-primary/60 hover:text-primary transition-all active:scale-90"
               title="تكبير"
             >
-              <ZoomIn className="size-[16px] md:size-[18px]" />
+              <ZoomIn className="size-[16px]" />
             </button>
           </div>
-        </div>
 
-        {/* Separator */}
-        <div className="h-6 w-px bg-border/40 mx-1 shrink-0" />
-
-        {/* Right Side: Navigation Tools */}
-        <div className="flex items-center gap-1 md:gap-2 shrink-0 ml-auto">
           <button onClick={(e) => { e.stopPropagation(); onTogglePageNav(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70" title="الانتقال لصفحة">
             <BookOpen className="size-[18px] md:size-[20px]" />
           </button>
