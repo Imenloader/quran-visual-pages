@@ -635,7 +635,7 @@ const CommunityHub = () => {
             {activeTab === "dua_wall" && <div className="p-4 md:p-8"><DuaWall /></div>}
             {activeTab === "dhikr_circles" && <div className="p-4 md:p-8"><LiveDhikrCircle /></div>}
             {activeTab === "posts" && <div className="p-4 md:p-8"><CommunityPosts /></div>}
-            {activeTab === "chat" && <div className="p-4 md:p-8"><CommunityChat /></div>}
+            {activeTab === "chat" && <div className="p-0 md:p-8"><CommunityChat /></div>}
             {activeTab === "khatma" && <div className="p-4 md:p-8"><GroupKhatma standalone={false} /></div>}
             {activeTab === "circles" && <div className="p-4 md:p-8"><ReadingCirclesComponent standalone={false} /></div>}
             {activeTab === "sessions" && <div className="p-4 md:p-8"><KnowledgeSessionsComponent standalone={false} /></div>}

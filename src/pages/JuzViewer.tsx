@@ -163,6 +163,7 @@ function JuzViewer() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [initialDist, setInitialDist] = useState<number | null>(null);
   const [initialZoom, setInitialZoom] = useState<number>(100);
+  const [isPinching, setIsPinching] = useState(false);
 
   // Pinch-to-zoom logic
   useEffect(() => {
@@ -171,10 +172,10 @@ function JuzViewer() {
 
     const handleTouchStart = (e: TouchEvent) => {
       if (e.touches.length === 2) {
-        // Prevent default browser zoom
+        setIsPinching(true);
         const dist = Math.hypot(
-          e.touches[0].pageX - e.touches[1].pageX,
-          e.touches[0].pageY - e.touches[1].pageY
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
         );
         setInitialDist(dist);
         setInitialZoom(zoom);
@@ -183,21 +184,21 @@ function JuzViewer() {
 
     const handleTouchMove = (e: TouchEvent) => {
       if (e.touches.length === 2 && initialDist !== null) {
-        // Prevent browser zoom gesture
         if (e.cancelable) e.preventDefault();
         
         const dist = Math.hypot(
-          e.touches[0].pageX - e.touches[1].pageX,
-          e.touches[0].pageY - e.touches[1].pageY
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
         );
         const scale = dist / initialDist;
-        const nextZoom = Math.min(Math.max(initialZoom * scale, 50), 250);
-        setZoom(Math.round(nextZoom));
+        const nextZoom = Math.min(Math.max(initialZoom * scale, 40), 250);
+        setZoom(nextZoom);
       }
     };
 
     const handleTouchEnd = () => {
       setInitialDist(null);
+      setIsPinching(false);
     };
 
     el.addEventListener('touchstart', handleTouchStart, { passive: false });
@@ -939,9 +940,12 @@ function JuzViewer() {
           className="w-full overflow-x-auto custom-scrollbar touch-pan-y"
         >
           <div 
-            className="flex flex-col items-center gap-6 md:gap-8 sm:gap-12 mx-auto transition-all duration-300 ease-out" 
+            className={cn(
+              "flex flex-col items-center gap-6 md:gap-8 sm:gap-12 mx-auto origin-top",
+              !isPinching && "transition-[width] duration-300 ease-out"
+            )}
             style={{ 
-              width: `${isFullscreen ? 100 : zoom}%`, 
+              width: `${zoom}%`, 
               minWidth: "100%",
               maxWidth: isFullscreen ? "none" : `${maxWidth}px` 
             }}

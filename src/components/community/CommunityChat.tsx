@@ -399,7 +399,7 @@ const CommunityChat: React.FC = () => {
   }
 
   const renderHeader = () => (
-    <div className="px-6 py-4 bg-primary/5 border-b border-border/20 flex flex-col gap-4 relative z-10">
+    <div className="px-4 md:px-6 py-3 md:py-4 bg-primary/5 border-b border-border/20 flex flex-col gap-3 md:gap-4 relative z-10">
       {/* Mode Toggle */}
       <div className="flex p-1 bg-card border border-border/40 rounded-xl max-w-xs mx-auto w-full">
         <button 
@@ -496,7 +496,7 @@ const CommunityChat: React.FC = () => {
   );
 
   return (
-    <div className="flex flex-col h-[650px] bg-card/40 backdrop-blur-md rounded-[2.5rem] border border-border/40 overflow-hidden shadow-2xl relative">
+    <div className="flex flex-col h-[550px] md:h-[650px] max-h-[calc(100dvh-180px)] bg-card/40 backdrop-blur-md rounded-[2rem] md:rounded-[2.5rem] border border-border/40 overflow-hidden shadow-2xl relative">
       {/* Background Pattern Overlay */}
       <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.02] pointer-events-none pattern-islamic" />
 
@@ -733,7 +733,7 @@ const CommunityChat: React.FC = () => {
             </div>
           )}
           
-          <div className="p-4">
+          <div className="p-3 md:p-4">
           <form 
             onSubmit={handleSendMessage}
             className="flex items-end gap-3"
