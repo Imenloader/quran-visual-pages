@@ -86,102 +86,111 @@ const ReadingToolbar = ({
 
   return (
     <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md md:backdrop-blur-xl border-b border-border/40 shadow-soft transform-gpu transition-all" dir="ltr">
-      <div className="container max-w-7xl mx-auto px-2 md:px-4 py-1.5 md:py-2.5 flex items-center gap-2 overflow-hidden">
+      <div className="container max-w-7xl mx-auto px-2 md:px-4 py-1.5 md:py-2 flex items-center gap-1 md:gap-4">
         
-        {/* Left Side: Tools Group (Scrollable on Mobile) */}
-        <div className="flex-1 flex items-center gap-1 md:gap-2 overflow-x-auto no-scrollbar py-0.5">
+        {/* Left Actions Group */}
+        <div className="flex items-center gap-0.5 md:gap-1 shrink-0">
           <button
             onClick={(e) => { e.stopPropagation(); onSaveBookmark(); }}
-            className={cn("toolbar-btn !p-1.5 md:!p-2.5 transition-all active:scale-90", bookmarked ? "text-accent" : "text-primary/70")}
+            className={cn("toolbar-btn !p-2 md:!p-2.5 transition-all active:scale-90", bookmarked ? "text-accent" : "text-primary/70")}
             title="حفظ الموضع"
           >
-            <Bookmark className="size-[16px] md:size-[20px]" fill={bookmarked ? "currentColor" : "none"} />
+            <Bookmark className="size-[18px] md:size-[20px]" fill={bookmarked ? "currentColor" : "none"} />
           </button>
 
           <div onClick={(e) => e.stopPropagation()} className="shrink-0">
             <ShareButton juzNumber={juzNumber} currentPage={currentPage} />
           </div>
+        </div>
 
-          <button onClick={(e) => { e.stopPropagation(); toggleTheme(); }} className="toolbar-btn !p-1.5 md:!p-2.5 text-primary/70 shrink-0">
-            {theme === "dark" ? <Moon className="size-[16px] md:size-[20px]" /> : <Sun className="size-[16px] md:size-[20px]" />}
-          </button>
+        {/* Separator */}
+        <div className="h-6 w-px bg-border/40 mx-1 shrink-0" />
 
-          <button onClick={(e) => { e.stopPropagation(); onDownloadAudio?.(); }} className={cn("toolbar-btn !p-1.5 md:!p-2.5 text-primary/70 shrink-0", isDownloadingAudio && "animate-pulse text-accent")}>
-            <DownloadCloud className="size-[16px] md:size-[20px]" />
-          </button>
+        {/* Scrollable Center: Tools & Settings */}
+        <div className="flex-1 flex items-center gap-1 md:gap-2 overflow-x-auto no-scrollbar py-1">
+          {/* Display & Theme Group */}
+          <div className="flex items-center gap-0.5 md:gap-1">
+            <button onClick={(e) => { e.stopPropagation(); toggleTheme(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0">
+              {theme === "dark" ? <Moon className="size-[18px] md:size-[20px]" /> : <Sun className="size-[18px] md:size-[20px]" />}
+            </button>
 
-          <button onClick={(e) => { e.stopPropagation(); toggleScrollDirection(); }} className="toolbar-btn !p-1.5 md:!p-2.5 text-primary/70 shrink-0">
-            {scrollDirection === "vertical" ? <ArrowDown className="size-[16px] md:size-[20px]" /> : <ArrowRightLeft className="size-[16px] md:size-[20px]" />}
-          </button>
+            <button onClick={(e) => { e.stopPropagation(); onDownloadAudio?.(); }} className={cn("toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0", isDownloadingAudio && "animate-pulse text-accent")}>
+              <DownloadCloud className="size-[18px] md:size-[20px]" />
+            </button>
 
-          <button onClick={(e) => { e.stopPropagation(); setAtmosphericBackground(!atmosphericBackground); }} className={cn("toolbar-btn !p-1.5 md:!p-2.5 shrink-0", atmosphericBackground ? "text-accent" : "text-primary/70")}>
-            <Wand2 className="size-[16px] md:size-[20px]" />
-          </button>
+            <button onClick={(e) => { e.stopPropagation(); toggleScrollDirection(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0">
+              {scrollDirection === "vertical" ? <ArrowDown className="size-[18px] md:size-[20px]" /> : <ArrowRightLeft className="size-[18px] md:size-[20px]" />}
+            </button>
 
-          {/* Hifz Group Pill */}
+            <button onClick={(e) => { e.stopPropagation(); setAtmosphericBackground(!atmosphericBackground); }} className={cn("toolbar-btn !p-2 md:!p-2.5 shrink-0", atmosphericBackground ? "text-accent" : "text-primary/70")}>
+              <Wand2 className="size-[18px] md:size-[20px]" />
+            </button>
+          </div>
+
+          {/* Learning Group Pill */}
           <div className="flex items-center gap-0.5 bg-muted/40 rounded-full p-0.5 border border-border/20 mx-1 shrink-0">
             <button
               onClick={(e) => { e.stopPropagation(); setIsQuizOpen(true); }}
               className="p-1.5 md:p-2 rounded-full text-primary/60 hover:text-primary transition-all"
               title="اختبار الحفظ"
             >
-              <GraduationCap className="size-[14px] md:size-[18px]" />
+              <GraduationCap className="size-[16px] md:size-[18px]" />
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); onToggleHifzMode(); }}
               className={cn("p-1.5 md:p-2 rounded-full transition-all", hifzMode ? "bg-accent text-white shadow-sm" : "text-primary/60 hover:text-primary")}
               title="وضع الحفظ (الإخفاء)"
             >
-              <EyeOff className="size-[14px] md:size-[18px]" />
+              <EyeOff className="size-[16px] md:size-[18px]" />
             </button>
           </div>
 
-          <button onClick={(e) => { e.stopPropagation(); onToggleSourceSelector(); }} className="toolbar-btn !p-1.5 md:!p-2.5 text-primary/70 shrink-0" title="مصدر الصور">
-            <Server className="size-[16px] md:size-[20px]" />
-          </button>
+          {/* Source & Mode Group */}
+          <div className="flex items-center gap-0.5 md:gap-1">
+            <button onClick={(e) => { e.stopPropagation(); onToggleSourceSelector(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0" title="مصدر الصور">
+              <Server className="size-[18px] md:size-[20px]" />
+            </button>
 
-          <button onClick={(e) => { e.stopPropagation(); toggleReadingMode(); }} className="toolbar-btn !p-1.5 md:!p-2.5 text-primary/70 shrink-0">
-            {readingMode === "image" ? <Type className="size-[16px] md:size-[20px]" /> : <FileImage className="size-[16px] md:size-[20px]" />}
-          </button>
+            <button onClick={(e) => { e.stopPropagation(); toggleReadingMode(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0">
+              {readingMode === "image" ? <Type className="size-[18px] md:size-[20px]" /> : <FileImage className="size-[18px] md:size-[20px]" />}
+            </button>
+          </div>
 
           {/* Zoom Group Pill */}
-          <div className="flex items-center gap-0.5 bg-muted/40 rounded-full p-0.5 border border-border/20 mx-1 shrink-0">
+          <div className="flex items-center gap-1 bg-muted/40 rounded-full px-1.5 py-0.5 border border-border/20 mx-1 shrink-0 h-10">
             <button
               onClick={(e) => { e.stopPropagation(); onZoomOut(); }}
-              className="p-1.5 md:p-2 rounded-full text-primary/60 hover:text-primary transition-all active:scale-90"
+              className="p-1 rounded-full text-primary/60 hover:text-primary transition-all active:scale-90"
               title="تصغير"
             >
-              <ZoomOut className="size-[14px] md:size-[18px]" />
+              <ZoomOut className="size-[16px] md:size-[18px]" />
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); onResetZoom(); }}
-              className="px-1.5 py-1 text-[9px] md:text-[10px] font-bold text-primary/50 hover:text-accent transition-colors tabular-nums min-w-[32px] text-center"
+              className="px-1 text-[10px] md:text-[11px] font-bold text-primary hover:text-accent transition-colors tabular-nums min-w-[36px] text-center"
             >
-              {zoom}%
+              {Math.round(zoom)}%
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); onZoomIn(); }}
-              className="p-1.5 md:p-2 rounded-full text-primary/60 hover:text-primary transition-all active:scale-90"
+              className="p-1 rounded-full text-primary/60 hover:text-primary transition-all active:scale-90"
               title="تكبير"
             >
-              <ZoomIn className="size-[14px] md:size-[18px]" />
+              <ZoomIn className="size-[16px] md:size-[18px]" />
             </button>
           </div>
         </div>
 
-        {/* Center: Title (Hidden on small screens) */}
-        <div className="hidden lg:flex flex-col items-center justify-center text-center px-4 shrink-0" dir="rtl">
-          <span className="text-[10px] font-bold tracking-[0.2em] text-accent uppercase font-naskh">مصحف المدينة</span>
-          <span className="text-[12px] text-primary/80 font-serif italic">الإصدار الرقمي</span>
-        </div>
+        {/* Separator */}
+        <div className="h-6 w-px bg-border/40 mx-1 shrink-0" />
 
         {/* Right Side: Navigation Tools */}
-        <div className="flex items-center gap-1 md:gap-3 shrink-0 ml-auto border-l border-border/20 pl-2">
-          <button onClick={(e) => { e.stopPropagation(); onTogglePageNav(); }} className="toolbar-btn !p-1.5 md:!p-2.5 text-primary/70" title="الانتقال لصفحة">
-            <BookOpen className="size-[16px] md:size-[20px]" />
+        <div className="flex items-center gap-1 md:gap-2 shrink-0 ml-auto">
+          <button onClick={(e) => { e.stopPropagation(); onTogglePageNav(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70" title="الانتقال لصفحة">
+            <BookOpen className="size-[18px] md:size-[20px]" />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); onToggleJuzIndex(); }} className="toolbar-btn !p-1.5 md:!p-2.5 text-primary/70" title="الفهرس">
-            <List className="size-[16px] md:size-[20px]" />
+          <button onClick={(e) => { e.stopPropagation(); onToggleJuzIndex(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70" title="الفهرس">
+            <List className="size-[18px] md:size-[20px]" />
           </button>
         </div>
       </div>
