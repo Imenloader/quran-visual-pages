@@ -937,17 +937,18 @@ function JuzViewer() {
 
         <div 
           ref={containerRef}
-          className="w-full overflow-x-auto custom-scrollbar touch-pan-y"
+          className="w-full overflow-x-auto custom-scrollbar touch-auto"
         >
           <div 
             className={cn(
-              "flex flex-col items-center gap-6 md:gap-8 sm:gap-12 mx-auto origin-top",
+              "flex flex-col gap-6 md:gap-8 sm:gap-12 mx-auto origin-top",
               !isPinching && "transition-[width] duration-300 ease-out"
             )}
             style={{ 
               width: `${zoom}%`, 
               minWidth: "100%",
-              maxWidth: isFullscreen ? "none" : `${maxWidth}px` 
+              maxWidth: isFullscreen ? "none" : `${maxWidth}px`,
+              alignItems: zoom > 100 ? 'flex-start' : 'center'
             }}
           >
           {readingMode === "image" ? (
@@ -1215,6 +1216,34 @@ function JuzViewer() {
         </div>
       </div>
     </main>
+
+    {/* Bottom Juz Navigation */}
+    <div className="container max-w-2xl mx-auto px-6 pb-20 pt-4 flex gap-4">
+      {num > 1 && (
+        <button
+          onClick={() => navigate(`/juz/${num - 1}`)}
+          className="flex-1 flex flex-col items-center gap-2 p-6 rounded-[2rem] bg-card border border-border/40 hover:bg-primary/5 transition-all shadow-sm group"
+        >
+          <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground group-hover:text-primary">{t("juzViewer.prevJuz")}</span>
+          <div className="flex items-center gap-2 text-primary font-serif font-bold text-lg">
+            <ChevronRight size={20} className="md:w-6 md:h-6" />
+            <span>{isAr ? toArabicNumber((num - 1).toString()) : num - 1}</span>
+          </div>
+        </button>
+      )}
+      {num < 30 && (
+        <button
+          onClick={() => navigate(`/juz/${num + 1}`)}
+          className="flex-1 flex flex-col items-center gap-2 p-6 rounded-[2rem] bg-card border border-border/40 hover:bg-primary/5 transition-all shadow-sm group"
+        >
+          <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground group-hover:text-primary">{t("juzViewer.nextJuz")}</span>
+          <div className="flex items-center gap-2 text-primary font-serif font-bold text-lg">
+            <span>{isAr ? toArabicNumber((num + 1).toString()) : num + 1}</span>
+            <ChevronLeft size={20} className="md:w-6 md:h-6" />
+          </div>
+        </button>
+      )}
+    </div>
 
       {!isFullscreen && (
         <div className="text-center pb-12">
