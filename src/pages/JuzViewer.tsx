@@ -1,7 +1,7 @@
 import { useParams, Navigate, Link, useNavigate, useSearchParams } from "react-router-dom";
 // --- التعديل هنا: إضافة lazy و Suspense ---
 import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from "react";
-import { juzData, getQuranPageFallbackImageUrl, toArabicNumber, surahIndex } from "@/data/quranData";
+import { juzData, getQuranPageFallbackImageUrl, toArabicNumber, surahIndex, juzByNumber, surahByNumber, surahByName } from "@/data/quranData";
 import QuranHeader from "@/components/QuranHeader";
 import ReadingToolbar from "@/components/ReadingToolbar";
 import ProgressBar from "@/components/ProgressBar";
@@ -70,7 +70,7 @@ function JuzViewer() {
   const [searchParams] = useSearchParams();
   const { juzNumber } = useParams();
   const num = parseInt(juzNumber || "0");
-  const juz = juzData.find((j) => j.number === num);
+  const juz = juzByNumber.get(num);
   const { theme, readingMode, scrollDirection, tajweedMode, hifzMode, setHifzMode, preferredImageSource, setPreferredImageSource, isLoaded } = useTheme();
   const { addAyahRead, addPageRead, addJuzCompleted } = useUser();
   const { pageStatus, refreshJuzCompletion, prefetchNeighborPages, prepareJuzOffline } = useOffline();
@@ -481,13 +481,14 @@ function JuzViewer() {
     const isCurrentJuzPlaying = currentSurah && juz.surahs && juz.surahs.includes(currentSurah.name);
     
     if (!isCurrentJuzPlaying) {
-      const startSurahParts = juz.startSurah.split(" ");
-      const startSurahName = startSurahParts[0];
-      const startAyahNumber = startSurahParts.length > 1 ? parseInt(startSurahParts[1]) : 1;
-      
-      const surahInfo = surahIndex.find(s => s.name === startSurahName);
-      if (surahInfo) {
-        playAyah(surahInfo.number, startAyahNumber, num);
+      const match = juz.startSurah.match(/^(.+?)(?:\s+(\d+))?$/);
+      if (match) {
+        const startSurahName = match[1];
+        const startAyahNumber = match[2] ? parseInt(match[2]) : 1;
+        const surahInfo = surahByName.get(startSurahName);
+        if (surahInfo) {
+          playAyah(surahInfo.number, startAyahNumber, num);
+        }
       }
     } else {
       togglePlay();
@@ -497,7 +498,7 @@ function JuzViewer() {
     setCurrentVerseKey(key);
     if (readingMode === "text") {
       const [sNum] = key.split(":");
-      const surah = surahIndex.find(s => s.number.toString() === sNum);
+      const surah = surahByNumber.get(parseInt(sNum));
       if (surah && surah.startPage !== currentPage) {
         setCurrentPage(surah.startPage);
       }
@@ -520,7 +521,7 @@ function JuzViewer() {
     });
     
     try {
-      const surahsInJuz = juz.surahs.map(name => surahIndex.find(s => s.name === name)).filter(Boolean);
+      const surahsInJuz = juz.surahs.map(name => surahByName.get(name)).filter(Boolean);
       
       let downloadedCount = 0;
       const total = surahsInJuz.length;

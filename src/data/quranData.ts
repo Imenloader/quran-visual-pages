@@ -136,6 +136,9 @@ export const surahData: SurahInfo[] = [
 
 export const surahIndex = surahData;
 
+export const surahByName = new Map<string, SurahInfo>(surahData.map(s => [s.name, s]));
+export const surahByNumber = new Map<number, SurahInfo>(surahData.map(s => [s.number, s]));
+
 export const juzData: JuzInfo[] = [
   { number: 1, nameAr: "الجزء الأول", nameEn: "Juz 1", startPage: 1, endPage: 21, startSurah: "الفاتحة", surahs: ["الفاتحة", "البقرة"] },
   { number: 2, nameAr: "الجزء الثاني", nameEn: "Juz 2", startPage: 22, endPage: 41, startSurah: "البقرة 142", surahs: ["البقرة"] },
@@ -169,6 +172,8 @@ export const juzData: JuzInfo[] = [
   { number: 30, nameAr: "الجزء الثلاثون", nameEn: "Juz 30", startPage: 582, endPage: 604, startSurah: "النبأ 1", surahs: ["النبأ", "النازعات", "عبس", "التكوير", "الانفطار", "المطففين", "الانشقاق", "البروج", "الطارق", "الأعلى", "الغاشية", "الفجر", "البلد", "الشمس", "الليل", "الضحى", "الشرح", "التين", "العلق", "القدر", "البينة", "الزلزلة", "العاديات", "القارعة", "التكاثر", "العصر", "الهمزة", "الفيل", "قريش", "الماعون", "الكوثر", "الكافرون", "النصر", "المسد", "الإخلاص", "الفلق", "الناس"] },
 ];
 
+export const juzByNumber = new Map<number, JuzInfo>(juzData.map(j => [j.number, j]));
+
 export const toArabicNumber = (num: number | string | undefined | null, force: boolean = false): string => {
   const n = String(num ?? "");
   if (!n) return "";
@@ -180,7 +185,7 @@ export const toArabicNumber = (num: number | string | undefined | null, force: b
 };
 
 export const getJuzAndPageForSurah = (surahNumber: number): { juz: number; page: number } => {
-  const surah = surahIndex.find(s => s.number === surahNumber);
+  const surah = surahByNumber.get(surahNumber);
   if (!surah) return { juz: 1, page: 1 };
   
   const juz = juzData.find(j => surah.startPage >= j.startPage && surah.startPage <= j.endPage);

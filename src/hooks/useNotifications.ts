@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { formatInTimeZone } from "date-fns-tz";
 import { addDays, isBefore } from "date-fns";
-import { dailyVerses } from "../data/dailyVersesData";
+import { surahIndex, surahByName } from '@/data/quranData';
 import { ATHKAR_DATA } from "../data/athkarData";
-import { surahIndex } from "../data/quranData";
+import { dailyVerses } from "../data/dailyVersesData";
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Capacitor } from '@capacitor/core';
 import { storage } from '@/lib/storage';
@@ -58,7 +58,7 @@ const getRandomMessage = (messages: string[]) =>
 
 const getRandomDailyVerse = () => {
   const verse = dailyVerses[Math.floor(Math.random() * dailyVerses.length)];
-  const surahInfo = surahIndex.find(s => s.name === verse.surah);
+  const surahInfo = surahByName.get(verse.surah);
   const surahNum = surahInfo?.number || 1;
   
   return {
