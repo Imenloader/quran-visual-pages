@@ -485,7 +485,7 @@ function JuzViewer() {
       const startSurahName = startSurahParts[0];
       const startAyahNumber = startSurahParts.length > 1 ? parseInt(startSurahParts[1]) : 1;
       
-      const surahInfo = surahIndex.find(s => s.name === startSurahName);
+      const surahInfo = surahByName.get(startSurahName);
       if (surahInfo) {
         playAyah(surahInfo.number, startAyahNumber, num);
       }
@@ -497,7 +497,7 @@ function JuzViewer() {
     setCurrentVerseKey(key);
     if (readingMode === "text") {
       const [sNum] = key.split(":");
-      const surah = surahIndex.find(s => s.number.toString() === sNum);
+      const surah = surahByNumber.get(parseInt(sNum));
       if (surah && surah.startPage !== currentPage) {
         setCurrentPage(surah.startPage);
       }
@@ -520,7 +520,7 @@ function JuzViewer() {
     });
     
     try {
-      const surahsInJuz = juz.surahs.map(name => surahIndex.find(s => s.name === name)).filter(Boolean);
+      const surahsInJuz = juz.surahs.map(name => surahByName.get(name)).filter(Boolean);
       
       let downloadedCount = 0;
       const total = surahsInJuz.length;
