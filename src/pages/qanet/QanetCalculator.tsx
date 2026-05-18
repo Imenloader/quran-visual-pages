@@ -69,7 +69,7 @@ export default function QanetCalculator() {
     if (mode !== 'target') return null;
     let remaining = target;
     let currentSurah = startSurah;
-    let currentAyah = startAyah;
+    const currentAyah = startAyah;
     
     const startSurahInfo = surahData.find(s => s.number === currentSurah);
     if (!startSurahInfo) return null;
@@ -242,7 +242,7 @@ export default function QanetCalculator() {
                     // Find end point for this target starting from current start
                     let remaining = plan.ayahs;
                     let currSurah = startSurah;
-                    let currAyah = startAyah;
+                    const currAyah = startAyah;
                     let found = false;
 
                     const startS = surahData.find(s => s.number === currSurah);
