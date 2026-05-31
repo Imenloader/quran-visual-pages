@@ -1,0 +1,3 @@
+## 2024-05-31 - Array.find() inside array iterations bottleneck
+**Learning:** Using `Array.find()` inside `Array.map()` or `Array.filter()` creates an O(N^2) operation, which causes unnecessary performance bottlenecks for frequently accessed static datasets like `surahIndex` in `src/data/quranData.ts`. This leads to slow rendering in components like `JuzCard` or pages like `Index.tsx` when manipulating loops.
+**Action:** Always pre-compute ES6 Maps (e.g. `surahByName`, `surahByNumber`) for static or frequently accessed datasets. Replace `.find(...)` inside loops with `.get(...)` to reduce lookups from O(N) to O(1).
