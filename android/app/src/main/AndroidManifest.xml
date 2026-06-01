@@ -43,6 +43,14 @@
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_daily_verse_info" />
         </receiver>
+
+        <receiver android:name=".PrayerLandscapeWidget" android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.quraaniat.visual.ACTION_UPDATE_COUNTDOWN_LANDSCAPE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_prayer_landscape_info" />
+        </receiver>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
