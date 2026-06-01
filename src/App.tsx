@@ -28,7 +28,6 @@ import { usePrayerNotifications } from "./hooks/usePrayerNotifications";
 import { useGoalNotifications } from "./hooks/useGoalNotifications";
 import { useQanetNotifications } from "./hooks/useQanetNotifications";
 import { useCommunityNotifications } from "./hooks/useCommunityNotifications";
-import SplashScreen from "./components/SplashScreen";
 import ScrollRestoration from "./components/ScrollRestoration";
 import CommandPalette from "./components/CommandPalette";
 import AdminRoute from "./components/AdminRoute";
@@ -267,7 +266,6 @@ const AppContent = () => {
           <GenderGuard>
             <NotificationInitializer />
             <QanetNotificationBridge />
-            <SplashScreen />
             <ServiceWorkerRegistration />
             <LanguageHandler />
             <NetworkStatus />
