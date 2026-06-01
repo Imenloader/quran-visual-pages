@@ -1,18 +1,6 @@
 import React, { useEffect, useState } from "react";
 
 const SplashScreen: React.FC = () => {
-  const [isVisible, setIsVisible] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-    }, 10); // Show for 10ms
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (!isVisible) return null;
-
   return (
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-emerald-deep overflow-hidden">
       {/* Background Pattern */}

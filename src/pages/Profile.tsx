@@ -14,6 +14,7 @@ import UpdateManager from "@/components/UpdateManager";
 import AudioDownloadManager from "@/components/AudioDownloadManager";
 import { useTranslation } from "react-i18next";
 import BackButton from "@/components/BackButton";
+import { usePersistentState } from "@/hooks/usePersistentState";
 
 import { useUser } from "@/contexts/UserContext";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
@@ -158,25 +159,18 @@ const Profile = () => {
     updatePeriodicSettings(newSettings);
   };
 
-  const [communityNotifsEnabled, setCommunityNotifsEnabled] = useState(() => {
-    return localStorage.getItem("community_notifications_enabled") === "true";
-  });
+  const [communityNotifsEnabled, setCommunityNotifsEnabled] = usePersistentState("community_notifications_enabled", false);
 
   const toggleCommunityNotifs = () => {
-    const newValue = !communityNotifsEnabled;
-    setCommunityNotifsEnabled(newValue);
-    localStorage.setItem("community_notifications_enabled", String(newValue));
-    window.dispatchEvent(new StorageEvent('storage', { key: 'community_notifications_enabled', newValue: String(newValue) }));
+    setCommunityNotifsEnabled(!communityNotifsEnabled);
   };
 
-  const [fontSize, setFontSize] = useState(() => {
-    return parseInt(localStorage.getItem(FONT_SIZE_KEY) || "16");
-  });
+  const [fontSize, setFontSize] = usePersistentState(FONT_SIZE_KEY, 16);
 
   const THEME_OPTIONS: { id: ThemeMode | "amoled"; label: string; icon: LucideIcon; preview: string }[] = [
     { id: "light", label: t("settings.themes.light"), icon: Sun, preview: "bg-[hsl(45,30%,98%)]" },
     { id: "dark", label: t("settings.themes.dark"), icon: Moon, preview: "bg-black" },
-    { id: "amoled", label: isAr ? "أسود (AMOLED)" : "AMOLED", icon: Moon, preview: "bg-black" },
+    { id: "amoled", label: t("settings.themes.amoled", "AMOLED"), icon: Moon, preview: "bg-black" },
     { id: "sepia", label: t("settings.themes.sepia"), icon: Palette, preview: "bg-[hsl(35,45%,85%)]" },
   ];
 
@@ -1049,7 +1043,7 @@ const Profile = () => {
                             { id: "athkarMorning", label: t("profile.athkarMorning"), timeKey: "athkarMorningTime" as const },
                             { id: "athkarEvening", label: t("profile.athkarEvening"), timeKey: "athkarEveningTime" as const },
                             { id: "quranReading", label: t("profile.quranReading"), timeKey: "quranReadingTime" as const },
-                            { id: "dailyVerse", label: isAr ? "آية اليوم" : "Daily Verse", timeKey: "dailyVerseTime" as const },
+                            { id: "dailyVerse", label: t("profile.dailyVerse", "Daily Verse"), timeKey: "dailyVerseTime" as const },
                           ].map((item) => (
                             <div key={item.id} className="flex items-center justify-between p-3 rounded-2xl bg-primary/5 border border-primary/5 group hover:bg-primary/10 transition-all border-b-primary/10">
                               <div className={`${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
@@ -1121,12 +1115,12 @@ const Profile = () => {
 
                           <div className="pt-4 border-t border-primary/5 space-y-3">
                             <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
-                              <h4 className="text-[11px] font-serif font-bold text-primary">{isAr ? "التنبيهات الاجتماعية (دوائر الذكر)" : "Community Nudges"}</h4>
-                              <p className="text-[8px] text-primary/70">{isAr ? "تلقي تنبيهات عند قيام أصدقائك في دوائر الصلاة بتذكيرك" : "Receive notifications when friends in your prayer circles nudge you"}</p>
+                              <h4 className="text-[11px] font-serif font-bold text-primary">{t("profile.communityNudges")}</h4>
+                              <p className="text-[8px] text-primary/70">{t("profile.communityNudgesDesc")}</p>
                             </div>
 
                             <div className="flex items-center justify-between p-2 rounded-xl bg-primary/5 border border-primary/5">
-                              <span className="font-serif text-[11px] font-bold text-primary">{isAr ? "السماح بالتنبيهات الاجتماعية" : "Enable Community Nudges"}</span>
+                              <span className="font-serif text-[11px] font-bold text-primary">{t("profile.enableCommunityNudges")}</span>
                               <button
                                 onClick={toggleCommunityNotifs}
                                 className={`w-9 h-5 rounded-full transition-all flex items-center p-1 ${

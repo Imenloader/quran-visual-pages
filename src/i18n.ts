@@ -367,6 +367,10 @@ const resources = {
         "testEveningNotif": "Test Evening Athkar",
         "testQuranNotif": "Test Daily Verse",
         "testNotifSent": "Test notification sent",
+        "communityNudges": "Community Nudges",
+        "communityNudgesDesc": "Receive notifications when friends in your prayer circles nudge you",
+        "enableCommunityNudges": "Enable Community Nudges",
+        "dailyVerse": "Daily Verse",
         "pagesRead": "Pages Read",
         "juzCompleted": "Juz Completed",
         "athkarRecited": "Tasbih Count",
@@ -477,6 +481,7 @@ const resources = {
         "themes": {
           "light": "Light",
           "dark": "Dark / Night",
+          "amoled": "AMOLED",
           "sepia": "Warm Sepia"
         },
         "update": {
@@ -963,6 +968,10 @@ const resources = {
         "testEveningNotif": "تجربة أذكار المساء",
         "testQuranNotif": "تجربة آية اليوم",
         "testNotifSent": "تم إرسال التنبيه التجريبي",
+        "communityNudges": "التنبيهات الاجتماعية (دوائر الذكر)",
+        "communityNudgesDesc": "تلقي تنبيهات عند قيام أصدقائك في دوائر الصلاة بتذكيرك",
+        "enableCommunityNudges": "السماح بالتنبيهات الاجتماعية",
+        "dailyVerse": "آية اليوم",
         "pagesRead": "صفحة مقروءة",
         "juzCompleted": "أجزاء مكتملة",
         "athkarRecited": "ذكر مسبح",

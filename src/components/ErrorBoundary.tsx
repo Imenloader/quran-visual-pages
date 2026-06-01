@@ -1,9 +1,8 @@
 import React, { Component, ErrorInfo, ReactNode } from "react";
-import { AlertTriangle, RefreshCw, Home } from "lucide-react";
-import { Button } from "./ui/button";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 
 interface Props {
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 interface State {
@@ -14,7 +13,7 @@ interface State {
 class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,
-    error: null,
+    error: null
   };
 
   public static getDerivedStateFromError(error: Error): State {
@@ -23,78 +22,54 @@ class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
-    
-    // Auto-reload if it's a chunk load error
-    const lowMsg = error.message.toLowerCase();
-    if (lowMsg.includes('failed to fetch dynamically imported module') || 
-        lowMsg.includes('importing a module script failed') ||
-        lowMsg.includes('expected a javascript-or-wasm module script')) {
-      console.warn('Chunk error detected in Boundary, reloading...');
-      window.location.reload();
-    }
   }
-
-  private handleReset = () => {
-    this.setState({ hasError: false, error: null });
-    window.location.reload();
-  };
-
-  private handleGoHome = () => {
-    this.setState({ hasError: false, error: null });
-    window.location.href = "/";
-  };
 
   public render() {
     if (this.state.hasError) {
-      const isAr = document.documentElement.lang === "ar";
-
       return (
-        <div className="min-h-screen bg-background flex items-center justify-center p-4 text-center">
-          <div className="max-w-md w-full space-y-6">
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />
-              <div className="relative w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto border border-primary/20">
-                <AlertTriangle className="w-12 h-12 text-primary animate-pulse" />
-              </div>
-            </div>
+        <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center z-[9999] relative">
+          <div className="absolute inset-0 pattern-islamic opacity-5 pointer-events-none" />
+          <div className="w-20 h-20 bg-rose-500/10 rounded-full flex items-center justify-center mb-6 border border-rose-500/20">
+            <AlertTriangle className="w-10 h-10 text-rose-500" />
+          </div>
+          
+          <h1 className="text-2xl font-serif font-bold text-primary mb-2">
+            حدث خطأ غير متوقع
+          </h1>
+          <p className="text-sm text-primary/60 mb-8 max-w-md">
+            نعتذر عن هذا الخلل. لقد واجه التطبيق مشكلة أثناء معالجة طلبك.
+            <br/>
+            Something went wrong while processing your request.
+          </p>
 
-            <div className="space-y-2">
-              <h1 className="text-2xl font-serif font-bold text-primary">
-                {isAr ? "عذراً، حدث خطأ غير متوقع" : "Oops, something went wrong"}
-              </h1>
-              <p className="text-sm text-muted-foreground font-naskh">
-                {isAr 
-                  ? "نعتذر عن هذا الخلل. حاول إعادة تحميل الصفحة أو العودة للرئيسية."
-                  : "We apologize for the inconvenience. Try reloading or going back home."}
-              </p>
+          {this.state.error && (
+            <div className="bg-rose-500/5 border border-rose-500/10 rounded-lg p-4 mb-8 w-full max-w-md text-left overflow-auto">
+              <code className="text-[10px] text-rose-500/80 break-words font-mono">
+                {this.state.error.message}
+              </code>
             </div>
+          )}
 
-            {this.state.error && (
-              <div className="p-4 bg-muted/50 rounded-2xl border border-border/50 text-left overflow-hidden">
-                <p className="text-[10px] font-mono text-muted-foreground break-all">
-                  {this.state.error.message}
-                </p>
-              </div>
-            )}
-
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button 
-                onClick={this.handleReset}
-                variant="default"
-                className="flex-1 h-12 rounded-xl gap-2 shadow-lg"
-              >
-                <RefreshCw className="w-4 h-4" />
-                {isAr ? "إعادة المحاولة" : "Try Again"}
-              </Button>
-              <Button 
-                onClick={this.handleGoHome}
-                variant="outline"
-                className="flex-1 h-12 rounded-xl gap-2"
-              >
-                <Home className="w-4 h-4" />
-                {isAr ? "الرئيسية" : "Home"}
-              </Button>
-            </div>
+          <div className="flex gap-4">
+            <button
+              onClick={() => {
+                this.setState({ hasError: false, error: null });
+                window.location.reload();
+              }}
+              className="h-12 px-6 rounded-xl bg-primary text-primary-foreground font-serif font-bold flex items-center gap-2 hover:bg-primary/90 transition-colors"
+            >
+              <RefreshCw className="w-4 h-4" />
+              تحديث الصفحة (Reload)
+            </button>
+            <button
+              onClick={() => {
+                this.setState({ hasError: false, error: null });
+                window.location.href = "/";
+              }}
+              className="h-12 px-6 rounded-xl bg-primary/10 text-primary font-serif font-bold flex items-center hover:bg-primary/20 transition-colors"
+            >
+              الرئيسية (Home)
+            </button>
           </div>
         </div>
       );

@@ -42,6 +42,8 @@ import GenderGuard from "./components/community/GenderGuard";
 import { App as CapApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import { notificationService } from "./services/notificationService";
+import Bootstrapper from "./components/Bootstrapper";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 // --- التعديل هنا: تحميل الصفحات الأساسية بشكل LazyRetry لمحاولة حل مشكلة الـ ReferenceError و Chunk errors ---
 const Index = lazyWithRetry(() => import("./pages/Index"));
@@ -198,50 +200,6 @@ const QanetNotificationBridge = () => {
 
 const App = () => {
   useEffect(() => {
-    // ... same init code as before ...
-    const initGoogleAuth = async () => {
-      try {
-        const { Capacitor } = await import("@capacitor/core");
-        if (Capacitor.isNativePlatform()) {
-          const { GoogleAuth } = await import("@codetrix-studio/capacitor-google-auth");
-          GoogleAuth.initialize({
-            clientId: "130128331336-jsf2phje1obt9ln0lj5f5nlfsgl6rssn.apps.googleusercontent.com",
-            scopes: ['profile', 'email'],
-            grantOfflineAccess: true,
-          });
-          
-          // Request notification permissions for Android 13+ in APK
-          notificationService.requestPermission();
-        }
-      } catch (e) {
-        console.warn("Google Auth initialization skipped or failed:", e);
-      }
-    };
-    initGoogleAuth();
-
-    const checkEnvironment = async () => {
-      const reliability = await checkNetworkReliability();
-      if (!reliability.ok) {
-        if (reliability.reason === "certificate_or_network") {
-          console.warn("SSL/Network reliability issue detected:", reliability.details);
-        }
-      }
-    };
-    checkEnvironment();
-
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result?.user) {
-          toast.success(`مرحباً بك، ${result.user.displayName}`);
-        }
-      })
-      .catch((error) => {
-        console.error("Redirect login error:", error);
-        if (error.code === "auth/unauthorized-domain") {
-          toast.error("هذا النطاق غير مصرح به. يرجى إضافة localhost و النطاق الحالي إلى Firebase.");
-        }
-      });
-
     // --- Android Hardware Back Button Handling ---
     if (Capacitor.isNativePlatform()) {
       const backListener = CapApp.addListener('backButton', ({ canGoBack }) => {
@@ -271,17 +229,6 @@ const App = () => {
       return () => {
         stateListener.then(l => l.remove());
       };
-    }
-  }, []);
-
-  useEffect(() => {
-    // Pre-load voices for TTS - safely check for speechSynthesis support
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      try {
-        window.speechSynthesis.getVoices();
-      } catch (error) {
-        console.warn("Failed to pre-load TTS voices:", error);
-      }
     }
   }, []);
 
@@ -351,8 +298,10 @@ const AppContent = () => {
         )}
 
         <MaintenanceGuard>
-          <Suspense fallback={<PageLoader />}>
-                      <Routes>
+          <Bootstrapper>
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
                         <Route path="/" element={<Index />} />
                         <Route path="/juz/:juzNumber" element={<JuzViewer />} />
                         <Route path="/install" element={<Install />} />
@@ -452,8 +401,10 @@ const AppContent = () => {
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </Suspense>
-                    </MaintenanceGuard>
-                  </GenderGuard>
+                  </ErrorBoundary>
+                </Bootstrapper>
+              </MaintenanceGuard>
+            </GenderGuard>
                   <BottomNav />
                 </DynamicThemeWrapper>
               </AudioPlayerProvider>
