@@ -2,7 +2,7 @@
 
 import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching';
 import { NavigationRoute, registerRoute } from 'workbox-routing';
-import { CacheFirst, StaleWhileRevalidate, NetworkFirst } from 'workbox-strategies';
+import { CacheFirst, StaleWhileRevalidate, NetworkFirst, NetworkOnly } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 import { RangeRequestsPlugin } from 'workbox-range-requests';
@@ -282,22 +282,42 @@ function registerAudioRoutes() {
     })
   );
 
-  // MP3 audio files
+  const isAudioRequest = ({ request, url }: { request: Request; url: URL }) =>
+    request.destination === 'audio' || /\.mp3$/i.test(url.pathname);
+
+  // Local bundled sounds can be cached safely because they are same-origin
+  // responses. Keep RangeRequestsPlugin here so browser media seeking still
+  // works from the cache.
   registerRoute(
-    ({ request, url }) => request.destination === 'audio' || /\.mp3$/i.test(url.pathname),
+    ({ request, url }) => isAudioRequest({ request, url }) && url.origin === self.location.origin,
     new CacheFirst({
-      cacheName: 'quran-audio-cache',
+      cacheName: audioCacheName,
       plugins: [
-        metricsPlugin('audio', '*.mp3', 'quran-audio-cache'),
+        metricsPlugin('local-audio', 'same-origin/*.mp3', audioCacheName),
         new ExpirationPlugin({
-          maxEntries: 1000,
+          maxEntries: 100,
           maxAgeSeconds: 60 * 60 * 24 * 365 * 2,
         }),
         new CacheableResponsePlugin({
-          statuses: [0, 200],
+          statuses: [200],
         }),
         new RangeRequestsPlugin(),
         cacheEventPlugin,
+      ],
+    })
+  );
+
+  // Remote recitation hosts frequently serve media as opaque/no-cors or partial
+  // range responses. Caching those in the service worker can poison playback: a
+  // later Range request may be answered from an unusable opaque cached response,
+  // which surfaces in the app as repeated “Failed to fetch” errors until refresh.
+  // Let the browser stream remote audio directly and use its native HTTP media
+  // cache/range handling instead.
+  registerRoute(
+    ({ request, url }) => isAudioRequest({ request, url }) && url.origin !== self.location.origin,
+    new NetworkOnly({
+      plugins: [
+        metricsPlugin('remote-audio', 'cross-origin/*.mp3', 'network-only'),
       ],
     })
   );
