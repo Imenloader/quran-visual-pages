@@ -42,7 +42,8 @@ import GenderGuard from "./components/community/GenderGuard";
 import { App as CapApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import { notificationService } from "./services/notificationService";
-import Bootstrapper from "./components/Bootstrapper";
+import { Capacitor } from "@capacitor/core";
+import { notificationService } from "./services/notificationService";
 import ErrorBoundary from "./components/ErrorBoundary";
 
 // --- التعديل هنا: تحميل الصفحات الأساسية بشكل LazyRetry لمحاولة حل مشكلة الـ ReferenceError و Chunk errors ---
@@ -298,113 +299,111 @@ const AppContent = () => {
         )}
 
         <MaintenanceGuard>
-          <Bootstrapper>
-            <ErrorBoundary>
-              <Suspense fallback={<PageLoader />}>
-                <Routes>
-                        <Route path="/" element={<Index />} />
-                        <Route path="/juz/:juzNumber" element={<JuzViewer />} />
-                        <Route path="/install" element={<Install />} />
-                        <Route path="/recitations" element={<Recitations />} />
-                        <Route path="/athkar" element={<Athkar />} />
-                        <Route path="/favorites" element={<Favorites />} />
-                        <Route path="/profile" element={<Profile />} />
-                        <Route path="/prayer-times" element={<PrayerTimes />} />
-                        <Route path="/hub" element={<Hub />} />
-                        <Route path="/tasbih" element={<Tasbih />} />
-                        <Route path="/qibla" element={<QiblaFinder />} />
-                        <Route path="/qanet/*" element={<QanetApp />} />
-                        <Route path="/qiyam" element={<QiyamAya100 />} />
-                        <Route path="/names-of-allah" element={<NamesOfAllah />} />
-                        <Route path="/zakat" element={<ZakatCalculator />} />
-                        <Route path="/prayer-tracker" element={<PrayerTracker />} />
-                        <Route path="/khatma" element={<KhatmaPlanner />} />
-                        <Route path="/hijri" element={<HijriCalendar />} />
-                        <Route path="/daily-verse" element={<DailyVerse />} />
-                        <Route path="/mosque-finder" element={<MosqueFinder />} />
-                        <Route path="/halal-places" element={<HalalPlaces />} />
-                        <Route path="/tafsir" element={<Tafsir />} />
-                        <Route path="/search" element={<Search />} />
-                        <Route path="/offline" element={<Offline />} />
-                        <Route path="/friday-sunan" element={<FridaySunan />} />
-                        <Route path="/ramadan" element={<Ramadan />} />
-                        <Route path="/library" element={<Library />} />
-                        <Route path="/hajj-guide" element={<HajjGuide />} />
-                        <Route path="/prophet-stories" element={<ProphetStories />} />
-                        <Route path="/sahaba" element={<SahabaEncyclopedia />} />
-                        <Route path="/names-directory" element={<NamesDirectory />} />
-                        <Route path="/daily-adhkar" element={<DailyAdhkar />} />
-                        <Route path="/khatma-jamaaiya" element={<KhatmaJamaaiya />} />
-                        <Route path="/stories" element={<StoriesLibrary />} />
-                        <Route path="/stories/:storyId" element={<StoryReader />} />
-                        <Route path="/salah-guide" element={<SalahGuide />} />
-                        <Route path="/hadith" element={<Hadith />} />
-                        <Route path="/seerah-timeline" element={<SeerahTimeline />} />
-                        <Route path="/islamic-quiz" element={<IslamicQuiz />} />
-                        <Route path="/inheritance-calculator" element={<InheritanceCalculator />} />
-                        <Route path="/fasting-tracker" element={<FastingTracker />} />
-                        <Route path="/routine-builder" element={<RoutineBuilder />} />
-                        <Route path="/sadaqah-logger" element={<SadaqahLogger />} />
-                        <Route path="/dua-library" element={<DuaLibrary />} />
-                        <Route path="/global-dhikr" element={<GlobalDhikr />} />
-                        <Route path="/privacy" element={<PrivacyPolicy />} />
-                        <Route path="/moon-tracker" element={<MoonTracker />} />
-                        <Route path="/memorization" element={<Memorization />} />
-                        <Route path="/leaderboard" element={<Leaderboard />} />
-                        <Route path="/athkar-circles" element={<AthkarCircles />} />
-                        <Route path="/reading-circles" element={<ReadingCircles />} />
-                        <Route path="/community" element={<CommunityTopics />} />
-                        <Route path="/ramadan/virtues" element={<Virtues />} />
-                        <Route path="/ramadan/fasting-rules" element={<FastingRules />} />
-                        <Route path="/ramadan/duas" element={<Duas />} />
-                        <Route path="/ramadan/tips" element={<Tips />} />
-                        <Route path="/ramadan/laylatul-qadr" element={<LaylatulQadr />} />
-                        <Route path="/ramadan/zakat-al-fitr" element={<ZakatAlFitr />} />
-                        <Route path="/how-to-use" element={<HowToUse />} />
-                        <Route path="/tajweed" element={<Tajweed />} />
-                        <Route path="/tools/hifz-tester" element={<HifzTester />} />
-                        <Route path="/strong-believer" element={<StrongBeliever />} />
-                        <Route path="/marriage-guide" element={<MarriageGuide />} />
-                        <Route path="/knowledge-sessions" element={<KnowledgeSessions />} />
-                        <Route path="/islamic-roadmap" element={<IslamicRoadmap />} />
-                        <Route path="/prayer-circles" element={<PrayerCircles />} />
-                        <Route path="/community/friends" element={<Suspense fallback={<div />}><CommunityFriends /></Suspense>} />
-                        <Route path="/community/hub" element={<Suspense fallback={<div />}><CommunityHub /></Suspense>} />
-                        <Route path="/community/circle/:id" element={<Suspense fallback={<div />}><PrayerCircleDetail /></Suspense>} />
-                        <Route path="/profile/:userId" element={<Suspense fallback={<div />}><UserProfileView /></Suspense>} />
-                        <Route path="/embed/:siteId" element={<EmbedView />} />
-                        
-                        {/* Admin Routes */}
-                        <Route element={<AdminRoute />}>
-                          <Route path="/admin" element={<AdminDashboard />} />
-                          <Route path="/admin/settings" element={<SettingsManager />} />
-                          <Route path="/admin/content" element={<DuaManager />} />
-                          <Route path="/admin/athkar" element={<AthkarManager />} />
-                          <Route path="/admin/hub" element={<HubManager />} />
-                          <Route path="/admin/quiz" element={<QuizManager />} />
-                          <Route path="/admin/names" element={<NamesOfAllahManager />} />
-                          <Route path="/admin/stories" element={<ProphetStoriesManager />} />
-                          <Route path="/admin/khatmas" element={<KhatmaModeration />} />
-                          <Route path="/admin/dhikr" element={<GlobalDhikrManager />} />
-                          <Route path="/admin/ramadan" element={<RamadanManager />} />
-                          <Route path="/admin/zakat" element={<ZakatSettingsManager />} />
-                          <Route path="/admin/sunan" element={<FridaySunanManager />} />
-                          <Route path="/admin/hadith" element={<HadithManager />} />
-                          <Route path="/admin/seerah" element={<SeerahManager />} />
-                          <Route path="/admin/users" element={<UserManagement />} />
-                          <Route path="/admin/routine" element={<RoutineManager />} />
-                          <Route path="/admin/library" element={<LibraryManager />} />
-              <Route path="/admin/analytics" element={<AnalyticsPage />} />
-                          {/* Future admin modules will be added here */}
-                        </Route>
+          <ErrorBoundary>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/juz/:juzNumber" element={<JuzViewer />} />
+                <Route path="/install" element={<Install />} />
+                <Route path="/recitations" element={<Recitations />} />
+                <Route path="/athkar" element={<Athkar />} />
+                <Route path="/favorites" element={<Favorites />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/prayer-times" element={<PrayerTimes />} />
+                <Route path="/hub" element={<Hub />} />
+                <Route path="/tasbih" element={<Tasbih />} />
+                <Route path="/qibla" element={<QiblaFinder />} />
+                <Route path="/qanet/*" element={<QanetApp />} />
+                <Route path="/qiyam" element={<QiyamAya100 />} />
+                <Route path="/names-of-allah" element={<NamesOfAllah />} />
+                <Route path="/zakat" element={<ZakatCalculator />} />
+                <Route path="/prayer-tracker" element={<PrayerTracker />} />
+                <Route path="/khatma" element={<KhatmaPlanner />} />
+                <Route path="/hijri" element={<HijriCalendar />} />
+                <Route path="/daily-verse" element={<DailyVerse />} />
+                <Route path="/mosque-finder" element={<MosqueFinder />} />
+                <Route path="/halal-places" element={<HalalPlaces />} />
+                <Route path="/tafsir" element={<Tafsir />} />
+                <Route path="/search" element={<Search />} />
+                <Route path="/offline" element={<Offline />} />
+                <Route path="/friday-sunan" element={<FridaySunan />} />
+                <Route path="/ramadan" element={<Ramadan />} />
+                <Route path="/library" element={<Library />} />
+                <Route path="/hajj-guide" element={<HajjGuide />} />
+                <Route path="/prophet-stories" element={<ProphetStories />} />
+                <Route path="/sahaba" element={<SahabaEncyclopedia />} />
+                <Route path="/names-directory" element={<NamesDirectory />} />
+                <Route path="/daily-adhkar" element={<DailyAdhkar />} />
+                <Route path="/khatma-jamaaiya" element={<KhatmaJamaaiya />} />
+                <Route path="/stories" element={<StoriesLibrary />} />
+                <Route path="/stories/:storyId" element={<StoryReader />} />
+                <Route path="/salah-guide" element={<SalahGuide />} />
+                <Route path="/hadith" element={<Hadith />} />
+                <Route path="/seerah-timeline" element={<SeerahTimeline />} />
+                <Route path="/islamic-quiz" element={<IslamicQuiz />} />
+                <Route path="/inheritance-calculator" element={<InheritanceCalculator />} />
+                <Route path="/fasting-tracker" element={<FastingTracker />} />
+                <Route path="/routine-builder" element={<RoutineBuilder />} />
+                <Route path="/sadaqah-logger" element={<SadaqahLogger />} />
+                <Route path="/dua-library" element={<DuaLibrary />} />
+                <Route path="/global-dhikr" element={<GlobalDhikr />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/moon-tracker" element={<MoonTracker />} />
+                <Route path="/memorization" element={<Memorization />} />
+                <Route path="/leaderboard" element={<Leaderboard />} />
+                <Route path="/athkar-circles" element={<AthkarCircles />} />
+                <Route path="/reading-circles" element={<ReadingCircles />} />
+                <Route path="/community" element={<CommunityTopics />} />
+                <Route path="/ramadan/virtues" element={<Virtues />} />
+                <Route path="/ramadan/fasting-rules" element={<FastingRules />} />
+                <Route path="/ramadan/duas" element={<Duas />} />
+                <Route path="/ramadan/tips" element={<Tips />} />
+                <Route path="/ramadan/laylatul-qadr" element={<LaylatulQadr />} />
+                <Route path="/ramadan/zakat-al-fitr" element={<ZakatAlFitr />} />
+                <Route path="/how-to-use" element={<HowToUse />} />
+                <Route path="/tajweed" element={<Tajweed />} />
+                <Route path="/tools/hifz-tester" element={<HifzTester />} />
+                <Route path="/strong-believer" element={<StrongBeliever />} />
+                <Route path="/marriage-guide" element={<MarriageGuide />} />
+                <Route path="/knowledge-sessions" element={<KnowledgeSessions />} />
+                <Route path="/islamic-roadmap" element={<IslamicRoadmap />} />
+                <Route path="/prayer-circles" element={<PrayerCircles />} />
+                <Route path="/community/friends" element={<Suspense fallback={<div />}><CommunityFriends /></Suspense>} />
+                <Route path="/community/hub" element={<Suspense fallback={<div />}><CommunityHub /></Suspense>} />
+                <Route path="/community/circle/:id" element={<Suspense fallback={<div />}><PrayerCircleDetail /></Suspense>} />
+                <Route path="/profile/:userId" element={<Suspense fallback={<div />}><UserProfileView /></Suspense>} />
+                <Route path="/embed/:siteId" element={<EmbedView />} />
+                
+                {/* Admin Routes */}
+                <Route element={<AdminRoute />}>
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/admin/settings" element={<SettingsManager />} />
+                  <Route path="/admin/content" element={<DuaManager />} />
+                  <Route path="/admin/athkar" element={<AthkarManager />} />
+                  <Route path="/admin/hub" element={<HubManager />} />
+                  <Route path="/admin/quiz" element={<QuizManager />} />
+                  <Route path="/admin/names" element={<NamesOfAllahManager />} />
+                  <Route path="/admin/stories" element={<ProphetStoriesManager />} />
+                  <Route path="/admin/khatmas" element={<KhatmaModeration />} />
+                  <Route path="/admin/dhikr" element={<GlobalDhikrManager />} />
+                  <Route path="/admin/ramadan" element={<RamadanManager />} />
+                  <Route path="/admin/zakat" element={<ZakatSettingsManager />} />
+                  <Route path="/admin/sunan" element={<FridaySunanManager />} />
+                  <Route path="/admin/hadith" element={<HadithManager />} />
+                  <Route path="/admin/seerah" element={<SeerahManager />} />
+                  <Route path="/admin/users" element={<UserManagement />} />
+                  <Route path="/admin/routine" element={<RoutineManager />} />
+                  <Route path="/admin/library" element={<LibraryManager />} />
+                  <Route path="/admin/analytics" element={<AnalyticsPage />} />
+                  {/* Future admin modules will be added here */}
+                </Route>
 
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </Suspense>
-                  </ErrorBoundary>
-                </Bootstrapper>
-              </MaintenanceGuard>
-            </GenderGuard>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </ErrorBoundary>
+        </MaintenanceGuard>
+      </GenderGuard>
                   <BottomNav />
                 </DynamicThemeWrapper>
               </AudioPlayerProvider>
