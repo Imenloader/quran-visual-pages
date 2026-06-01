@@ -145,7 +145,7 @@ export const ADHAN_SOUNDS: { id: string; label: string; url: string }[] = [
   {
     id: "beep",
     label: "تنبيه بسيط (Beep)",
-    url: "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3",
+    url: "/Adhan%20Sounds/beep.mp3",
   },
 ];
 

@@ -7,10 +7,9 @@
     "images-cache",
     "prayer-times-cache",
     "quran-api-cache",
-    "quran-audio-cache",
     "quran-pages-cache",
     "quran-tafsir-cache",
     "static-assets-cache"
   ],
-  "routeRegistrations": 13
+  "routeRegistrations": 14
 }

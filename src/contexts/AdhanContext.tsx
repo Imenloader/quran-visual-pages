@@ -54,7 +54,7 @@ export const AdhanProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   const playAdhan = useCallback(async (soundId: string, prayerNameAr: string) => {
-    const FALLBACK_SOUND = "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3";
+    const FALLBACK_SOUND = "/Adhan%20Sounds/beep.mp3";
 
     // Stop any currently playing audio first and wait for it to be fully stopped
     stopAdhan();
