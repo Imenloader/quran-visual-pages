@@ -43,9 +43,15 @@ export const getAudioUrl = (server: string, surahId: number | string | undefined
   // Clean the server URL
   let httpsServer = server.trim();
   
-  // Relax https force if user is having SSL issues
-  if (httpsServer.startsWith("//")) {
+  // Always normalize external recitation hosts to HTTPS. The app is served over
+  // HTTPS, so leaving an http:// moshaf URL here can produce mixed-content
+  // failures that leave the media element unable to load subsequent tracks.
+  if (httpsServer.startsWith("http://")) {
+    httpsServer = httpsServer.replace("http://", "https://");
+  } else if (httpsServer.startsWith("//")) {
     httpsServer = "https:" + httpsServer;
+  } else if (!httpsServer.startsWith("https://")) {
+    httpsServer = "https://" + httpsServer;
   }
   
   // Ensure trailing slash
@@ -156,6 +162,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
   const playAyahInternalRef = useRef<((surahId: number, ayahIdx: number, ayahs: AyahAudio[]) => Promise<void>) | null>(null);
   const handleEndedRef = useRef<(() => void) | null>(null);
   const playPromiseRef = useRef<Promise<void> | null>(null);
+  const sourceRequestIdRef = useRef(0);
 
   const safePlay = useCallback(async () => {
     if (!audioRef.current) return;
@@ -187,6 +194,44 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     }
     if (audioRef.current) audioRef.current.pause();
   }, []);
+
+  const loadAndPlayAudioSource = useCallback(async (url: string, resumeTime?: number) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const sourceRequestId = sourceRequestIdRef.current + 1;
+    sourceRequestIdRef.current = sourceRequestId;
+
+    await safePause();
+
+    if (sourceRequestIdRef.current !== sourceRequestId) return;
+    setIsPlaying(false);
+    setAudioLoading(true);
+    setDuration(0);
+    if (!resumeTime) setCurrentTime(0);
+
+    // Fully detach any failed or half-open source before assigning the next
+    // recitation. Without this reset, mobile browsers can keep the previous
+    // network error attached to the media element and every later surah fails
+    // until the page is refreshed.
+    audio.removeAttribute("data-retried");
+    audio.removeAttribute("src");
+    audio.load();
+
+    if (resumeTime && resumeTime > 0) {
+      const onLoaded = () => {
+        if (audioRef.current) {
+          audioRef.current.currentTime = resumeTime;
+          audioRef.current.removeEventListener("loadedmetadata", onLoaded);
+        }
+      };
+      audio.addEventListener("loadedmetadata", onLoaded);
+    }
+
+    audio.src = url;
+    audio.load();
+    safePlay();
+  }, [safePause, safePlay]);
 
   useEffect(() => {
     localStorage.setItem("quran-repeat-mode", repeatMode);
@@ -270,8 +315,9 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
           audio.src = "";
           audio.load();
           
+          const retryRequestId = sourceRequestIdRef.current;
           setTimeout(() => {
-            if (audioRef.current) {
+            if (audioRef.current && sourceRequestIdRef.current === retryRequestId) {
               audioRef.current.src = currentSrc;
               audioRef.current.load();
               safePlay();
@@ -452,10 +498,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
       url = "https:" + url;
     }
     
-    audioRef.current.src = url;
-    audioRef.current.removeAttribute("data-retried");
-    audioRef.current.load();
-    safePlay();
+    loadAndPlayAudioSource(url);
     
     // Track points/stats only for actual verse playback
     const isRegularVerse = url && !url.includes("bismillah");
@@ -521,20 +564,8 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
     setCurrentVerseKey(null);
 
     const url = getAudioUrl(server, surah.id);
-    audioRef.current.src = url;
-    audioRef.current.removeAttribute("data-retried");
-    audioRef.current.load();
-    if (resumeTime && resumeTime > 0) {
-      const onLoaded = () => {
-        if (audioRef.current) {
-          audioRef.current.currentTime = resumeTime;
-          audioRef.current.removeEventListener("loadedmetadata", onLoaded);
-        }
-      };
-      audioRef.current.addEventListener("loadedmetadata", onLoaded);
-    }
-    safePlay();
-  }, [safePlay, selectedEdition]);
+    loadAndPlayAudioSource(url, resumeTime);
+  }, [loadAndPlayAudioSource, selectedEdition]);
 
   playSurahInternalRef.current = playSurahInternal;
   playNextSurahInternalRef.current = playNextSurahInternal;
