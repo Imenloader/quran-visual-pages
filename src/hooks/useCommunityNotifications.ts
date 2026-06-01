@@ -12,6 +12,15 @@ export const useCommunityNotifications = () => {
   const startListener = () => {
     if (!auth.currentUser) return;
     
+    const isEnabled = localStorage.getItem('community_notifications_enabled') === 'true';
+    if (!isEnabled) {
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
+      return;
+    }
+
     // Stop existing listener if any
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
@@ -80,10 +89,18 @@ export const useCommunityNotifications = () => {
       });
     }
 
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'community_notifications_enabled') {
+        startListener();
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+
     return () => {
       unsubAuth();
       if (unsubscribeRef.current) unsubscribeRef.current();
       if (stateListener) stateListener.then((l: any) => l.remove());
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
 };

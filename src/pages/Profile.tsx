@@ -158,6 +158,17 @@ const Profile = () => {
     updatePeriodicSettings(newSettings);
   };
 
+  const [communityNotifsEnabled, setCommunityNotifsEnabled] = useState(() => {
+    return localStorage.getItem("community_notifications_enabled") === "true";
+  });
+
+  const toggleCommunityNotifs = () => {
+    const newValue = !communityNotifsEnabled;
+    setCommunityNotifsEnabled(newValue);
+    localStorage.setItem("community_notifications_enabled", String(newValue));
+    window.dispatchEvent(new StorageEvent('storage', { key: 'community_notifications_enabled', newValue: String(newValue) }));
+  };
+
   const [fontSize, setFontSize] = useState(() => {
     return parseInt(localStorage.getItem(FONT_SIZE_KEY) || "16");
   });
@@ -1107,6 +1118,27 @@ const Profile = () => {
                               </div>
                             </div>
                           )}
+
+                          <div className="pt-4 border-t border-primary/5 space-y-3">
+                            <div className={`space-y-0.5 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+                              <h4 className="text-[11px] font-serif font-bold text-primary">{isAr ? "التنبيهات الاجتماعية (دوائر الذكر)" : "Community Nudges"}</h4>
+                              <p className="text-[8px] text-primary/70">{isAr ? "تلقي تنبيهات عند قيام أصدقائك في دوائر الصلاة بتذكيرك" : "Receive notifications when friends in your prayer circles nudge you"}</p>
+                            </div>
+
+                            <div className="flex items-center justify-between p-2 rounded-xl bg-primary/5 border border-primary/5">
+                              <span className="font-serif text-[11px] font-bold text-primary">{isAr ? "السماح بالتنبيهات الاجتماعية" : "Enable Community Nudges"}</span>
+                              <button
+                                onClick={toggleCommunityNotifs}
+                                className={`w-9 h-5 rounded-full transition-all flex items-center p-1 ${
+                                  communityNotifsEnabled ? "bg-emerald-deep justify-end" : "bg-primary/10 justify-start"
+                                }`}
+                              >
+                                <div 
+                                  className="w-3 h-3 rounded-full bg-white shadow-lg transition-all duration-300" 
+                                />
+                              </button>
+                            </div>
+                          </div>
                         </div>
 
                         <div className="pt-1.5 space-y-2">

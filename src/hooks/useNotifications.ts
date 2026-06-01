@@ -29,7 +29,7 @@ const DEFAULT_SETTINGS: NotificationSettings = {
   athkarMorningTime: "06:00",
   athkarEveningTime: "17:00",
   quranReadingTime: "21:00",
-  dailyVerse: true,
+  dailyVerse: false,
   dailyVerseTime: "08:00",
 };
 
