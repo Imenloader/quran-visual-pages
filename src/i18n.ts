@@ -40,6 +40,10 @@ const resources = {
       "hub": {
         "title": "Islamic Hub",
         "subtitle": "Integrated Islamic tools in one place",
+        "pinnedTools": "Pinned Tools",
+        "customize": "Customize Dashboard",
+        "selectTools": "Select up to 6 tools to pin",
+        "unpin": "Unpin",
         "spiritual": "Spiritual Fortress",
         "planning": "Planning & Progress",
         "location": "Location-Based",
@@ -640,6 +644,10 @@ const resources = {
       "hub": {
         "title": "المركز الإسلامي",
         "subtitle": "أدوات إسلامية متكاملة في مكان واحد",
+        "pinnedTools": "الأدوات المثبتة",
+        "customize": "تخصيص اللوحة",
+        "selectTools": "اختر حتى 6 أدوات للتثبيت",
+        "unpin": "إلغاء التثبيت",
         "spiritual": "الحصن الروحاني",
         "planning": "التخطيط والتقدم",
         "location": "خدمات الموقع",

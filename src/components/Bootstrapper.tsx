@@ -10,10 +10,13 @@ export const Bootstrapper: React.FC<{ children: React.ReactNode }> = ({ children
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+    let fallbackTimer: NodeJS.Timeout;
+
     const initializeApp = async () => {
       try {
         // 1. Check Network Reliability
-        const reliability = await checkNetworkReliability();
+        const reliability = await checkNetworkReliability().catch(() => ({ ok: false, reason: "timeout", details: "" }));
         if (!reliability.ok && reliability.reason === "certificate_or_network") {
           console.warn("SSL/Network reliability issue detected:", reliability.details);
         }
@@ -36,7 +39,7 @@ export const Bootstrapper: React.FC<{ children: React.ReactNode }> = ({ children
 
         // 3. Handle Firebase Auth Redirects
         try {
-          const result = await getRedirectResult(auth);
+          const result = await getRedirectResult(auth).catch(() => null);
           if (result?.user) {
             toast.success(`مرحباً بك، ${result.user.displayName}`);
           }
@@ -55,16 +58,30 @@ export const Bootstrapper: React.FC<{ children: React.ReactNode }> = ({ children
             console.warn("Failed to pre-load TTS voices:", error);
           }
         }
-
       } catch (error) {
         console.error("App initialization error:", error);
       } finally {
-        // Minimum splash screen display time for smooth UX
-        setTimeout(() => setIsReady(true), 500);
+        if (isMounted) {
+          clearTimeout(fallbackTimer);
+          setTimeout(() => setIsReady(true), 500);
+        }
       }
     };
 
+    // Safety fallback: if initialization takes longer than 4 seconds, force ready
+    fallbackTimer = setTimeout(() => {
+      if (isMounted) {
+        console.warn("Bootstrapper timed out. Forcing app to load.");
+        setIsReady(true);
+      }
+    }, 4000);
+
     initializeApp();
+
+    return () => {
+      isMounted = false;
+      clearTimeout(fallbackTimer);
+    };
   }, []);
 
   if (!isReady) {

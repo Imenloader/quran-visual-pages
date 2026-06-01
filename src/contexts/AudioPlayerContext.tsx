@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { SURAHS, type Surah, type ReciterInfo, type MoshafInfo, type PlaylistTrackGlobal } from "@/data/audioData";
 import { useUser } from "./UserContext";
+import { Capacitor } from "@capacitor/core";
 
 export type { Surah, ReciterInfo, MoshafInfo, PlaylistTrackGlobal };
 
@@ -348,8 +349,22 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
       }
       setAudioLoading(false);
     };
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
+    const onPlay = () => {
+      setIsPlaying(true);
+      if (Capacitor.isNativePlatform()) {
+        import('@capgo/capacitor-media-session').then(({ MediaSession }) => {
+          MediaSession.setPlaybackState({ playbackState: 'playing' });
+        }).catch(() => {});
+      }
+    };
+    const onPause = () => {
+      setIsPlaying(false);
+      if (Capacitor.isNativePlatform()) {
+        import('@capgo/capacitor-media-session').then(({ MediaSession }) => {
+          MediaSession.setPlaybackState({ playbackState: 'paused' });
+        }).catch(() => {});
+      }
+    };
     const onLoadStart = () => setAudioLoading(true);
     const onCanPlay = () => setAudioLoading(false);
 
@@ -614,42 +629,72 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
 
   // MediaSession API for lock screen controls
   useEffect(() => {
-    if (!currentSurah || !('mediaSession' in navigator)) return;
+    if (!currentSurah) return;
     
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: `سورة ${currentSurah.name}`,
-      artist: selectedReciterName || t("player.reciter") || "القارئ",
-      album: t("common.quran") || "القرآن الكريم",
-      artwork: [
-        { src: "/pwa-192x192.png", sizes: "192x192", type: "image/png" },
-        { src: "/pwa-512x512.png", sizes: "512x512", type: "image/png" },
-        { src: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
-      ]
-    });
+    const setupMediaSession = async () => {
+      const metadata = {
+        title: `سورة ${currentSurah.name}`,
+        artist: selectedReciterName || t("player.reciter") || "القارئ",
+        album: t("common.quran") || "القرآن الكريم",
+        artwork: [
+          { src: "/pwa-192x192.png", sizes: "192x192", type: "image/png" },
+          { src: "/pwa-512x512.png", sizes: "512x512", type: "image/png" },
+          { src: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
+        ]
+      };
 
-    const playHandler = () => {
-      safePlay();
-      setIsPlaying(true);
-    };
-    const pauseHandler = () => {
-      safePause();
-      setIsPlaying(false);
-    };
-    const prevHandler = () => playPrevSurahInternalRef.current?.();
-    const nextHandler = () => playNextSurahInternalRef.current?.();
+      const playHandler = () => { safePlay(); setIsPlaying(true); };
+      const pauseHandler = () => { safePause(); setIsPlaying(false); };
+      const prevHandler = () => playPrevSurahInternalRef.current?.();
+      const nextHandler = () => playNextSurahInternalRef.current?.();
+      const stopHandler = () => handleEndedRef.current?.();
 
-    navigator.mediaSession.setActionHandler('play', playHandler);
-    navigator.mediaSession.setActionHandler('pause', pauseHandler);
-    navigator.mediaSession.setActionHandler('previoustrack', prevHandler);
-    navigator.mediaSession.setActionHandler('nexttrack', nextHandler);
+      if (Capacitor.isNativePlatform()) {
+        try {
+          const { MediaSession } = await import('@capgo/capacitor-media-session');
+          await MediaSession.setMetadata(metadata);
+          
+          MediaSession.setActionHandler({ action: 'play' }, playHandler);
+          MediaSession.setActionHandler({ action: 'pause' }, pauseHandler);
+          MediaSession.setActionHandler({ action: 'previoustrack' }, prevHandler);
+          MediaSession.setActionHandler({ action: 'nexttrack' }, nextHandler);
+          MediaSession.setActionHandler({ action: 'stop' }, stopHandler);
+        } catch(e) {
+          console.warn("Capacitor MediaSession failed", e);
+        }
+      } else if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata(metadata);
+        
+        navigator.mediaSession.setActionHandler('play', playHandler);
+        navigator.mediaSession.setActionHandler('pause', pauseHandler);
+        navigator.mediaSession.setActionHandler('previoustrack', prevHandler);
+        navigator.mediaSession.setActionHandler('nexttrack', nextHandler);
+        try {
+          navigator.mediaSession.setActionHandler('stop', stopHandler);
+        } catch(e) {}
+      }
+    };
+
+    setupMediaSession();
 
     return () => {
-      navigator.mediaSession.setActionHandler('play', null);
-      navigator.mediaSession.setActionHandler('pause', null);
-      navigator.mediaSession.setActionHandler('previoustrack', null);
-      navigator.mediaSession.setActionHandler('nexttrack', null);
+      if (Capacitor.isNativePlatform()) {
+        import('@capgo/capacitor-media-session').then(({ MediaSession }) => {
+          MediaSession.setActionHandler({ action: 'play' }, null);
+          MediaSession.setActionHandler({ action: 'pause' }, null);
+          MediaSession.setActionHandler({ action: 'previoustrack' }, null);
+          MediaSession.setActionHandler({ action: 'nexttrack' }, null);
+          MediaSession.setActionHandler({ action: 'stop' }, null);
+        }).catch(() => {});
+      } else if ('mediaSession' in navigator) {
+        navigator.mediaSession.setActionHandler('play', null);
+        navigator.mediaSession.setActionHandler('pause', null);
+        navigator.mediaSession.setActionHandler('previoustrack', null);
+        navigator.mediaSession.setActionHandler('nexttrack', null);
+        try { navigator.mediaSession.setActionHandler('stop', null); } catch(e) {}
+      }
     };
-  }, [currentSurah, selectedReciterName, safePause, safePlay]);
+  }, [currentSurah, selectedReciterName, safePause, safePlay, t]);
 
   const playSurah = useCallback((surah: Surah, reciter: ReciterInfo, moshaf: MoshafInfo, resumeTime?: number) => {
     currentReciterRef.current = reciter;

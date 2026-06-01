@@ -30,7 +30,8 @@ import {
   Wifi,
   WifiOff,
   MessageSquare,
-  GraduationCap as GradIcon
+  GraduationCap as GradIcon,
+  Pin
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -44,6 +45,8 @@ import { toast } from "sonner";
 import { db } from "@/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 import HubHeroBanner from "@/components/HubHeroBanner";
+import { usePersistentState } from "@/hooks/usePersistentState";
+import DashboardCustomizer from "@/components/DashboardCustomizer";
 
 const ReadingProgress = lazy(() => import("@/components/ReadingProgress"));
 
@@ -58,6 +61,16 @@ const Hub = () => {
   const [downloadAllProgress, setDownloadAllProgress] = useState(0);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [hubSettings, setHubSettings] = useState<any>(null);
+  
+  const [pinnedToolIds, setPinnedToolIds] = usePersistentState<string[]>("hub-pinned-tools", []);
+
+  const handlePinChange = useCallback((toolId: string) => {
+    setPinnedToolIds(prev => {
+      if (prev.includes(toolId)) return prev.filter(id => id !== toolId);
+      if (prev.length >= 6) return prev;
+      return [...prev, toolId];
+    });
+  }, [setPinnedToolIds]);
 
   interface HubTool {
     id: string;
@@ -409,7 +422,63 @@ const Hub = () => {
           </div>
 
           <div className="lg:col-span-8 space-y-12">
+            <div className="flex justify-between items-center px-2">
+              <h2 className="text-2xl font-bold font-naskh text-foreground hidden md:block"></h2>
+              <DashboardCustomizer 
+                categories={categories} 
+                pinnedTools={pinnedToolIds} 
+                onPinChange={handlePinChange} 
+              />
+            </div>
+
             <div className="space-y-12">
+              {pinnedToolIds.length > 0 && (
+                <ScrollReveal>
+                  <section className="space-y-6">
+                    <div className="flex items-center gap-3 px-2">
+                      <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center shadow-sm border border-accent/20">
+                        <Pin className="w-5 h-5 text-accent" />
+                      </div>
+                      <h2 className="text-2xl font-bold font-naskh text-accent">{t("hub.pinnedTools")}</h2>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {pinnedToolIds.map((toolId) => {
+                        const tool = categories.flatMap(c => c.tools).find(t => t.id === toolId);
+                        if (!tool) return null;
+                        
+                        const isExternal = tool.path.startsWith('http');
+                        const Content = (
+                          <div
+                            className="p-6 rounded-[2.5rem] bg-card border border-accent/30 flex flex-col items-center text-center group transition-all hover:border-accent shadow-[0_0_15px_rgba(var(--accent),0.05)] h-full relative overflow-hidden"
+                          >
+                            <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="absolute top-4 right-4">
+                              <Pin size={12} className="text-accent/40" />
+                            </div>
+                            <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center mb-5 group-hover:bg-accent/20 text-accent transition-all duration-300 shadow-inner z-10">
+                              {tool.icon}
+                            </div>
+                            <span className="font-bold text-sm font-naskh text-foreground group-hover:text-accent transition-colors z-10">
+                              {tool.name}
+                            </span>
+                          </div>
+                        );
+
+                        return isExternal ? (
+                          <a key={tool.name} href={tool.path} target="_blank" rel="noopener noreferrer">
+                            {Content}
+                          </a>
+                        ) : (
+                          <Link key={tool.name} to={tool.path}>
+                            {Content}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </section>
+                </ScrollReveal>
+              )}
+
               {categories.map((category) => (
                 <ScrollReveal key={category.title}>
                   <section className="space-y-6">

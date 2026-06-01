@@ -29,6 +29,7 @@
     "@capacitor/share": "^8.0.1",
     "@capacitor/splash-screen": "^8.0.1",
     "@capacitor/status-bar": "^8.0.2",
+    "@capgo/capacitor-media-session": "^8.0.24",
     "@codetrix-studio/capacitor-google-auth": "^3.3.6",
     "@google/genai": "^1.47.0",
     "@google/generative-ai": "^0.24.1",
