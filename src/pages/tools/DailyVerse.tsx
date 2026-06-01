@@ -3,6 +3,7 @@ import { Share2, Heart, BookOpen, Quote, RefreshCw, Copy, Check } from "lucide-r
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { dailyVerses, DailyVerseData } from "@/data/dailyVersesData";
+import { widgetBridge } from "@/services/widgetBridge";
 import { toast } from "sonner";
 import { useTheme } from "@/contexts/ThemeContext";
 import { applyTajweedColors } from "@/lib/tajweedParser";
@@ -40,6 +41,13 @@ const DailyVerse = () => {
   useEffect(() => {
     const daily = getDailyVerse();
     setVerse(daily);
+    
+    // Sync to native widget
+    widgetBridge.syncWidgetData({
+      dailyVerse: daily.text,
+      dailyVerseTranslation: daily.translation,
+      dailyVerseSurah: daily.surah
+    });
     
     // Check if liked from local storage
     const likedVerses = JSON.parse(localStorage.getItem("liked-verses") || "[]");

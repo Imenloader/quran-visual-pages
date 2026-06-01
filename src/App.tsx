@@ -149,6 +149,9 @@ const PageLoader = () => (
   </div>
 );
 
+import { dailyVerses } from "./data/dailyVersesData";
+import { widgetBridge } from "./services/widgetBridge";
+
 const ServiceWorkerRegistration = () => {
   useRegisterSW({
     onRegistered(r) {
@@ -158,6 +161,23 @@ const ServiceWorkerRegistration = () => {
       console.error('SW Registration error:', error);
     },
   });
+
+  useEffect(() => {
+    // Sync daily verse to native widgets globally on boot
+    const hash = new Date().toDateString().split("").reduce((a, b) => {
+      a = (a << 5) - a + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+    const index = Math.abs(hash) % dailyVerses.length;
+    const verse = dailyVerses[index];
+    
+    widgetBridge.syncWidgetData({
+      dailyVerse: verse.text,
+      dailyVerseTranslation: verse.translation,
+      dailyVerseSurah: verse.surah
+    });
+  }, []);
+
   return null;
 };
 
