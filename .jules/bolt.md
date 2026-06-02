@@ -1,0 +1,3 @@
+## 2024-11-20 - O(1) Pre-computed Maps for Core Data
+**Learning:** Performing `Array.find()` inside `Array.map()` or within React render loops on large core data arrays (like Surah indexes) blocks the main thread and introduces O(n^2) or O(n) performance bottlenecks, especially on lower-end devices processing the entire 114-Surah list multiple times.
+**Action:** When a core data array is frequently queried by a unique property (e.g., `name`, `number`), pre-compute a lookup Map (e.g., `surahByName`, `surahByNumber`) during initialization. Replace `.find(...)` operations with `.get(...)` for O(1) lookups to eliminate unnecessary iteration.
