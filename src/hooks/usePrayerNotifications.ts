@@ -163,7 +163,9 @@ export const usePrayerNotifications = () => {
                 body: `حان موعد أذان صلاة ${PRAYER_NAMES[prayer]} بتوقيت ${settings.cityName || 'موقعك'}`,
                 id: prayerID + 1000,
                 schedule: { at: target, allowPause: false, alwaysShow: true, repeats: false },
-                sound: Capacitor.getPlatform() === 'android' ? 'adhan' : 'adhan.mp3', // Android usually expects resource name without extension
+                sound: (settings.adhanSounds?.[prayer] || settings.adhanSound) === 'beep'
+                  ? undefined
+                  : (Capacitor.getPlatform() === 'android' ? 'adhan' : 'adhan.mp3'), // Android usually expects resource name without extension
                 channelId: 'adhan-notifications',
                 smallIcon: 'ic_launcher',
                 extra: { prayer, type: 'adhan', url: "/prayer-times" }
@@ -225,7 +227,8 @@ export const usePrayerNotifications = () => {
                     new winNotif(title, { body, icon: "/pwa-192x192.png", dir: "rtl" });
                   }
                 }
-                playAdhan(settings.adhanSound, PRAYER_NAMES[prayer]);
+                const soundId = settings.adhanSounds?.[prayer] || settings.adhanSound;
+                playAdhan(soundId, PRAYER_NAMES[prayer]);
               }, delay);
               timersRef.current.push(timer);
             });

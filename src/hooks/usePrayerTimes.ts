@@ -280,7 +280,7 @@ export function usePrayerTimes(options?: { onAdhanStart?: () => void }) {
     const soundId = settings.adhanSounds?.[prayer] || settings.adhanSound;
     playAdhanSound(soundId, prayerNameAr);
     setTimeout(() => stopAdhan(), 20000);
-  }, [settings.adhanSound, playAdhanSound, stopAdhan]);
+  }, [settings.adhanSound, settings.adhanSounds, playAdhanSound, stopAdhan]);
 
   return {
     settings, updateSettings, times: effectiveTimes, loading, error, locationLoading, detectLocation,
