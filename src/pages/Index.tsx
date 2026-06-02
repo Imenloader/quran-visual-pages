@@ -220,8 +220,10 @@ function Index() {
                   {bookmark ? (
                     <button
                       onClick={() => {
-                        Haptics.impact({ style: ImpactStyle.Medium });
-                        navigate(`/juz/${bookmark.juz}#page-${bookmark.page}`);
+                        import("@capacitor/haptics").then(({ Haptics, ImpactStyle }) => {
+                          Haptics.impact({ style: ImpactStyle.Medium });
+                        });
+                        handleResumeReading();
                       }}
                       className="group relative flex items-center gap-3 md:gap-4 bg-accent text-accent-foreground px-6 md:px-10 py-3 md:py-4 rounded-2xl md:rounded-[2rem] font-naskh text-sm md:text-lg font-bold shadow-islamic hover:shadow-accent/20 transition-all hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
                     >

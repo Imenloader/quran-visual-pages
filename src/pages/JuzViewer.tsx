@@ -1,4 +1,4 @@
-import { useParams, Navigate, Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, Navigate, Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 // --- التعديل هنا: إضافة lazy و Suspense ---
 import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from "react";
 import { juzData, getQuranPageFallbackImageUrl, toArabicNumber, surahIndex } from "@/data/quranData";
@@ -67,6 +67,7 @@ function JuzViewer() {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const { juzNumber } = useParams();
   const num = parseInt(juzNumber || "0");
@@ -392,7 +393,33 @@ function JuzViewer() {
         // Try to load from cloud/local
         const cloudBookmark = await syncService.loadData<BookmarkData | null>(BOOKMARK_KEY, null);
         
-        if (cloudBookmark && cloudBookmark.juz === num && pages.includes(cloudBookmark.page)) {
+        let targetPage = cloudBookmark?.page;
+        let targetVerse = cloudBookmark?.verseKey;
+
+        // Parse hash if present (e.g., #verse-1:2 or #page-5)
+        if (location.hash) {
+          if (location.hash.startsWith('#verse-')) {
+            targetVerse = location.hash.replace('#verse-', '');
+            const [sNum] = targetVerse.split(":");
+            const surah = surahIndex.find(s => s.number.toString() === sNum);
+            if (surah && surah.startPage) {
+               targetPage = surah.startPage;
+            }
+          } else if (location.hash.startsWith('#page-')) {
+            const hashPage = parseInt(location.hash.replace('#page-', ''));
+            if (!isNaN(hashPage) && pages.includes(hashPage)) {
+              targetPage = hashPage;
+            }
+          }
+        }
+
+        if (targetPage && pages.includes(targetPage)) {
+          setCurrentPage(targetPage);
+          if (targetVerse) setCurrentVerseKey(targetVerse);
+          if (scrollDirection === "vertical") {
+            setTimeout(() => scrollToPage(targetPage!), 100);
+          }
+        } else if (cloudBookmark && cloudBookmark.juz === num && pages.includes(cloudBookmark.page)) {
           setCurrentPage(cloudBookmark.page);
           if (cloudBookmark.verseKey) setCurrentVerseKey(cloudBookmark.verseKey);
           if (scrollDirection === "vertical") {
@@ -404,7 +431,7 @@ function JuzViewer() {
       }
     };
     initPage();
-  }, [pages, num, scrollDirection, currentPage]);
+  }, [pages, num, scrollDirection, currentPage, location.hash]);
 
   useEffect(() => {
     if (!juz) return;
