@@ -1,0 +1,20 @@
+#!/bin/bash
+cat << 'DIFF' > quran_data.diff
+<<<<<<< SEARCH
+export const surahIndex = surahData;
+
+export const juzData: JuzInfo[] = [
+=======
+export const surahIndex = surahData;
+
+export const surahByName = new Map<string, SurahInfo>();
+export const surahByNumber = new Map<number, SurahInfo>();
+
+surahData.forEach(surah => {
+  surahByName.set(surah.name, surah);
+  surahByNumber.set(surah.number, surah);
+});
+
+export const juzData: JuzInfo[] = [
+>>>>>>> REPLACE
+DIFF

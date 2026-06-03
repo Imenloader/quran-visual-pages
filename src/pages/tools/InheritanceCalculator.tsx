@@ -125,7 +125,7 @@ const InheritanceCalculator = () => {
 
     // 4. Daughters Share (if no sons)
     if (numDaughters > 0 && !hasMaleChildren) {
-      let daughterShare = numDaughters === 1 ? 1/2 : 2/3;
+      const daughterShare = numDaughters === 1 ? 1/2 : 2/3;
       const amount = estate * daughterShare;
       heirs.push({
         heir: `Daughters (${numDaughters})`,

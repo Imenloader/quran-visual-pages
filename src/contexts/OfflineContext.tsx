@@ -110,7 +110,7 @@ export const OfflineProvider = ({ children }: { children: ReactNode }) => {
     for (const url of candidates) {
       try {
         // Primary attempt: Direct CORS
-        let response = await fetch(url, { mode: "cors" });
+        const response = await fetch(url, { mode: "cors" });
         
         // Secondary attempt: Proxy if direct fails
         if (!response.ok) {

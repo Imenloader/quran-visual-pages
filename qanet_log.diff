@@ -1,0 +1,6 @@
+<<<<<<< SEARCH
+        const s = surahByNumber.get(range.startSurah);
+        const s = surahByNumber.get(range.startSurah);
+=======
+        const s = surahByNumber.get(range.startSurah);
+>>>>>>> REPLACE
