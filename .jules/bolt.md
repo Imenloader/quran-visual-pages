@@ -1,0 +1,3 @@
+## 2024-06-04 - [Performance: Optimizing React Renders with Pre-computed Maps]
+**Learning:** Using `Array.find()` inside React rendering loops (like `.map()`) can cause significant performance bottlenecks, especially for components that re-render frequently or process large lists (like `JuzCard` displaying Surah lists). This resulted in O(N) lookup times for every iteration.
+**Action:** Always prefer pre-computing ES6 `Map` objects (e.g., `surahByName`, `surahByNumber`) during initialization for static or semi-static data, and use `.get()` for O(1) lookups inside rendering loops or frequent calculations.
