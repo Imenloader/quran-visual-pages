@@ -3,7 +3,7 @@ import { X, Moon, CalendarDays, Check, Plus, Trash2, ChevronLeft, ChevronRight, 
 import { useNavigate } from 'react-router-dom';
 import { useQanet } from './QanetContext';
 import { getQanetLevel } from './utils';
-import { surahData } from '@/data/quranData';
+import { surahData, surahByNumber } from '@/data/quranData';
 import { ReadingRange } from './types';
 import { toHijri, formatHijriDate, formatHijriDateFull, getHijriMonthDays, getHijriMonthStartDay, toArabicDigits, WEEKDAYS_AR_SHORT } from './hijriUtils';
 
@@ -117,7 +117,7 @@ export default function QanetLogModal({ onClose }: { onClose: () => void }) {
   };
 
   const getAyahCount = (surahNumber: number) => {
-    return surahData.find(s => s.number === surahNumber)?.ayahs || 1;
+    return surahByNumber.get(surahNumber)?.ayahs || 1;
   };
 
   return (
