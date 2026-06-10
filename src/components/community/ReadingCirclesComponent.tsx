@@ -34,7 +34,7 @@ import {
 import { auth, db } from "@/firebase";
 import { useUser } from "@/contexts/UserContext";
 import BackButton from "@/components/BackButton";
-import { juzData, surahData } from "@/data/quranData";
+import { juzData, surahData , surahByNumber} from '@/data/quranData';
 import AuthModal from "@/components/AuthModal";
 import { communityCache } from "@/lib/communityCache";
 
@@ -145,7 +145,7 @@ const ReadingCirclesComponent: React.FC<ReadingCirclesComponentProps> = ({ stand
       setShowAuthModal(true);
       return;
     }
-    const surah = surahData.find(s => s.number === selectedSurah);
+    const surah = surahByNumber.get(selectedSurah);
     if (!surah) return;
     try {
       const docRef = await addDoc(collection(db, "reading_circles"), {
