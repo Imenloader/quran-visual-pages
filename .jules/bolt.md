@@ -1,0 +1,3 @@
+## 2024-06-11 - Optimized Surah Lookups (O(N) to O(1))
+**Learning:** Found widespread usage of O(N) `Array.find` lookups within critical render loops (`JuzCard.tsx`, `Index.tsx`) to resolve Surah names/numbers to `SurahInfo`. Additionally, `getSurahByPage` utilized an expensive array cloning and reversal (`[...surahIndex].reverse().find`) which caused significant garbage collection overhead.
+**Action:** Replaced linear array searches with O(1) Pre-computed Maps (`surahByName`, `surahByNumber`, `surahByNumberString`). Refactored `getSurahByPage` to use a lightweight backward `for` loop, eliminating array allocations during lookup.
