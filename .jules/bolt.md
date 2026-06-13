@@ -1,0 +1,3 @@
+## 2024-05-18 - [Optimize Surah Lookups]
+**Learning:** Found heavy usage of `Array.prototype.find()` on the statically defined `surahIndex` array inside loops and render paths (e.g., in `JuzCard.tsx` mapping over all surahs). This degrades performance with unnecessary O(N) linear searches.
+**Action:** Implemented pre-computed `Map` instances (`surahByName`, `surahByNumber`, `surahByNumberString`) in `src/data/quranData.ts` to convert O(N) array lookups into O(1) hash map lookups. Also replaced `[...surahIndex].reverse().find()` with a backwards `for` loop to avoid array cloning and reversal overhead.
