@@ -194,7 +194,13 @@ export const getJuzAndPageForSurah = (surahNumber: number): { juz: number; page:
  * Returns the surah that covers a specific page.
  */
 export const getSurahByPage = (pageNumber: number): SurahInfo | undefined => {
-  return [...surahIndex].reverse().find(s => s.startPage <= pageNumber);
+  // Optimize: use backward for-loop instead of [...array].reverse().find() to prevent O(N) array allocation overhead
+  for (let i = surahIndex.length - 1; i >= 0; i--) {
+    if (surahIndex[i].startPage <= pageNumber) {
+      return surahIndex[i];
+    }
+  }
+  return undefined;
 };
 
 export const getJuzByPage = (pageNumber: number): number => {
