@@ -1,4 +1,4 @@
-import { juzData, surahIndex } from "@/data/quranData";
+import { juzData, surahIndex, surahByName } from "@/data/quranData";
 import { normalizeArabic } from "./arabicUtils";
 
 export interface ParsedVerseData {
@@ -114,7 +114,7 @@ export const parseJuzTextToVerses = (localText: string | null, currentJuz: numbe
         }
 
         const surahName = surahNames[currentSurahIdx];
-        const surahInfo = surahIndex.find(s => s.name === surahName);
+        const surahInfo = surahByName.get(surahName);
         const surahNumber = surahInfo ? surahInfo.number : 0;
 
         const { cleaned, hasBasmalah } = cleanHeaderAndBasmalah(text, surahNumber, ayahNumber);
