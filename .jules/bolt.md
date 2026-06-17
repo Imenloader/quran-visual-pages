@@ -1,0 +1,3 @@
+## 2024-06-17 - [Array Search vs Pre-computed Map in Render Loops]
+**Learning:** Found that `Array.find()` inside `Array.map()` or `Array.filter()` loops during React renders causes measurable overhead and repetitive O(N) operations, specifically inside list mappings for `juz.surahs`. Also, backwards `for` loop traversal is significantly faster than using ES6 clone-and-reverse `[...array].reverse().find()` for operations like `getSurahByPage`.
+**Action:** Pre-compute lookup maps `Map<K, V>` and export them alongside standard arrays for core reference data (like Quran metadata). Use `.get()` for O(1) lookups inside React render mappings, and stick to manual `for` loop iterations to avoid array-cloning overhead when backward searching.
