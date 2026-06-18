@@ -136,6 +136,13 @@ export const surahData: SurahInfo[] = [
 
 export const surahIndex = surahData;
 
+// ⚡ Bolt Performance Optimization: Pre-computed Maps for O(1) Lookups
+// These maps replace expensive O(N) Array.find() operations that were blocking the main thread during renders.
+export const surahByName = new Map<string, SurahInfo>(surahData.map(s => [s.name, s]));
+export const surahByNumber = new Map<number, SurahInfo>(surahData.map(s => [s.number, s]));
+export const surahByNumberString = new Map<string, SurahInfo>(surahData.map(s => [s.number.toString(), s]));
+
+
 export const juzData: JuzInfo[] = [
   { number: 1, nameAr: "الجزء الأول", nameEn: "Juz 1", startPage: 1, endPage: 21, startSurah: "الفاتحة", surahs: ["الفاتحة", "البقرة"] },
   { number: 2, nameAr: "الجزء الثاني", nameEn: "Juz 2", startPage: 22, endPage: 41, startSurah: "البقرة 142", surahs: ["البقرة"] },
@@ -194,7 +201,14 @@ export const getJuzAndPageForSurah = (surahNumber: number): { juz: number; page:
  * Returns the surah that covers a specific page.
  */
 export const getSurahByPage = (pageNumber: number): SurahInfo | undefined => {
-  return [...surahIndex].reverse().find(s => s.startPage <= pageNumber);
+  // ⚡ Bolt Performance Optimization: Backward Loop
+  // Replaced [...surahIndex].reverse().find() with a backward loop to eliminate O(N) array cloning and reversal overhead.
+  for (let i = surahIndex.length - 1; i >= 0; i--) {
+    if (surahIndex[i].startPage <= pageNumber) {
+      return surahIndex[i];
+    }
+  }
+  return undefined;
 };
 
 export const getJuzByPage = (pageNumber: number): number => {
