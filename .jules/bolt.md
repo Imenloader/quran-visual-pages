@@ -1,0 +1,3 @@
+## 2024-05-24 - Efficient O(1) Lookups for Static Metadata
+**Learning:** Performing `Array.find()` lookups on static metadata arrays (like `surahIndex`) inside `.map()` or `.filter()` loops during renders degrades performance from O(N) to O(N*M), blocking the main thread. Also, using `[...array].reverse().find()` creates unnecessary allocations and GC overhead.
+**Action:** When working with static application data, always generate Map lookups (e.g., `surahByName`, `surahByNumber`) upon module initialization, and replace `find()` with `get()`. Replace array cloning+reversal with backward `for` loops. When cleaning up files and imports after mass refactoring, delete temporary scripts before requesting code review.
