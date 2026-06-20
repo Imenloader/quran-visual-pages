@@ -258,8 +258,8 @@ export default function QanetHistory() {
         <div className="space-y-4">
           {logs.slice(0, 15).map((log) => {
             const level = getQanetLevel(log.totalAyahs);
-            const startSurahName = surahData.find(s => s.number === log.startSurah)?.name || '';
-            const endSurahName = surahData.find(s => s.number === log.endSurah)?.name || '';
+            const startSurahName = surahByNumber.get(log.startSurah)?.name || '';
+            const endSurahName = surahByNumber.get(log.endSurah)?.name || '';
 
             return (
               <div key={log.id} className="group flex items-center justify-between bg-card border border-border rounded-[2rem] p-6 shadow-soft hover:shadow-islamic hover:border-primary/20 transition-all">

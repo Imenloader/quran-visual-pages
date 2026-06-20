@@ -1,3 +1,4 @@
+import { surahByNumber } from "../../data/quranData";
 import React, { useState, useEffect, useMemo } from "react";
 import { 
   Users, 
@@ -145,7 +146,7 @@ const ReadingCirclesComponent: React.FC<ReadingCirclesComponentProps> = ({ stand
       setShowAuthModal(true);
       return;
     }
-    const surah = surahData.find(s => s.number === selectedSurah);
+    const surah = surahByNumber.get(selectedSurah);
     if (!surah) return;
     try {
       const docRef = await addDoc(collection(db, "reading_circles"), {

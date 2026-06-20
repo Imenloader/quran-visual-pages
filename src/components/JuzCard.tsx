@@ -65,7 +65,7 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
     return juz.surahs.filter(s => {
       const normalizedS = normalizeArabic(s);
       if (normalizedS.includes(normalizedQuery)) return true;
-      const surah = surahIndex.find(si => si.name === s);
+      const surah = surahByName.get(s);
       return surah?.nameEn.toLowerCase().includes(query);
     });
   }, [searchQuery, juz.surahs]);
@@ -273,13 +273,13 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
           </h3>
 
           <p className="text-[10px] md:text-xs text-muted-foreground font-naskh leading-relaxed max-w-[240px] mx-auto line-clamp-2">
-            {juz.surahs.map(s => i18n.language === "ar" ? s : surahIndex.find(si => si.name === s)?.nameEn || s).join(i18n.language === "ar" ? "، " : ", ")}
+            {juz.surahs.map(s => i18n.language === "ar" ? s : surahByName.get(s)?.nameEn || s).join(i18n.language === "ar" ? "، " : ", ")}
           </p>
           
           <div className="flex items-center justify-center gap-2">
             <div className="h-px w-3 md:w-4 bg-border" />
             <p className="text-xs md:text-sm text-muted-foreground font-naskh italic">
-              {i18n.language === "ar" ? juz.startSurah : surahIndex.find(si => si.name === juz.startSurah)?.nameEn || juz.startSurah}
+              {i18n.language === "ar" ? juz.startSurah : surahByName.get(juz.startSurah)?.nameEn || juz.startSurah}
             </p>
             <div className="h-px w-3 md:w-4 bg-border" />
           </div>
@@ -288,7 +288,7 @@ const JuzCard = ({ juz, index, isBookmarked, searchQuery }: JuzCardProps) => {
             <div className="pt-2 flex flex-wrap justify-center gap-1 md:gap-1.5">
               {matchedSurahs.map(s => (
                 <span key={s} className="text-[8px] md:text-[10px] bg-accent/10 text-accent px-2 py-0.5 rounded-full font-naskh font-medium">
-                  {i18n.language === "ar" ? s : surahIndex.find(si => si.name === s)?.nameEn || s}
+                  {i18n.language === "ar" ? s : surahByName.get(s)?.nameEn || s}
                 </span>
               ))}
             </div>
