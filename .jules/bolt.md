@@ -1,0 +1,3 @@
+## 2025-05-21 - Replace Array.find() with Map lookups for Quran Surah metadata
+**Learning:** In highly trafficked components like `JuzCard` or deep in rendering loops, utilizing `Array.find()` over a list of 114 Surahs introduces O(N) lookup complexity per item. This can bottleneck rendering performance when mapping over numerous elements or rapidly updating lists.
+**Action:** Always prefer computing O(1) hash maps (using ES6 `Map`) during data initialization for static or semi-static datasets like Surah metadata. Replace `.find()` array methods with `.get()` map lookups for significantly faster retrievals in React render cycles and text parsing loops.
