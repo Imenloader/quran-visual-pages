@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Trash2, ChevronLeft, ChevronRight, BarChart3, PieChart as PieIcon, ListFilter, History } from 'lucide-react';
 import { useQanet } from './QanetContext';
 import { calculateStats, getQanetLevel, getLevelLabel } from './utils';
-import { surahData } from '@/data/quranData';
+import { surahData, surahByNumber, surahByName } from '@/data/quranData';
 import { toHijri, getHijriMonthDays, getHijriMonthStartDay, toArabicDigits, WEEKDAYS_AR_SHORT } from './hijriUtils';
 import { startOfDay, subDays, parseISO, isValid, format } from 'date-fns';
 import { StatCard } from './components/StatCard';
@@ -258,8 +258,8 @@ export default function QanetHistory() {
         <div className="space-y-4">
           {logs.slice(0, 15).map((log) => {
             const level = getQanetLevel(log.totalAyahs);
-            const startSurahName = surahData.find(s => s.number === log.startSurah)?.name || '';
-            const endSurahName = surahData.find(s => s.number === log.endSurah)?.name || '';
+            const startSurahName = surahByNumber.get(log.startSurah)?.name || '';
+            const endSurahName = surahByNumber.get(log.endSurah)?.name || '';
 
             return (
               <div key={log.id} className="group flex items-center justify-between bg-card border border-border rounded-[2rem] p-6 shadow-soft hover:shadow-islamic hover:border-primary/20 transition-all">

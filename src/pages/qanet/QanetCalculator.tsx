@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Moon, Edit2, ArrowLeft, MapPin, Clock, Loader2, Sparkles, BookOpen, Timer, ChevronRight } from 'lucide-react';
-import { surahData } from '@/data/quranData';
+import { surahData, surahByNumber, surahByName } from '@/data/quranData';
 import { useQanet } from './QanetContext';
 import { StatCard } from './components/StatCard';
 import { Geolocation } from "@capacitor/geolocation";
@@ -71,7 +71,7 @@ export default function QanetCalculator() {
     let currentSurah = startSurah;
     let currentAyah = startAyah;
     
-    const startSurahInfo = surahData.find(s => s.number === currentSurah);
+    const startSurahInfo = surahByNumber.get(currentSurah);
     if (!startSurahInfo) return null;
     
     const availableInStart = startSurahInfo.ayahs - currentAyah + 1;
@@ -87,7 +87,7 @@ export default function QanetCalculator() {
     currentSurah++;
     
     while (remaining > 0 && currentSurah <= 114) {
-      const surah = surahData.find(s => s.number === currentSurah);
+      const surah = surahByNumber.get(currentSurah);
       if (!surah) break;
       if (remaining <= surah.ayahs) {
         return { endSurah: currentSurah, endAyah: remaining, endSurahName: surah.name };
@@ -105,11 +105,11 @@ export default function QanetCalculator() {
     if (startSurah === endSurah) return Math.max(0, endAyah - startAyah + 1);
     
     let total = 0;
-    const startInfo = surahData.find(s => s.number === startSurah);
+    const startInfo = surahByNumber.get(startSurah);
     if (startInfo) total += startInfo.ayahs - startAyah + 1;
     
     for (let i = startSurah + 1; i < endSurah; i++) {
-      const s = surahData.find(su => su.number === i);
+      const s = surahByNumber.get(i);
       if (s) total += s.ayahs;
     }
     
@@ -122,10 +122,10 @@ export default function QanetCalculator() {
   const estimatedTime = Math.round((displayTotal * 15) / 60);
   const estimatedRub = (displayTotal / 26).toFixed(1);
 
-  const startSurahInfo = surahData.find(s => s.number === startSurah);
+  const startSurahInfo = surahByNumber.get(startSurah);
   const endSurahInfo = mode === 'target' && targetResult
-    ? surahData.find(s => s.number === targetResult.endSurah)
-    : surahData.find(s => s.number === endSurah);
+    ? surahByNumber.get(targetResult.endSurah)
+    : surahByNumber.get(endSurah);
 
   const calculateLastThird = async () => {
     setLastThird({ loading: true, error: null, time: null, fajr: null, maghrib: null, cityName: null });
@@ -245,7 +245,7 @@ export default function QanetCalculator() {
                     let currAyah = startAyah;
                     let found = false;
 
-                    const startS = surahData.find(s => s.number === currSurah);
+                    const startS = surahByNumber.get(currSurah);
                     if (startS) {
                       const avail = startS.ayahs - currAyah + 1;
                       if (remaining <= avail) {
@@ -260,7 +260,7 @@ export default function QanetCalculator() {
 
                     if (!found) {
                       while (currSurah <= 114) {
-                        const s = surahData.find(sd => sd.number === currSurah);
+                        const s = surahByNumber.get(currSurah);
                         if (!s) break;
                         if (remaining <= s.ayahs) {
                           setEndSurah(currSurah);
