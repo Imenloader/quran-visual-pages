@@ -1,0 +1,12 @@
+src/components/JuzCard.tsx:68:      const surah = surahIndex.find(si => si.name === s);
+src/components/JuzCard.tsx:276:            {juz.surahs.map(s => i18n.language === "ar" ? s : surahIndex.find(si => si.name === s)?.nameEn || s).join(i18n.language === "ar" ? "، " : ", ")}
+src/components/JuzCard.tsx:282:              {i18n.language === "ar" ? juz.startSurah : surahIndex.find(si => si.name === juz.startSurah)?.nameEn || juz.startSurah}
+src/components/JuzCard.tsx:291:                  {i18n.language === "ar" ? s : surahIndex.find(si => si.name === s)?.nameEn || s}
+src/hooks/useNotifications.ts:61:  const surahInfo = surahIndex.find(s => s.name === verse.surah);
+src/pages/Index.tsx:105:      const surah = surahIndex.find(s => s.number === surahNum);
+src/pages/Index.tsx:132:          const surah = surahIndex.find(si => si.name === s);
+src/pages/JuzViewer.tsx:488:      const surahInfo = surahIndex.find(s => s.name === startSurahName);
+src/pages/JuzViewer.tsx:500:      const surah = surahIndex.find(s => s.number.toString() === sNum);
+src/pages/JuzViewer.tsx:523:      const surahsInJuz = juz.surahs.map(name => surahIndex.find(s => s.name === name)).filter(Boolean);
+src/data/quranData.ts:183:  const surah = surahIndex.find(s => s.number === surahNumber);
+src/lib/quranTextParser.ts:117:        const surahInfo = surahIndex.find(s => s.name === surahName);
