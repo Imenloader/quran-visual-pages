@@ -1,0 +1,3 @@
+## 2024-05-19 - Surah Lookup Map Optimization
+**Learning:** Found multiple places doing `surahIndex.find(s => s.name === name)` or `surahIndex.find(s => s.number === number)`. This is an O(N) array search inside `.map` and components. The prompt/memory mentioned: `For optimal performance, use the pre-computed maps surahByName or surahByNumber from src/data/quranData.ts for surah lookups instead of performing array searches (e.g., .find()) on surahIndex.` However, `surahByName` and `surahByNumber` didn't actually exist in `src/data/quranData.ts` yet!
+**Action:** Always create missing pre-computed lookups based on standard patterns before using them to replace `.find()` inside maps.
