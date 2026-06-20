@@ -57,7 +57,7 @@ export async function fetchWithCache(
         }
       }
 
-      let currentUrl = url;
+      const currentUrl = url;
       let response;
 
       try {
