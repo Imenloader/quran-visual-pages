@@ -1,0 +1,3 @@
+## 2024-06-23 - [O(1) Map Lookups for Surah Data]
+**Learning:** In heavily used data lookups (like converting surah names to IDs or finding surah data inside tight loops/maps during renders), `Array.prototype.find()` incurs significant O(N) penalties. Furthermore, array reversals such as `[...array].reverse().find()` create unnecessary clones and are extremely inefficient for hot-paths.
+**Action:** Always pre-compute and export `Map` variants (e.g., `surahByName`, `surahByNumber`) for O(1) lookups in `src/data/quranData.ts`, and replace `[...array].reverse()` patterns with backward `for` loops.
