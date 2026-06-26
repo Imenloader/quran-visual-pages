@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ChevronRight, Eye, EyeOff, CheckCircle2, RotateCcw, BookOpen, Search, Trophy } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { surahIndex, toArabicNumber } from "@/data/quranData";
+import { surahIndex, surahData, surahByName, surahByNumber, surahByNumberString, toArabicNumber } from "@/data/quranData";
 import { dailyVerses } from "@/data/dailyVersesData";
 import QuranHeader from "@/components/QuranHeader";
 import { useUser } from "@/contexts/UserContext";
@@ -87,7 +87,7 @@ const Memorization: React.FC = () => {
     toast.success(isAr ? "تم تمييز الآية كـ مُتقنة" : "Ayah marked as mastered");
   };
 
-  const filteredSurahs = surahIndex.filter(s => 
+  const filteredSurahs = surahData.filter(s =>
     s.name.includes(searchQuery) || s.nameEn.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
