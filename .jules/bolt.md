@@ -1,0 +1,3 @@
+## 2024-03-24 - [Replace O(n) array searches with O(1) map lookups]
+**Learning:** React re-renders that map over elements (like `juz.surahs.map`) and execute `Array.prototype.find` (like `surahIndex.find(...)`) inside the map iteration lead to O(n²) time complexity. Additionally, operations like `[...array].reverse().find()` result in memory allocation overhead and full array traversal on every call.
+**Action:** Always pre-compute and export `Map` lookups (like `surahByName` or `surahByNumber`) alongside constant arrays. Prefer reverse `for` loops without array destructuring for backward searches when Map lookup is not possible. Apply this refactor pattern across the entire application codebase rather than just in single components.
