@@ -136,6 +136,17 @@ export const surahData: SurahInfo[] = [
 
 export const surahIndex = surahData;
 
+// Pre-computed lookup maps for O(1) surah retrieval
+export const surahByName = new Map<string, SurahInfo>();
+export const surahByNumber = new Map<number, SurahInfo>();
+export const surahByNumberString = new Map<string, SurahInfo>();
+
+surahData.forEach(surah => {
+  surahByName.set(surah.name, surah);
+  surahByNumber.set(surah.number, surah);
+  surahByNumberString.set(surah.number.toString(), surah);
+});
+
 export const juzData: JuzInfo[] = [
   { number: 1, nameAr: "الجزء الأول", nameEn: "Juz 1", startPage: 1, endPage: 21, startSurah: "الفاتحة", surahs: ["الفاتحة", "البقرة"] },
   { number: 2, nameAr: "الجزء الثاني", nameEn: "Juz 2", startPage: 22, endPage: 41, startSurah: "البقرة 142", surahs: ["البقرة"] },
@@ -194,7 +205,12 @@ export const getJuzAndPageForSurah = (surahNumber: number): { juz: number; page:
  * Returns the surah that covers a specific page.
  */
 export const getSurahByPage = (pageNumber: number): SurahInfo | undefined => {
-  return [...surahIndex].reverse().find(s => s.startPage <= pageNumber);
+  for (let i = surahIndex.length - 1; i >= 0; i--) {
+    if (surahIndex[i].startPage <= pageNumber) {
+      return surahIndex[i];
+    }
+  }
+  return undefined;
 };
 
 export const getJuzByPage = (pageNumber: number): number => {
