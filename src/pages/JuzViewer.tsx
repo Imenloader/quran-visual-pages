@@ -808,9 +808,16 @@ function JuzViewer() {
       </div>
 
       <div className={`fixed top-0 left-0 right-0 z-[150] transition-all duration-500 ${showControls ? "opacity-100 pointer-events-auto translate-y-0" : "opacity-0 pointer-events-none -translate-y-full"}`}>
-        <div className="bg-emerald-deep/95 border-b border-border/40 px-4 py-3 flex items-center justify-between">
-          <BackButton variant="ghost" />
-          <h2 className="text-white font-serif text-xl">{juz.nameAr}</h2>
+        <div className="bg-emerald-deep/95 border-b border-border/40 px-4 py-2 md:py-3 flex items-center justify-between">
+          <BackButton variant="ghost" className="text-white hover:bg-white/10" />
+          <div className="flex flex-col items-center">
+            <h2 className="text-white font-serif text-lg md:text-xl leading-none">{juz.nameAr}</h2>
+            {currentPage > 0 && (
+              <span className="text-white/70 text-[10px] md:text-xs font-serif mt-1">
+                {t("juzViewer.pageOf", { current: isAr ? toArabicNumber(currentPage.toString()) : currentPage, total: isAr ? toArabicNumber(juz.endPage.toString()) : juz.endPage })}
+              </span>
+            )}
+          </div>
           <div className="w-10" />
         </div>
         <ProgressBar progress={progress} currentPage={currentPage} totalPages={pages.length} startPage={juz.startPage} />
@@ -1224,7 +1231,7 @@ function JuzViewer() {
     </main>
 
     {/* Bottom Juz Navigation */}
-    <div className={`container max-w-2xl mx-auto px-6 pb-20 pt-4 flex gap-4 transition-all duration-500 ${showControls ? "opacity-100" : "opacity-0 pointer-events-none hidden"}`}>
+    <div className={`container max-w-2xl mx-auto px-6 pb-20 pt-4 flex gap-4 transition-all duration-500`}>
       {num > 1 && (
         <button
           onClick={() => navigate(`/juz/${num - 1}`)}
@@ -1251,32 +1258,27 @@ function JuzViewer() {
       )}
     </div>
 
-      {showControls && (
-        <div className="text-center pb-12">
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="group inline-flex flex-col items-center gap-3 text-sm font-serif font-medium text-muted-foreground hover:text-primary transition-all"
-          >
-            <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center group-hover:bg-primary/5 group-hover:shadow-soft transition-all">
-              <ArrowUp size={18} strokeWidth={1.5} />
-            </div>
-            <span className="italic group-hover:text-accent">{t("common.backToTop")}</span>
-          </button>
-        </div>
-      )}
-
-      {showControls && (
-        <div 
-          className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[150] flex items-center gap-4"
-        >
-          {currentPage > 0 && (
-            <div className="h-12 md:h-14 px-6 rounded-full bg-primary/90 border border-primary/10 flex items-center gap-3 shadow-2xl">
-              <span className="text-[8px] md:text-[10px] font-bold text-gold uppercase tracking-widest">الصفحة</span>
-              <span className="font-serif text-lg md:text-xl font-medium text-white">{toArabicNumber(currentPage.toString())}</span>
-            </div>
           )}
-        </div>
-      )}
+      </div>
+
+      <div className="text-center pb-24">
+        <button
+          onClick={(e) => {
+            const container = e.currentTarget.closest('.overflow-y-auto');
+            if (container) {
+              container.scrollTo({ top: 0, behavior: "smooth" });
+            } else {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+          }}
+          className="group inline-flex flex-col items-center gap-3 text-sm font-serif font-medium text-muted-foreground hover:text-primary transition-all"
+        >
+          <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center group-hover:bg-primary/5 group-hover:shadow-soft transition-all">
+            <ArrowUp size={18} strokeWidth={1.5} />
+          </div>
+          <span className="italic group-hover:text-accent">{t("common.backToTop")}</span>
+        </button>
+      </div>
 
       {showJuzIndex && <JuzIndex onClose={() => setShowJuzIndex(false)} currentJuz={num} />}
 

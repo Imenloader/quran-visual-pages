@@ -55,7 +55,7 @@ const BottomNav = () => {
     }
   };
 
-  if (isFullscreen) return null;
+  if (isFullscreen || location.pathname.startsWith("/juz/")) return null;
   
   // Hide in maintenance mode for non-admins
   if (settings.maintenanceMode && !isAdmin && !systemLoading) return null;
