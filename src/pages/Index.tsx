@@ -1,4 +1,4 @@
-﻿import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "react-i18next";
@@ -28,7 +28,7 @@ interface BookmarkData {
 }
 
 const Index = () => {
-  const { theme, settings } = useTheme();
+  const { theme } = useTheme();
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === "ar";
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ const Index = () => {
   // Widget Hooks
   useNativeWidgets();
 
-  const nextPrayer = usePrayerTimes();
+  const { nextPrayer, settings: prayerSettings } = usePrayerTimes();
 
   const verseOfDay = useMemo(() => {
     const today = new Date();
@@ -260,7 +260,7 @@ const Index = () => {
                         <span className="text-xs font-bold text-emerald-600 font-serif">الصلاة القادمة</span>
                       </div>
                       <h3 className="text-2xl font-naskh font-bold text-primary">{PRAYER_NAMES[nextPrayer.name]}</h3>
-                      <p className="text-sm text-muted-foreground">متبقي وقت: <span className="font-bold text-primary">{formatTime(nextPrayer.time, settings.timeFormat)}</span></p>
+                      <p className="text-sm text-muted-foreground">متبقي وقت: <span className="font-bold text-primary">{formatTime(nextPrayer.time, prayerSettings?.timeFormat || "12h")}</span></p>
                     </div>
                     <div className="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-600/30 group-hover:scale-110 transition-transform">
                        <Clock size={28} strokeWidth={1.5} />
