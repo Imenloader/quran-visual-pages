@@ -120,7 +120,11 @@ function JuzViewer() {
 
   const { isFullscreen, setIsFullscreen } = useTheme();
   const { playAyah, togglePlay, currentSurah, stopPlayer, syncMode } = useAudioPlayer();
-  const [showControls, setShowControls] = useState(true);
+  const [showControls, setShowControls] = useState(false);
+
+  useEffect(() => {
+    setIsFullscreen(!showControls);
+  }, [showControls, setIsFullscreen]);
   const [isScrollingDown, setIsScrollingDown] = useState(false);
   const [showPageNav, setShowPageNav] = useState(false);
   const [showJuzIndex, setShowJuzIndex] = useState(false);
@@ -148,8 +152,9 @@ function JuzViewer() {
     return () => {
       handleUnmount();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      setIsFullscreen(false);
     };
-  }, [syncMode, stopPlayer]);
+  }, [syncMode, stopPlayer, setIsFullscreen]);
   const [isDownloadingAudio, setIsDownloadingAudio] = useState(false);
   const [savedBookmark, setSavedBookmark] = useState<BookmarkData | null>(null);
   const [currentVerseKey, setCurrentVerseKey] = useState<string | undefined>(() => getBookmark()?.verseKey);
@@ -498,10 +503,9 @@ function JuzViewer() {
   }, [isFullscreen, setIsFullscreen, resetControlsTimer]);
 
   const handleScreenTap = useCallback(() => {
-    if (!isFullscreen) return;
     setShowControls(prev => !prev);
     if (!showControls) resetControlsTimer();
-  }, [isFullscreen, showControls, resetControlsTimer]);
+  }, [showControls, resetControlsTimer]);
 
   const handleMainPlayToggle = useCallback(() => {
     if (!juz) return;
@@ -800,43 +804,15 @@ function JuzViewer() {
               <ChevronUp className="size-[20px] md:size-[28px]" />
             </button>
           )}
-        
-        {isFullscreen && showControls && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleFullscreen();
-            }}
-            className="w-10 h-10 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center bg-primary text-gold border border-primary/10"
-            title="الخروج من ملء الشاشة"
-          >
-            <Minimize className="size-[18px] md:size-[24px]" />
-          </button>
-        )}
 
-{!isFullscreen && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleFullscreen();
-            }}
-            className="w-10 h-10 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center bg-muted/90 backdrop-blur-md text-primary border border-border/40"
-            title="وضع ملء الشاشة"
-          >
-            <Maximize className="size-[18px] md:size-[24px]" />
-          </button>
-        )}
       </div>
 
-      <div className={`${isFullscreen && !showControls ? "opacity-0 pointer-events-none fixed top-0 left-0 right-0 z-[150]" : isFullscreen ? "fixed top-0 left-0 right-0 z-[150] opacity-100 pointer-events-auto" : "relative z-20"}`}>
-        {!isFullscreen && <QuranHeader title={juz.nameAr} showBack />}
-        {isFullscreen && (
-          <div className="bg-emerald-deep/95 border-b border-border/40 px-4 py-3 flex items-center justify-between">
-            <BackButton variant="ghost" />
-            <h2 className="text-white font-serif text-xl">{juz.nameAr}</h2>
-            <div className="w-10" />
-          </div>
-        )}
+      <div className={`fixed top-0 left-0 right-0 z-[150] transition-all duration-500 ${showControls ? "opacity-100 pointer-events-auto translate-y-0" : "opacity-0 pointer-events-none -translate-y-full"}`}>
+        <div className="bg-emerald-deep/95 border-b border-border/40 px-4 py-3 flex items-center justify-between">
+          <BackButton variant="ghost" />
+          <h2 className="text-white font-serif text-xl">{juz.nameAr}</h2>
+          <div className="w-10" />
+        </div>
         <ProgressBar progress={progress} currentPage={currentPage} totalPages={pages.length} startPage={juz.startPage} />
         <div className="px-4 pb-2">
           <button
@@ -906,7 +882,7 @@ function JuzViewer() {
       </Suspense>
       {/* -------------------------------------------------------- */}
 
-      {!isFullscreen && (
+      {showControls && (
         <div className="flex justify-between items-center container max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-8 relative z-10">
           <div className="flex-1">
             {num > 1 && (
@@ -946,7 +922,7 @@ function JuzViewer() {
       )}
 
       <main
-        className={`mx-auto px-4 flex flex-col items-center transition-all duration-500 ${isFullscreen ? "pb-12 pt-4" : "pb-40 pt-4"}`}
+        className={`w-full flex flex-col items-center transition-all duration-500`}
         onClick={handleScreenTap}
       >
         {tajweedMode && !hifzMode && readingMode === "image" && (
@@ -968,13 +944,13 @@ function JuzViewer() {
         >
           <div 
             className={cn(
-              "flex flex-col gap-6 md:gap-8 sm:gap-12 mx-auto origin-top",
+              "flex flex-col gap-0 mx-auto origin-top",
               !isPinching && "transition-[width] duration-300 ease-out"
             )}
             style={{ 
               width: `${zoom}%`, 
               minWidth: "100%",
-              maxWidth: isFullscreen ? "none" : `${maxWidth}px`,
+              maxWidth: "none",
               alignItems: zoom > 100 ? 'flex-start' : 'center'
             }}
           >
@@ -987,7 +963,7 @@ function JuzViewer() {
                     if (el) pageRefs.current[page] = el;
                   }}
                   id={`page-${page}`}
-                  className={`relative rounded-[1.5rem] md:rounded-[2rem] border border-border/40 bg-card shadow-islamic w-full group min-h-[600px] md:min-h-[900px] ${currentPage === page ? "ring-2 ring-accent/20" : ""}`}
+                  className={`relative w-full h-screen group flex items-center justify-center`}
                 >
                   {hifzMode && (
                     <div className="sticky top-4 md:top-6 z-30 flex justify-end px-4 md:px-6 pointer-events-none">
@@ -1026,7 +1002,7 @@ function JuzViewer() {
                     </div>
                   )}
 
-                  <div className="absolute top-4 left-4 md:top-6 md:left-6 z-10 flex flex-col items-center gap-0.5 md:gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                  <div className={`absolute top-4 left-4 md:top-6 md:left-6 z-10 flex flex-col items-center gap-0.5 md:gap-1 transition-opacity duration-500 ${showControls ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
                     <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl bg-primary/20 backdrop-blur-md text-primary flex items-center justify-center font-serif text-xs md:text-sm shadow-sm border border-primary/10">
                       {page}
                     </div>
@@ -1048,13 +1024,13 @@ function JuzViewer() {
                   )}
 
                   {!errorStates[page] && (
-                    <div className="relative overflow-hidden">
-                      <div className={`transition-all duration-700 ${isPageHidden(page) ? "blur-3xl opacity-5 grayscale scale-95" : "blur-0 opacity-100 scale-100"}`}>
+                    <div className="absolute inset-0 w-full h-full overflow-hidden">
+                      <div className={`w-full h-full absolute inset-0 transition-all duration-700 ${isPageHidden(page) ? "blur-3xl opacity-5 grayscale scale-95" : "blur-0 opacity-100 scale-100"}`}>
                         <LazyImage
                           key={getImageUrl(page)}
                           src={getImageUrl(page)}
                           alt={`صفحة ${page} من المصحف الشريف`}
-                          className="quran-page-img w-full h-auto group-hover:scale-[1.01]"
+                          className="quran-page-img w-full h-full object-fill"
                           priority={Math.abs(page - currentPage) <= 1}
                           onLoad={() => handleImageLoad(page)}
                           onError={() => handleImageError(page)}
@@ -1107,8 +1083,8 @@ function JuzViewer() {
               ))
             ) : (
               <div className="w-full flex flex-col items-center">
-                <div key={currentPage}>                <div className="relative rounded-[2.5rem] md:rounded-[3rem] border border-border/40 bg-card shadow-2xl w-full overflow-hidden">
-                  <div className="relative">
+                <div key={currentPage}>                <div className="relative w-full h-screen overflow-hidden flex items-center justify-center">
+                  <div className="absolute inset-0 w-full h-full">
                     {hifzMode && (
                       <div className="absolute top-4 right-4 md:top-6 md:right-6 z-30 flex flex-col gap-2">
                         <div className="flex flex-col gap-1 bg-background/80 backdrop-blur-xl p-1 rounded-2xl border border-border/20 shadow-2xl">
@@ -1146,12 +1122,12 @@ function JuzViewer() {
                       </div>
                     )}
 
-                    <div className={`${isPageHidden(currentPage) ? "blur-3xl opacity-5 grayscale scale-95" : "blur-0 opacity-100 scale-100"}`}>
+                    <div className={`w-full h-full absolute inset-0 transition-all duration-700 ${isPageHidden(currentPage) ? "blur-3xl opacity-5 grayscale scale-95" : "blur-0 opacity-100 scale-100"}`}>
                       <LazyImage
                         key={getImageUrl(currentPage)}
                         src={getImageUrl(currentPage)}
                         alt={`صفحة ${currentPage} من المصحف الشريف`}
-                        className="quran-page-img w-full h-auto"
+                        className="quran-page-img w-full h-full object-fill"
                         priority={true}
                         onLoad={() => handleImageLoad(currentPage)}
                         onError={() => handleImageError(currentPage)}
@@ -1198,7 +1174,7 @@ function JuzViewer() {
                       </div>
                     )}
                   </div>
-                  <div className="absolute top-6 left-6 z-10 flex flex-col items-center gap-1">
+                  <div className={`absolute top-6 left-6 z-10 flex flex-col items-center gap-1 transition-opacity duration-500 ${showControls ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
                     <div className="w-10 h-10 rounded-2xl bg-primary/20 backdrop-blur-md text-primary flex items-center justify-center font-serif text-sm shadow-sm border border-primary/10">
                       {currentPage}
                     </div>
@@ -1208,7 +1184,7 @@ function JuzViewer() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-8 mt-8">
+                <div className={`flex items-center gap-8 mt-8 transition-opacity duration-500 ${showControls ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
                   <button 
                     onClick={handlePrevPage}
                     disabled={currentPage === juz.startPage}
@@ -1245,7 +1221,7 @@ function JuzViewer() {
     </main>
 
     {/* Bottom Juz Navigation */}
-    <div className="container max-w-2xl mx-auto px-6 pb-20 pt-4 flex gap-4">
+    <div className={`container max-w-2xl mx-auto px-6 pb-20 pt-4 flex gap-4 transition-all duration-500 ${showControls ? "opacity-100" : "opacity-0 pointer-events-none hidden"}`}>
       {num > 1 && (
         <button
           onClick={() => navigate(`/juz/${num - 1}`)}
@@ -1272,7 +1248,7 @@ function JuzViewer() {
       )}
     </div>
 
-      {!isFullscreen && (
+      {showControls && (
         <div className="text-center pb-12">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
@@ -1286,7 +1262,7 @@ function JuzViewer() {
         </div>
       )}
 
-      {isFullscreen && showControls && (
+      {showControls && (
         <div 
           className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[150] flex items-center gap-4"
         >
@@ -1303,8 +1279,8 @@ function JuzViewer() {
 
       <div className={cn(
         "fixed left-0 right-0 z-[130] px-4 pointer-events-none flex justify-center transition-all duration-700 ease-[0.16, 1, 0.3, 1]",
-        isFullscreen ? "bottom-8" : "bottom-[104px]",
-        (isFullscreen && !showControls) || isScrollingDown 
+        "bottom-8",
+        !showControls || isScrollingDown 
           ? "opacity-0 translate-y-20 scale-90" 
           : "opacity-100 translate-y-0 scale-100"
       )}>
