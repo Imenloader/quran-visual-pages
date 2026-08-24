@@ -4,17 +4,18 @@ import { useTheme } from "@/contexts/ThemeContext";
 
 interface SourceSelectorProps {
   onClose: () => void;
+  variant?: "modal" | "sheet";
 }
 
-const SourceSelector = ({ onClose }: SourceSelectorProps) => {
+const SourceSelector = ({ onClose, variant = "modal" }: SourceSelectorProps) => {
   const { preferredImageSource, setPreferredImageSource } = useTheme();
 
-  return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-background/60 backdrop-blur-md transition-opacity duration-300" onClick={onClose}>
-      <div
-        className="bg-card border border-border rounded-[2.5rem] shadow-2xl w-[90vw] max-w-md overflow-hidden transition-all duration-300 transform scale-100 opacity-100 translate-y-0"
-        onClick={(e) => e.stopPropagation()}
-      >
+  const content = (
+    <div
+      className={variant === "modal" ? "bg-card border border-border rounded-[2.5rem] shadow-2xl w-[90vw] max-w-md overflow-hidden transition-all duration-300 transform scale-100 opacity-100 translate-y-0" : "w-full flex flex-col"}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {variant === "modal" && (
         <div className="px-6 py-5 border-b border-border bg-muted/30 flex items-center justify-between">
           <button onClick={onClose} className="p-2 rounded-full hover:bg-muted transition-colors">
             <X size={20} />
@@ -29,6 +30,8 @@ const SourceSelector = ({ onClose }: SourceSelectorProps) => {
             </div>
           </div>
         </div>
+      )}
+
 
         <div className="p-4 space-y-2 max-h-[60vh] overflow-y-auto custom-scrollbar">
           {/* Default Option */}
@@ -102,7 +105,15 @@ const SourceSelector = ({ onClose }: SourceSelectorProps) => {
             تحميل المصحف كاملاً للاستخدام بدون إنترنت
           </button>
         </div>
-      </div>
+    </div>
+  );
+  if (variant === "sheet") {
+    return content;
+  }
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-background/60 backdrop-blur-md transition-opacity duration-300" onClick={onClose}>
+      {content}
     </div>
   );
 };

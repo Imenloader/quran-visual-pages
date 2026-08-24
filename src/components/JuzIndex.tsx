@@ -8,9 +8,10 @@ import MasteryBadge from "./MasteryBadge";
 interface JuzIndexProps {
   onClose: () => void;
   currentJuz?: number;
+  variant?: "modal" | "sheet";
 }
 
-const JuzIndex = ({ onClose, currentJuz }: JuzIndexProps) => {
+const JuzIndex = ({ onClose, currentJuz, variant = "modal" }: JuzIndexProps) => {
   const { masteryData } = useHifzMastery();
   const completedJuz = useMemo(() => {
     try {
@@ -21,13 +22,12 @@ const JuzIndex = ({ onClose, currentJuz }: JuzIndexProps) => {
     }
   }, []);
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60" onClick={onClose}>
-      <div
-        className="bg-card border border-border rounded-3xl shadow-2xl w-[90vw] max-w-md max-h-[70vh] flex flex-col overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
+  const content = (
+    <div
+      className={variant === "modal" ? "bg-card border border-border rounded-3xl shadow-2xl w-[90vw] max-w-md max-h-[70vh] flex flex-col overflow-hidden" : "w-full flex flex-col h-[60vh]"}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {variant === "modal" && (
         <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-muted/30">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -42,6 +42,8 @@ const JuzIndex = ({ onClose, currentJuz }: JuzIndexProps) => {
             <X size={20} />
           </button>
         </div>
+      )}
+
 
         {/* List */}
         <div className="overflow-y-auto flex-1 p-4 space-y-2 custom-scrollbar">
@@ -96,7 +98,16 @@ const JuzIndex = ({ onClose, currentJuz }: JuzIndexProps) => {
           );
         })}
       </div>
-      </div>
+    </div>
+  );
+
+  if (variant === "sheet") {
+    return content;
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60" onClick={onClose}>
+      {content}
     </div>
   );
 };

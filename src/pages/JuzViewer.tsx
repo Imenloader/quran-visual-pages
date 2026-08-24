@@ -28,7 +28,6 @@ import { useQanet } from "@/pages/qanet/QanetContext";
 
 // --- التعديل هنا: تحميل KhatmaCelebration بشكل Lazy ---
 const KhatmaCelebration = lazy(() => import("@/components/KhatmaCelebration"));
-const SourceSelector = lazy(() => import("@/components/SourceSelector"));
 // ---------------------------------------------------
 
 const BOOKMARK_KEY = "quran-bookmark";
@@ -128,8 +127,6 @@ function JuzViewer() {
   }, [showControls, setIsFullscreen]);
   const [isScrollingDown, setIsScrollingDown] = useState(false);
   const [showPageNav, setShowPageNav] = useState(false);
-  const [showJuzIndex, setShowJuzIndex] = useState(false);
-  const [showSourceSelector, setShowSourceSelector] = useState(false);
   const [showKhatmaCelebration, setShowKhatmaCelebration] = useState(false);
 
   // Auto-stop JuzViewer player when leaving the page or switching tabs
@@ -833,9 +830,6 @@ function JuzViewer() {
         onOpenChange={setShowToolsDrawer}
         onSaveBookmark={handleSaveBookmark}
         bookmarked={!!(savedBookmark?.juz === num && savedBookmark?.page === currentPage)}
-        onTogglePageNav={() => setShowPageNav((v) => !v)}
-        onToggleJuzIndex={() => setShowJuzIndex((v) => !v)}
-        onToggleSourceSelector={() => setShowSourceSelector((v) => !v)}
         zoom={zoom}
         onZoomIn={() => setZoom((z) => Math.min(z + 20, 200))}
         onZoomOut={() => setZoom((z) => Math.max(z - 20, 40))}
@@ -857,28 +851,16 @@ function JuzViewer() {
         isPreparingOffline={isPreparingJuzOffline}
         currentPage={currentPage}
         juzNumber={num}
+        pages={pages}
+        onGoToPage={(page) => {
+          setCurrentPage(page);
+          if (scrollDirection === "vertical") {
+            scrollToPage(page);
+          }
+        }}
       />
 
-      {showPageNav && (
-        <PageNavigator
-          pages={pages}
-          currentPage={currentPage}
-          onGoToPage={(page) => {
-            setCurrentPage(page);
-            if (scrollDirection === "vertical") {
-              scrollToPage(page);
-            }
-            setShowPageNav(false);
-          }}
-          onClose={() => setShowPageNav(false)}
-        />
-      )}
 
-      <Suspense fallback={null}>
-        {showSourceSelector && (
-          <SourceSelector onClose={() => setShowSourceSelector(false)} />
-        )}
-      </Suspense>
 
       {/* --- التعديل هنا: استخدام Suspense حول KhatmaCelebration --- */}
       <Suspense fallback={null}>
@@ -1208,7 +1190,7 @@ function JuzViewer() {
         </button>
       </div>
 
-      {showJuzIndex && <JuzIndex onClose={() => setShowJuzIndex(false)} currentJuz={num} />}
+
 
       {currentSurah && (
         <div className={cn(

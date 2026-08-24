@@ -7,9 +7,10 @@ interface PageNavigatorProps {
   currentPage: number;
   onGoToPage: (page: number) => void;
   onClose: () => void;
+  variant?: "bar" | "sheet";
 }
 
-const PageNavigator = ({ pages, currentPage, onGoToPage, onClose }: PageNavigatorProps) => {
+const PageNavigator = ({ pages, currentPage, onGoToPage, onClose, variant = "bar" }: PageNavigatorProps) => {
   const [inputValue, setInputValue] = useState("");
   const activePageRef = useRef<HTMLButtonElement | null>(null);
 
@@ -27,15 +28,16 @@ const PageNavigator = ({ pages, currentPage, onGoToPage, onClose }: PageNavigato
     }
   };
 
-  return (
-    <div className="sticky top-[calc(0.25rem+2.75rem)] z-20 bg-card border-b border-border shadow-md animate-fade-in">
-      <div className="container max-w-4xl mx-auto px-4 py-3">
+  const content = (
+    <div className={variant === "bar" ? "container max-w-4xl mx-auto px-4 py-3" : "w-full flex flex-col p-4"}>
+      {variant === "bar" && (
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-naskh text-sm font-bold text-foreground">الانتقال لصفحة</h3>
           <button onClick={onClose} className="text-foreground/70 hover:text-foreground transition-colors">
             <X size={18} />
           </button>
         </div>
+      )}
 
         {/* Quick input */}
         <form onSubmit={handleSubmit} className="flex items-center gap-2 mb-3">
@@ -75,6 +77,15 @@ const PageNavigator = ({ pages, currentPage, onGoToPage, onClose }: PageNavigato
           ))}
         </div>
       </div>
+  );
+
+  if (variant === "sheet") {
+    return content;
+  }
+
+  return (
+    <div className="sticky top-[calc(0.25rem+2.75rem)] z-20 bg-card border-b border-border shadow-md animate-fade-in">
+      {content}
     </div>
   );
 };
