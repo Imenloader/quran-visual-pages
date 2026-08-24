@@ -138,7 +138,7 @@ const BottomNav = () => {
                         <Icon className="size-[18px] md:size-[20px]" strokeWidth={1.5} />
                       )}
                     </div>
-                    <span className={`font-serif text-[8px] md:text-[9px] mt-1 md:mt-1.5 font-medium tracking-wider ${
+                    <span className={`font-serif text-[8px] md:text-[9px] mt-1 md:mt-1.5 font-medium ${
                       isActive ? "text-primary" : "text-muted-foreground"
                     }`}>
                       {item.label}

@@ -235,12 +235,12 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
             className="mt-2 px-4 py-1 rounded-full bg-primary/20 backdrop-blur-xl border border-primary/5 flex items-center gap-4 transition-all duration-300 opacity-100 translate-y-0"
           >
             <div className="flex items-center gap-2">
-              <span className="text-[9px] font-bold text-gold/40 uppercase tracking-widest">الآية</span>
+              <span className="text-[9px] font-bold text-gold/40 uppercase">الآية</span>
               <span className="text-sm font-serif text-gold font-medium">{toArabicNumber(currentAyahIndex + 1)}</span>
             </div>
             <div className="h-3 w-px bg-primary/5" />
             <div className="flex items-center gap-2">
-              <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">من</span>
+              <span className="text-[9px] font-bold text-white/20 uppercase">من</span>
               <span className="text-sm font-serif text-white/60">{toArabicNumber(currentAyahs.length)}</span>
             </div>
           </div>
@@ -270,7 +270,7 @@ const QuranPlayerBar: React.FC<QuranPlayerBarProps> = ({ onPlayFirst, className,
                 </Button>
                 
                 <div className="text-center">
-                  <h2 className="text-gold font-serif text-[10px] font-bold tracking-[0.3em] uppercase mb-1 opacity-50">الآن يتلى</h2>
+                  <h2 className="text-gold font-serif text-[10px] font-bold uppercase mb-1 opacity-50">الآن يتلى</h2>
                   <p className="text-lg font-serif font-bold text-gold">
                     {currentSurah ? currentSurah.name : "لم يتم اختيار سورة"}
                   </p>

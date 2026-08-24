@@ -332,7 +332,7 @@ const Profile = () => {
               className="px-3 py-1.5 rounded-full bg-gold/20 backdrop-blur-md flex items-center gap-2 text-gold hover:bg-gold/30 transition-all border border-gold/20 shadow-gold-glow"
             >
               <Wand2 size={16} strokeWidth={1.5} />
-              <span className="text-[10px] font-bold uppercase tracking-widest">{t("profile.settings")}</span>
+              <span className="text-[10px] font-bold uppercase">{t("profile.settings")}</span>
             </button>
           </div>
 
@@ -382,19 +382,19 @@ const Profile = () => {
               </div>
             </div>
             
-            <h1 className="text-3xl md:text-5xl font-serif font-bold text-white mb-2 tracking-tight">
+            <h1 className="text-3xl md:text-5xl font-serif font-bold text-white mb-2">
               {profile.name}
             </h1>
             
             <div className="flex flex-wrap justify-center items-center gap-3 mb-8">
-              <span className="px-3 py-1 rounded-full bg-gold/20 text-gold text-[10px] font-bold uppercase tracking-widest border border-gold/20 backdrop-blur-md">
+              <span className="px-3 py-1 rounded-full bg-gold/20 text-gold text-[10px] font-bold uppercase border border-gold/20 backdrop-blur-md">
                 {t("profile.level")} {toArabicNumber(level)}: {levelName}
               </span>
-              <span className="px-3 py-1 rounded-full bg-primary/20 text-white/90 text-[10px] font-bold uppercase tracking-widest border border-primary/10 backdrop-blur-md">
+              <span className="px-3 py-1 rounded-full bg-primary/20 text-white/90 text-[10px] font-bold uppercase border border-primary/10 backdrop-blur-md">
                 {toArabicNumber(profile.points)} {t("profile.points")}
               </span>
               {profile.gender && profile.gender !== 'unspecified' && (
-                <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border backdrop-blur-md ${
+                <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase border backdrop-blur-md ${
                   profile.gender === 'male' 
                     ? "bg-blue-500/20 text-blue-200 border-blue-500/30" 
                     : "bg-rose-500/20 text-rose-200 border-rose-500/30"
@@ -456,7 +456,7 @@ const Profile = () => {
                 <BookOpen size={16} />
               </div>
               <p className="text-xl font-serif font-bold text-primary">{toArabicNumber(profile.totalAyahsRead)}</p>
-              <p className="text-[9px] font-bold text-primary/80 uppercase tracking-widest">{t("profile.ayahsRead")}</p>
+              <p className="text-[9px] font-bold text-primary/80 uppercase">{t("profile.ayahsRead")}</p>
             </div>
           </ScrollReveal>
           
@@ -470,7 +470,7 @@ const Profile = () => {
                 <RotateCcw size={16} />
               </button>
               <p className="text-xl font-serif font-bold text-primary">{toArabicNumber(profile.totalPagesRead)}</p>
-              <p className="text-[9px] font-bold text-primary/80 uppercase tracking-widest">{t("profile.pagesRead")}</p>
+              <p className="text-[9px] font-bold text-primary/80 uppercase">{t("profile.pagesRead")}</p>
             </div>
           </ScrollReveal>
 
@@ -480,7 +480,7 @@ const Profile = () => {
                 <Trophy size={16} />
               </div>
               <p className="text-xl font-serif font-bold text-primary">{toArabicNumber(profile.totalJuzCompleted)}</p>
-              <p className="text-[9px] font-bold text-primary/80 uppercase tracking-widest">{t("profile.juzCompleted")}</p>
+              <p className="text-[9px] font-bold text-primary/80 uppercase">{t("profile.juzCompleted")}</p>
             </div>
           </ScrollReveal>
 
@@ -490,7 +490,7 @@ const Profile = () => {
                 <Sparkles size={16} />
               </div>
               <p className="text-xl font-serif font-bold text-primary">{toArabicNumber(profile.totalAthkarRecited)}</p>
-              <p className="text-[9px] font-bold text-primary/80 uppercase tracking-widest">{t("profile.athkarRecited")}</p>
+              <p className="text-[9px] font-bold text-primary/80 uppercase">{t("profile.athkarRecited")}</p>
             </div>
           </ScrollReveal>
 
@@ -500,7 +500,7 @@ const Profile = () => {
                 <Flame size={16} />
               </div>
               <p className="text-xl font-serif font-bold text-orange-500">{toArabicNumber(profile.daysActive)}</p>
-              <p className="text-[9px] font-bold text-orange-500/80 uppercase tracking-widest">{t("profile.dayStreak")}</p>
+              <p className="text-[9px] font-bold text-orange-500/80 uppercase">{t("profile.dayStreak")}</p>
             </div>
           </ScrollReveal>
 
@@ -510,7 +510,7 @@ const Profile = () => {
                 <Wand2 size={16} />
               </div>
               <p className="text-xl font-serif font-bold text-primary">{toArabicNumber(nextLevelPoints - profile.points)}</p>
-              <p className="text-[9px] font-bold text-primary/70 uppercase tracking-widest">{t("profile.pointsToNext")}</p>
+              <p className="text-[9px] font-bold text-primary/70 uppercase">{t("profile.pointsToNext")}</p>
             </div>
           </ScrollReveal>
         </div>
@@ -534,7 +534,7 @@ const Profile = () => {
               />
             </div>
             
-            <div className="flex justify-between text-[9px] font-bold text-primary/70 uppercase tracking-widest">
+            <div className="flex justify-between text-[9px] font-bold text-primary/70 uppercase">
               <span>{t("profile.level")} {toArabicNumber(level)}</span>
               <span>{t("profile.level")} {toArabicNumber(level + 1)}</span>
             </div>
@@ -591,7 +591,7 @@ const Profile = () => {
                       </div>
                     )}
                   </div>
-                  <span className={`text-[8px] font-bold uppercase tracking-widest text-center ${badge.earned ? "text-primary" : "text-muted-foreground"}`}>
+                  <span className={`text-[8px] font-bold uppercase text-center ${badge.earned ? "text-primary" : "text-muted-foreground"}`}>
                     {badge.label}
                   </span>
                 </button>
@@ -620,7 +620,7 @@ const Profile = () => {
 
               <div className="space-y-2">
                 <h3 className="text-2xl font-serif font-bold text-primary">{selectedBadge.label}</h3>
-                <div className="inline-flex px-3 py-1 rounded-full bg-primary/5 text-[10px] font-bold uppercase tracking-widest text-primary/60">
+                <div className="inline-flex px-3 py-1 rounded-full bg-primary/5 text-[10px] font-bold uppercase text-primary/60">
                   {selectedBadge.earned ? (isAr ? "مكتمل" : "EARNED") : (isAr ? "قيد التقدم" : "IN PROGRESS")}
                 </div>
               </div>
@@ -672,7 +672,7 @@ const Profile = () => {
                       <p className={`text-sm font-serif font-bold ${quest.completed ? "text-primary/60 line-through" : "text-primary"}`}>
                         {quest.label}
                       </p>
-                      <p className="text-[9px] font-bold text-gold uppercase tracking-widest">+{toArabicNumber(quest.points)} XP</p>
+                      <p className="text-[9px] font-bold text-gold uppercase">+{toArabicNumber(quest.points)} XP</p>
                     </div>
                   </div>
                   
@@ -817,7 +817,7 @@ const Profile = () => {
             <div className={`w-full md:w-48 bg-primary/5 border-b md:border-b-0 ${i18n.language === 'ar' ? 'md:border-l' : 'md:border-r'} border-border/20 p-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-x-visible no-scrollbar relative z-10`}>
               <div className={`hidden md:block mb-4 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
                 <h2 className="text-lg font-serif font-bold text-primary">{t("profile.settings")}</h2>
-                <p className="text-[8px] font-bold text-primary/70 uppercase tracking-widest mt-0.5">{t("profile.controlMenu")}</p>
+                <p className="text-[8px] font-bold text-primary/70 uppercase mt-0.5">{t("profile.controlMenu")}</p>
               </div>
               
               {SETTINGS_CATEGORIES.map(cat => {
@@ -882,7 +882,7 @@ const Profile = () => {
                           }`}
                         >
                           <p className="text-xs font-serif font-bold mb-0.5">{lang.label}</p>
-                          <p className="text-[6px] font-bold uppercase tracking-widest opacity-50">{lang.sub}</p>
+                          <p className="text-[6px] font-bold uppercase opacity-50">{lang.sub}</p>
                         </button>
                       ))}
                     </div>
@@ -1276,11 +1276,11 @@ const Profile = () => {
                         </div>
                         <div className="text-center">
                           <h4 className="text-sm font-serif font-bold text-white">{profile.name}</h4>
-                          <p className="text-[7px] text-white/60 uppercase tracking-widest mt-0.5">{levelName}</p>
+                          <p className="text-[7px] text-white/60 uppercase mt-0.5">{levelName}</p>
                         </div>
                         <button
                           onClick={() => setIsEditingProfile(true)}
-                          className="px-2.5 py-1 rounded-full bg-gold text-primary font-bold text-[7px] uppercase tracking-widest hover:bg-gold/90 transition-all"
+                          className="px-2.5 py-1 rounded-full bg-gold text-primary font-bold text-[7px] uppercase hover:bg-gold/90 transition-all"
                         >
                           {t("profile.editProfile")}
                         </button>
@@ -1303,14 +1303,14 @@ const Profile = () => {
                     </div>
 
                     <div className="p-2.5 rounded-xl bg-primary/5 border border-primary/5 space-y-1.5">
-                      <h4 className="font-serif font-bold text-primary text-[9px] uppercase tracking-widest opacity-80">{t("profile.advancedStats")}</h4>
+                      <h4 className="font-serif font-bold text-primary text-[9px] uppercase opacity-80">{t("profile.advancedStats")}</h4>
                       <div className="grid grid-cols-2 gap-1.5">
                         <div className="p-1.5 rounded-lg bg-card border border-border/20">
-                          <p className="text-[6px] font-bold text-primary/70 uppercase tracking-widest">{t("profile.joinedDate")}</p>
+                          <p className="text-[6px] font-bold text-primary/70 uppercase">{t("profile.joinedDate")}</p>
                           <p className="font-serif font-bold text-primary mt-0.5 text-[9px]">{formatDate(profile.joinedDate, isAr)}</p>
                         </div>
                         <div className="p-1.5 rounded-lg bg-card border border-border/20">
-                          <p className="text-[6px] font-bold text-primary/70 uppercase tracking-widest">{t("profile.totalPoints")}</p>
+                          <p className="text-[6px] font-bold text-primary/70 uppercase">{t("profile.totalPoints")}</p>
                           <p className="font-serif font-bold text-primary mt-0.5 text-[9px]">{i18n.language === 'ar' ? toArabicNumber(profile.points) : profile.points}</p>
                         </div>
                       </div>
@@ -1343,7 +1343,7 @@ const Profile = () => {
 
             <div className="space-y-4 relative z-10">
               <div className="space-y-1.5">
-                <label className={`text-[9px] font-bold text-primary/70 uppercase tracking-widest px-2 block ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t("profile.name")}</label>
+                <label className={`text-[9px] font-bold text-primary/70 uppercase px-2 block ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t("profile.name")}</label>
                 <input
                   type="text"
                   value={newName}
@@ -1354,7 +1354,7 @@ const Profile = () => {
               </div>
 
               <div className="space-y-1.5">
-                <label className={`text-[9px] font-bold text-primary/70 uppercase tracking-widest px-2 block ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{isAr ? "الجنس" : "Gender"}</label>
+                <label className={`text-[9px] font-bold text-primary/70 uppercase px-2 block ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{isAr ? "الجنس" : "Gender"}</label>
                 <div className="grid grid-cols-2 gap-2">
                   {[
                     { id: 'male' as const, label: isAr ? 'ذكر' : 'Male', icon: <User size={16} className="text-blue-500" /> },
@@ -1383,7 +1383,7 @@ const Profile = () => {
               </div>
 
               <div className="space-y-3">
-                <label className={`text-[9px] font-bold text-primary/70 uppercase tracking-widest px-2 block ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t("profile.chooseAvatar")}</label>
+                <label className={`text-[9px] font-bold text-primary/70 uppercase px-2 block ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t("profile.chooseAvatar")}</label>
                 
                 <div className="flex flex-col items-center gap-3 p-4 rounded-xl bg-primary/5 border border-primary/10">
                   <div className="relative">

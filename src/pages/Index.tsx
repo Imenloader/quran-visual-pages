@@ -162,9 +162,13 @@ const Index = () => {
                   <div className="w-12 h-12 rounded-xl bg-gold/20 flex items-center justify-center text-gold shadow-inner shrink-0">
                     <BookMarked size={24} strokeWidth={1.5} />
                   </div>
-                  <div className="flex flex-col">
+                  <div className="flex flex-col text-right">
                     <span className="text-xs font-bold text-gold/80">{t("index.hero.lastRead")}</span>
-                    <span className="font-serif text-lg">{t("index.hero.juz")} {i18n.language === "ar" ? toArabicNumber(bookmark.juz) : bookmark.juz}</span>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="font-serif text-lg font-bold">{t("index.hero.juz")} {i18n.language === "ar" ? toArabicNumber(bookmark.juz) : bookmark.juz}</span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-white/30"></span>
+                      <span className="font-serif text-sm opacity-80">{t("index.hero.page")} {i18n.language === "ar" ? toArabicNumber(bookmark.page) : bookmark.page}</span>
+                    </div>
                   </div>
                 </div>
                 <button

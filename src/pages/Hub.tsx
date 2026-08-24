@@ -359,7 +359,7 @@ const Hub = () => {
                     {downloadAllState === "downloading" && (
                       <div className="flex items-center gap-3 px-4 py-1.5 rounded-full bg-black/5 backdrop-blur-sm border border-black/5">
                         <Loader2 className="size-[12px] text-accent" />
-                        <span className="text-[10px] font-bold tracking-widest uppercase text-accent">{t("hub.offline.downloading")}</span>
+                        <span className="text-[10px] font-bold uppercase text-accent">{t("hub.offline.downloading")}</span>
                       </div>
                     )}
                   </div>
@@ -384,7 +384,7 @@ const Hub = () => {
                   ) : (
                     <div className="space-y-6">
                       <div className="space-y-3">
-                        <div className={`flex justify-between text-[11px] font-bold tracking-widest uppercase ${downloadAllState === "done" ? "text-white" : "text-muted-foreground"}`}>
+                        <div className={`flex justify-between text-[11px] font-bold uppercase ${downloadAllState === "done" ? "text-white" : "text-muted-foreground"}`}>
                           <span>{t("hub.offline.progress")}: {i18n.language === "ar" ? toArabicNumber(downloadAllProgress) : downloadAllProgress}%</span>
                           <span>{i18n.language === "ar" ? toArabicNumber(Math.round((downloadAllProgress / 100) * 604)) : Math.round((downloadAllProgress / 100) * 604)} / {i18n.language === "ar" ? toArabicNumber(604) : 604}</span>
                         </div>

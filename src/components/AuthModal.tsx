@@ -221,7 +221,7 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
 
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-border/40" />
-            <span className="text-[10px] text-primary/30 font-bold uppercase tracking-widest">
+            <span className="text-[10px] text-primary/30 font-bold uppercase">
               {isAr ? "أو" : "or"}
             </span>
             <div className="flex-1 h-px bg-border/40" />
@@ -246,7 +246,7 @@ const AuthModal = ({ isOpen, onClose, title, subtitle }: AuthModalProps) => {
 
             {tab === "signup" && (
               <div className="space-y-2">
-                <p className={`text-[10px] font-bold text-primary/70 uppercase tracking-widest px-1 ${isAr ? 'text-right' : 'text-left'}`}>
+                <p className={`text-[10px] font-bold text-primary/70 uppercase px-1 ${isAr ? 'text-right' : 'text-left'}`}>
                   {isAr ? "تحديد الجنس (إجباري)" : "Select Gender (Mandatory)"}
                 </p>
                 <div className="flex gap-2">

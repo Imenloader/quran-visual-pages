@@ -80,7 +80,7 @@ const JuzIndex = ({ onClose, currentJuz, variant = "modal" }: JuzIndexProps) => 
                   <div className="flex items-center gap-2">
                     <p className="font-amiri text-base font-bold text-foreground truncate group-hover:text-primary transition-colors">{juz.nameAr}</p>
                     {isCompleted && (
-                      <span className="text-[8px] bg-emerald-500/10 text-emerald-500 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-tighter">مكتمل</span>
+                      <span className="text-[8px] bg-emerald-500/10 text-emerald-500 px-1.5 py-0.5 rounded-full font-bold uppercase">مكتمل</span>
                     )}
                     {masteryData[juz.startPage] && <MasteryBadge level={masteryData[juz.startPage].masteryLevel} />}
                   </div>
@@ -89,7 +89,7 @@ const JuzIndex = ({ onClose, currentJuz, variant = "modal" }: JuzIndexProps) => 
 
               {/* Page range */}
               <div className="text-left">
-                <span className="text-[10px] block text-muted-foreground/60 uppercase tracking-tighter">الصفحات</span>
+                <span className="text-[10px] block text-muted-foreground/60 uppercase">الصفحات</span>
                 <span className="text-xs text-foreground font-naskh font-bold">
                   {juz.startPage} - {juz.endPage}
                 </span>

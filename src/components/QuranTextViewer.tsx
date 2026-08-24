@@ -325,7 +325,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
         <div className="mb-4 flex justify-center">
           <div className="px-4 py-2 rounded-full bg-accent/10 border border-accent/20 flex items-center gap-2 text-accent animate-pulse">
             <Sparkles size={14} />
-            <span className="text-[10px] font-bold font-naskh uppercase tracking-wider">تزامن الآيات مفعل</span>
+            <span className="text-[10px] font-bold font-naskh uppercase">تزامن الآيات مفعل</span>
           </div>
         </div>
       )}
@@ -370,7 +370,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
                     <div className="w-full flex flex-col items-center py-10 md:py-14 space-y-6">
                       <div className="relative group">
                         <div className="absolute -inset-8 bg-accent/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                        <div className="text-4xl sm:text-5xl md:text-7xl font-quran text-primary tracking-wide leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+                        <div className="text-4xl sm:text-5xl md:text-7xl font-quran text-primary leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
                           بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
                         </div>
                       </div>
@@ -407,7 +407,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
         <div className="w-12 h-12 rounded-full border-2 border-accent/20 flex items-center justify-center text-accent font-serif text-lg">
           {toArabicNumber(currentJuz)}
         </div>
-        <span className="text-[10px] font-bold text-accent uppercase tracking-[0.3em]">نهاية الجزء</span>
+        <span className="text-[10px] font-bold text-accent uppercase">نهاية الجزء</span>
       </div>
 
       {/* Tafsir Slide-up Panel */}
@@ -437,7 +437,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
                       className="absolute bottom-full right-0 mb-2 w-48 bg-card border border-border/40 rounded-2xl shadow-2xl overflow-hidden z-[100] transition-all duration-300 opacity-100 scale-100"
                     >
                       <div className="p-3 border-b border-border/10 bg-muted/30">
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider text-right">{t("favorites.addToCollection") || "أضف إلى مجموعة"}</p>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase text-right">{t("favorites.addToCollection") || "أضف إلى مجموعة"}</p>
                       </div>
                       <div className="max-h-48 overflow-y-auto">
                         <button

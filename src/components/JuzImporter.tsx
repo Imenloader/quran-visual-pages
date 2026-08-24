@@ -87,7 +87,7 @@ const JuzImporter = () => {
             <div className="p-6 overflow-y-auto space-y-6 flex-1 custom-scrollbar">
               {/* Juz Selection */}
               <div className="space-y-3">
-                <label className="text-sm font-bold text-primary/70 uppercase tracking-widest px-1 block text-right">اختر الجزء</label>
+                <label className="text-sm font-bold text-primary/70 uppercase px-1 block text-right">اختر الجزء</label>
                 <div className="grid grid-cols-5 sm:grid-cols-6 gap-2" dir="rtl">
                   {juzData.map((juz) => (
                     <button
@@ -111,7 +111,7 @@ const JuzImporter = () => {
                   <span className="text-[10px] font-bold text-accent bg-accent/10 px-2 py-0.5 rounded-full">
                     سيتم الحفاظ على التشكيل وعلامات التجويد بنسبة ١٠٠٪
                   </span>
-                  <label className="text-sm font-bold text-primary/70 uppercase tracking-widest">نص الجزء</label>
+                  <label className="text-sm font-bold text-primary/70 uppercase">نص الجزء</label>
                 </div>
                 <textarea
                   value={juzText}

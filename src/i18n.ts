@@ -514,7 +514,8 @@ const resources = {
           "start": "Start Reading",
           "lastRead": "Last Read Position",
           "page": "Page",
-          "ayah": "Ayah"
+          "ayah": "Ayah",
+          "juz": "Juz"
         },
         "stats": {
           "title": "Reading Stats",
@@ -1118,7 +1119,8 @@ const resources = {
           "start": "ابدأ القراءة",
           "lastRead": "آخر موضع قراءة",
           "page": "صفحة",
-          "ayah": "آية"
+          "ayah": "آية",
+          "juz": "الجزء"
         },
         "stats": {
           "title": "إحصائيات القراءة",

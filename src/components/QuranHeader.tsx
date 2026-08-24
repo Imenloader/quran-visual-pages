@@ -24,7 +24,7 @@ const QuranHeader = ({
 
   return (
     <header className={`relative w-full overflow-x-hidden bg-emerald-deep flex items-center justify-center shadow-islamic ${
-      isCompact ? "min-h-[180px] md:min-h-[300px]" : "min-h-[340px] md:min-h-[500px]"
+      isCompact ? "min-h-[120px] md:min-h-[180px]" : "min-h-[200px] md:min-h-[300px]"
     }`}>
       {/* Back Button */}
       {showBack && (
@@ -63,7 +63,7 @@ const QuranHeader = ({
         {/* Main Title */}
         <div className="relative mb-6 md:mb-14 w-full max-w-full overflow-hidden">
           <div className="relative transform-gpu">
-            <h1 className="font-serif text-3xl sm:text-5xl md:text-7xl lg:text-[8rem] font-light text-white leading-tight tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] break-words px-4">
+            <h1 className="font-serif text-3xl sm:text-5xl md:text-7xl lg:text-[8rem] font-light text-white leading-tight drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] break-words px-4">
               {displayTitle}
             </h1>
             
