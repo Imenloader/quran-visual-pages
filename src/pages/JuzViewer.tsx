@@ -783,7 +783,7 @@ function JuzViewer() {
 
   return (
     <div
-      className={`min-h-dvh bg-background selection:bg-accent/20 flex flex-col ${isFullscreen ? "fullscreen-reading" : ""}`}
+      className={`min-h-dvh h-dvh bg-background selection:bg-accent/20 flex flex-col ${isFullscreen ? "fullscreen-reading" : ""}`}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
@@ -922,7 +922,7 @@ function JuzViewer() {
       )}
 
       <main
-        className={`w-full flex-1 flex flex-col items-center transition-all duration-500`}
+        className={`w-full flex-1 flex flex-col items-center transition-all duration-500 relative`}
         onClick={handleScreenTap}
       >
         {tajweedMode && !hifzMode && readingMode === "image" && (
@@ -944,7 +944,7 @@ function JuzViewer() {
         >
           <div 
             className={cn(
-              "min-h-full w-full flex flex-col gap-0 mx-auto origin-top",
+              "flex-1 h-full min-h-full w-full flex flex-col gap-0 mx-auto origin-top",
               !isPinching && "transition-[width] duration-300 ease-out"
             )}
             style={{ 
