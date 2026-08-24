@@ -61,7 +61,7 @@ const NamesDirectory = () => {
               placeholder={i18n.language === 'ar' ? "ابحث عن اسم أو معنى..." : "Search for a name or meaning..."}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-14 pr-12 pl-6 rounded-2xl bg-card border border-border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-lg"
+              className="w-full h-14 pr-12 pl-6 rounded-2xl glass-card hover:-translate-y-1 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-lg"
             />
           </div>
           <div className="flex p-1 bg-muted/50 rounded-2xl">
@@ -83,7 +83,7 @@ const NamesDirectory = () => {
           {filteredNames.map((item) => (
             <div 
               key={item.name}
-              className="p-6 rounded-[2rem] bg-card border border-border hover:border-primary/40 hover:shadow-xl transition-all duration-300 group relative active:scale-98"
+              className="p-6 rounded-[2rem] glass-card hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl transition-all duration-300 group relative active:scale-98"
             >
               <button 
                 onClick={() => toggleFavorite(item.name)}

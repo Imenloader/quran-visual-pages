@@ -166,7 +166,7 @@ const CommunityPosts = () => {
       )}
 
       {/* Create Post Area */}
-      <div className="bg-card border border-border/40 p-4 rounded-3xl shadow-sm">
+      <div className="glass-card p-4 rounded-3xl shadow-sm">
         <form onSubmit={handleCreatePost}>
           <div className="flex gap-4">
             <img 
@@ -333,7 +333,7 @@ const PostCard = ({ post }: { post: CommunityPost }) => {
   };
 
   return (
-    <div className="bg-card border border-border/40 p-5 rounded-3xl shadow-sm">
+    <div className="glass-card p-5 rounded-3xl shadow-sm">
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <Link to={`/profile/${post.authorId}`} className="flex items-center gap-3 group">

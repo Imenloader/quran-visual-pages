@@ -179,7 +179,7 @@ const QiblaFinder = () => {
           >
             <div className="relative w-full h-full flex items-center justify-center">
               <div className={`w-1.5 sm:w-2 h-[50%] rounded-full relative transition-colors duration-500 ${isFacingQibla ? "bg-primary" : arMode ? "bg-white/40" : "bg-gold/40"}`}>
-                <div className={`absolute -top-4 sm:-top-6 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-500 ${isFacingQibla ? "bg-primary scale-110" : "bg-card border border-border"}`}>
+                <div className={`absolute -top-4 sm:-top-6 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-500 ${isFacingQibla ? "bg-primary scale-110" : "glass-card hover:-translate-y-1"}`}>
                   <Compass className={`w-6 h-6 sm:w-7 sm:h-7 transition-colors duration-500 ${isFacingQibla ? "text-white" : "text-gold"}`} />
                 </div>
               </div>

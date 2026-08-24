@@ -134,7 +134,7 @@ export default function QiyamAya100() {
 
       <div className="max-w-2xl mx-auto px-4 py-8 space-y-10">
         {/* Progress Tracker */}
-        <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-soft sticky top-20 z-40">
+        <div className="glass-card hover:-translate-y-1 rounded-[2.5rem] p-8 shadow-soft sticky top-20 z-40">
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">التقدم الحالي</p>

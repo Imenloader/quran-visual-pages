@@ -67,7 +67,7 @@ function CustomSelect({
 
       {isOpen && (
         <div
-          className="absolute z-[100] w-full mt-2 bg-card border border-border/40 rounded-2xl hover:-translate-y-1 overflow-hidden transition-all duration-300 opacity-100 translate-y-0"
+          className="absolute z-[100] w-full mt-2 glass-card hover:-translate-y-1/40 rounded-2xl hover:-translate-y-1 overflow-hidden transition-all duration-300 opacity-100 translate-y-0"
         >
           <div className="max-h-60 overflow-y-auto py-2">
             {options.map((opt) => (
@@ -197,7 +197,7 @@ function NextPrayerCountdown({
   ];
 
   return (
-    <section className="relative overflow-hidden bg-card border border-border/40 rounded-[2rem] md:rounded-[2.5rem] p-5 md:p-6 hover:-translate-y-1 group min-h-[180px] md:min-h-[220px] flex items-center transition-all duration-500">
+    <section className="relative overflow-hidden glass-card hover:-translate-y-1/40 rounded-[2rem] md:rounded-[2.5rem] p-5 md:p-6 hover:-translate-y-1 group min-h-[180px] md:min-h-[220px] flex items-center transition-all duration-500">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-gold/10 pointer-events-none" />
       <div className="absolute top-0 right-0 w-60 h-60 md:w-80 md:h-80 bg-gold/15 rounded-full -mr-30 md:-mr-40 -mt-30 md:-mt-40 blur-[80px] md:blur-[120px]" />
       <div className="absolute bottom-0 left-0 w-60 h-60 md:w-80 md:h-80 bg-primary/15 rounded-full -ml-30 md:-ml-40 -mb-30 md:-mb-40 blur-[80px] md:blur-[120px]" />
@@ -226,7 +226,7 @@ function NextPrayerCountdown({
           >
             {prayerIcon}
             {/* Small Qibla Compass */}
-            <div className="absolute -top-2 -right-2 w-8 h-8 md:w-10 md:h-10 bg-card border border-border shadow-lg rounded-full flex items-center justify-center overflow-hidden">
+            <div className="absolute -top-2 -right-2 w-8 h-8 md:w-10 md:h-10 glass-card hover:-translate-y-1 shadow-lg rounded-full flex items-center justify-center overflow-hidden">
                <div 
                 className="transition-transform duration-500 ease-out"
                 style={{ transform: `rotate(${relativeQibla}deg)` }}
@@ -475,7 +475,7 @@ export default function PrayerTimes() {
         )}
 
         {!settings.latitude ? (
-          <section className="bg-card border border-border rounded-xl p-5 text-center shadow-sm">
+          <section className="glass-card rounded-[2rem] p-5 hover:-translate-y-1 text-center shadow-sm">
             <div className="w-12 h-12 rounded-full gradient-islamic flex items-center justify-center mx-auto mb-3">
               <MapPin size={22} className="text-primary-foreground" />
             </div>
@@ -556,7 +556,7 @@ export default function PrayerTimes() {
                                   ? "bg-emerald-500 text-white shadow-emerald-500/30"
                                   : isNext 
                                     ? "bg-primary text-white scale-110 shadow-primary/30 rotate-2 ring-4 ring-primary/10" 
-                                    : "bg-card border border-border/40 text-muted-foreground group-hover:scale-105"
+                                    : "glass-card hover:-translate-y-1/40 text-muted-foreground group-hover:scale-105"
                               }`}
                             >
                               {history[today]?.includes(prayer.toLowerCase()) ? <CheckCircle2 className="w-6 h-6 md:w-8 md:h-8" /> : prayerIcons[prayer]}
@@ -674,7 +674,7 @@ export default function PrayerTimes() {
                 <div className="bg-muted/10 divide-y divide-border/20 border-t border-border/20 animate-in fade-in slide-in-from-top-2">
                    {sunnahPrayers.map((prayer) => (
                      <div key={prayer} className="grid grid-cols-[60px_1fr_80px] items-center gap-2 px-6 py-4">
-                        <div className="w-10 h-10 rounded-xl bg-card border border-border/40 flex items-center justify-center text-xl shadow-sm">
+                        <div className="w-10 h-10 rounded-xl glass-card hover:-translate-y-1/40 flex items-center justify-center text-xl shadow-sm">
                           {prayerIcons[prayer]}
                         </div>
                         <div className="text-right">
@@ -717,7 +717,7 @@ export default function PrayerTimes() {
                 <button
                   onClick={handleEnableNotifications}
                   className={`w-12 h-7 rounded-full transition-all relative active:scale-95 ${
-                    settings.notificationsEnabled ? "bg-accent" : "bg-muted border border-border"
+                    settings.notificationsEnabled ? "bg-accent" : "bg-muted/50 border border-border/40"
                   }`}
                 >
                   <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-card shadow-sm transition-all ${
@@ -992,7 +992,7 @@ export default function PrayerTimes() {
                     >
                       {locationLoading ? <Loader2 size={16} className="animate-spin" /> : <MapPin size={16} />}
                     </button>
-                    <div className="flex-1 bg-muted border border-border rounded-xl px-4 py-2.5 text-right">
+                    <div className="flex-1 bg-muted/50 border border-border/40 rounded-xl px-4 py-2.5 text-right">
                       <p className="text-sm font-naskh text-foreground">{settings.cityName || "غير محدد"}</p>
                       <p className="text-[10px] text-muted-foreground font-naskh">
                         {settings.latitude?.toFixed(4)}, {settings.longitude?.toFixed(4)}
@@ -1009,7 +1009,7 @@ export default function PrayerTimes() {
                       step="0.001"
                       value={settings.latitude || ""}
                       onChange={(e) => updateSettings({ latitude: parseFloat(e.target.value) || null })}
-                      className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm font-naskh text-foreground text-right"
+                      className="w-full bg-muted/50 border border-border/40 rounded-lg px-3 py-2 text-sm font-naskh text-foreground text-right"
                       placeholder="مثال: 30.044"
                     />
                   </div>
@@ -1020,7 +1020,7 @@ export default function PrayerTimes() {
                       step="0.001"
                       value={settings.longitude || ""}
                       onChange={(e) => updateSettings({ longitude: parseFloat(e.target.value) || null })}
-                      className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm font-naskh text-foreground text-right"
+                      className="w-full bg-muted/50 border border-border/40 rounded-lg px-3 py-2 text-sm font-naskh text-foreground text-right"
                       placeholder="مثال: 31.235"
                     />
                   </div>

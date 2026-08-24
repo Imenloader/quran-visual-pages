@@ -90,7 +90,7 @@ const KhatmaPlanner = () => {
           <div className="w-10 h-10" />
         </header>
 
-        <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-islamic space-y-8">
+        <div className="glass-card hover:-translate-y-1 rounded-[2.5rem] p-8 shadow-islamic space-y-8">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <label className="text-sm font-bold font-naskh text-foreground">

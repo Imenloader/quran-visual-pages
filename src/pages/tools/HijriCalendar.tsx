@@ -312,7 +312,7 @@ const HijriCalendar = () => {
             </div>
           )}
 
-          <div className="bg-card border border-border rounded-3xl p-6 space-y-6 shadow-soft">
+          <div className="glass-card hover:-translate-y-1 rounded-3xl p-6 space-y-6 shadow-soft">
             <div className="flex items-center justify-between">
               <button 
                 onClick={handlePrevMonth}

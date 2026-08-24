@@ -469,7 +469,7 @@ const CommunityHub = () => {
                     </div>
                   </div>
 
-                  <div className="rounded-[2rem] bg-card border border-border/40 p-6 shadow-sm space-y-4">
+                  <div className="rounded-[2rem] glass-card p-6 shadow-sm space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">{isAr ? "جاهزية اليوم" : "Daily readiness"}</p>
@@ -490,7 +490,7 @@ const CommunityHub = () => {
 
                 <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {todayActions.map((item) => (
-                    <article key={item.id} className="rounded-[2rem] bg-card border border-border/40 p-5 shadow-sm hover:shadow-md transition-all">
+                    <article key={item.id} className="rounded-[2rem] glass-card p-5 shadow-sm hover:shadow-md transition-all">
                       <div className="flex gap-4 items-start">
                         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${item.accent}`}>
                           <item.icon size={22} />
@@ -514,7 +514,7 @@ const CommunityHub = () => {
                 </section>
 
                 <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="rounded-[2rem] bg-card border border-border/40 p-6 shadow-sm space-y-5">
+                  <div className="rounded-[2rem] glass-card p-6 shadow-sm space-y-5">
                     <div className="flex items-center gap-3">
                       <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-600">
                         <Search size={22} />
@@ -538,7 +538,7 @@ const CommunityHub = () => {
                     </div>
                   </div>
 
-                  <div className="rounded-[2rem] bg-card border border-border/40 p-6 shadow-sm space-y-5">
+                  <div className="rounded-[2rem] glass-card p-6 shadow-sm space-y-5">
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
                         <div className="p-3 rounded-2xl bg-rose-500/10 text-rose-600">
@@ -584,14 +584,14 @@ const CommunityHub = () => {
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {adminMetrics.map(metric => (
-                        <div key={metric.label} className="rounded-2xl bg-card p-4 border border-border/30">
+                        <div key={metric.label} className="rounded-2xl glass-card p-4">
                           <p className="text-[9px] uppercase tracking-widest text-muted-foreground font-bold">{metric.label}</p>
                           <p className="text-xl font-bold text-primary mt-1">{metric.value}</p>
                         </div>
                       ))}
                     </div>
 
-                    <div className="rounded-2xl bg-card border border-border/30 p-4 space-y-3">
+                    <div className="rounded-2xl glass-card p-4 space-y-3">
                       <div className="flex items-center justify-between">
                         <h4 className="text-sm font-bold text-primary">{isAr ? "أحدث البلاغات" : "Latest reports"}</h4>
                         <span className="text-[10px] font-bold text-muted-foreground">{formatCount(communityReports.length, isAr)}</span>

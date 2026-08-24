@@ -147,7 +147,7 @@ const PrayerTracker = () => {
         {activeTab === "today" ? (
           <div
             key="today"
-            className="bg-card border border-border rounded-3xl p-6 space-y-3 shadow-soft"
+            className="glass-card hover:-translate-y-1 rounded-3xl p-6 space-y-3 shadow-soft"
           >
             <h2 className="font-bold font-naskh text-foreground mb-2">
               {isAr ? "الصلوات الخمس" : "Five Daily Prayers"}
@@ -194,7 +194,7 @@ const PrayerTracker = () => {
                   : "Track the number of makeup prayers you owe and your progress repaying them."}
               </p>
             </div>
-            <div className="bg-card border border-border rounded-3xl p-6 space-y-4 shadow-soft">
+            <div className="glass-card hover:-translate-y-1 rounded-3xl p-6 space-y-4 shadow-soft">
               <h2 className="font-bold font-naskh text-foreground">
                 {isAr ? "صلوات القضاء" : "Makeup Prayers"}
               </h2>

@@ -46,7 +46,7 @@ const MaintenancePage = () => {
           </p>
         </div>
 
-        <div className="p-6 bg-card border border-border rounded-3xl space-y-4 shadow-xl shadow-black/5">
+        <div className="p-6 glass-card hover:-translate-y-1 rounded-3xl space-y-4 shadow-xl shadow-black/5">
           <div className="flex items-center gap-4 text-right rtl:text-right ltr:text-left">
             <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent shrink-0">
               <Clock size={20} />

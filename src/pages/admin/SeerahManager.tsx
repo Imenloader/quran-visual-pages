@@ -133,7 +133,7 @@ const SeerahManager = () => {
                 <Input placeholder="السنة (مثلاً: 1 هـ)" value={formData.year} onChange={e => setFormData({...formData, year: e.target.value})} className="rounded-xl" />
                 <Input placeholder="العنوان بالعربية" value={formData.titleAr} onChange={e => setFormData({...formData, titleAr: e.target.value})} className="rounded-xl font-bold" />
                 <select 
-                  className="rounded-xl bg-card border border-border px-4 py-2"
+                  className="rounded-xl glass-card hover:-translate-y-1 px-4 py-2"
                   value={formData.category}
                   onChange={e => setFormData({...formData, category: e.target.value})}
                 >

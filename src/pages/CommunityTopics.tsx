@@ -193,7 +193,7 @@ const CommunityTopics = () => {
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
           <button 
             onClick={() => setFilter("all")}
-            className={`px-6 py-2.5 rounded-full text-xs font-bold font-naskh whitespace-nowrap transition-all ${filter === "all" ? "bg-primary text-white shadow-lg" : "bg-card border border-border text-muted-foreground"}`}
+            className={`px-6 py-2.5 rounded-full text-xs font-bold font-naskh whitespace-nowrap transition-all ${filter === "all" ? "bg-primary text-white shadow-lg" : "glass-card hover:-translate-y-1 text-muted-foreground"}`}
           >
             {isAr ? "الكل" : "All"}
           </button>
@@ -201,7 +201,7 @@ const CommunityTopics = () => {
             <button 
               key={cat.id}
               onClick={() => setFilter(cat.id)}
-              className={`px-6 py-2.5 rounded-full text-xs font-bold font-naskh whitespace-nowrap transition-all ${filter === cat.id ? "bg-primary text-white shadow-lg" : "bg-card border border-border text-muted-foreground"}`}
+              className={`px-6 py-2.5 rounded-full text-xs font-bold font-naskh whitespace-nowrap transition-all ${filter === cat.id ? "bg-primary text-white shadow-lg" : "glass-card hover:-translate-y-1 text-muted-foreground"}`}
             >
               {isAr ? cat.labelAr : cat.labelEn}
             </button>
@@ -233,7 +233,7 @@ const CommunityTopics = () => {
             {filteredPosts.map(post => (
               <div 
                 key={post.id} 
-                className="bg-card border border-border/40 rounded-[2rem] p-6 shadow-sm space-y-4 hover:shadow-md transition-all border-l-4 border-l-primary"
+                className="glass-card hover:-translate-y-1/40 rounded-[2rem] p-6 shadow-sm space-y-4 hover:shadow-md transition-all border-l-4 border-l-primary"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -288,7 +288,7 @@ const CommunityTopics = () => {
       {showCreateModal && (
         <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center p-0 sm:p-4">
            <div onClick={() => setShowCreateModal(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-           <div className="relative bg-card border border-border w-full max-w-lg rounded-t-[2.5rem] sm:rounded-[2.5rem] p-8 shadow-2xl space-y-6 transition-all scale-100 opacity-100">
+           <div className="relative glass-card hover:-translate-y-1 w-full max-w-lg rounded-t-[2.5rem] sm:rounded-[2.5rem] p-8 shadow-2xl space-y-6 transition-all scale-100 opacity-100">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">

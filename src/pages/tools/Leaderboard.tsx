@@ -81,13 +81,13 @@ const Leaderboard: React.FC = () => {
         <div className="flex justify-center gap-4">
           <button
             onClick={() => setSortBy("points")}
-            className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${sortBy === "points" ? "bg-primary text-white shadow-lg" : "bg-card border border-border text-muted-foreground hover:bg-primary/5"} active:scale-95`}
+            className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${sortBy === "points" ? "bg-primary text-white shadow-lg" : "glass-card hover:-translate-y-1 text-muted-foreground hover:bg-primary/5"} active:scale-95`}
           >
             {isAr ? "بالنقاط" : "By Points"}
           </button>
           <button
             onClick={() => setSortBy("totalJuzCompleted")}
-            className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${sortBy === "totalJuzCompleted" ? "bg-primary text-white shadow-lg" : "bg-card border border-border text-muted-foreground hover:bg-primary/5"} active:scale-95`}
+            className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${sortBy === "totalJuzCompleted" ? "bg-primary text-white shadow-lg" : "glass-card hover:-translate-y-1 text-muted-foreground hover:bg-primary/5"} active:scale-95`}
           >
             {isAr ? "بالأجزاء المختومة" : "By Juz Completed"}
           </button>
@@ -98,13 +98,13 @@ const Leaderboard: React.FC = () => {
           <input
             type="text"
             placeholder={isAr ? "بحث عن متسابق..." : "Search competitor..."}
-            className="w-full h-14 pr-12 pl-6 rounded-2xl bg-card border border-border/40 focus:outline-none focus:ring-2 focus:ring-primary/20 font-naskh text-lg"
+            className="w-full h-14 pr-12 pl-6 rounded-2xl glass-card hover:-translate-y-1/40 focus:outline-none focus:ring-2 focus:ring-primary/20 font-naskh text-lg"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
 
-        <div className="bg-card border border-border/40 rounded-[2.5rem] shadow-islamic overflow-hidden">
+        <div className="glass-card hover:-translate-y-1/40 rounded-[2.5rem] shadow-islamic overflow-hidden">
           {loading ? (
             <div className="p-20 text-center">
               <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />

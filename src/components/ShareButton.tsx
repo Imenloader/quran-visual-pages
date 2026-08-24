@@ -71,7 +71,7 @@ const ShareButton = ({ juzNumber, currentPage }: ShareButtonProps) => {
       {showMenu && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-          <div className="absolute left-0 top-full mt-1 z-50 bg-card border border-border rounded-lg shadow-lg p-2 min-w-[160px] animate-fade-in">
+          <div className="absolute left-0 top-full mt-1 z-50 glass-card hover:-translate-y-1 rounded-lg shadow-lg p-2 min-w-[160px] animate-fade-in">
             <button onClick={copyLink} className="w-full text-right px-3 py-2 text-sm font-naskh hover:bg-muted rounded-md transition-colors">
               📋 نسخ الرابط
             </button>

@@ -97,7 +97,7 @@ const SettingsManager = () => {
 
         <div className="space-y-6">
           {/* Access Control */}
-          <section className="bg-card border border-border rounded-[2.5rem] p-8 space-y-6">
+          <section className="glass-card hover:-translate-y-1 rounded-[2.5rem] p-8 space-y-6">
             <h2 className="text-lg font-bold font-naskh flex items-center justify-end gap-2 text-right">
               التحكم في الوصول
               <Shield className="w-5 h-5 text-accent" />
@@ -154,7 +154,7 @@ const SettingsManager = () => {
           </section>
 
           {/* Download Links */}
-          <section className="bg-card border border-border rounded-[2.5rem] p-8 space-y-6">
+          <section className="glass-card hover:-translate-y-1 rounded-[2.5rem] p-8 space-y-6">
             <h2 className="text-lg font-bold font-naskh flex items-center justify-end gap-2 text-right">
               روابط تحميل التطبيق
               <Download className="w-5 h-5 text-accent" />
@@ -174,7 +174,7 @@ const SettingsManager = () => {
             />
           </section>
 
-          <section className="bg-card border border-border rounded-[2.5rem] p-8 space-y-6">
+          <section className="glass-card hover:-translate-y-1 rounded-[2.5rem] p-8 space-y-6">
             <h2 className="text-lg font-bold text-right">إعدادات إضافية</h2>
             <p className="text-xs text-muted-foreground text-right">سيتم إضافة المزيد من الخصائص لاحقاً</p>
           </section>

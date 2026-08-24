@@ -150,7 +150,7 @@ const Search = () => {
                   <button 
                     key={s}
                     onClick={() => setQuery(s)}
-                    className="px-4 py-2 bg-card border border-border rounded-xl text-xs font-naskh text-muted-foreground hover:bg-accent/5 hover:text-accent transition-colors"
+                    className="px-4 py-2 glass-card hover:-translate-y-1 rounded-xl text-xs font-naskh text-muted-foreground hover:bg-accent/5 hover:text-accent transition-colors"
                   >
                     {s}
                   </button>

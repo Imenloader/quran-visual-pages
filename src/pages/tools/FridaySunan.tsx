@@ -170,7 +170,7 @@ const FridaySunan = () => {
         </section>
 
         {/* Reminder Toggle */}
-        <section className="bg-card border border-border rounded-3xl p-6 mb-8 shadow-soft flex items-center justify-between">
+        <section className="glass-card hover:-translate-y-1 rounded-3xl p-6 mb-8 shadow-soft flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${reminderEnabled ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
               <Bell size={24} />
@@ -182,7 +182,7 @@ const FridaySunan = () => {
           </div>
           <button
             onClick={toggleReminder}
-            className={`w-14 h-8 rounded-full transition-all relative ${reminderEnabled ? "bg-primary" : "bg-muted border border-border"}`}
+            className={`w-14 h-8 rounded-full transition-all relative ${reminderEnabled ? "bg-primary" : "bg-muted/50 border border-border/40"}`}
           >
             <div className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-sm transition-all ${reminderEnabled ? "left-1" : "left-[calc(100%-1.75rem)]"}`} />
           </button>

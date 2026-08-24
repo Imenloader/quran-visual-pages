@@ -174,7 +174,7 @@ const AdminDashboard = () => {
           {menuItems.map((item, idx) => (
             <Link key={item.id} to={item.path}>
               <div
-                className="p-6 bg-card border border-border rounded-3xl shadow-soft group hover:border-accent/50 transition-all cursor-pointer flex items-center justify-between"
+                className="p-6 glass-card hover:-translate-y-1 rounded-3xl shadow-soft group hover:border-accent/50 transition-all cursor-pointer flex items-center justify-between"
               >
                 <div className="flex items-center gap-4">
                   <div className={`w-14 h-14 rounded-2xl ${item.color} flex items-center justify-center`}>
@@ -197,7 +197,7 @@ const AdminDashboard = () => {
             <Users2 className="w-5 h-5 text-accent" />
             آخر النشاطات
           </h2>
-          <div className="bg-card border border-border rounded-3xl p-4 space-y-4">
+          <div className="glass-card hover:-translate-y-1 rounded-3xl p-4 space-y-4">
             {activities.length > 0 ? activities.map(act => (
               <ActivityItem 
                 key={act.id}
@@ -217,7 +217,7 @@ const AdminDashboard = () => {
 };
 
 const StatCard = ({ title, value, icon, trend, color = "text-accent" }: any) => (
-  <div className="p-5 bg-card border border-border rounded-3xl shadow-soft">
+  <div className="p-5 glass-card hover:-translate-y-1 rounded-3xl shadow-soft">
     <div className="flex items-center justify-between mb-3">
       <div className={`p-2 rounded-xl bg-accent/5 ${color}`}>
         {icon}

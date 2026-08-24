@@ -126,7 +126,7 @@ const ZakatAlFitr = () => {
                         type="number"
                         value={tempPrice}
                         onChange={(e) => setTempPrice(parseInt(e.target.value) || 0)}
-                        className="bg-card border border-border rounded-lg px-3 py-2 w-24 text-center font-bold"
+                        className="glass-card hover:-translate-y-1 rounded-lg px-3 py-2 w-24 text-center font-bold"
                       />
                       <button 
                         onClick={handleSavePrice}

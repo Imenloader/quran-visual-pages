@@ -24,7 +24,7 @@ const JuzIndex = ({ onClose, currentJuz, variant = "modal" }: JuzIndexProps) => 
 
   const content = (
     <div
-      className={variant === "modal" ? "bg-card border border-border rounded-3xl shadow-2xl w-[90vw] max-w-md max-h-[70vh] flex flex-col overflow-hidden" : "w-full flex flex-col h-[60vh]"}
+      className={variant === "modal" ? "glass-card hover:-translate-y-1 rounded-3xl shadow-2xl w-[90vw] max-w-md max-h-[70vh] flex flex-col overflow-hidden" : "w-full flex flex-col h-[60vh]"}
       onClick={(e) => e.stopPropagation()}
     >
       {variant === "modal" && (

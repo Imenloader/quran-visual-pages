@@ -149,7 +149,7 @@ const AthkarManager = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {categories.map(cat => (
-              <div key={cat.id} className="p-5 bg-card border border-border rounded-3xl flex items-center justify-between group hover:border-accent/30 transition-all">
+              <div key={cat.id} className="p-5 glass-card hover:-translate-y-1 rounded-3xl flex items-center justify-between group hover:border-accent/30 transition-all">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-primary/5 text-primary flex items-center justify-center">
                     <LayoutGrid className="w-6 h-6" />
@@ -173,7 +173,7 @@ const AthkarManager = () => {
             ))}
 
             {categories.length === 0 && (
-              <div className="col-span-full text-center py-24 bg-card border border-border rounded-[2.5rem] space-y-4">
+              <div className="col-span-full text-center py-24 glass-card hover:-translate-y-1 rounded-[2.5rem] space-y-4">
                 <p className="text-muted-foreground font-naskh text-sm">لا توجد أذكار في قاعدة البيانات</p>
                 <button 
                   onClick={handleSeed}
@@ -208,7 +208,7 @@ const AthkarManager = () => {
 
               <div className="flex-1 overflow-y-auto pr-2 space-y-8 pb-12">
                 {/* Meta Section */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-card border border-border rounded-[2.5rem] p-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 glass-card hover:-translate-y-1 rounded-[2.5rem] p-8">
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-muted-foreground uppercase">المعرف (Unique ID)</label>
                     <input 
@@ -257,7 +257,7 @@ const AthkarManager = () => {
 
                   <div className="space-y-4">
                     {formData.athkar?.map((dhikr, idx) => (
-                      <div key={dhikr.id} className="p-6 bg-card border border-border rounded-[2rem] space-y-4 relative group">
+                      <div key={dhikr.id} className="p-6 glass-card hover:-translate-y-1 rounded-[2rem] space-y-4 relative group">
                         <div className="flex gap-4">
                           <div className="flex-1 space-y-4">
                             <textarea 

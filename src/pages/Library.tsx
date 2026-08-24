@@ -250,7 +250,7 @@ const Library = () => {
                 placeholder={i18n.language === 'ar' ? "ابحث عن كتاب، مؤلف، موضوع..." : "Search for a book, author, topic..."}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-14 pr-12 pl-6 rounded-2xl bg-card border border-border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-lg shadow-soft"
+                className="w-full h-14 pr-12 pl-6 rounded-2xl glass-card hover:-translate-y-1 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-lg shadow-soft"
               />
             </form>
 
@@ -287,7 +287,7 @@ const Library = () => {
                   className={`px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-all flex items-center gap-2 ${
                     activeProvider === prov.id 
                       ? "bg-primary text-white shadow-lg shadow-primary/20 scale-105" 
-                      : "bg-card border border-border text-muted-foreground hover:bg-muted"
+                      : "glass-card hover:-translate-y-1 text-muted-foreground hover:bg-muted"
                   }`}
                 >
                   <BookOpen className="w-4 h-4" />
@@ -347,7 +347,7 @@ const Library = () => {
             {books.map((book, idx) => (
               <ScrollReveal key={book.identifier} delay={idx * 0.05}>
                 <div 
-                  className="group bg-card border border-border/40 rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all duration-500 flex flex-col h-full relative"
+                  className="group glass-card hover:-translate-y-1/40 rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all duration-500 flex flex-col h-full relative"
                 >
                   <div className="relative aspect-[3/4] overflow-hidden bg-muted/30">
                     <img 

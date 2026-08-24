@@ -40,7 +40,7 @@ const PrivacyPolicy = () => {
       </QuranHeader>
 
       <main className="container max-w-2xl mx-auto px-4 py-8 space-y-8">
-        <section className="bg-card border border-border rounded-[2.5rem] p-8 md:p-10 shadow-soft relative overflow-hidden">
+        <section className="glass-card hover:-translate-y-1 rounded-[2.5rem] p-8 md:p-10 shadow-soft relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16" />
           <div className="flex items-center gap-5 mb-8 relative z-10">
             <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
@@ -72,7 +72,7 @@ const PrivacyPolicy = () => {
 
         <div className="grid gap-6">
           {sections.map((section, i) => (
-            <div key={i} className="bg-card border border-border/50 rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all">
+            <div key={i} className="glass-card hover:-translate-y-1/50 rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all">
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
                   {section.icon}

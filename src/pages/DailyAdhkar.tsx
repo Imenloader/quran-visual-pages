@@ -51,7 +51,7 @@ const Sunnan = () => {
             <input
               type="text"
               placeholder={i18n.language === 'ar' ? "ابحث في السنن..." : "Search Sunnan..."}
-              className="w-full pl-10 pr-4 py-2 bg-card border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm"
+              className="w-full pl-10 pr-4 py-2 glass-card hover:-translate-y-1 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -61,7 +61,7 @@ const Sunnan = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredSunnan.map((sunnah, idx) => (
             <ScrollReveal key={idx} delay={idx * 0.05}>
-              <div className="p-8 rounded-[2.5rem] bg-card border border-border hover:border-primary/40 transition-all duration-500 h-full flex flex-col justify-between group relative overflow-hidden">
+              <div className="p-8 rounded-[2.5rem] glass-card hover:-translate-y-1 hover:border-primary/40 transition-all duration-500 h-full flex flex-col justify-between group relative overflow-hidden">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 group-hover:scale-110 transition-transform duration-500">

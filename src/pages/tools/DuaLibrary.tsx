@@ -200,7 +200,7 @@ const DuaLibrary = () => {
             onClick={e => e.target === e.currentTarget && setShowAddModal(false)}
           >
             <div
-              className="w-full max-w-md bg-card border border-border rounded-[2rem] p-6 space-y-4 shadow-2xl"
+              className="w-full max-w-md glass-card hover:-translate-y-1 rounded-[2rem] p-6 space-y-4 shadow-2xl"
             >
               <div className="flex justify-between items-center">
                 <h3 className="font-bold font-naskh text-lg">{isAr ? "إضافة دعاء خاص" : "Add Personal Dua"}</h3>

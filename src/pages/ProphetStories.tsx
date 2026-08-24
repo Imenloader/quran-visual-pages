@@ -94,7 +94,7 @@ const ProphetStories = () => {
                     <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-2">{story.period}</span>
                     <button 
                       onClick={() => setSelectedStory(story)}
-                      className="px-4 py-2 rounded-xl bg-card border border-border font-bold text-sm hover:border-primary hover:text-primary transition-all whitespace-nowrap"
+                      className="px-4 py-2 rounded-xl glass-card hover:-translate-y-1 font-bold text-sm hover:border-primary hover:text-primary transition-all whitespace-nowrap"
                     >
                       {i18n.language === 'ar' ? story.name : story.nameEn}
                     </button>
@@ -109,7 +109,7 @@ const ProphetStories = () => {
                 <ScrollReveal key={story.id} delay={idx * 0.1}>
                   <div 
                     onClick={() => setSelectedStory(story)}
-                    className="p-8 rounded-[2.5rem] bg-card border border-border hover:border-primary/40 hover:shadow-2xl transition-all duration-500 cursor-pointer group relative overflow-hidden"
+                    className="p-8 rounded-[2.5rem] glass-card hover:-translate-y-1 hover:border-primary/40 hover:shadow-2xl transition-all duration-500 cursor-pointer group relative overflow-hidden"
                   >
                     <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-20 transition-opacity">
                       <BookOpen size={80} />
@@ -150,7 +150,7 @@ const ProphetStories = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               {/* Main Content */}
               <div className="lg:col-span-8 space-y-8">
-                <div className="p-10 rounded-[3rem] bg-card border border-border shadow-xl space-y-8">
+                <div className="p-10 rounded-[3rem] glass-card hover:-translate-y-1 shadow-xl space-y-8">
                   <div className="flex justify-between items-start">
                     <div className="space-y-2">
                       <h2 className="text-4xl font-bold font-serif">{i18n.language === 'ar' ? selectedStory.name : selectedStory.nameEn}</h2>
@@ -206,7 +206,7 @@ const ProphetStories = () => {
                   </ul>
                 </div>
 
-                <div className="p-8 rounded-[2.5rem] bg-card border border-border space-y-4">
+                <div className="p-8 rounded-[2.5rem] glass-card hover:-translate-y-1 space-y-4">
                   <h3 className="text-lg font-bold flex items-center gap-2">
                     <History className="w-5 h-5 text-primary" />
                     {i18n.language === 'ar' ? "الفترة الزمنية" : "Time Period"}

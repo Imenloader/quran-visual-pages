@@ -54,7 +54,7 @@ const HajjGuide = () => {
 
         {/* Progress Bar */}
         <ScrollReveal>
-          <div className="bg-card border border-border rounded-3xl p-6 mb-8 shadow-sm">
+          <div className="glass-card hover:-translate-y-1 rounded-3xl p-6 mb-8 shadow-sm">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-bold text-lg">{i18n.language === 'ar' ? "تقدمك في المناسك" : "Ritual Progress"}</h3>
               <span className="text-primary font-bold">{progress}%</span>
@@ -178,7 +178,7 @@ const HajjGuide = () => {
               className="space-y-4"
             >
               {hajjTips.map((tip, idx) => (
-                <div key={idx} className="p-6 bg-card border border-border rounded-3xl space-y-2 group hover:border-primary transition-all">
+                <div key={idx} className="p-6 glass-card hover:-translate-y-1 rounded-3xl space-y-2 group hover:border-primary transition-all">
                   <h4 className="font-bold text-lg text-primary flex items-center gap-2">
                     <Sparkles className="w-5 h-5" />
                     {i18n.language === 'ar' ? tip.title : tip.titleEn}
@@ -216,7 +216,7 @@ const HajjGuide = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-6 bg-card border border-border rounded-3xl space-y-4">
+                <div className="p-6 glass-card hover:-translate-y-1 rounded-3xl space-y-4">
                   <h4 className="font-bold text-lg flex items-center gap-2">
                     <Compass className="w-5 h-5 text-primary" />
                     {i18n.language === 'ar' ? "المسجد النبوي" : "Masjid an-Nabawi"}
@@ -231,7 +231,7 @@ const HajjGuide = () => {
                     {i18n.language === 'ar' ? "بدء الجولة" : "Start Tour"}
                   </button>
                 </div>
-                <div className="p-6 bg-card border border-border rounded-3xl space-y-4">
+                <div className="p-6 glass-card hover:-translate-y-1 rounded-3xl space-y-4">
                   <h4 className="font-bold text-lg flex items-center gap-2">
                     <Map className="w-5 h-5 text-primary" />
                     {i18n.language === 'ar' ? "المشاعر المقدسة" : "Holy Sites"}

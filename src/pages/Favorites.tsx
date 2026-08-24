@@ -225,7 +225,7 @@ const Favorites = () => {
                     setSelectedCollectionId(coll.id);
                     setActiveTab("all");
                   }}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ${
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase whitespace-nowrap ${
                     selectedCollectionId === coll.id
                       ? "bg-accent text-white shadow-md"
                       : "bg-primary/5 text-primary/60 hover:bg-primary/10"

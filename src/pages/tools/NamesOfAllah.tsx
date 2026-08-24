@@ -68,7 +68,7 @@ const NamesOfAllah = () => {
             <button
               key={n.id}
               onClick={() => setSelectedName(n)}
-              className="flex flex-col items-center justify-center p-6 bg-card border border-border rounded-3xl shadow-soft hover:bg-accent/5 transition-colors group"
+              className="flex flex-col items-center justify-center p-6 glass-card hover:-translate-y-1 rounded-3xl shadow-soft hover:bg-accent/5 transition-colors group"
             >
               <span className="text-3xl font-bold font-naskh text-primary mb-2 group-hover:scale-110 transition-transform">{n.name}</span>
               <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest">{n.transliteration}</span>
@@ -83,7 +83,7 @@ const NamesOfAllah = () => {
               className="absolute inset-0 bg-background/80 backdrop-blur-sm"
             />
             <div
-              className="relative w-full max-w-sm bg-card border border-border rounded-[2.5rem] shadow-2xl p-8 overflow-hidden"
+              className="relative w-full max-w-sm glass-card hover:-translate-y-1 rounded-[2.5rem] shadow-2xl p-8 overflow-hidden"
             >
               <button 
                 onClick={() => setSelectedName(null)}

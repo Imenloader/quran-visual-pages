@@ -125,7 +125,7 @@ const AnalyticsPage = () => {
           {/* Main Chart Section */}
           <div className="lg:col-span-8 space-y-8">
             {/* Growth Line Chart */}
-            <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-soft">
+            <div className="glass-card hover:-translate-y-1 rounded-[2.5rem] p-8 shadow-soft">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-lg font-bold font-naskh text-right">نمو المستخدمين (آخر ٧ أيام)</h2>
                 <div className="px-3 py-1 bg-green-500/10 text-green-600 rounded-full text-[10px] font-bold">+٢٤٪ نمو</div>
@@ -167,7 +167,7 @@ const AnalyticsPage = () => {
             </div>
 
             {/* Activity Bar Chart */}
-            <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-soft">
+            <div className="glass-card hover:-translate-y-1 rounded-[2.5rem] p-8 shadow-soft">
               <h2 className="text-lg font-bold font-naskh mb-8 text-right">توزيع النشاط حسب القسم</h2>
               <div className="h-[250px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
@@ -193,7 +193,7 @@ const AnalyticsPage = () => {
           {/* Sidebar Section */}
           <div className="lg:col-span-4 space-y-8">
             {/* Top Users List */}
-            <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-soft">
+            <div className="glass-card hover:-translate-y-1 rounded-[2.5rem] p-8 shadow-soft">
               <h2 className="text-lg font-bold font-naskh mb-6 text-right">المتصدرون</h2>
               <div className="space-y-4">
                 {stats.topUsers.map((user, idx) => (
@@ -240,7 +240,7 @@ const AnalyticsPage = () => {
 };
 
 const AnalyticCard = ({ title, value, icon, color }: any) => (
-  <div className="p-6 bg-card border border-border rounded-3xl shadow-soft hover:shadow-md transition-all active:scale-95 group">
+  <div className="p-6 glass-card hover:-translate-y-1 rounded-3xl shadow-soft hover:shadow-md transition-all active:scale-95 group">
     <div className={`w-12 h-12 rounded-2xl bg-accent/5 ${color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
       {React.cloneElement(icon, { size: 24 })}
     </div>

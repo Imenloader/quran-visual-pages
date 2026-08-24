@@ -72,7 +72,7 @@ const GlobalDhikrManager = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Total Stats Card - Forced Contrast to fix "Invisible" text */}
-        <div className="p-8 bg-card border border-border rounded-[2.5rem] shadow-soft space-y-6 relative overflow-hidden">
+        <div className="p-8 glass-card hover:-translate-y-1 rounded-[2.5rem] shadow-soft space-y-6 relative overflow-hidden">
           <div className="relative z-10 flex justify-between items-start">
             <div className="p-3 rounded-2xl bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
               <TrendingUp size={24} />
@@ -106,7 +106,7 @@ const GlobalDhikrManager = () => {
         </div>
 
         {/* Target Card */}
-        <div className="p-8 bg-card border border-border rounded-[2.5rem] shadow-soft space-y-6">
+        <div className="p-8 glass-card hover:-translate-y-1 rounded-[2.5rem] shadow-soft space-y-6">
           <h3 className="font-bold font-naskh flex items-center gap-2">
             <Target className="text-primary" />
             الهدف الحالي
@@ -137,7 +137,7 @@ const GlobalDhikrManager = () => {
       </div>
 
       {/* Settings Card */}
-      <div className="p-8 bg-card border border-border rounded-[2.5rem] shadow-soft space-y-6">
+      <div className="p-8 glass-card hover:-translate-y-1 rounded-[2.5rem] shadow-soft space-y-6">
         <h3 className="font-bold font-naskh flex items-center gap-2">
           <Award className="text-accent" size={20} />
           إعدادات العرض

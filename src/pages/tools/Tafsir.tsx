@@ -145,7 +145,7 @@ const Tafsir = () => {
             />
           </div>
 
-          <div className="p-8 bg-card border border-border rounded-[2.5rem] shadow-soft text-center space-y-6">
+          <div className="p-8 glass-card hover:-translate-y-1 rounded-[2.5rem] shadow-soft text-center space-y-6">
             <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto">
               <BookOpen className="w-8 h-8" />
             </div>
@@ -160,7 +160,7 @@ const Tafsir = () => {
               <select 
                 value={selectedSurah}
                 onChange={(e) => setSelectedSurah(parseInt(e.target.value))}
-                className="bg-muted border border-border rounded-xl px-4 py-3 text-sm font-naskh focus:outline-none"
+                className="bg-muted/50 border border-border/40 rounded-xl px-4 py-3 text-sm font-naskh focus:outline-none"
               >
                 {surahs.map(s => (
                   <option key={s.number} value={s.number}>{s.name}</option>
@@ -169,7 +169,7 @@ const Tafsir = () => {
               <select 
                 value={selectedAyah}
                 onChange={(e) => setSelectedAyah(parseInt(e.target.value))}
-                className="bg-muted border border-border rounded-xl px-4 py-3 text-sm font-naskh focus:outline-none"
+                className="bg-muted/50 border border-border/40 rounded-xl px-4 py-3 text-sm font-naskh focus:outline-none"
               >
                 {Array.from({ length: ayahCount }).map((_, i) => (
                   <option key={i + 1} value={i + 1}>{t("hub.tafsirContent.ayahLabel")} {i + 1}</option>

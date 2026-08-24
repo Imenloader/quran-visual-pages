@@ -207,7 +207,7 @@ const ReadingCirclesComponent: React.FC<ReadingCirclesComponentProps> = ({ stand
       )}
 
       {!user ? (
-        <div className="bg-card border border-border rounded-[2.5rem] p-8 text-center space-y-6">
+        <div className="glass-card hover:-translate-y-1 rounded-[2.5rem] p-8 text-center space-y-6">
            <Lock className="w-10 h-10 text-accent mx-auto" />
            <h2 className="text-xl font-bold font-naskh">{isAr ? "سجّل دخولك للمتابعة" : "Login to Continue"}</h2>
            <button onClick={() => setShowAuthModal(true)} className="w-full py-4 bg-primary text-white rounded-2xl font-bold font-naskh">{isAr ? "تسجيل الدخول" : "Sign In"}</button>

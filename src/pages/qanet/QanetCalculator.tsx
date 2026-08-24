@@ -227,7 +227,7 @@ export default function QanetCalculator() {
           </button>
 
           {/* Preset Selection Grid */}
-          <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-soft space-y-6">
+          <div className="glass-card hover:-translate-y-1 rounded-[2.5rem] p-8 shadow-soft space-y-6">
             <h3 className="font-bold text-lg font-naskh flex items-center gap-2">
               <Sparkles className="text-primary w-5 h-5" />
               {isArabic ? 'خطط مقترحة' : 'Suggested Plans'}
@@ -301,7 +301,7 @@ export default function QanetCalculator() {
         </div>
 
         {/* Calculator Main Section */}
-        <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-soft space-y-8">
+        <div className="glass-card hover:-translate-y-1 rounded-[2.5rem] p-8 shadow-soft space-y-8">
           {/* Mode Switcher */}
           <div className="flex bg-muted rounded-[1.5rem] p-1.5">
             <button

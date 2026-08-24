@@ -89,7 +89,7 @@ const ZakatCalculator = () => {
                     type="number"
                     value={savings || ""}
                     onChange={(e) => setSavings(Number(e.target.value) || 0)}
-                    className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-accent/50"
+                    className="w-full bg-muted/50 border border-border/40 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-accent/50"
                     placeholder="0.00"
                   />
                 </div>
@@ -99,7 +99,7 @@ const ZakatCalculator = () => {
                     type="number"
                     value={gold || ""}
                     onChange={(e) => setGold(Number(e.target.value) || 0)}
-                    className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-accent/50"
+                    className="w-full bg-muted/50 border border-border/40 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-accent/50"
                     placeholder="0.00"
                   />
                 </div>
@@ -109,7 +109,7 @@ const ZakatCalculator = () => {
                     type="number"
                     value={silver || ""}
                     onChange={(e) => setSilver(Number(e.target.value) || 0)}
-                    className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-accent/50"
+                    className="w-full bg-muted/50 border border-border/40 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-accent/50"
                     placeholder="0.00"
                   />
                 </div>

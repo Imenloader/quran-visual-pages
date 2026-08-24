@@ -173,7 +173,7 @@ const HubManager = () => {
           ))}
 
           {sections.length === 0 && (
-            <div className="text-center py-24 bg-card border border-border rounded-[2.5rem] space-y-4">
+            <div className="text-center py-24 glass-card hover:-translate-y-1 rounded-[2.5rem] space-y-4">
               <p className="text-muted-foreground font-naskh text-sm">لم يتم تهيئة إعدادات المركز بعد</p>
               <button 
                 onClick={handleInitialize}

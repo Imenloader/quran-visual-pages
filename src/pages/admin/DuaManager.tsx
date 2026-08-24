@@ -192,7 +192,7 @@ const DuaManager = () => {
             </div>
           ) : filteredDuas.length > 0 ? (
             filteredDuas.map(dua => (
-              <div key={dua.id} className="p-5 bg-card border border-border rounded-3xl flex items-center justify-between group hover:border-accent/30 transition-all">
+              <div key={dua.id} className="p-5 glass-card hover:-translate-y-1 rounded-3xl flex items-center justify-between group hover:border-accent/30 transition-all">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-primary/5 text-primary flex items-center justify-center shrink-0">
                     <BookOpen className="w-6 h-6" />
@@ -223,7 +223,7 @@ const DuaManager = () => {
               </div>
             ))
           ) : (
-            <div className="text-center py-24 bg-card border border-border rounded-[2.5rem] space-y-4">
+            <div className="text-center py-24 glass-card hover:-translate-y-1 rounded-[2.5rem] space-y-4">
               <p className="text-muted-foreground font-naskh text-sm">لا توجد أدعية حالياً</p>
               <button 
                 onClick={handleSeed}
@@ -239,7 +239,7 @@ const DuaManager = () => {
       {showAddModal && (
           <div className="fixed inset-0 z-[700] bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
             <div 
-              className="w-full max-w-2xl bg-card border border-border rounded-[2.5rem] p-8 shadow-2xl overflow-y-auto max-h-[90vh]"
+              className="w-full max-w-2xl glass-card hover:-translate-y-1 rounded-[2.5rem] p-8 shadow-2xl overflow-y-auto max-h-[90vh]"
             >
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold font-naskh">{editingDua ? "تعديل دعاء" : "إضافة دعاء جديد"}</h2>

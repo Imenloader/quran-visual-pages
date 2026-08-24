@@ -125,7 +125,7 @@ const DailyVerse = () => {
           <h1 className="text-xl font-bold font-naskh text-foreground">{t("hub.dailyVerse")}</h1>
           <button 
             onClick={handleRefresh}
-            className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-foreground shadow-sm active:rotate-180 transition-transform"
+            className="w-10 h-10 rounded-full glass-card hover:-translate-y-1 flex items-center justify-center text-foreground shadow-sm active:rotate-180 transition-transform"
             title={i18n.language === 'ar' ? "آية عشوائية" : "Random Verse"}
           >
             <RefreshCw className="w-5 h-5 text-primary" />
@@ -135,7 +135,7 @@ const DailyVerse = () => {
         <div className="space-y-8">
           <div
             key={verse.text}
-            className="relative p-10 md:p-14 bg-card border border-border rounded-[3.5rem] shadow-islamic text-center space-y-10 overflow-hidden group"
+            className="relative p-10 md:p-14 glass-card hover:-translate-y-1 rounded-[3.5rem] shadow-islamic text-center space-y-10 overflow-hidden group"
           >
             <div className="absolute top-0 left-0 p-8 opacity-[0.05] pointer-events-none transition-transform duration-700 group-hover:scale-110">
               <Quote className="w-40 h-40 text-primary" />
@@ -163,20 +163,20 @@ const DailyVerse = () => {
             <button 
               onClick={toggleLike}
               className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-soft transition-all active:scale-90 ${
-                isLiked ? "bg-accent text-white" : "bg-card border border-border text-foreground hover:bg-accent/10 hover:text-accent"
+                isLiked ? "bg-accent text-white" : "glass-card hover:-translate-y-1 text-foreground hover:bg-accent/10 hover:text-accent"
               }`}
             >
               <Heart className={`w-7 h-7 ${isLiked ? "fill-current" : ""}`} />
             </button>
             <button 
               onClick={handleCopy}
-              className="w-16 h-16 rounded-2xl bg-card border border-border flex items-center justify-center text-foreground shadow-soft hover:bg-primary/10 hover:text-primary transition-all active:scale-90"
+              className="w-16 h-16 rounded-2xl glass-card hover:-translate-y-1 flex items-center justify-center text-foreground shadow-soft hover:bg-primary/10 hover:text-primary transition-all active:scale-90"
             >
               {copied ? <Check className="w-7 h-7 text-emerald-600" /> : <Copy className="w-7 h-7" />}
             </button>
             <button 
               onClick={handleShare}
-              className="w-16 h-16 rounded-2xl bg-card border border-border flex items-center justify-center text-foreground shadow-soft hover:bg-primary/10 hover:text-primary transition-all active:scale-90"
+              className="w-16 h-16 rounded-2xl glass-card hover:-translate-y-1 flex items-center justify-center text-foreground shadow-soft hover:bg-primary/10 hover:text-primary transition-all active:scale-90"
             >
               <Share2 className="w-7 h-7" />
             </button>

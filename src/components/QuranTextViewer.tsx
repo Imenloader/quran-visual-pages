@@ -307,13 +307,13 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
           <div className="flex gap-2">
             <button
               onClick={() => setHiddenVerses(new Set(versesData.map((_, i) => i)))}
-              className="px-4 py-1.5 rounded-full bg-card border border-border text-xs font-serif hover:bg-accent/5 transition-all active:scale-95"
+              className="px-4 py-1.5 rounded-full glass-card text-xs font-serif hover:bg-accent/5 transition-all active:scale-95"
             >
               إخفاء الكل
             </button>
             <button
               onClick={() => setHiddenVerses(new Set())}
-              className="px-4 py-1.5 rounded-full bg-card border border-border text-xs font-serif hover:bg-accent/5 transition-all active:scale-95"
+              className="px-4 py-1.5 rounded-full glass-card text-xs font-serif hover:bg-accent/5 transition-all active:scale-95"
             >
               إظهار الكل
             </button>
@@ -434,7 +434,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
 
                   {showCollections && (
                     <div
-                      className="absolute bottom-full right-0 mb-2 w-48 bg-card border border-border/40 rounded-2xl shadow-2xl overflow-hidden z-[100] transition-all duration-300 opacity-100 scale-100"
+                      className="absolute bottom-full right-0 mb-2 w-48 glass-card/40 rounded-2xl shadow-2xl overflow-hidden z-[100] transition-all duration-300 opacity-100 scale-100"
                     >
                       <div className="p-3 border-b border-border/10 bg-muted/30">
                         <p className="text-[10px] font-bold text-muted-foreground uppercase text-right">{t("favorites.addToCollection") || "أضف إلى مجموعة"}</p>

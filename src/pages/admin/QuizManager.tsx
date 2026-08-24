@@ -162,7 +162,7 @@ const QuizManager = () => {
             <div className="flex justify-center py-12"><Loader2 className="animate-spin text-accent" /></div>
           ) : filtered.length > 0 ? (
             filtered.map(q => (
-              <div key={q.id} className="p-5 bg-card border border-border rounded-3xl flex items-center justify-between">
+              <div key={q.id} className="p-5 glass-card hover:-translate-y-1 rounded-3xl flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl bg-primary/5 text-primary flex items-center justify-center"><Brain size={20} /></div>
                   <div>
@@ -177,7 +177,7 @@ const QuizManager = () => {
               </div>
             ))
           ) : (
-            <div className="text-center py-24 bg-card border border-border rounded-[2.5rem] space-y-4">
+            <div className="text-center py-24 glass-card hover:-translate-y-1 rounded-[2.5rem] space-y-4">
               <p className="text-muted-foreground font-naskh text-sm">لا توجد أسئلة حالياً</p>
               <button 
                 onClick={handleSeed}
@@ -193,7 +193,7 @@ const QuizManager = () => {
       {showModal && (
           <div className="fixed inset-0 z-[700] bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
             <div 
-              className="w-full max-w-2xl bg-card border border-border rounded-[2.5rem] p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
+              className="w-full max-w-2xl glass-card hover:-translate-y-1 rounded-[2.5rem] p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
             >
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold font-naskh">تحرير سؤال</h2>

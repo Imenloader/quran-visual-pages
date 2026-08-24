@@ -219,7 +219,7 @@ const NamesOfAllahManager = () => {
           ))}
 
           {names.length === 0 && !loading && (
-            <div className="col-span-full text-center py-24 bg-card border border-border rounded-[2.5rem] space-y-4">
+            <div className="col-span-full text-center py-24 glass-card hover:-translate-y-1 rounded-[2.5rem] space-y-4">
               <p className="text-muted-foreground font-naskh text-sm">لا توجد أسماء مخصصة حالياً</p>
               <button 
                 onClick={handleSeed}

@@ -12,7 +12,7 @@ const SourceSelector = ({ onClose, variant = "modal" }: SourceSelectorProps) => 
 
   const content = (
     <div
-      className={variant === "modal" ? "bg-card border border-border rounded-[2.5rem] shadow-2xl w-[90vw] max-w-md overflow-hidden transition-all duration-300 transform scale-100 opacity-100 translate-y-0" : "w-full flex flex-col"}
+      className={variant === "modal" ? "glass-card hover:-translate-y-1 rounded-[2.5rem] shadow-2xl w-[90vw] max-w-md overflow-hidden transition-all duration-300 transform scale-100 opacity-100 translate-y-0" : "w-full flex flex-col"}
       onClick={(e) => e.stopPropagation()}
     >
       {variant === "modal" && (

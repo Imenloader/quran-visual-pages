@@ -136,7 +136,7 @@ export default function QanetHistory() {
       </div>
 
       {/* Activity Area Chart */}
-      <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-soft space-y-6">
+      <div className="glass-card hover:-translate-y-1 rounded-[2.5rem] p-8 shadow-soft space-y-6">
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-lg font-naskh flex items-center gap-2">
             <BarChart3 className="text-primary w-5 h-5" />
@@ -169,7 +169,7 @@ export default function QanetHistory() {
       {/* Distribution & Calendar Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pie Chart Distribution */}
-        <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-soft space-y-6">
+        <div className="glass-card hover:-translate-y-1 rounded-[2.5rem] p-8 shadow-soft space-y-6">
           <h3 className="font-bold text-lg font-naskh flex items-center gap-2">
             <PieIcon className="text-primary w-5 h-5" />
             {isArabic ? 'توزيع الحالات' : 'Level Distribution'}
@@ -198,7 +198,7 @@ export default function QanetHistory() {
         </div>
 
         {/* Hijri Calendar */}
-        <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-soft space-y-6">
+        <div className="glass-card hover:-translate-y-1 rounded-[2.5rem] p-8 shadow-soft space-y-6">
           <div className="flex justify-between items-center">
             <button onClick={() => navigateMonth(1)} className="p-2 hover:bg-muted rounded-full transition-colors">
               <ChevronLeft size={20} />
@@ -262,7 +262,7 @@ export default function QanetHistory() {
             const endSurahName = surahData.find(s => s.number === log.endSurah)?.name || '';
 
             return (
-              <div key={log.id} className="group flex items-center justify-between bg-card border border-border rounded-[2rem] p-6 shadow-soft hover:shadow-islamic hover:border-primary/20 transition-all">
+              <div key={log.id} className="group flex items-center justify-between glass-card hover:-translate-y-1 rounded-[2rem] p-6 shadow-soft hover:shadow-islamic hover:border-primary/20 transition-all">
                 <button
                   onClick={() => handleDeleteLog(log.id)}
                   className="p-3 text-destructive/20 hover:text-destructive hover:bg-destructive/5 rounded-2xl transition-all"

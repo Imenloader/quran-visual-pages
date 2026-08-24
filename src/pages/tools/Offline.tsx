@@ -149,7 +149,7 @@ const Offline = () => {
         </header>
 
         <div className="space-y-6">
-          <div className="p-8 bg-card border border-border rounded-[2.5rem] shadow-soft text-center space-y-6 relative overflow-hidden">
+          <div className="p-8 glass-card hover:-translate-y-1 rounded-[2.5rem] shadow-soft text-center space-y-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
               <Database className="w-48 h-48 text-primary" />
             </div>

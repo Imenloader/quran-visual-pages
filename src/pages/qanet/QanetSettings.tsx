@@ -110,7 +110,7 @@ export default function QanetSettings() {
       {/* Profile Card */}
       <button
         onClick={() => navigate('/profile')}
-        className="w-full bg-card border border-border rounded-[2rem] p-6 flex items-center justify-between hover:bg-muted/50 transition-all shadow-soft group"
+        className="w-full glass-card hover:-translate-y-1 rounded-[2rem] p-6 flex items-center justify-between hover:bg-muted/50 transition-all shadow-soft group"
       >
         <ChevronLeft size={18} className="text-muted-foreground/30 group-hover:text-primary transition-colors" />
         <div className="flex items-center gap-4">
@@ -154,7 +154,7 @@ export default function QanetSettings() {
       {/* Appearance */}
       <div className="space-y-4">
         <p className="text-muted-foreground text-[10px] font-bold pr-4 text-right uppercase tracking-wider">المظهر</p>
-        <div className="bg-card border border-border rounded-[2rem] overflow-hidden divide-y divide-border shadow-soft">
+        <div className="glass-card hover:-translate-y-1 rounded-[2rem] overflow-hidden divide-y divide-border shadow-soft">
           <SettingItem
             title="الألوان التفاعلية"
             icon={<Moon size={18} />}
@@ -195,7 +195,7 @@ export default function QanetSettings() {
       {/* Notifications */}
       <div className="space-y-4">
         <p className="text-muted-foreground text-[10px] font-bold pr-4 text-right uppercase tracking-wider">الإشعارات</p>
-        <div className="bg-card border border-border rounded-[2rem] overflow-hidden divide-y divide-border shadow-soft">
+        <div className="glass-card hover:-translate-y-1 rounded-[2rem] overflow-hidden divide-y divide-border shadow-soft">
           <SettingItem
             title="التذكير اليومي"
             icon={<Bell size={18} />}
@@ -228,7 +228,7 @@ export default function QanetSettings() {
       {/* Language */}
       <div className="space-y-4">
         <p className="text-muted-foreground text-[10px] font-bold pr-4 text-right uppercase tracking-wider">اللغة</p>
-        <div className="bg-card border border-border rounded-[2rem] overflow-hidden divide-y divide-border shadow-soft">
+        <div className="glass-card hover:-translate-y-1 rounded-[2rem] overflow-hidden divide-y divide-border shadow-soft">
           <button
             onClick={() => updateState({ language: 'ar' })}
             className={`w-full p-5 flex justify-between items-center transition-colors ${language === 'ar' ? 'bg-primary/5 text-primary' : 'text-muted-foreground hover:bg-muted/50'}`}
@@ -249,7 +249,7 @@ export default function QanetSettings() {
       {/* General */}
       <div className="space-y-4">
         <p className="text-muted-foreground text-[10px] font-bold pr-4 text-right uppercase tracking-wider">عام</p>
-        <div className="bg-card border border-border rounded-[2rem] overflow-hidden divide-y divide-border shadow-soft">
+        <div className="glass-card hover:-translate-y-1 rounded-[2rem] overflow-hidden divide-y divide-border shadow-soft">
           <ActionItem title="شارك من القانتين" subtitle="اكسب الثواب" icon={<Share2 size={18} />} onClick={handleShare} />
           <ActionItem title="إرسال ملاحظات" icon={<MessageSquare size={18} />} onClick={handleFeedback} />
           <ActionItem title="قيّم التطبيق" icon={<Star size={18} />} onClick={() => toast.info('شكراً لدعمك!')} />
@@ -259,7 +259,7 @@ export default function QanetSettings() {
       {/* About */}
       <div className="space-y-4">
         <p className="text-muted-foreground text-[10px] font-bold pr-4 text-right uppercase tracking-wider">حول</p>
-        <div className="bg-card border border-border rounded-[2rem] overflow-hidden shadow-soft">
+        <div className="glass-card hover:-translate-y-1 rounded-[2rem] overflow-hidden shadow-soft">
           <ActionItem title="سياسة الخصوصية" icon={<Shield size={18} />} onClick={() => navigate('/privacy')} />
         </div>
       </div>
