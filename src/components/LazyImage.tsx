@@ -19,7 +19,7 @@ const LazyImage = ({ src, alt, className = "", onLoad, onError, priority = false
   }, [src]);
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full h-full">
       {!isLoaded && !hasError && (
         <div className="w-full aspect-[3/4] bg-muted/20 animate-pulse flex items-center justify-center rounded-2xl">
           <div className="flex flex-col items-center gap-2">

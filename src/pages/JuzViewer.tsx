@@ -756,7 +756,7 @@ function JuzViewer() {
 
 
   if (!isLoaded) return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
+    <div className="min-h-dvh bg-background flex flex-col items-center justify-center gap-4">
       <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full" />
       <p className="text-muted-foreground font-serif italic">جاري تحميل إعداداتك الخاصة...</p>
     </div>
@@ -783,7 +783,7 @@ function JuzViewer() {
 
   return (
     <div
-      className={`min-h-screen bg-background selection:bg-accent/20 ${isFullscreen ? "fullscreen-reading" : ""}`}
+      className={`min-h-dvh bg-background selection:bg-accent/20 ${isFullscreen ? "fullscreen-reading" : ""}`}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
@@ -963,7 +963,7 @@ function JuzViewer() {
                     if (el) pageRefs.current[page] = el;
                   }}
                   id={`page-${page}`}
-                  className={`relative w-full h-screen group flex items-center justify-center`}
+                  className={`relative w-full h-dvh group flex items-center justify-center`}
                 >
                   {hifzMode && (
                     <div className="sticky top-4 md:top-6 z-30 flex justify-end px-4 md:px-6 pointer-events-none">
@@ -1083,7 +1083,7 @@ function JuzViewer() {
               ))
             ) : (
               <div className="w-full flex flex-col items-center">
-                <div key={currentPage}>                <div className="relative w-full h-screen overflow-hidden flex items-center justify-center">
+                <div key={currentPage}>                <div className="relative w-full h-dvh overflow-hidden flex items-center justify-center">
                   <div className="absolute inset-0 w-full h-full">
                     {hifzMode && (
                       <div className="absolute top-4 right-4 md:top-6 md:right-6 z-30 flex flex-col gap-2">
