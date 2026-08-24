@@ -431,7 +431,7 @@ const Library = () => {
             >
               <ChevronLeft className="w-6 h-6 rtl:rotate-180" />
             </button>
-            <div className="px-6 py-3 bg-card border border-border rounded-2xl font-bold text-lg shadow-sm">
+            <div className="px-6 py-3 glass-card rounded-[2rem] font-bold text-lg shadow-sm">
               {i18n.language === 'ar' ? `صفحة ${page}` : `Page ${page}`}
             </div>
             <button 

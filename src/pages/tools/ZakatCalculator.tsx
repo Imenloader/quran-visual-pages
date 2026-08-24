@@ -76,7 +76,7 @@ const ZakatCalculator = () => {
           </div>
 
           <div className="space-y-4">
-            <div className="p-4 bg-card border border-border rounded-2xl space-y-4">
+            <div className="p-4 glass-card rounded-[2rem] space-y-4">
               <div className="flex items-center gap-3 mb-2">
                 <Coins className="w-5 h-5 text-accent" />
                 <h2 className="font-bold font-naskh text-foreground">المدخرات والذهب</h2>

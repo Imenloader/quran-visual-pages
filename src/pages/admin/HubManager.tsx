@@ -148,7 +148,7 @@ const HubManager = () => {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {section.tools.map((tool, tIdx) => (
-                  <div key={tool.id} className={`p-4 bg-card border border-border rounded-2xl flex items-center justify-between transition-all ${!tool.visible && "opacity-50 grayscale"}`}>
+                  <div key={tool.id} className={`p-4 glass-card rounded-[2rem] flex items-center justify-between transition-all ${!tool.visible && "opacity-50 grayscale"}`}>
                     <div className="flex-1 mr-4">
                       <input 
                         type="text" 

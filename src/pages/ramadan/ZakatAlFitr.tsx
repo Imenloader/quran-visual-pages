@@ -92,7 +92,7 @@ const ZakatAlFitr = () => {
                 </p>
                 
                 <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4">
-                  <div className="p-4 bg-card border border-border rounded-2xl flex items-center gap-4">
+                  <div className="p-4 glass-card rounded-[2rem] flex items-center gap-4">
                     <Users className="w-5 h-5 text-blue-500" />
                     <input 
                       type="number" 

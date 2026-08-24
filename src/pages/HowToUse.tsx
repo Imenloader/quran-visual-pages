@@ -137,7 +137,7 @@ const HowToUse = () => {
         {steps.map((step, i) => (
           <div
             key={i}
-            className="flex gap-4 bg-card border border-border rounded-2xl p-4 shadow-soft hover:shadow-md transition-shadow active:scale-98"
+            className="flex gap-4 glass-card rounded-[2rem] p-4 shadow-soft hover:shadow-md transition-shadow active:scale-98"
           >
             <div className="w-11 h-11 rounded-xl gradient-islamic flex items-center justify-center shrink-0 text-primary-foreground">
               {step.icon}
@@ -155,7 +155,7 @@ const HowToUse = () => {
         <div className="text-center pt-4">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 gradient-islamic text-primary-foreground px-6 py-3 rounded-xl font-naskh text-sm font-bold shadow-islamic hover:opacity-90 transition-all active:scale-95"
+            className="inline-flex items-center gap-2 gradient-islamic text-primary-foreground px-6 py-3 rounded-xl font-naskh text-sm font-bold hover:-translate-y-1 hover:opacity-90 transition-all active:scale-95"
           >
             <BookOpen size={16} />
             ابدأ القراءة الآن

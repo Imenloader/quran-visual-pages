@@ -122,7 +122,7 @@ const Search = () => {
               placeholder={t("search.placeholder")}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full bg-card border border-border rounded-2xl py-4 pr-12 pl-12 text-sm font-naskh focus:outline-none focus:ring-2 focus:ring-accent/50"
+              className="w-full glass-card rounded-[2rem] py-4 pr-12 pl-12 text-sm font-naskh focus:outline-none focus:ring-2 focus:ring-accent/50"
             />
             {query && (
               <button 
@@ -233,7 +233,7 @@ const Search = () => {
                     return (
                       <div
                         key={`${result.surah.number}-${result.numberInSurah}-${idx}`}
-                        className="p-4 bg-card border border-border rounded-2xl space-y-3"
+                        className="p-4 glass-card rounded-[2rem] space-y-3"
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] font-bold text-accent font-naskh bg-accent/5 px-2 py-1 rounded-lg">

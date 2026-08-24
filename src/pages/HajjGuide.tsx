@@ -160,7 +160,7 @@ const HajjGuide = () => {
               className="grid grid-cols-1 md:grid-cols-2 gap-4"
             >
               {packingChecklist.map((item, idx) => (
-                <div key={idx} className="p-4 bg-card border border-border rounded-2xl flex items-center justify-between group hover:border-primary transition-all">
+                <div key={idx} className="p-4 glass-card rounded-[2rem] flex items-center justify-between group hover:border-primary transition-all">
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-primary/40 group-hover:bg-primary transition-colors" />
                     <span className="font-bold">{i18n.language === 'ar' ? item.item : item.itemEn}</span>

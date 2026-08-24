@@ -153,7 +153,7 @@ const QuizManager = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="البحث في الأسئلة..."
-            className="w-full bg-card border border-border rounded-2xl py-4 pr-12 text-sm font-naskh"
+            className="w-full glass-card rounded-[2rem] py-4 pr-12 text-sm font-naskh"
           />
         </div>
 

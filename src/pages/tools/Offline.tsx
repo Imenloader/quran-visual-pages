@@ -166,7 +166,7 @@ const Offline = () => {
           </div>
 
           <div className="space-y-4">
-            <div className="p-4 bg-card border border-border rounded-2xl flex items-center justify-between group hover:bg-accent/5 transition-colors">
+            <div className="p-4 glass-card rounded-[2rem] flex items-center justify-between group hover:bg-accent/5 transition-colors">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-foreground">
                   <CheckCircle2 className="w-5 h-5" />
@@ -179,7 +179,7 @@ const Offline = () => {
               <span className="text-[10px] font-bold text-primary font-mono">{i18n.language === 'ar' ? toArabicNumber(quranCacheSize) : quranCacheSize}</span>
             </div>
 
-            <div className="p-4 bg-card border border-border rounded-2xl flex items-center justify-between group hover:bg-accent/5 transition-colors">
+            <div className="p-4 glass-card rounded-[2rem] flex items-center justify-between group hover:bg-accent/5 transition-colors">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-foreground">
                   <CheckCircle2 className="w-5 h-5" />
@@ -225,7 +225,7 @@ const Offline = () => {
 
           {/* Audio Download Manager Section */}
           <div className="space-y-4">
-            <div className="p-4 bg-card border border-border rounded-2xl">
+            <div className="p-4 glass-card rounded-[2rem]">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
                   <Music className="w-5 h-5" />
@@ -240,7 +240,7 @@ const Offline = () => {
           </div>
 
           <div className="space-y-4">
-            <div className="p-4 bg-card border border-border rounded-2xl">
+            <div className="p-4 glass-card rounded-[2rem]">
               <h3 className="text-sm font-bold font-serif mb-3">حالة الأجزاء للأوفلاين</h3>
               <div className="max-h-64 overflow-auto space-y-2 pr-1">
                 {juzData.map((juz) => {

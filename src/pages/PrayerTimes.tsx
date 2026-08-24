@@ -67,7 +67,7 @@ function CustomSelect({
 
       {isOpen && (
         <div
-          className="absolute z-[100] w-full mt-2 bg-card border border-border/40 rounded-2xl shadow-islamic overflow-hidden transition-all duration-300 opacity-100 translate-y-0"
+          className="absolute z-[100] w-full mt-2 bg-card border border-border/40 rounded-2xl hover:-translate-y-1 overflow-hidden transition-all duration-300 opacity-100 translate-y-0"
         >
           <div className="max-h-60 overflow-y-auto py-2">
             {options.map((opt) => (
@@ -197,7 +197,7 @@ function NextPrayerCountdown({
   ];
 
   return (
-    <section className="relative overflow-hidden bg-card border border-border/40 rounded-[2rem] md:rounded-[2.5rem] p-5 md:p-6 shadow-islamic group min-h-[180px] md:min-h-[220px] flex items-center transition-all duration-500">
+    <section className="relative overflow-hidden bg-card border border-border/40 rounded-[2rem] md:rounded-[2.5rem] p-5 md:p-6 hover:-translate-y-1 group min-h-[180px] md:min-h-[220px] flex items-center transition-all duration-500">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-gold/10 pointer-events-none" />
       <div className="absolute top-0 right-0 w-60 h-60 md:w-80 md:h-80 bg-gold/15 rounded-full -mr-30 md:-mr-40 -mt-30 md:-mt-40 blur-[80px] md:blur-[120px]" />
       <div className="absolute bottom-0 left-0 w-60 h-60 md:w-80 md:h-80 bg-primary/15 rounded-full -ml-30 md:-ml-40 -mb-30 md:-mb-40 blur-[80px] md:blur-[120px]" />
@@ -508,7 +508,7 @@ export default function PrayerTimes() {
               />
             )}
 
-            <section className="bg-card border border-border rounded-2xl overflow-hidden shadow-islamic">
+            <section className="glass-card rounded-[2rem] overflow-hidden hover:-translate-y-1">
               <div className="flex items-center justify-between px-5 py-2.5 border-b border-border/50 bg-muted/20">
                 <button
                   onClick={() => {
@@ -712,7 +712,7 @@ export default function PrayerTimes() {
                </button>
             </section>
 
-            <section className="bg-card border border-border rounded-2xl p-5 shadow-soft space-y-4 transition-all">
+            <section className="glass-card rounded-[2rem] p-5 shadow-soft space-y-4 transition-all">
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleEnableNotifications}
@@ -794,7 +794,7 @@ export default function PrayerTimes() {
               )}
             </section>
 
-            <section className="bg-card border-2 border-primary/20 rounded-[2.5rem] p-8 shadow-islamic relative z-30 transition-all">
+            <section className="bg-card border-2 border-primary/20 rounded-[2.5rem] p-8 hover:-translate-y-1 relative z-30 transition-all">
               <div className="absolute inset-0 overflow-hidden rounded-[2.5rem] pointer-events-none">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl" />
               </div>
@@ -874,7 +874,7 @@ export default function PrayerTimes() {
 
             <button
               onClick={() => setShowSettings(!showSettings)}
-              className="w-full flex items-center gap-3 bg-card border border-border rounded-2xl p-5 shadow-soft hover:border-accent/40 transition-all active:scale-98"
+              className="w-full flex items-center gap-3 glass-card rounded-[2rem] p-5 shadow-soft hover:border-accent/40 transition-all active:scale-98"
             >
               <ChevronDown size={16} className={`text-muted-foreground transition-transform duration-300 ${showSettings ? "rotate-180" : ""}`} />
               <div className="flex-1 text-right">
@@ -887,7 +887,7 @@ export default function PrayerTimes() {
             </button>
 
             {showSettings && (
-              <section className="bg-card border border-border rounded-2xl p-5 shadow-soft space-y-4 transition-all duration-300 opacity-100 translate-y-0">
+              <section className="glass-card rounded-[2rem] p-5 shadow-soft space-y-4 transition-all duration-300 opacity-100 translate-y-0">
                 <div className="space-y-4">
                   <div>
                     <CustomSelect

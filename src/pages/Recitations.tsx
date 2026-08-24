@@ -900,7 +900,7 @@ const Recitations = () => {
                     </div>
                     <button 
                       onClick={fetchReciters}
-                      className="px-8 py-3 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all font-sans text-xs font-bold tracking-widest uppercase"
+                      className="px-8 py-3 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all font-sans text-xs font-bold uppercase"
                     >
                       إعادة المحاولة
                     </button>
@@ -918,7 +918,7 @@ const Recitations = () => {
                     </div>
                     <button 
                       onClick={() => setSearchQuery("")}
-                      className="px-8 py-3 rounded-full bg-muted/50 border border-border/40 text-muted-foreground hover:text-foreground hover:bg-muted transition-all font-sans text-xs font-bold tracking-widest uppercase"
+                      className="px-8 py-3 rounded-full bg-muted/50 border border-border/40 text-muted-foreground hover:text-foreground hover:bg-muted transition-all font-sans text-xs font-bold uppercase"
                     >
                       عرض الكل
                     </button>

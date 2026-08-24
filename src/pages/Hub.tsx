@@ -450,7 +450,7 @@ const Hub = () => {
                         const isExternal = tool.path.startsWith('http');
                         const Content = (
                           <div
-                            className="p-6 rounded-[2.5rem] bg-card border border-accent/30 flex flex-col items-center text-center group transition-all hover:border-accent shadow-[0_0_15px_rgba(var(--accent),0.05)] h-full relative overflow-hidden"
+                            className="p-6 rounded-[2rem] glass-card flex flex-col items-center text-center group h-full relative overflow-hidden hover:-translate-y-1 hover:shadow-accent/10"
                           >
                             <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                             <div className="absolute top-4 right-4">
@@ -494,7 +494,7 @@ const Hub = () => {
                         const isExternal = tool.path.startsWith('http');
                         const Content = (
                           <div
-                            className="p-6 rounded-[2.5rem] bg-card border border-border/60 flex flex-col items-center text-center group transition-all hover:border-accent/20 h-full"
+                            className="p-6 rounded-[2rem] glass-card flex flex-col items-center text-center group h-full hover:-translate-y-1"
                           >
                             <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mb-5 group-hover:bg-accent/10 group-hover:text-accent transition-all duration-300 shadow-inner">
                               {tool.icon}
