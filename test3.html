@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+  <style>
+    body, html { margin: 0; padding: 0; height: 100%; background: #F8F9F3; }
+    .min-h-dvh { min-height: 100vh; }
+    .h-dvh { height: 100vh; }
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .flex-1 { flex: 1 1 0%; }
+    .h-full { height: 100%; }
+    .w-full { width: 100%; }
+    .absolute { position: absolute; }
+    .relative { position: relative; }
+    .inset-0 { top: 0; left: 0; bottom: 0; right: 0; }
+    .object-fill { object-fit: fill; }
+    .origin-top { transform-origin: top; }
+    .overflow-hidden { overflow: hidden; }
+    .items-center { align-items: center; }
+    .justify-center { justify-content: center; }
+  </style>
+</head>
+<body>
+  <div class='min-h-dvh h-dvh flex flex-col'>
+    <div style="height: 50px; background: red; flex-shrink: 0;">TOP NAV</div>
+    <main class='w-full flex-1 flex flex-col items-center'>
+      <div style="height: 50px; background: blue; width: 100%; flex-shrink: 0;">TAJWEED LEGEND</div>
+      <div class='flex-1 h-full w-full flex flex-col origin-top' style='width: 100%;'>
+        <div class='w-full flex-1 h-full flex flex-col items-center'>
+          <div class='w-full h-full flex-1 flex flex-col items-center justify-center'>
+            <div class='relative w-full h-full overflow-hidden flex items-center justify-center'>
+              <div class='absolute inset-0 w-full h-full'>
+                <div class='relative w-full h-full'>
+                  <img src='https://jahedev.github.io/tajweed-quran-pages/hafs/tajweed-001.jpg' class='absolute inset-0 w-full h-full object-fill' />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

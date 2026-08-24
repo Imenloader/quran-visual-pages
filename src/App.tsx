@@ -106,6 +106,7 @@ const LaylatulQadr = lazyWithRetry(() => import("./pages/ramadan/LaylatulQadr"))
 const ZakatAlFitr = lazyWithRetry(() => import("./pages/ramadan/ZakatAlFitr"));
 const HowToUse = lazyWithRetry(() => import("./pages/HowToUse"));
 const Tajweed = lazyWithRetry(() => import("./pages/Tajweed"));
+const TajweedGames = lazyWithRetry(() => import("./pages/tools/TajweedGames"));
 const HifzTester = lazyWithRetry(() => import("./pages/tools/HifzTester"));
 const StrongBeliever = lazyWithRetry(() => import("./pages/tools/StrongBeliever"));
 const MarriageGuide = lazyWithRetry(() => import("./pages/tools/MarriageGuide"));
@@ -380,6 +381,7 @@ const AppContent = () => {
                 <Route path="/ramadan/zakat-al-fitr" element={<ZakatAlFitr />} />
                 <Route path="/how-to-use" element={<HowToUse />} />
                 <Route path="/tajweed" element={<Tajweed />} />
+                <Route path="/tajweed-games" element={<TajweedGames />} />
                 <Route path="/tools/hifz-tester" element={<HifzTester />} />
                 <Route path="/strong-believer" element={<StrongBeliever />} />
                 <Route path="/marriage-guide" element={<MarriageGuide />} />

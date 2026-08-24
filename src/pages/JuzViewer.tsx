@@ -3,12 +3,12 @@ import { useParams, Navigate, Link, useNavigate, useSearchParams, useLocation } 
 import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from "react";
 import { juzData, getQuranPageFallbackImageUrl, toArabicNumber, surahIndex } from "@/data/quranData";
 import QuranHeader from "@/components/QuranHeader";
-import ReadingToolbar from "@/components/ReadingToolbar";
+import ReaderToolsDrawer from "@/components/ReaderToolsDrawer";
 import ProgressBar from "@/components/ProgressBar";
 import PageNavigator from "@/components/PageNavigator";
 import JuzIndex from "@/components/JuzIndex";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
-import { ChevronRight, ChevronLeft, ArrowUp, Maximize, Minimize, ChevronUp, GraduationCap, RefreshCw, Music, Eye, EyeOff, LayoutList, Square, Trophy } from "lucide-react";
+import { ChevronRight, ChevronLeft, ArrowUp, Maximize, Minimize, ChevronUp, GraduationCap, RefreshCw, Music, Eye, EyeOff, LayoutList, Square, Trophy, Menu, ArrowLeft } from "lucide-react";
 import LazyImage from "@/components/LazyImage";
 import QuranTextViewer from "@/components/QuranTextViewer";
 import TajweedLegend from "@/components/TajweedLegend";
@@ -120,7 +120,8 @@ function JuzViewer() {
 
   const { isFullscreen, setIsFullscreen } = useTheme();
   const { playAyah, togglePlay, currentSurah, stopPlayer, syncMode } = useAudioPlayer();
-  const [showControls, setShowControls] = useState(false);
+    const [showControls, setShowControls] = useState(false);
+    const [showToolsDrawer, setShowToolsDrawer] = useState(false);
 
   useEffect(() => {
     setIsFullscreen(!showControls);
@@ -790,74 +791,73 @@ function JuzViewer() {
     >
       <AtmosphericBackground />
       <div className="fixed inset-0 pattern-islamic opacity-[0.01] pointer-events-none" />
-      
-      <div className={`fixed right-4 md:right-8 z-[120] flex flex-col gap-3 md:gap-4 transition-all duration-500 ${isFullscreen ? (showControls ? "bottom-6 md:bottom-8 opacity-100" : "bottom-6 md:bottom-8 opacity-0 pointer-events-none") : "bottom-24 md:bottom-32 opacity-100"}`}>
-          {scrollDirection === "vertical" && progress > 10 && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                scrollToPage(pages[0]);
-              }}
-              className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-primary text-primary-foreground shadow-2xl flex items-center justify-center"
-              title={t("common.backToTop")}
-            >
-              <ChevronUp className="size-[20px] md:size-[28px]" />
-            </button>
-          )}
+      {/* Always-visible tiny page number — top left, translucent */}
+      {currentPage > 0 && !showControls && (
+        <div className="fixed top-3 left-3 z-[100] pointer-events-none">
+          <div className="w-7 h-7 rounded-lg bg-black/20 backdrop-blur-sm text-white/70 flex items-center justify-center font-serif text-[11px] shadow-sm">
+            {toArabicNumber(currentPage.toString())}
+          </div>
+        </div>
+      )}
 
-      </div>
-
-      <div className={`fixed top-0 left-0 right-0 z-[150] transition-all duration-500 ${showControls ? "opacity-100 pointer-events-auto translate-y-0" : "opacity-0 pointer-events-none -translate-y-full"}`}>
-        <div className="bg-emerald-deep/95 border-b border-border/40 px-4 py-2 md:py-3 flex items-center justify-between">
-          <BackButton variant="ghost" className="text-white hover:bg-white/10" />
+      {/* Slim translucent top bar — slides down on tap */}
+      <div className={`fixed top-0 left-0 right-0 z-[150] transition-all duration-400 ease-out ${showControls ? "opacity-100 pointer-events-auto translate-y-0" : "opacity-0 pointer-events-none -translate-y-full"}`}>
+        <div className="bg-black/60 backdrop-blur-xl px-3 py-2 flex items-center justify-between safe-area-top">
+          <button
+            onClick={(e) => { e.stopPropagation(); navigate(-1); }}
+            className="w-9 h-9 rounded-xl flex items-center justify-center text-white/90 hover:bg-white/10 transition-all active:scale-90"
+          >
+            <ArrowLeft size={20} />
+          </button>
           <div className="flex flex-col items-center">
-            <h2 className="text-white font-serif text-lg md:text-xl leading-none">{juz.nameAr}</h2>
+            <span className="text-white font-serif text-sm leading-none">{juz.nameAr}</span>
             {currentPage > 0 && (
-              <span className="text-white/70 text-[10px] md:text-xs font-serif mt-1">
+              <span className="text-white/60 text-[10px] font-serif mt-0.5">
                 {t("juzViewer.pageOf", { current: isAr ? toArabicNumber(currentPage.toString()) : currentPage, total: isAr ? toArabicNumber(juz.endPage.toString()) : juz.endPage })}
               </span>
             )}
           </div>
-          <div className="w-10" />
-        </div>
-        <ProgressBar progress={progress} currentPage={currentPage} totalPages={pages.length} startPage={juz.startPage} />
-        <div className="px-4 pb-2">
           <button
-            onClick={handlePrepareThisJuzOffline}
-            disabled={isPreparingJuzOffline}
-            className="w-full h-10 rounded-xl border border-border/50 bg-card/80 text-sm font-serif text-primary disabled:opacity-60"
+            onClick={(e) => { e.stopPropagation(); setShowToolsDrawer(true); }}
+            className="w-9 h-9 rounded-xl flex items-center justify-center text-white/90 hover:bg-white/10 transition-all active:scale-90"
           >
-            {isPreparingJuzOffline ? t("hub.offline.downloading") : t("juzViewer.prepareOffline")}
+            <Menu size={20} />
           </button>
         </div>
-
-        <ReadingToolbar
-          zoom={zoom}
-          onZoomIn={() => setZoom((z) => Math.min(z + 20, 200))}
-          onZoomOut={() => setZoom((z) => Math.max(z - 20, 40))}
-          onResetZoom={() => setZoom(100)}
-          onSaveBookmark={handleSaveBookmark}
-          onTogglePageNav={() => setShowPageNav((v) => !v)}
-          onToggleJuzIndex={() => setShowJuzIndex((v) => !v)}
-          onToggleSourceSelector={() => setShowSourceSelector((v) => !v)}
-          currentPage={currentPage}
-          bookmarked={savedBookmark?.juz === num && savedBookmark?.page === currentPage}
-          juzNumber={num}
-          hifzMode={hifzMode}
-          onDownloadAudio={handleDownloadAudio}
-          isDownloadingAudio={isDownloadingAudio}
-          onToggleHifzMode={() => {
-            const nextMode = !hifzMode;
-            setHifzMode(nextMode);
-            if (nextMode) {
-              hideAllLines(currentPage);
-              toast.success(t("juzViewer.hifzModeActive"), {
-                description: t("juzViewer.hifzModeDesc")
-              });
-            }
-          }}
-        />
+        <ProgressBar progress={progress} currentPage={currentPage} totalPages={pages.length} startPage={juz.startPage} />
       </div>
+
+      {/* Tools Drawer (bottom sheet) */}
+      <ReaderToolsDrawer
+        open={showToolsDrawer}
+        onOpenChange={setShowToolsDrawer}
+        onSaveBookmark={handleSaveBookmark}
+        bookmarked={!!(savedBookmark?.juz === num && savedBookmark?.page === currentPage)}
+        onTogglePageNav={() => setShowPageNav((v) => !v)}
+        onToggleJuzIndex={() => setShowJuzIndex((v) => !v)}
+        onToggleSourceSelector={() => setShowSourceSelector((v) => !v)}
+        zoom={zoom}
+        onZoomIn={() => setZoom((z) => Math.min(z + 20, 200))}
+        onZoomOut={() => setZoom((z) => Math.max(z - 20, 40))}
+        onResetZoom={() => setZoom(100)}
+        hifzMode={hifzMode}
+        onToggleHifzMode={() => {
+          const nextMode = !hifzMode;
+          setHifzMode(nextMode);
+          if (nextMode) {
+            hideAllLines(currentPage);
+            toast.success(t("juzViewer.hifzModeActive"), {
+              description: t("juzViewer.hifzModeDesc")
+            });
+          }
+        }}
+        onDownloadAudio={handleDownloadAudio}
+        isDownloadingAudio={isDownloadingAudio}
+        onPrepareOffline={handlePrepareThisJuzOffline}
+        isPreparingOffline={isPreparingJuzOffline}
+        currentPage={currentPage}
+        juzNumber={num}
+      />
 
       {showPageNav && (
         <PageNavigator
@@ -889,44 +889,8 @@ function JuzViewer() {
       </Suspense>
       {/* -------------------------------------------------------- */}
 
-      {showControls && (
-        <div className="flex justify-between items-center container max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-8 relative z-10">
-          <div className="flex-1">
-            {num > 1 && (
-              <Link
-                to={`/juz/${num - 1}`}
-                className="group flex items-center gap-2 md:gap-3 text-xs md:text-sm font-serif font-medium text-muted-foreground hover:text-primary transition-all"
-              >
-                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-muted/50 flex items-center justify-center group-hover:bg-primary/5 transition-colors">
-                  <ChevronRight size={14} strokeWidth={1.5} className="md:w-4 md:h-4" />
-                </div>
-                <span className="group-hover:text-accent italic hidden xs:inline">{t("juzViewer.prevJuz")}</span>
-              </Link>
-            )}
-          </div>
-          
-          <div className="flex flex-col items-center gap-0.5 md:gap-1">
-            <span className="text-[8px] md:text-[10px] font-bold tracking-[0.2em] md:tracking-[0.3em] text-accent uppercase">إحصائيات القراءة</span>
-            <span className="text-xs md:text-sm text-primary font-serif italic">
-              {i18n.language === 'ar' ? toArabicNumber(pages.length.toString()) : pages.length} {t("hub.offline.pages")}
-            </span>
-          </div>
 
-          <div className="flex-1 flex justify-end">
-            {num < 30 && (
-              <Link
-                to={`/juz/${num + 1}`}
-                className="group flex items-center gap-2 md:gap-3 text-xs md:text-sm font-serif font-medium text-muted-foreground hover:text-primary transition-all"
-              >
-                <span className="group-hover:text-accent italic hidden xs:inline">{t("juzViewer.nextJuz")}</span>
-                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-muted/50 flex items-center justify-center group-hover:bg-primary/5 transition-colors">
-                  <ChevronLeft size={14} strokeWidth={1.5} className="md:w-4 md:h-4" />
-                </div>
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
+
 
       <main
         className={`w-full flex-1 flex flex-col items-center transition-all duration-500 relative`}
@@ -1009,15 +973,7 @@ function JuzViewer() {
                     </div>
                   )}
 
-                  <div className={`absolute top-4 left-4 md:top-6 md:left-6 z-10 flex flex-col items-center gap-0.5 md:gap-1 transition-opacity duration-500 ${showControls ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl bg-primary/20 backdrop-blur-md text-primary flex items-center justify-center font-serif text-xs md:text-sm shadow-sm border border-primary/10">
-                      {page}
-                    </div>
-                    <span className="text-[6px] md:text-[8px] font-bold text-primary/70 uppercase tracking-widest">Page</span>
-                    <span className={cn("text-[8px] px-2 py-0.5 rounded-full border uppercase tracking-wide", getPageBadgeLabel(page).className)}>
-                      {getPageBadgeLabel(page).text}
-                    </span>
-                  </div>
+
 
                   {errorStates[page] && (
                     <div className="w-full h-full aspect-[3/4] bg-muted/30 flex flex-col items-center justify-center gap-4">
@@ -1184,34 +1140,7 @@ function JuzViewer() {
                       </div>
                     )}
                   </div>
-                  <div className={`absolute top-6 left-6 z-10 flex flex-col items-center gap-1 transition-opacity duration-500 ${showControls ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-                    <div className="w-10 h-10 rounded-2xl bg-primary/20 backdrop-blur-md text-primary flex items-center justify-center font-serif text-sm shadow-sm border border-primary/10">
-                      {currentPage}
-                    </div>
-                    <span className={cn("text-[9px] px-2 py-0.5 rounded-full border uppercase tracking-wide", getPageBadgeLabel(currentPage).className)}>
-                      {getPageBadgeLabel(currentPage).text}
-                    </span>
-                  </div>
-                </div>
 
-                <div className={`flex items-center gap-8 mt-8 transition-opacity duration-500 ${showControls ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-                  <button 
-                    onClick={handlePrevPage}
-                    disabled={currentPage === juz.startPage}
-                    className="p-4 rounded-2xl bg-card border border-border/40 text-primary disabled:opacity-30 transition-all hover:bg-muted/50"
-                  >
-                    <ChevronRight size={24} />
-                  </button>
-                  <span className="font-serif text-lg text-primary">
-                    {t("juzViewer.pageOf", { current: isAr ? toArabicNumber(currentPage.toString()) : currentPage, total: isAr ? toArabicNumber(juz.endPage.toString()) : juz.endPage })}
-                  </span>
-                  <button 
-                    onClick={handleNextPage}
-                    disabled={currentPage === juz.endPage}
-                    className="p-4 rounded-2xl bg-card border border-border/40 text-primary disabled:opacity-30 transition-all hover:bg-muted/50"
-                  >
-                    <ChevronLeft size={24} />
-                  </button>
                 </div>
               </div>
               </div>
@@ -1258,8 +1187,7 @@ function JuzViewer() {
       )}
     </div>
 
-          )}
-      </div>
+
 
       <div className="text-center pb-24">
         <button
@@ -1282,17 +1210,19 @@ function JuzViewer() {
 
       {showJuzIndex && <JuzIndex onClose={() => setShowJuzIndex(false)} currentJuz={num} />}
 
-      <div className={cn(
-        "fixed left-0 right-0 z-[130] px-4 pointer-events-none flex justify-center transition-all duration-700 ease-[0.16, 1, 0.3, 1]",
-        "bottom-8",
-        !showControls || isScrollingDown 
-          ? "opacity-0 translate-y-20 scale-90" 
-          : "opacity-100 translate-y-0 scale-100"
-      )}>
-        <div className="pointer-events-auto">
-          <QuranPlayerBar onPlayFirst={handleMainPlayToggle} isScrollingDown={isScrollingDown} isFullscreen={isFullscreen} />
+      {currentSurah && (
+        <div className={cn(
+          "fixed left-0 right-0 z-[130] px-4 pointer-events-none flex justify-center transition-all duration-700 ease-[0.16, 1, 0.3, 1]",
+          "bottom-4",
+          isScrollingDown 
+            ? "opacity-0 translate-y-20 scale-90" 
+            : "opacity-100 translate-y-0 scale-100"
+        )}>
+          <div className="pointer-events-auto">
+            <QuranPlayerBar onPlayFirst={handleMainPlayToggle} isScrollingDown={isScrollingDown} isFullscreen={isFullscreen} />
+          </div>
         </div>
-      </div>
+      )}
       {isTracking && trackingSession && (
         <div className="fixed top-24 left-4 z-[160] bg-emerald-950/90 text-white p-4 rounded-3xl shadow-2xl border border-white/10 backdrop-blur-xl flex flex-col gap-3 min-w-[140px] animate-in slide-in-from-left-4 duration-500">
           <div className="flex items-center gap-2">

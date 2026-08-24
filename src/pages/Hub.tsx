@@ -292,6 +292,7 @@ const Hub = () => {
           { id: 'tafsir', name: t("hub.tafsir"), icon: <BookOpen className="w-5 h-5" />, path: "/tafsir" },
           { id: 'search', name: t("hub.search"), icon: <Search className="w-5 h-5" />, path: "/search" },
           { id: 'tajweed', name: t("hub.tajweed"), icon: <Sparkles className="w-5 h-5" />, path: "/tajweed" },
+          { id: 'tajweed-games', name: i18n.language === 'ar' ? 'ألعاب التجويد' : 'Tajweed Games', icon: <Sparkles className="w-5 h-5" />, path: "/tajweed-games" },
           { id: 'guide', name: t("hub.guide"), icon: <BookOpen className="w-5 h-5" />, path: "/how-to-use" },
         ]
       },
