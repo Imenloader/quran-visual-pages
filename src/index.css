@@ -321,9 +321,6 @@
   @apply bg-primary/10 rounded-full hover:bg-primary/20;
 }
 
-.fullscreen-reading {
-  @apply fixed inset-0 z-[100] bg-background overflow-y-auto;
-}
 
 .glass-card {
   @apply bg-card/70 backdrop-blur-xl border border-border/40 shadow-islamic;

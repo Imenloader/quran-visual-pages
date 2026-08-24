@@ -783,7 +783,7 @@ function JuzViewer() {
 
   return (
     <div
-      className={`min-h-dvh h-dvh bg-background selection:bg-accent/20 flex flex-col ${isFullscreen ? "fullscreen-reading" : ""}`}
+      className={`min-h-dvh h-dvh bg-background selection:bg-accent/20 flex flex-col overflow-y-auto overflow-x-hidden`}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
@@ -1031,7 +1031,7 @@ function JuzViewer() {
                           key={getImageUrl(page)}
                           src={getImageUrl(page)}
                           alt={`صفحة ${page} من المصحف الشريف`}
-                          className="quran-page-img w-full h-full object-contain"
+                          className="quran-page-img w-full h-full object-fill md:object-contain"
                           priority={Math.abs(page - currentPage) <= 1}
                           onLoad={() => handleImageLoad(page)}
                           onError={() => handleImageError(page)}
@@ -1130,7 +1130,7 @@ function JuzViewer() {
                         key={getImageUrl(currentPage)}
                         src={getImageUrl(currentPage)}
                         alt={`صفحة ${currentPage} من المصحف الشريف`}
-                        className="quran-page-img w-full h-full object-contain"
+                        className="quran-page-img w-full h-full object-fill md:object-contain"
                         priority={true}
                         onLoad={() => handleImageLoad(currentPage)}
                         onError={() => handleImageError(currentPage)}
