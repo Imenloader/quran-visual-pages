@@ -42,7 +42,12 @@ interface BookmarkData {
 const getBookmark = (): BookmarkData | null => {
   try {
     const data = localStorage.getItem(BOOKMARK_KEY);
-    return data ? JSON.parse(data) : null;
+    if (!data) return null;
+    const parsed = JSON.parse(data);
+    if (parsed && typeof parsed.juz === 'number' && typeof parsed.page === 'number') {
+      return parsed;
+    }
+    return null;
   } catch {
     return null;
   }

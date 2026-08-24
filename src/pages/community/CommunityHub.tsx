@@ -110,7 +110,11 @@ const CommunityHub = () => {
   useEffect(() => {
     const loadBookmark = async () => {
       const data = await syncService.loadData("quran-bookmark", null);
-      setBookmark(data);
+      if (data && typeof data.juz === 'number' && typeof data.page === 'number') {
+        setBookmark(data);
+      } else {
+        setBookmark(null);
+      }
     };
     loadBookmark();
   }, []);

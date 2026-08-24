@@ -60,9 +60,16 @@ const Index = () => {
     const savedBookmark = localStorage.getItem(BOOKMARK_KEY);
     if (savedBookmark) {
       try {
-        setBookmark(JSON.parse(savedBookmark));
+        const parsed = JSON.parse(savedBookmark);
+        // Validate legacy or corrupted bookmarks
+        if (parsed && typeof parsed.juz === 'number' && typeof parsed.page === 'number') {
+          setBookmark(parsed);
+        } else {
+          localStorage.removeItem(BOOKMARK_KEY);
+        }
       } catch (e) {
         console.error("Error parsing bookmark:", e);
+        localStorage.removeItem(BOOKMARK_KEY);
       }
     }
   }, []);
