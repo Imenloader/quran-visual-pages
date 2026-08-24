@@ -56,9 +56,9 @@ const JuzIndex = ({ onClose, currentJuz, variant = "modal" }: JuzIndexProps) => 
                 onClick={onClose}
                 className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group relative overflow-hidden ${
                   currentJuz === juz.number
-                    ? "bg-primary/10 border border-primary/30"
-                    : "hover:bg-muted border border-transparent"
-                } ${isCompleted ? "border-emerald-500/20" : ""}`}
+                    ? "bg-accent/10 border border-accent/20"
+                    : "bg-background border border-border/40 shadow-sm hover:bg-muted/60"
+                } ${isCompleted ? "border-emerald-500/30" : ""}`}
               >
                 {/* Number circle */}
                 <div className={`flex items-center justify-center w-10 h-10 rounded-xl shrink-0 relative ${

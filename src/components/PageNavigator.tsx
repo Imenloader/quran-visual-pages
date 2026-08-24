@@ -68,8 +68,8 @@ const PageNavigator = ({ pages, currentPage, onGoToPage, onClose, variant = "bar
               onClick={() => onGoToPage(page)}
               className={`text-xs font-naskh py-1 rounded transition-colors ${
                 page === currentPage
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  ? "bg-accent/10 border-accent/20 text-accent border shadow-sm"
+                  : "bg-background border border-border/40 text-foreground hover:bg-muted/60 shadow-sm"
               }`}
             >
               {toArabicNumber(page)}

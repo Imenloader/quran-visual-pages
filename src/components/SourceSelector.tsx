@@ -41,7 +41,7 @@ const SourceSelector = ({ onClose, variant = "modal" }: SourceSelectorProps) => 
               onClose();
             }}
             className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all active:scale-98 ${
-              preferredImageSource === null ? "bg-primary/10 border-primary" : "bg-card border-border/40 hover:bg-muted"
+              preferredImageSource === null ? "bg-accent/10 border-accent/20" : "bg-background border-border/40 hover:bg-muted/60 shadow-sm"
             }`}
           >
             <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
@@ -65,7 +65,7 @@ const SourceSelector = ({ onClose, variant = "modal" }: SourceSelectorProps) => 
                 onClose();
               }}
               className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all active:scale-98 ${
-                preferredImageSource === source.id ? "bg-primary/10 border-primary" : "bg-card border-border/40 hover:bg-muted"
+                preferredImageSource === source.id ? "bg-accent/10 border-accent/20" : "bg-background border-border/40 hover:bg-muted/60 shadow-sm"
               }`}
             >
               <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${

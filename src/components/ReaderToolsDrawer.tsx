@@ -63,8 +63,6 @@ const ReaderToolsDrawer = ({
     atmosphericBackground, setAtmosphericBackground
   } = useTheme();
 
-  const [isQuizOpen, setIsQuizOpen] = useState(false);
-
   const toggleTheme = () => {
     if (theme === "light") setTheme("sepia");
     else if (theme === "sepia") setTheme("dark");
@@ -85,7 +83,7 @@ const ReaderToolsDrawer = ({
   const themeLabel = theme === "light" ? "فاتح" : theme === "sepia" ? "بني" : "داكن";
   const themeIcon = theme === "dark" ? <Moon className="size-5" /> : <Sun className="size-5" />;
 
-  const [activeView, setActiveView] = useState<"tools" | "pageNav" | "juzIndex" | "source">("tools");
+  const [activeView, setActiveView] = useState<"tools" | "pageNav" | "juzIndex" | "source" | "quiz">("tools");
 
   const tools = [
     // Row 1: Core actions
@@ -142,13 +140,13 @@ const ReaderToolsDrawer = ({
       {
         icon: <EyeOff className="size-5" />,
         label: "وضع الحفظ",
-        onClick: () => { onToggleHifzMode(); onOpenChange(false); },
+        onClick: () => { onToggleHifzMode(); },
         active: hifzMode,
       },
       {
         icon: <GraduationCap className="size-5" />,
         label: "اختبار الحفظ",
-        onClick: () => setIsQuizOpen(true),
+        onClick: () => setActiveView("quiz"),
       },
       {
         icon: <Server className="size-5" />,
@@ -160,6 +158,30 @@ const ReaderToolsDrawer = ({
         label: "تحميل الصوت",
         onClick: () => { onDownloadAudio?.(); onOpenChange(false); },
         disabled: isDownloadingAudio,
+      },
+    ],
+    // Row 4: Zoom & Offline
+    [
+      {
+        icon: <ZoomIn className="size-5" />,
+        label: "تكبير",
+        onClick: onZoomIn,
+      },
+      {
+        icon: <span className="text-sm font-bold pt-1">{Math.round(zoom)}%</span>,
+        label: "تلقائي",
+        onClick: onResetZoom,
+      },
+      {
+        icon: <ZoomOut className="size-5" />,
+        label: "تصغير",
+        onClick: onZoomOut,
+      },
+      {
+        icon: <DownloadCloud className={cn("size-5", isPreparingOffline && "animate-pulse")} />,
+        label: isPreparingOffline ? "جاري الحفظ.." : "بدون إنترنت",
+        onClick: () => { onPrepareOffline(); onOpenChange(false); },
+        disabled: isPreparingOffline,
       },
     ],
   ];
@@ -220,38 +242,6 @@ const ReaderToolsDrawer = ({
                   })}
                 </div>
               ))}
-
-              {/* Zoom Controls — special row */}
-              <div className="flex items-center justify-center gap-3 p-3 rounded-2xl bg-background border border-border/40 shadow-sm">
-                <button
-                  onClick={onZoomOut}
-                  className="p-2 rounded-xl hover:bg-muted/60 text-primary/70 transition-all active:scale-90"
-                >
-                  <ZoomOut className="size-5" />
-                </button>
-                <button
-                  onClick={onResetZoom}
-                  className="px-3 py-1 text-sm font-bold text-primary hover:text-accent transition-colors tabular-nums min-w-[48px] text-center rounded-lg hover:bg-muted/40"
-                >
-                  {Math.round(zoom)}%
-                </button>
-                <button
-                  onClick={onZoomIn}
-                  className="p-2 rounded-xl hover:bg-muted/60 text-primary/70 transition-all active:scale-90"
-                >
-                  <ZoomIn className="size-5" />
-                </button>
-                <span className="text-[10px] text-muted-foreground mr-2">تكبير / تصغير</span>
-              </div>
-
-              {/* Prepare Offline — bottom action */}
-              <button
-                onClick={() => { onPrepareOffline(); onOpenChange(false); }}
-                disabled={isPreparingOffline}
-                className="w-full py-3 rounded-2xl border border-border/40 bg-muted/20 text-sm font-serif text-primary hover:bg-muted/40 transition-all disabled:opacity-50"
-              >
-                {isPreparingOffline ? "جارٍ التحميل..." : "تجهيز هذا الجزء للقراءة بدون إنترنت"}
-              </button>
             </div>
           )}
 
@@ -289,24 +279,18 @@ const ReaderToolsDrawer = ({
                     variant="sheet"
                   />
                 )}
+                {activeView === "quiz" && (
+                  <div className="p-2">
+                    <HifzQuizView
+                      pageNumber={currentPage}
+                      onClose={() => setActiveView("tools")}
+                      onComplete={() => {}}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           )}
-        </SheetContent>
-      </Sheet>
-
-      {/* Hifz Quiz Sheet */}
-      <Sheet open={isQuizOpen} onOpenChange={setIsQuizOpen}>
-        <SheetContent side="bottom" className="rounded-t-[2.5rem] border-t-accent/20 bg-card/95 backdrop-blur-xl max-h-[90vh] overflow-y-auto custom-scrollbar">
-          <SheetHeader>
-            <SheetTitle className="text-right font-serif">اختبار الحفظ</SheetTitle>
-            <SheetDescription className="text-right">اختبر حفظك للصفحة الحالية عبر أسئلة ذكية</SheetDescription>
-          </SheetHeader>
-          <HifzQuizView
-            pageNumber={currentPage}
-            onClose={() => setIsQuizOpen(false)}
-            onComplete={() => {}}
-          />
         </SheetContent>
       </Sheet>
     </>
