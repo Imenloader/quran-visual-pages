@@ -133,12 +133,23 @@ const Index = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative w-full pt-32 pb-16 px-6 md:px-12 md:py-40 flex flex-col items-center justify-center overflow-hidden rounded-b-[3rem] shadow-islamic">
-        <div className="absolute inset-0 bg-emerald-deep transform-gpu" />
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/90 via-emerald-deep to-primary/80 mix-blend-multiply transform-gpu" />
-        <div className="absolute inset-0 pattern-islamic opacity-[0.05] scale-150 transform-gpu pointer-events-none" />
-        <div className="absolute -top-1/2 -right-1/4 w-[150%] h-[150%] bg-gold/10 rounded-full blur-[120px] pointer-events-none transform-gpu" />
-        <div className="absolute -bottom-1/2 -left-1/4 w-[120%] h-[120%] bg-primary/20 rounded-full blur-[100px] pointer-events-none transform-gpu" />
+      <section className="relative w-full pt-32 pb-24 px-6 md:px-12 md:pt-48 md:pb-32 flex flex-col items-center justify-center overflow-hidden rounded-b-[3rem] shadow-islamic mb-8">
+        {/* Deep, Rich Base */}
+        <div className="absolute inset-0 bg-gradient-to-b from-emerald-950 via-emerald-deep to-primary transform-gpu" />
+        
+        {/* Cinematic Lighting Overlays */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gold/10 via-emerald-950/40 to-emerald-deep/90 transform-gpu mix-blend-overlay" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-emerald-deep/90 via-transparent to-gold/5 mix-blend-multiply transform-gpu" />
+        
+        {/* Glowing Orbs for Depth */}
+        <div className="absolute -top-[30%] -right-[10%] w-[80%] h-[80%] bg-gold/15 rounded-full blur-[120px] md:blur-[160px] pointer-events-none transform-gpu" />
+        <div className="absolute top-[20%] -left-[20%] w-[60%] h-[60%] bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none transform-gpu" />
+        
+        {/* Subtle Textured Pattern */}
+        <div className="absolute inset-0 pattern-islamic opacity-[0.08] scale-[1.2] transform-gpu pointer-events-none mix-blend-soft-light" />
+        
+        {/* Floating Particles/Dust (CSS illusion) */}
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 pointer-events-none mix-blend-screen" />
         
         <div className="relative z-10 flex flex-col items-center text-center space-y-6 max-w-4xl mx-auto w-full">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-sm">
@@ -198,7 +209,7 @@ const Index = () => {
         </div>
       </section>
 
-      <main className="container-responsive py-8 md:py-12 space-y-8 md:space-y-12 relative z-30">
+      <main className="container-responsive pb-12 pt-4 md:pb-16 md:pt-8 space-y-8 md:space-y-12 relative z-30">
         {/* Global Community Challenge */}
         <ScrollReveal>
           <GlobalKhatmaBanner />

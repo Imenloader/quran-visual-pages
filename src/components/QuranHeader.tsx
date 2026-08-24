@@ -37,15 +37,26 @@ const QuranHeader = ({
       <div className="absolute top-6 left-6 z-50">
         <SyncStatusIndicator />
       </div>
-      {/* Immersive Background Layer */}
+      {/* Immersive Background Layer - Luxurious Edition */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 pattern-islamic scale-[2] opacity-15 transform-gpu" />
+        {/* Base Color */}
+        <div className="absolute inset-0 bg-gradient-to-b from-emerald-950 via-emerald-deep to-primary transform-gpu" />
         
-        {/* Atmospheric Gradients */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-deep/40 to-emerald-deep transform-gpu" />
+        {/* Soft Radial Glows */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gold/15 via-emerald-950/50 to-transparent transform-gpu mix-blend-overlay" />
         
-        <div className="absolute -top-1/2 -right-1/4 w-[120%] h-[120%] bg-gold/10 rounded-full blur-[80px] md:blur-[160px] opacity-20 transform-gpu" />
-        <div className="absolute -bottom-1/2 -left-1/4 w-[100%] h-[100%] bg-emerald-light/10 rounded-full blur-[60px] md:blur-[140px] opacity-15 transform-gpu" />
+        {/* Textured Pattern */}
+        <div className="absolute inset-0 pattern-islamic scale-[1.5] md:scale-[2] opacity-[0.08] mix-blend-soft-light transform-gpu" />
+        
+        {/* Dust/Stardust Texture */}
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 mix-blend-screen transform-gpu" />
+        
+        {/* Edge Shadows for depth */}
+        <div className="absolute inset-0 shadow-[inset_0_0_80px_rgba(0,0,0,0.5)] transform-gpu" />
+
+        {/* Ambient Glowing Orbs */}
+        <div className="absolute -top-[50%] -right-[20%] w-[120%] h-[120%] bg-gold/10 rounded-full blur-[100px] md:blur-[160px] transform-gpu" />
+        <div className="absolute -bottom-[50%] -left-[20%] w-[100%] h-[100%] bg-emerald-500/15 rounded-full blur-[80px] md:blur-[140px] transform-gpu" />
       </div>
 
       {/* Content Container */}
