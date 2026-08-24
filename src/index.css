@@ -244,7 +244,11 @@
 }
 
 .quran-page-img {
-  @apply w-full h-auto object-contain;
+  filter: sepia(0.05) contrast(1.02);
+}
+
+.quran-page-bg {
+  background-color: #fcfbdc;
   filter: sepia(0.05) contrast(1.02);
 }
 
@@ -257,7 +261,17 @@
   filter: invert(1) brightness(0.8) contrast(1.2);
 }
 
+.dark .quran-page-bg {
+  background-color: #fcfbdc;
+  filter: invert(1) brightness(0.8) contrast(1.2);
+}
+
 .sepia .quran-page-img {
+  filter: sepia(0.35) contrast(1.02) brightness(0.9);
+}
+
+.sepia .quran-page-bg {
+  background-color: #fcfbdc;
   filter: sepia(0.35) contrast(1.02) brightness(0.9);
 }
 

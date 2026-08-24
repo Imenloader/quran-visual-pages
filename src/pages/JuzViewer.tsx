@@ -1025,12 +1025,13 @@ function JuzViewer() {
 
                   {!errorStates[page] && (
                     <div className="absolute inset-0 w-full h-full overflow-hidden">
+                      <div className="quran-page-bg absolute inset-0 w-full h-full" />
                       <div className={`w-full h-full absolute inset-0 transition-all duration-700 ${isPageHidden(page) ? "blur-3xl opacity-5 grayscale scale-95" : "blur-0 opacity-100 scale-100"}`}>
                         <LazyImage
                           key={getImageUrl(page)}
                           src={getImageUrl(page)}
                           alt={`صفحة ${page} من المصحف الشريف`}
-                          className="quran-page-img w-full h-full object-fill"
+                          className="quran-page-img w-full h-full object-contain"
                           priority={Math.abs(page - currentPage) <= 1}
                           onLoad={() => handleImageLoad(page)}
                           onError={() => handleImageError(page)}
@@ -1085,8 +1086,9 @@ function JuzViewer() {
               <div className="w-full flex-1 h-full flex flex-col items-center">
                 <div key={currentPage} className="w-full h-full flex-1 flex flex-col items-center justify-center">
                   <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
-                  <div className="absolute inset-0 w-full h-full">
-                    {hifzMode && (
+                    <div className="absolute inset-0 w-full h-full">
+                      <div className="quran-page-bg absolute inset-0 w-full h-full" />
+                      {hifzMode && (
                       <div className="absolute top-4 right-4 md:top-6 md:right-6 z-30 flex flex-col gap-2">
                         <div className="flex flex-col gap-1 bg-background/80 backdrop-blur-xl p-1 rounded-2xl border border-border/20 shadow-2xl">
                           <button
@@ -1128,7 +1130,7 @@ function JuzViewer() {
                         key={getImageUrl(currentPage)}
                         src={getImageUrl(currentPage)}
                         alt={`صفحة ${currentPage} من المصحف الشريف`}
-                        className="quran-page-img w-full h-full object-fill"
+                        className="quran-page-img w-full h-full object-contain"
                         priority={true}
                         onLoad={() => handleImageLoad(currentPage)}
                         onError={() => handleImageError(currentPage)}
