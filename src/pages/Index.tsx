@@ -120,7 +120,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="min-h-screen bg-background flex flex-col pb-24">
       {/* Hero Section */}
       <section className="relative w-full pt-16 pb-24 px-6 md:px-12 md:pt-24 md:pb-32 flex flex-col items-center justify-center overflow-hidden rounded-b-[3rem] shadow-islamic mb-8">
         {/* Deep, Rich Base */}
@@ -210,7 +210,7 @@ const Index = () => {
         </div>
       </section>
 
-      <main className="container-responsive pb-12 pt-4 md:pb-16 md:pt-8 space-y-8 md:space-y-12 relative z-30">
+      <main className="flex-1 container-responsive pb-12 pt-4 md:pb-16 md:pt-8 space-y-8 md:space-y-12 relative z-30">
         {/* Global Community Challenge */}
         <ScrollReveal>
           <GlobalKhatmaBanner />
@@ -409,7 +409,7 @@ const Index = () => {
         </ScrollReveal>
       </main>
 
-      <footer className="mt-24 py-16 border-t border-border/40 bg-card/30 backdrop-blur-md relative overflow-hidden">
+      <footer className="mt-auto pt-16 pb-8 border-t border-border/40 bg-card/30 backdrop-blur-md relative overflow-hidden">
         <div className="absolute inset-0 pattern-islamic opacity-[0.02] pointer-events-none" />
         <div className="container max-w-6xl mx-auto px-6 text-center relative z-10">
           <div className="w-16 h-16 bg-emerald-deep rounded-[1.5rem] flex items-center justify-center mx-auto mb-8 shadow-lg">
