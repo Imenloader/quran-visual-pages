@@ -323,11 +323,11 @@
 
 
 .glass-card {
-  @apply bg-card/60 backdrop-blur-2xl border border-border/40 shadow-sm hover:shadow-islamic transition-all;
+  @apply bg-card border border-border shadow-islamic transition-all overflow-hidden hover:shadow-lg;
 }
 
 .bento-card {
-  @apply relative overflow-hidden rounded-[2rem] border border-border/40 bg-card/60 backdrop-blur-2xl p-8 shadow-sm hover:shadow-islamic transition-all;
+  @apply relative overflow-hidden rounded-[2.5rem] bg-card border border-border p-8 shadow-islamic hover:shadow-lg transition-all;
 }
 
 .pill-image {
