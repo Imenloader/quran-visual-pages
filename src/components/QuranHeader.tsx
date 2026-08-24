@@ -54,7 +54,7 @@ const QuranHeader = ({
         {/* Micro-label */}
         <div className="flex items-center gap-3 md:gap-6 mb-4 md:mb-12 transform-gpu">
           <div className="h-px w-6 bg-gradient-to-l from-gold/60 to-transparent" />
-          <span className="text-[8px] md:text-[11px] uppercase tracking-[0.2em] md:tracking-[0.5em] font-bold text-gold drop-shadow-sm">
+          <span className="text-[8px] md:text-[11px] uppercase font-bold text-gold drop-shadow-sm">
             {t('app.title')}
           </span>
           <div className="h-px w-6 bg-gradient-to-r from-gold/60 to-transparent" />
@@ -100,7 +100,7 @@ const QuranHeader = ({
         {/* Floating Footer details */}
         {!isCompact && (
           <div className="absolute bottom-10 md:bottom-16 flex flex-col items-center gap-3 md:gap-4 opacity-60 transform-gpu">
-            <span className="text-[8px] md:text-[10px] uppercase tracking-[0.4em] md:tracking-[0.6em] font-bold text-white/80">
+            <span className="text-[8px] md:text-[10px] uppercase font-bold text-white/80">
               {t('app.subtitle')}
             </span>
             <div className="w-px h-8 bg-gold/30" />
