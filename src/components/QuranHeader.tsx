@@ -35,7 +35,7 @@ const QuranHeader = ({
 
       {/* Sync Status Indicator */}
       <div className="absolute top-6 left-6 z-50">
-        <SyncStatusIndicator />
+        <SyncStatusIndicator darkTheme />
       </div>
       {/* Immersive Background Layer - Luxurious Edition */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">

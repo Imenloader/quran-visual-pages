@@ -121,19 +121,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-32">
-      {/* Top App Bar - Glassmorphic */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-background/80 backdrop-blur-xl border-b border-border/40 transition-all">
-        <div className="flex items-center gap-4">
-          <SyncStatusIndicator />
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="font-serif font-bold text-xl text-primary">{t('app.title')}</span>
-          <MoonStar className="text-gold size-6" strokeWidth={1.5} />
-        </div>
-      </nav>
-
       {/* Hero Section */}
-      <section className="relative w-full pt-32 pb-24 px-6 md:px-12 md:pt-48 md:pb-32 flex flex-col items-center justify-center overflow-hidden rounded-b-[3rem] shadow-islamic mb-8">
+      <section className="relative w-full pt-16 pb-24 px-6 md:px-12 md:pt-24 md:pb-32 flex flex-col items-center justify-center overflow-hidden rounded-b-[3rem] shadow-islamic mb-8">
         {/* Deep, Rich Base */}
         <div className="absolute inset-0 bg-gradient-to-b from-emerald-950 via-emerald-deep to-primary transform-gpu" />
         
@@ -151,10 +140,22 @@ const Index = () => {
         {/* Floating Particles/Dust (CSS illusion) */}
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 pointer-events-none mix-blend-screen" />
         
+        {/* Top Floating App Info (Replaces bland top bar) */}
+        <div className="relative z-20 w-full max-w-6xl mx-auto flex flex-col-reverse md:flex-row items-center justify-between gap-6 mb-16 md:mb-24">
+          <SyncStatusIndicator darkTheme />
+          
+          <div className="flex items-center gap-3">
+            <div className="h-px w-8 bg-gradient-to-l from-gold/60 to-transparent" />
+            <span className="font-serif font-bold text-xl md:text-2xl text-gold drop-shadow-md">{t('app.title')}</span>
+            <MoonStar className="text-gold size-6 md:size-8" strokeWidth={1.5} />
+            <div className="h-px w-8 bg-gradient-to-r from-gold/60 to-transparent" />
+          </div>
+        </div>
+
         <div className="relative z-10 flex flex-col items-center text-center space-y-6 max-w-4xl mx-auto w-full">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-sm">
             <Sparkles size={14} className="text-gold" />
-            <span className="text-xs font-bold text-gold">{t("index.hero.badge")}</span>
+            <span className="text-xs font-bold text-gold tracking-wide uppercase">{t("index.hero.badge")}</span>
           </div>
           
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif text-white leading-tight font-light">
