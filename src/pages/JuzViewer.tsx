@@ -44,8 +44,14 @@ const getBookmark = (): BookmarkData | null => {
     const data = localStorage.getItem(BOOKMARK_KEY);
     if (!data) return null;
     const parsed = JSON.parse(data);
-    if (parsed && typeof parsed.juz === 'number' && typeof parsed.page === 'number') {
-      return parsed;
+    
+    // Handle wrapped syncService payload format
+    const bookmarkData = (parsed && typeof parsed === 'object' && '_syncedAt' in parsed) 
+      ? parsed.data 
+      : parsed;
+
+    if (bookmarkData && typeof bookmarkData.juz === 'number' && typeof bookmarkData.page === 'number') {
+      return bookmarkData;
     }
     return null;
   } catch {
@@ -76,7 +82,7 @@ function JuzViewer() {
   const { juzNumber } = useParams();
   const num = parseInt(juzNumber || "0");
   const juz = juzData.find((j) => j.number === num);
-  const { theme, readingMode, scrollDirection, tajweedMode, hifzMode, setHifzMode, preferredImageSource, setPreferredImageSource, isLoaded } = useTheme();
+  const { theme, readingMode, setReadingMode, scrollDirection, tajweedMode, hifzMode, setHifzMode, preferredImageSource, setPreferredImageSource, isLoaded } = useTheme();
   const { addAyahRead, addPageRead, addJuzCompleted } = useUser();
   const { pageStatus, refreshJuzCompletion, prefetchNeighborPages, prepareJuzOffline } = useOffline();
   const { isTracking, trackingSession, stopTracking, updateTrackingPage } = useQanet();
@@ -396,11 +402,19 @@ function JuzViewer() {
 
 
   useEffect(() => {
+    let isMounted = true;
     const initPage = async () => {
       if (pages.length > 0 && currentPage === 0) {
         // Try to load from cloud/local
         const cloudBookmark = await syncService.loadData<BookmarkData | null>(BOOKMARK_KEY, null);
         
+        if (!isMounted) return;
+
+        // Restore reading mode if the bookmark specifies it
+        if (cloudBookmark?.readingMode && cloudBookmark.readingMode !== readingMode) {
+          setReadingMode(cloudBookmark.readingMode);
+        }
+
         let targetPage = cloudBookmark?.page;
         let targetVerse = cloudBookmark?.verseKey;
 
@@ -439,7 +453,11 @@ function JuzViewer() {
       }
     };
     initPage();
-  }, [pages, num, scrollDirection, currentPage, location.hash]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [pages, num, scrollDirection, currentPage, location.hash, readingMode, setReadingMode]);
 
   useEffect(() => {
     if (!juz) return;

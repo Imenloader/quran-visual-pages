@@ -61,9 +61,14 @@ const Index = () => {
     if (savedBookmark) {
       try {
         const parsed = JSON.parse(savedBookmark);
-        // Validate legacy or corrupted bookmarks
-        if (parsed && typeof parsed.juz === 'number' && typeof parsed.page === 'number') {
-          setBookmark(parsed);
+        // Handle wrapped syncService payload format: { data: { juz, page }, _syncedAt }
+        const bookmarkData = (parsed && typeof parsed === 'object' && '_syncedAt' in parsed) 
+          ? parsed.data 
+          : parsed;
+
+        // Validate bookmark payload
+        if (bookmarkData && typeof bookmarkData.juz === 'number' && typeof bookmarkData.page === 'number') {
+          setBookmark(bookmarkData);
         } else {
           localStorage.removeItem(BOOKMARK_KEY);
         }
