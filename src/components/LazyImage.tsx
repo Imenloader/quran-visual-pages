@@ -38,7 +38,7 @@ const LazyImage = ({ src, alt, className = "", onLoad, onError, priority = false
       <img
         src={src}
         alt={alt}
-        className={`${className} ${isLoaded ? "opacity-100" : "opacity-0 absolute inset-0"}`}
+        className={`${className} absolute inset-0 transition-opacity duration-300 ${isLoaded ? "opacity-100" : "opacity-0"}`}
         onLoad={() => {
           setIsLoaded(true);
           onLoad?.();

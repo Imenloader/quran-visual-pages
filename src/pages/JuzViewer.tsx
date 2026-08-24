@@ -783,7 +783,7 @@ function JuzViewer() {
 
   return (
     <div
-      className={`min-h-dvh bg-background selection:bg-accent/20 ${isFullscreen ? "fullscreen-reading" : ""}`}
+      className={`min-h-dvh bg-background selection:bg-accent/20 flex flex-col ${isFullscreen ? "fullscreen-reading" : ""}`}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
@@ -922,7 +922,7 @@ function JuzViewer() {
       )}
 
       <main
-        className={`w-full flex flex-col items-center transition-all duration-500`}
+        className={`w-full flex-1 flex flex-col items-center transition-all duration-500`}
         onClick={handleScreenTap}
       >
         {tajweedMode && !hifzMode && readingMode === "image" && (
@@ -940,11 +940,11 @@ function JuzViewer() {
 
         <div 
           ref={containerRef}
-          className="w-full overflow-x-auto custom-scrollbar touch-auto"
+          className="w-full h-full flex-1 overflow-x-auto custom-scrollbar touch-auto flex flex-col"
         >
           <div 
             className={cn(
-              "flex flex-col gap-0 mx-auto origin-top",
+              "min-h-full w-full flex flex-col gap-0 mx-auto origin-top",
               !isPinching && "transition-[width] duration-300 ease-out"
             )}
             style={{ 
@@ -963,7 +963,7 @@ function JuzViewer() {
                     if (el) pageRefs.current[page] = el;
                   }}
                   id={`page-${page}`}
-                  className={`relative w-full h-dvh group flex items-center justify-center`}
+                  className={`relative w-full h-dvh shrink-0 group flex items-center justify-center`}
                 >
                   {hifzMode && (
                     <div className="sticky top-4 md:top-6 z-30 flex justify-end px-4 md:px-6 pointer-events-none">
@@ -1013,7 +1013,7 @@ function JuzViewer() {
                   </div>
 
                   {errorStates[page] && (
-                    <div className="w-full aspect-[3/4] bg-muted/30 flex flex-col items-center justify-center gap-4">
+                    <div className="w-full h-full aspect-[3/4] bg-muted/30 flex flex-col items-center justify-center gap-4">
                       <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center text-destructive">
                         <ArrowUp className="rotate-180" size={24} />
                       </div>
@@ -1082,8 +1082,9 @@ function JuzViewer() {
                 </div>
               ))
             ) : (
-              <div className="w-full flex flex-col items-center">
-                <div key={currentPage}>                <div className="relative w-full h-dvh overflow-hidden flex items-center justify-center">
+              <div className="w-full flex-1 h-full flex flex-col items-center">
+                <div key={currentPage} className="w-full h-full flex-1 flex flex-col items-center justify-center">
+                  <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
                   <div className="absolute inset-0 w-full h-full">
                     {hifzMode && (
                       <div className="absolute top-4 right-4 md:top-6 md:right-6 z-30 flex flex-col gap-2">
