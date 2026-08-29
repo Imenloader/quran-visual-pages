@@ -96,6 +96,13 @@ function JuzViewer() {
   const [isPreparingJuzOffline, setIsPreparingJuzOffline] = useState(false);
   const [zoom, setZoom] = useState(100);
   const [currentPage, setCurrentPage] = useState(juz?.startPage || 0);
+  const [isRestored, setIsRestored] = useState(false);
+  const hasInitializedRef = useRef(false);
+
+  useEffect(() => {
+    hasInitializedRef.current = false;
+    setIsRestored(false);
+  }, [num]);
   const [hiddenPages, setHiddenPages] = useState<Record<number, boolean>>(() => {
     try {
       const saved = localStorage.getItem("quran-hidden-pages");
@@ -404,7 +411,9 @@ function JuzViewer() {
   useEffect(() => {
     let isMounted = true;
     const initPage = async () => {
-      if (pages.length > 0 && currentPage === 0) {
+      if (pages.length > 0 && !hasInitializedRef.current) {
+        hasInitializedRef.current = true;
+        
         // Try to load from cloud/local
         const cloudBookmark = await syncService.loadData<BookmarkData | null>(BOOKMARK_KEY, null);
         
@@ -417,6 +426,11 @@ function JuzViewer() {
 
         let targetPage = cloudBookmark?.page;
         let targetVerse = cloudBookmark?.verseKey;
+
+        // Sync local savedBookmark state on mount so the bookmark icon matches immediately
+        if (cloudBookmark) {
+          setSavedBookmark(cloudBookmark);
+        }
 
         // Parse hash if present (e.g., #verse-1:2 or #page-5)
         if (location.hash) {
@@ -439,17 +453,25 @@ function JuzViewer() {
           setCurrentPage(targetPage);
           if (targetVerse) setCurrentVerseKey(targetVerse);
           if (scrollDirection === "vertical") {
-            setTimeout(() => scrollToPage(targetPage!), 100);
+            setTimeout(() => scrollToPage(targetPage!, false), 50);
+            setTimeout(() => scrollToPage(targetPage!, false), 200);
+            setTimeout(() => scrollToPage(targetPage!, false), 500);
           }
         } else if (cloudBookmark && cloudBookmark.juz === num && pages.includes(cloudBookmark.page)) {
           setCurrentPage(cloudBookmark.page);
           if (cloudBookmark.verseKey) setCurrentVerseKey(cloudBookmark.verseKey);
           if (scrollDirection === "vertical") {
-            setTimeout(() => scrollToPage(cloudBookmark.page), 100);
+            setTimeout(() => scrollToPage(cloudBookmark.page, false), 50);
+            setTimeout(() => scrollToPage(cloudBookmark.page, false), 200);
+            setTimeout(() => scrollToPage(cloudBookmark.page, false), 500);
           }
         } else {
           setCurrentPage(pages[0]);
+          if (scrollDirection === "vertical") {
+            setTimeout(() => scrollToPage(pages[0], false), 50);
+          }
         }
+        setIsRestored(true);
       }
     };
     initPage();
@@ -457,7 +479,7 @@ function JuzViewer() {
     return () => {
       isMounted = false;
     };
-  }, [pages, num, scrollDirection, currentPage, location.hash, readingMode, setReadingMode]);
+  }, [pages, num, scrollDirection, location.hash, readingMode, setReadingMode]);
 
   useEffect(() => {
     if (!juz) return;
@@ -470,10 +492,10 @@ function JuzViewer() {
     prefetchNeighborPages(currentPage, 2, { start: juz.startPage, end: juz.endPage });
   }, [currentPage, juz, prefetchNeighborPages]);
 
-  const scrollToPage = useCallback((page: number) => {
+  const scrollToPage = useCallback((page: number, smooth = true) => {
     const el = pageRefs.current[page];
     if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      el.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
     }
   }, []);
 
@@ -640,7 +662,7 @@ function JuzViewer() {
 
 
   useEffect(() => {
-    if (currentPage !== 0 && juz) {
+    if (isRestored && juz) {
       const timer = setTimeout(() => {
         saveBookmark(num, currentPage, readingMode, currentVerseKey);
         setSavedBookmark({ juz: num, page: currentPage, readingMode, verseKey: currentVerseKey });
@@ -698,7 +720,7 @@ function JuzViewer() {
 
       return () => clearTimeout(timer);
     }
-  }, [currentPage, num, readingMode, juz, currentVerseKey, addPageRead, addJuzCompleted, pages.length]);
+  }, [currentPage, num, readingMode, juz, currentVerseKey, addPageRead, addJuzCompleted, pages.length, isRestored]);
 
 
   useEffect(() => {

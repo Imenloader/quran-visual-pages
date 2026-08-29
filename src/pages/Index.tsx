@@ -57,6 +57,7 @@ const Index = () => {
   }, []);
 
   useEffect(() => {
+    // 1. Load instantly from localStorage for fast render
     const savedBookmark = localStorage.getItem(BOOKMARK_KEY);
     if (savedBookmark) {
       try {
@@ -77,6 +78,19 @@ const Index = () => {
         localStorage.removeItem(BOOKMARK_KEY);
       }
     }
+
+    // 2. Load from syncService (cloud/local) to get fresh/latest bookmark
+    const loadCloudBookmark = async () => {
+      try {
+        const cloudBookmark = await syncService.loadData<BookmarkData | null>(BOOKMARK_KEY, null);
+        if (cloudBookmark && typeof cloudBookmark.juz === 'number' && typeof cloudBookmark.page === 'number') {
+          setBookmark(cloudBookmark);
+        }
+      } catch (e) {
+        console.error("Error loading cloud bookmark:", e);
+      }
+    };
+    loadCloudBookmark();
   }, []);
 
   const handleResumeReading = useCallback(() => {
