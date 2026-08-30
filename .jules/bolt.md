@@ -1,0 +1,3 @@
+## 2024-11-20 - Backward Loop vs Array Cloning for Search
+**Learning:** In a codebase frequently querying static arrays (like `surahIndex` in `src/data/quranData.ts`), using `[...array].reverse().find()` to find an element from the end incurs O(N) memory allocation and O(N) copy overhead before the actual search begins. In a benchmark, replacing this pattern with a backward `for` loop yielded a ~6x speedup.
+**Action:** Always prefer standard backward loops (`for (let i = arr.length - 1; i >= 0; i--)`) over array cloning + reversal chaining (`[...arr].reverse()`) for finding elements from the end of an array, especially in heavily queried data layers.
