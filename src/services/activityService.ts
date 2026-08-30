@@ -82,24 +82,51 @@ export const activityService: ActivityService = {
       return () => {};
     }
 
-    // Filter by friends AND same gender (as per existing rules)
-    const q = query(
-      collection(db, "activities"),
-      where("userId", "in", friendIds),
-      where("gender", "==", gender),
-      orderBy("timestamp", "desc"),
-      limit(50)
-    );
+    // Split friendIds into chunks of 10 (Firebase 'in' query limit)
+    const chunkSize = 10;
+    const chunks = [];
+    for (let i = 0; i < friendIds.length; i += chunkSize) {
+      chunks.push(friendIds.slice(i, i + chunkSize));
+    }
 
-    return onSnapshot(q, (snapshot) => {
-      const activities = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Activity[];
-      callback(activities);
-    }, (error) => {
-      console.warn("Activities sync error:", error);
-      callback([]);
+    const unsubs: (() => void)[] = [];
+    const activitiesMap = new Map<string, Activity[]>();
+
+    chunks.forEach((chunk, index) => {
+      const q = query(
+        collection(db, "activities"),
+        where("userId", "in", chunk),
+        where("gender", "==", gender),
+        orderBy("timestamp", "desc"),
+        limit(50)
+      );
+
+      const unsub = onSnapshot(q, (snapshot) => {
+        const chunkActivities = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Activity[];
+
+        activitiesMap.set(`chunk_${index}`, chunkActivities);
+
+        // Combine all chunks and sort by timestamp
+        const allActivities = Array.from(activitiesMap.values()).flat();
+        allActivities.sort((a, b) => {
+          const timeA = a.timestamp?.toDate ? a.timestamp.toDate().getTime() : 0;
+          const timeB = b.timestamp?.toDate ? b.timestamp.toDate().getTime() : 0;
+          return timeB - timeA;
+        });
+
+        callback(allActivities.slice(0, 50));
+      }, (error) => {
+        console.warn(`Activities sync error for chunk ${index}:`, error);
+      });
+
+      unsubs.push(unsub);
     });
+
+    return () => {
+      unsubs.forEach(unsub => unsub());
+    };
   }
 };

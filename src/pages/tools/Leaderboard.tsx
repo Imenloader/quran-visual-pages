@@ -31,7 +31,7 @@ const Leaderboard: React.FC = () => {
   const fetchLeaderboard = async () => {
     setLoading(true);
     try {
-      const usersRef = collection(db, "users");
+      const usersRef = collection(db, "profiles");
       const q = query(usersRef, orderBy(sortBy, "desc"), limit(100));
       const querySnapshot = await getDocs(q);
       
