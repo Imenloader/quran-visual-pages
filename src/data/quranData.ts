@@ -179,8 +179,12 @@ export const toArabicNumber = (num: number | string | undefined | null, force: b
   return n.replace(/[0-9]/g, (w) => arabicDigits[parseInt(w)]);
 };
 
+// Pre-computed lookup maps for O(1) surah lookup
+export const surahByName = new Map<string, SurahInfo>(surahData.map(s => [s.name, s]));
+export const surahByNumber = new Map<number, SurahInfo>(surahData.map(s => [s.number, s]));
+
 export const getJuzAndPageForSurah = (surahNumber: number): { juz: number; page: number } => {
-  const surah = surahIndex.find(s => s.number === surahNumber);
+  const surah = surahByNumber.get(surahNumber);
   if (!surah) return { juz: 1, page: 1 };
   
   const juz = juzData.find(j => surah.startPage >= j.startPage && surah.startPage <= j.endPage);
