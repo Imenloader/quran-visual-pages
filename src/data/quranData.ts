@@ -136,6 +136,14 @@ export const surahData: SurahInfo[] = [
 
 export const surahIndex = surahData;
 
+export const surahByName = new Map<string, SurahInfo>();
+export const surahByNumber = new Map<number, SurahInfo>();
+surahData.forEach(s => {
+  surahByName.set(s.name, s);
+  surahByNumber.set(s.number, s);
+});
+
+
 export const juzData: JuzInfo[] = [
   { number: 1, nameAr: "الجزء الأول", nameEn: "Juz 1", startPage: 1, endPage: 21, startSurah: "الفاتحة", surahs: ["الفاتحة", "البقرة"] },
   { number: 2, nameAr: "الجزء الثاني", nameEn: "Juz 2", startPage: 22, endPage: 41, startSurah: "البقرة 142", surahs: ["البقرة"] },
