@@ -37,8 +37,6 @@ Requirements:
                 typer rich pyarabic tqdm
 """
 
-from __future__ import annotations
-
 # ─────────────────────────────────────────────────────────────
 # Standard library
 # ─────────────────────────────────────────────────────────────
@@ -54,13 +52,13 @@ import tempfile
 import time
 import urllib.parse
 from collections import deque
-from contextlib import asynccontextmanager, suppress
+from contextlib import suppress
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 from enum import Enum, auto
 from pathlib import Path
 from typing import (
-    Any, Final, Literal, NamedTuple, Protocol,
+    Any, Final, NamedTuple, Protocol,
     Sequence, TypeVar, runtime_checkable,
 )
 
