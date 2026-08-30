@@ -1,0 +1,3 @@
+## 2024-07-01 - [Avoid O(n) array lookups within loops, particularly `Array.find()`]
+**Learning:** Calling `Array.find()` inside mapping functions (e.g., `surahIndex.find(...)` inside `.map()`) or using `[...array].reverse().find()` on every access (like `getSurahByPage`) causes significant performance degradation and main-thread blocking due to array cloning and O(n²) time complexity.
+**Action:** Use pre-computed ES6 `Map` lookups (e.g., `surahByName`, `surahByNumber`) for O(1) retrieval inside loops, and utilize optimized backward `for` loops instead of array spread/reversal for large array lookups.
