@@ -94,9 +94,8 @@ const RoutineBuilder: React.FC = () => {
     saveRoutines(updated);
   };
 
-  const addTask = (routineId: string) => {
-    const title = prompt(isArabic ? 'عنوان المهمة:' : 'Task Title:');
-    if (!title) return;
+  const addTask = (routineId: string, title: string) => {
+    if (!title?.trim()) return;
 
     const updated = routines.map(r => {
       if (r.id === routineId) {
@@ -110,9 +109,11 @@ const RoutineBuilder: React.FC = () => {
     saveRoutines(updated);
   };
 
-  const addRoutine = () => {
-    const name = prompt(isArabic ? 'اسم الروتين الجديد:' : 'New Routine Name:');
-    if (!name) return;
+  const [inputOpen, setInputOpen] = useState<null | 'task' | 'routine'>(null);
+  const [inputValue, setInputValue] = useState('');
+
+  const addRoutine = (name: string) => {
+    if (!name?.trim()) return;
 
     const newRoutine: Routine = {
       id: Date.now().toString(),
@@ -181,7 +182,7 @@ const RoutineBuilder: React.FC = () => {
                 ))}
               </div>
               <button 
-                onClick={addRoutine}
+                onClick={() => { setInputOpen('routine'); setInputValue(''); }}
                 className="w-full mt-6 py-4 rounded-2xl border-2 border-dashed border-border/60 text-muted-foreground hover:border-gold/40 hover:text-gold transition-all flex items-center justify-center gap-2 text-xs font-bold"
               >
                 <Plus size={16} />
@@ -205,7 +206,7 @@ const RoutineBuilder: React.FC = () => {
                      </div>
                   </div>
                   <button 
-                    onClick={() => addTask(currentRoutine.id)}
+                    onClick={() => { setInputOpen('task'); setInputValue(''); }}
                     className="p-3 rounded-xl bg-gold/10 text-gold hover:bg-gold hover:text-white transition-all shadow-sm"
                   >
                     <Plus size={20} />
@@ -244,7 +245,7 @@ const RoutineBuilder: React.FC = () => {
                         </div>
                         <button 
                           onClick={() => deleteTask(currentRoutine.id, task.id)}
-                          className="p-2 text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
+                          className="p-2 text-muted-foreground hover:text-destructive transition-colors opacity-60 sm:opacity-0 sm:group-hover:opacity-100"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -261,8 +262,48 @@ const RoutineBuilder: React.FC = () => {
           </div>
         </div>
       </main>
+      {/* Inline input modal (replaces native prompt() which is blocked in some webviews) */}
+      {inputOpen && (
+        <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setInputOpen(null)}>
+          <div className="bg-card rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-border/40 space-y-4" onClick={e => e.stopPropagation()}>
+            <h3 className="font-serif font-bold text-primary text-lg">
+              {inputOpen === 'task' ? (isArabic ? 'عنوان المهمة' : 'Task title') : (isArabic ? 'اسم الروتين الجديد' : 'New routine name')}
+            </h3>
+            <input
+              autoFocus
+              value={inputValue}
+              onChange={e => setInputValue(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  if (inputOpen === 'task' && activeRoutine) addTask(activeRoutine, inputValue);
+                  if (inputOpen === 'routine') addRoutine(inputValue);
+                  setInputOpen(null); setInputValue('');
+                }
+              }}
+              className="w-full bg-muted/50 border border-border rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              placeholder={inputOpen === 'task' ? (isArabic ? 'مثال: قراءة ورد اليوم' : 'e.g. Read daily portion') : (isArabic ? 'مثال: روتين الصباح' : 'e.g. Morning routine')}
+            />
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => setInputOpen(null)} className="px-4 py-2 rounded-xl text-sm text-muted-foreground hover:text-foreground transition-colors">
+                {isArabic ? 'إلغاء' : 'Cancel'}
+              </button>
+              <button
+                onClick={() => {
+                  if (inputOpen === 'task' && activeRoutine) addTask(activeRoutine, inputValue);
+                  if (inputOpen === 'routine') addRoutine(inputValue);
+                  setInputOpen(null); setInputValue('');
+                }}
+                className="px-5 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:opacity-90 transition-opacity"
+              >
+                {isArabic ? 'إضافة' : 'Add'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
 
 export default RoutineBuilder;

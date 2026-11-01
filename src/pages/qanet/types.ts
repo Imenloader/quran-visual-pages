@@ -1,10 +1,12 @@
 export type QanetLevel = 'heedless' | 'aware' | 'qanet' | 'muqantar';
 
 export interface ReadingRange {
-  startSurah: number;
-  startAyah: number;
-  endSurah: number;
-  endAyah: number;
+  startSurah?: number;
+  startAyah?: number;
+  endSurah?: number;
+  endAyah?: number;
+  startPage?: number;
+  endPage?: number;
 }
 
 export interface QanetLog {
@@ -14,11 +16,13 @@ export interface QanetLog {
   shafaWitr: boolean;
   totalAyahs: number;
   ranges: ReadingRange[];
-  // Legacy single-range fields (kept for backward compat)
-  startSurah: number;
-  startAyah: number;
-  endSurah: number;
-  endAyah: number;
+  pages?: number[];
+  // Legacy single-range fields (kept for backward compat; optional now that
+  // logs record real page ranges instead of a fabricated full-Quran range)
+  startSurah?: number;
+  startAyah?: number;
+  endSurah?: number;
+  endAyah?: number;
 }
 
 export interface QanetSettings {

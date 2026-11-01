@@ -210,6 +210,11 @@ export default function QanetCalculator() {
                     <span>الفجر: {lastThird.fajr}</span>
                   </div>
                 </div>
+              ) : lastThird.error ? (
+                <div className="space-y-1">
+                  <h3 className="font-bold text-foreground">{isArabic ? 'بداية الثلث الأخير' : 'Last Third Start'}</h3>
+                  <p className="text-rose-500 text-[10px] font-bold">{lastThird.error}</p>
+                </div>
               ) : (
                 <div className="space-y-1">
                   <h3 className="font-bold text-foreground">{isArabic ? 'بداية الثلث الأخير' : 'Last Third Start'}</h3>
@@ -324,9 +329,9 @@ export default function QanetCalculator() {
               <div className="relative" dir="rtl">
                 <input
                   type="number"
-                  min="0"
+                  min="1"
                   value={target}
-                  onChange={e => setTarget(Math.max(0, Number(e.target.value)))}
+                  onChange={e => setTarget(Math.max(1, Number(e.target.value)))}
                   className="w-full bg-muted/50 border-2 border-border focus:border-primary outline-none rounded-2xl py-5 px-6 text-foreground text-center font-black text-3xl tabular-nums shadow-inner transition-all"
                 />
                 <div className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-sm">آية</div>

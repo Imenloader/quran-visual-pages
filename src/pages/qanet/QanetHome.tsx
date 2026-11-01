@@ -43,10 +43,11 @@ export default function QanetHome() {
     });
 
     return last30Days.map(date => {
-      const log = logs.find(l => l.date === date);
+      // Sum all logs for the day — multiple sessions per day were undercounted
+      const dayAyahs = logs.filter(l => l.date === date).reduce((sum, l) => sum + (l.totalAyahs || 0), 0);
       return {
         date: date.split('-').slice(1).reverse().join('/'),
-        ayahs: log ? log.totalAyahs : 0,
+        ayahs: dayAyahs,
       };
     });
   }, [logs]);

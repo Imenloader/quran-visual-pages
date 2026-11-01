@@ -252,7 +252,13 @@ const DuaLibrary = () => {
                   <Button variant="ghost" size="icon" className="rounded-xl" onClick={() => copyToClipboard(dua.arabic)}>
                     <Copy className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="rounded-xl">
+                  <Button variant="ghost" size="icon" className="rounded-xl" onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({ title: isAr ? dua.titleAr : dua.titleEn, text: dua.arabic }).catch(() => null);
+                    } else {
+                      copyToClipboard(`${dua.titleAr}\n${dua.arabic}`);
+                    }
+                  }}>
                     <Share2 className="w-4 h-4" />
                   </Button>
                 </div>

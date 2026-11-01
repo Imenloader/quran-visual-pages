@@ -66,8 +66,8 @@ const ZakatCalculator = () => {
           <div className="p-6 bg-primary/10 border border-primary/20 rounded-3xl text-center space-y-2">
             <p className="text-sm text-muted-foreground font-naskh">مقدار الزكاة المستحق</p>
             <p className="text-4xl font-bold font-mono text-primary">{zakatAmount.toLocaleString()} <span className="text-sm font-naskh">ج.م</span></p>
-            {totalWealth < nisabGold && (
-              <p className="text-xs text-rose-500 font-naskh mt-2">إجمالي الثروة أقل من النصاب ({nisabGold.toLocaleString()})</p>
+            {totalWealth < effectiveNisab && (
+              <p className="text-xs text-rose-500 font-naskh mt-2">إجمالي الثروة أقل من النصاب ({effectiveNisab.toLocaleString(undefined, { maximumFractionDigits: 0 })})</p>
             )}
             <div className="pt-2 flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground font-naskh opacity-70">
               <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
@@ -104,6 +104,16 @@ const ZakatCalculator = () => {
                   />
                 </div>
                 <div>
+                  <label className="text-xs text-muted-foreground font-naskh mb-1 block">نقد آخر واستثمارات</label>
+                  <input
+                    type="number"
+                    value={other || ""}
+                    onChange={(e) => setOther(Number(e.target.value) || 0)}
+                    className="w-full bg-muted/50 border border-border/40 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-accent/50"
+                    placeholder="0.00"
+                  />
+                </div>
+                <div>
                   <label className="text-xs text-muted-foreground font-naskh mb-1 block">الفضة (جرام)</label>
                   <input
                     type="number"
@@ -119,7 +129,7 @@ const ZakatCalculator = () => {
             <div className="p-4 bg-muted/50 rounded-2xl border border-border/50 flex items-start gap-3">
               <Info className="w-5 h-5 text-accent shrink-0 mt-0.5" />
               <p className="text-xs text-muted-foreground font-naskh leading-relaxed">
-                يتم حساب الزكاة بنسبة 2.5% من إجمالي الثروة إذا بلغت النصاب (ما يعادل 85 جرام من الذهب) وحال عليها الحول.
+                يتم حساب الزكاة بنسبة 2.5% من إجمالي الثروة إذا بلغت النصاب — ويُعتمد الأدنى بين نصاب الذهب (85 جرام) ونصاب الفضة (595 جرام) — وحال عليها الحول.
               </p>
             </div>
           </div>

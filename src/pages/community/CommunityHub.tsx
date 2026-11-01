@@ -92,7 +92,11 @@ const CommunityHub = () => {
   const navigate = useNavigate();
   const { profile, level, isAdmin } = useUser();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<CommunityTab>((searchParams.get("tab") as CommunityTab) || "today");
+  const [activeTab, setActiveTab] = useState<CommunityTab>(() => {
+    const requested = searchParams.get("tab") as CommunityTab | null;
+    const valid: CommunityTab[] = ["today", "goals", "dua_wall", "dhikr_circles", "posts", "chat", "khatma", "circles"];
+    return requested && valid.includes(requested) ? requested : "today";
+  });
   const [notifications, setNotifications] = useState<CommunityNotification[]>([]);
   const [invitations, setInvitations] = useState<CommunityInvitation[]>([]);
   const [readingCircles, setReadingCircles] = useState<any[]>([]);
