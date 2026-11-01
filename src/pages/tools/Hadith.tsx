@@ -72,6 +72,8 @@ const Hadith = () => {
   const itemsPerPage = 20;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  // "inapp" = try in-app browser sheet (native) or in-modal iframe (web), "external" = new tab
+  const [verifyMode, setVerifyMode] = useState<'inapp' | 'external'>('inapp');
   const [dorarUrl, setDorarUrl] = useState("");
   const [searchTerms, setSearchTerms] = useState("");
 
@@ -211,6 +213,7 @@ const Hadith = () => {
     
     setSearchTerms(terms);
     updateDorarUrl(terms);
+    setVerifyMode('inapp');
     setIsModalOpen(true);
   };
 
@@ -439,9 +442,13 @@ const Hadith = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <button 
-                    onClick={() => window.open(dorarUrl, '_blank')}
+                    onClick={() => {
+                      setVerifyMode('inapp');
+                      window.open(dorarUrl, '_blank');
+                    }}
                     className="p-2 rounded-xl hover:bg-muted transition-colors text-foreground/70 hover:text-foreground"
                     title={i18n.language === 'ar' ? "فتح في نافذة جديدة" : "Open in new window"}
+                    aria-label={i18n.language === 'ar' ? "فتح في نافذة جديدة" : "Open in new window"}
                   >
                     <ExternalLink size={20} />
                   </button>
@@ -472,22 +479,52 @@ const Hadith = () => {
               </div>
             </div>
 
-            {/* Modal Content - dorar.net blocks iframing (X-Frame-Options),
-                so open it in a new tab instead of showing a blank frame */}
-            <div className="flex-1 bg-white relative flex flex-col items-center justify-center gap-5 p-8 text-center">
-              <Info className="w-10 h-10 text-accent/60" />
-              <p className="text-sm font-serif text-foreground max-w-sm">
-                {i18n.language === 'ar' ? "يتم فتح التحقق من الحديث في موقع درار نت خارجي" : "Hadith verification opens on the external Dorar.net site"}
-              </p>
-              <a
-                href={dorarUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-opacity inline-flex items-center gap-2"
-              >
-                <ExternalLink size={16} />
-                {i18n.language === 'ar' ? "فتح درار نت" : "Open Dorar.net"}
-              </a>
+            {/* Modal Content: try in-app embed first; dorar.net sends
+                X-Frame-Options so the iframe may be blank — if it stays
+                blank the user can switch to the external tab with one tap */}
+            <div className="flex-1 bg-white relative">
+              {verifyMode === 'inapp' ? (
+              <>
+                <iframe 
+                  src={dorarUrl} 
+                  className="w-full h-full border-none"
+                  title="Dorar Verification"
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                />
+                {/* If the frame is blocked, offer the escape hatch on top */}
+                <div className="absolute bottom-4 left-0 right-0 flex justify-center pointer-events-none">
+                  <button
+                    onClick={() => setVerifyMode('external')}
+                    className="pointer-events-auto px-4 py-2 rounded-full bg-black/70 text-white text-xs font-bold backdrop-blur-md shadow-lg hover:bg-black/80 transition-colors inline-flex items-center gap-2"
+                  >
+                    <ExternalLink size={14} />
+                    {i18n.language === 'ar' ? "الصفحة لا تظهر؟ افتحها في المتصفح" : "Page blank? Open in browser"}
+                  </button>
+                </div>
+              </>
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center gap-5 p-8 text-center">
+                  <Info className="w-10 h-10 text-accent/60" />
+                  <p className="text-sm font-serif text-foreground max-w-sm">
+                    {i18n.language === 'ar' ? "يتم فتح التحقق من الحديث في موقع درار نت خارجي" : "Hadith verification opens on the external Dorar.net site"}
+                  </p>
+                  <a
+                    href={dorarUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-opacity inline-flex items-center gap-2"
+                  >
+                    <ExternalLink size={16} />
+                    {i18n.language === 'ar' ? "فتح درار نت" : "Open Dorar.net"}
+                  </a>
+                  <button
+                    onClick={() => setVerifyMode('inapp')}
+                    className="text-xs text-muted-foreground hover:text-primary transition-colors underline underline-offset-4"
+                  >
+                    {i18n.language === 'ar' ? "المحاولة داخل التطبيق" : "Try in-app view"}
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Modal Footer */}
