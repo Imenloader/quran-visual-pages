@@ -230,6 +230,12 @@ export const QanetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       // For now, let's say average 15 ayahs per page
       const totalAyahs = trackingSession.visitedPages.length * 15;
       const hijriDateStr = formatHijriDate(new Date(), state.settings.hijriOffset);
+      // Record the actual pages visited; fabricating a full-Quran range was
+      // misleading the user's history
+      const sortedPages = [...trackingSession.visitedPages].sort((a, b) => a - b);
+      const ranges = sortedPages.length > 0
+        ? [{ startPage: sortedPages[0], endPage: sortedPages[sortedPages.length - 1] }]
+        : [];
       
       addLog({
         id: Date.now().toString(),
@@ -237,16 +243,8 @@ export const QanetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         hijriDate: hijriDateStr,
         shafaWitr: false,
         totalAyahs,
-        ranges: [{
-          startSurah: 1,
-          startAyah: 1,
-          endSurah: 114,
-          endAyah: 6
-        }],
-        startSurah: 1,
-        startAyah: 1,
-        endSurah: 114,
-        endAyah: 6
+        ranges,
+        pages: sortedPages
       });
 
       // Update total juz tracked

@@ -195,7 +195,7 @@ const MoonTracker = () => {
               </p>
               <div className="flex items-center gap-3 p-4 rounded-2xl bg-primary/5 border border-primary/10 text-primary">
                 <MapPin className="w-5 h-5" />
-                <span className="text-xs font-bold uppercase tracking-wider">{isAr ? "الحسابات بناءً على موقعك الحالي" : "Calculations based on your current location"}</span>
+                <span className="text-xs font-bold uppercase tracking-wider">{isAr ? "حسابات فلكية عامة بتاريخ اليوم" : "General astronomical calculations for today"}</span>
               </div>
             </div>
           </div>

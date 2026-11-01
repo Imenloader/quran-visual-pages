@@ -310,6 +310,7 @@ const FastingTracker = () => {
                   <Button 
                     variant={day.isCompleted ? "default" : "outline"}
                     size="icon"
+                    aria-label={day.isCompleted ? "إلغاء تحديد الصيام" : "تحديد الصيام كمكتمل"}
                     className={`rounded-xl shrink-0 ${day.isCompleted ? "bg-emerald-500 hover:bg-emerald-600" : ""} active:scale-95`}
                     onClick={() => toggleFast(day.date)}
                   >

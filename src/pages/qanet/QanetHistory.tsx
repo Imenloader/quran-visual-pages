@@ -258,8 +258,12 @@ export default function QanetHistory() {
         <div className="space-y-4">
           {logs.slice(0, 15).map((log) => {
             const level = getQanetLevel(log.totalAyahs);
-            const startSurahName = surahData.find(s => s.number === log.startSurah)?.name || '';
-            const endSurahName = surahData.find(s => s.number === log.endSurah)?.name || '';
+            const range = log.ranges?.[0];
+            const startSurahName = range?.startSurah ? surahData.find(s => s.number === range.startSurah)?.name || '' : '';
+            const endSurahName = range?.endSurah ? surahData.find(s => s.number === range.endSurah)?.name || '' : '';
+            const pageRangeLabel = !startSurahName && range?.startPage
+              ? (isArabic ? `صفحة ${range.startPage}${range.endPage && range.endPage !== range.startPage ? ' - ' + range.endPage : ''}` : `Page ${range.startPage}${range.endPage && range.endPage !== range.startPage ? ' - ' + range.endPage : ''}`)
+              : '';
 
             return (
               <div key={log.id} className="group flex items-center justify-between glass-card hover:-translate-y-1 rounded-[2rem] p-6 shadow-soft hover:shadow-islamic hover:border-primary/20 transition-all">
@@ -284,9 +288,15 @@ export default function QanetHistory() {
                     <span className="text-xs font-bold text-muted-foreground">{isArabic ? 'آية' : 'Ayahs'}</span>
                   </div>
                   <div className="flex items-center justify-end gap-2 text-muted-foreground text-[10px] font-bold uppercase tracking-tighter">
-                    <span className="font-naskh text-sm opacity-80">{startSurahName}</span>
-                    <ChevronRight size={10} className={isArabic ? 'rotate-180' : ''} />
-                    <span className="font-naskh text-sm opacity-80">{endSurahName}</span>
+                    {startSurahName ? (
+                      <>
+                        <span className="font-naskh text-sm opacity-80">{startSurahName}</span>
+                        <ChevronRight size={10} className={isArabic ? 'rotate-180' : ''} />
+                        <span className="font-naskh text-sm opacity-80">{endSurahName}</span>
+                      </>
+                    ) : (
+                        <span className="font-naskh text-sm opacity-80">{pageRangeLabel}</span>
+                    )}
                     <span className="mx-2 opacity-30">|</span>
                     <span>{log.hijriDate}</span>
                   </div>

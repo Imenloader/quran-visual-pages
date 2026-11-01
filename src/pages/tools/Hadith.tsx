@@ -12,6 +12,7 @@ import {
   Shield,
   X,
   ExternalLink,
+  Info,
   Bookmark,
   BookmarkCheck
 } from "lucide-react";
@@ -62,6 +63,7 @@ const Hadith = () => {
   const [hadiths, setHadiths] = useState<HadithItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [totalAvailable, setTotalAvailable] = useState(0);
@@ -106,10 +108,12 @@ const Hadith = () => {
         } else {
           setHadiths(data.data.hadiths);
           setTotalAvailable(data.data.available);
+          setLoadError(false);
         }
       }
     } catch (error) {
       console.error("Failed to fetch hadiths:", error);
+      setLoadError(true);
       toast.error("فشل في تحميل الأحاديث");
     } finally {
       setLoading(false);
@@ -391,7 +395,19 @@ const Hadith = () => {
           ) : (
             <div className="text-center py-20 space-y-4">
               <Book className="w-16 h-16 text-muted/20 mx-auto" />
-              <p className="text-muted-foreground font-naskh">لم يتم العثور على أحاديث تطابق بحثك</p>
+              {loadError ? (
+                <>
+                  <p className="text-muted-foreground font-naskh">فشل في تحميل الأحاديث. تحقق من اتصالك.</p>
+                  <button
+                    onClick={() => fetchHadiths(selectedBook, 1)}
+                    className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-opacity"
+                  >
+                    إعادة المحاولة
+                  </button>
+                </>
+              ) : (
+                <p className="text-muted-foreground font-naskh">لم يتم العثور على أحاديث تطابق بحثك</p>
+              )}
             </div>
           )}
         </div>
@@ -456,19 +472,22 @@ const Hadith = () => {
               </div>
             </div>
 
-            {/* Modal Content - Iframe */}
-            <div className="flex-1 bg-white relative">
-              <iframe 
-                src={dorarUrl} 
-                className="w-full h-full border-none"
-                title="Dorar Verification"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-              />
-              
-              {/* Loading Indicator for Iframe */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
-                <Loader2 className="w-12 h-12 animate-spin text-primary" />
-              </div>
+            {/* Modal Content - dorar.net blocks iframing (X-Frame-Options),
+                so open it in a new tab instead of showing a blank frame */}
+            <div className="flex-1 bg-white relative flex flex-col items-center justify-center gap-5 p-8 text-center">
+              <Info className="w-10 h-10 text-accent/60" />
+              <p className="text-sm font-serif text-foreground max-w-sm">
+                {i18n.language === 'ar' ? "يتم فتح التحقق من الحديث في موقع درار نت خارجي" : "Hadith verification opens on the external Dorar.net site"}
+              </p>
+              <a
+                href={dorarUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-opacity inline-flex items-center gap-2"
+              >
+                <ExternalLink size={16} />
+                {i18n.language === 'ar' ? "فتح درار نت" : "Open Dorar.net"}
+              </a>
             </div>
 
             {/* Modal Footer */}
