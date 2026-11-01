@@ -1,10 +1,11 @@
-import React from 'react';
+import { lazy, Suspense } from 'react';
 import { Moon, Calculator, History, Settings, ArrowRight, BookOpen, Home, Activity, Plus } from 'lucide-react';
 import { useNavigate, useLocation, Routes, Route, Navigate, Outlet } from 'react-router-dom';
-import QanetHome from './QanetHome';
-import QanetCalculator from './QanetCalculator';
-import QanetHistory from './QanetHistory';
-import QanetSettings from './QanetSettings';
+// Lazy-load chart-heavy Qanet pages so recharts only ships when visited
+const QanetHome = lazy(() => import('./QanetHome'));
+const QanetCalculator = lazy(() => import('./QanetCalculator'));
+const QanetHistory = lazy(() => import('./QanetHistory'));
+const QanetSettings = lazy(() => import('./QanetSettings'));
 import QanetLogModal from './QanetLogModal';
 import { useQanet } from './QanetContext';
 import { useDynamicTheme } from '@/hooks/useDynamicTheme';
@@ -79,13 +80,15 @@ export default function QanetDashboard() {
 
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto custom-scrollbar pt-6 pb-32">
-        <Routes>
-          <Route index element={<QanetHome />} />
-          <Route path="calculator" element={<QanetCalculator />} />
-          <Route path="history" element={<QanetHistory />} />
-          <Route path="settings" element={<QanetSettings />} />
-          <Route path="*" element={<Navigate to="/qanet" replace />} />
-        </Routes>
+        <Suspense fallback={<div className="h-64 flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" /></div>}>
+          <Routes>
+            <Route index element={<QanetHome />} />
+            <Route path="calculator" element={<QanetCalculator />} />
+            <Route path="history" element={<QanetHistory />} />
+            <Route path="settings" element={<QanetSettings />} />
+            <Route path="*" element={<Navigate to="/qanet" replace />} />
+          </Routes>
+        </Suspense>
       </main>
     </div>
   );

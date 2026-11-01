@@ -75,7 +75,7 @@ const WordAnalysisPopup: React.FC<Props> = ({
     if (url.startsWith('//')) url = `https:${url}`;
     if (!url.startsWith('http')) {
       // Use verses.quran.com for wbw audio
-      url = url.startsWith('wbw/') ? `https://verses.quran.com/${url}` : `https://verses.quran.com/${url}`;
+      url = `https://verses.quran.com/${url}`;
     }
 
     if (audioRef.current) {

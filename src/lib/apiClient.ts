@@ -120,18 +120,7 @@ export async function fetchWithCache(
                   return await proxyResponse.json();
                 }
               } catch (tertiaryProxyError) {
-                console.warn("CorsProxy.io failed, trying ThingProxy...", tertiaryProxyError);
-
-                // 4. Try ThingProxy
-                try {
-                  const proxyUrl = `https://thingproxy.freeboard.io/fetch/${url}`;
-                  const proxyResponse = await fetch(proxyUrl, { signal: controller.signal });
-                  if (proxyResponse.ok) {
-                     return await proxyResponse.json();
-                  }
-                } catch (quaternaryProxyError) {
-                   console.error("All fallbacks and proxies failed", quaternaryProxyError);
-                }
+                console.error("All fallbacks and proxies failed", tertiaryProxyError);
               }
             }
           }

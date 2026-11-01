@@ -251,6 +251,13 @@
   filter: sepia(0.05) contrast(1.02);
 }
 
+/* Disable scroll anchoring inside the mushaf scroller: as late-loading page
+   images expand above the viewport, the browser would otherwise yank the
+   reader back toward their old position mid-reading. */
+.no-scroll-anchor {
+  overflow-anchor: none;
+}
+
 .quran-page-bg {
   background-color: #fcfbdc;
   filter: sepia(0.05) contrast(1.02);

@@ -135,8 +135,8 @@ def main():
     print(f"Total unique raw tokens in Quran: {len(unique_words)}")
     
     source_files = [
-        os.path.join(os.path.dirname(__file__), '..', '..', 'source.txt'),
-        os.path.join(os.path.dirname(__file__), '..', '..', 'https___quran.mu.edu.sa_words.html#Qwords.htm')
+        os.path.join(os.path.dirname(__file__), '..', '..', '..', 'scripts', 'scraper-data', 'source.txt'),
+        os.path.join(os.path.dirname(__file__), '..', '..', '..', 'scripts', 'scraper-data', 'https___quran.mu.edu.sa_words.html#Qwords.htm')
     ]
     
     mega_local = {}

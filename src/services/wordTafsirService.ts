@@ -1,6 +1,6 @@
 import mujamData from "@/data/Datasets/mujam.json";
 
-interface WordTafsir {
+export interface WordTafsir {
   root?: string;
   meaning?: string;
   notes?: string;
