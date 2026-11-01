@@ -124,8 +124,7 @@ export const AudioPlayerProvider = ({ children }: { children: ReactNode }) => {
   const [repeatMode, setRepeatMode] = useState<'none' | 'all' | 'one'>(() => {
     const saved = localStorage.getItem("quran-repeat-mode");
     if (saved === 'all' || saved === 'one') return saved;
-    // Backward compatibility
-    return localStorage.getItem("quran-is-repeat") === "true" ? 'one' : 'none';
+    return 'none';
   });
   const [isShuffle, setIsShuffle] = useState(() => localStorage.getItem("quran-is-shuffle") === "true");
   const [audioLoading, setAudioLoading] = useState(false);
