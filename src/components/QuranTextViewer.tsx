@@ -24,6 +24,7 @@ interface VerseData {
   ayahNumber: number;
   surahName: string;
   fullKey: string; // "surah:ayah"
+  collectionId?: string;
 }
 
 type VerseDataWithBasmalah = VerseData & Pick<ParsedVerseData, "isFirstAyah" | "showBasmalah">;
@@ -279,7 +280,7 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
           </p>
         </div>
         <Link
-          to="/settings"
+          to="/admin/settings"
           className="px-6 py-3 rounded-xl bg-accent/10 text-accent font-serif font-bold hover:bg-accent/20 transition-all"
         >
           انتقل للإعدادات

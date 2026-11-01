@@ -3,6 +3,7 @@ export interface DailyVerseData {
   surah: string;
   number: number;
   tafsir: string;
+  translation?: string;
 }
 
 export const dailyVerses: DailyVerseData[] = [

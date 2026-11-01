@@ -127,7 +127,7 @@ const showNotification = async (title: string, body: string, tag: string, url: s
   const winNotif = (window as unknown as { Notification: typeof Notification }).Notification;
   if (!winNotif || winNotif.permission !== "granted") return;
 
-  const options: NotificationOptions = {
+  const options: NotificationOptions & { renotify?: boolean } = {
     body,
     icon: "/pwa-192x192.png",
     badge: "/pwa-192x192.png",

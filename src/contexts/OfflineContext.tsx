@@ -19,7 +19,7 @@ interface OfflineContextValue {
   
   // Actions
   refresh: () => Promise<void>;
-  downloadBundle: (bundleId: any) => Promise<void>;
+  downloadBundle: (bundleId: any) => Promise<OfflineBundleStatus>;
   clearBundle: (bundleId: any) => Promise<void>;
   clearAll: () => Promise<void>;
   

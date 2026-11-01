@@ -32,6 +32,7 @@ interface UserProfile {
   daysActive: number;
   lastActiveDate: string;
   role: 'user' | 'admin';
+  currentStreak?: number;
   completedQuests?: string[];
   lastQuestDate?: string;
   dailyReadingHistory?: { date: string; pages: number }[];
@@ -399,9 +400,20 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const isAdmin = profile.role === 'admin' || auth.currentUser?.email === "3wdkyarb@gmail.com";
 
+  // Consecutive-day streak: derived from daysActive + lastActiveDate.
+  const currentStreak = useMemo(() => {
+    if (!profile.lastActiveDate) return 0;
+    const lastDate = new Date(profile.lastActiveDate);
+    const today = new Date(new Date().toISOString().split("T")[0]);
+    const diffDays = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+    // Streak only counts if the user was active today or yesterday; otherwise it's broken.
+    if (diffDays > 1) return 0;
+    return profile.daysActive || 0;
+  }, [profile.daysActive, profile.lastActiveDate]);
+
   return (
     <UserContext.Provider value={{
-      profile, updateProfile, addPoints, addAyahRead, addPageRead,
+      profile: { ...profile, currentStreak }, updateProfile, addPoints, addAyahRead, addPageRead,
       addJuzCompleted, addAthkarRecited, level: currentLevel,
       nextLevelPoints: nextLevelThreshold, prevLevelPoints: prevLevelThreshold,
       levelProgress: progress, levelName, isAuthReady, completeQuest,

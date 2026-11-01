@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { communityService, LiveDhikrCircle } from '@/services/communityService';
+import { communityService } from '@/services/communityService';
+import type { LiveDhikrCircle as LiveDhikrCircleData } from '@/services/communityService';
 import { useUser } from '@/contexts/UserContext';
 import { Zap, Users, ShieldCheck, Loader2, Plus, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,7 @@ const LiveDhikrCircle = () => {
   const { i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
   const { profile } = useUser();
-  const [circles, setCircles] = useState<LiveDhikrCircle[]>([]);
+  const [circles, setCircles] = useState<LiveDhikrCircleData[]>([]);
   const [loading, setLoading] = useState(true);
   const [newTitle, setNewTitle] = useState("");
   const [newTarget, setNewTarget] = useState(1000);
@@ -24,7 +25,7 @@ const LiveDhikrCircle = () => {
 
   useEffect(() => {
     const unsub = onSnapshot(query(collection(db, "live_dhikr_circles"), orderBy("createdAt", "desc"), limit(10)), (snap) => {
-      setCircles(snap.docs.map((d) => ({ id: d.id, ...d.data() } as LiveDhikrCircle)));
+      setCircles(snap.docs.map((d) => ({ id: d.id, ...d.data() } as LiveDhikrCircleData)));
       setLoading(false);
     });
     return () => unsub();
