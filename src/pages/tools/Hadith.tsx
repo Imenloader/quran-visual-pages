@@ -48,6 +48,35 @@ const bookNamesAr: Record<string, string> = {
   "malik": "موطأ مالك"
 };
 
+// Fawaz Ahmed's hadith-api on jsDelivr — CDN-backed, CORS-friendly, and far
+// more reliable than the gading.dev API which intermittently 502s. Maps the
+// app's book ids to that dataset's editions.
+const HADITH_API_EDITIONS: Record<string, string> = {
+  "bukhari": "ara-bukhari",
+  "muslim": "ara-muslim",
+  "tirmidzi": "ara-tirmidhi",
+  "nasai": "ara-nasai",
+  "abu-daud": "ara-abudawud",
+  "ibnu-majah": "ara-ibnmajah",
+  "malik": "ara-malik"
+};
+
+const fetchHadithApi = async (bookId: string, pageNum: number, itemsPerPage: number) => {
+  const edition = HADITH_API_EDITIONS[bookId];
+  if (!edition) return null;
+  const res = await fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/${edition}.min.json`);
+  if (!res.ok) return null;
+  const data = await res.json();
+  const all: { hadithnumber: number; arabicnumber: number; text: string }[] = data.hadiths || [];
+  const start = (pageNum - 1) * itemsPerPage;
+  const hadiths = all.slice(start, start + itemsPerPage).map(h => ({
+    number: h.hadithnumber,
+    arab: h.text,
+    id: `${h.hadithnumber}`
+  }));
+  return { hadiths, available: all.length };
+};
+
 const getHadithGrade = (bookId: string) => {
   if (bookId === "bukhari" || bookId === "muslim") return "صحيح";
   if (bookId === "malik") return "صحيح (موطأ)";
@@ -101,16 +130,35 @@ const Hadith = () => {
     try {
       const start = (pageNum - 1) * itemsPerPage + 1;
       const end = pageNum * itemsPerPage;
-      const response = await fetch(`https://api.hadith.gading.dev/books/${bookId}?range=${start}-${end}`);
-      const data = await response.json();
+      // Primary: gading.dev API. Fallback: jsDelivr hadith-api (its 502s are frequent)
+      let data: { code: number; data?: { hadiths: HadithItem[]; available?: number } } | null = null;
+      try {
+        const response = await fetch(`https://api.hadith.gading.dev/books/${bookId}?range=${start}-${end}`);
+        data = await response.json();
+      } catch {
+        data = null;
+      }
       
-      if (data.code === 200) {
+      if (data?.code === 200 && data.data?.hadiths) {
         if (isLoadMore) {
-          setHadiths(prev => [...prev, ...data.data.hadiths]);
+          setHadiths(prev => [...prev, ...data!.data!.hadiths]);
         } else {
           setHadiths(data.data.hadiths);
-          setTotalAvailable(data.data.available);
+          setTotalAvailable(data.data.available || 0);
           setLoadError(false);
+        }
+      } else {
+        const fallback = await fetchHadithApi(bookId, pageNum, itemsPerPage);
+        if (fallback && fallback.hadiths.length > 0) {
+          if (isLoadMore) {
+            setHadiths(prev => [...prev, ...fallback.hadiths]);
+          } else {
+            setHadiths(fallback.hadiths);
+            setTotalAvailable(fallback.available);
+            setLoadError(false);
+          }
+        } else {
+          setLoadError(true);
         }
       }
     } catch (error) {
