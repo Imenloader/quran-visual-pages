@@ -94,6 +94,7 @@ const ReadingToolbar = ({
             onClick={(e) => { e.stopPropagation(); onSaveBookmark(); }}
             className={cn("toolbar-btn !p-2 md:!p-2.5 transition-all active:scale-90", bookmarked ? "text-accent" : "text-primary/70")}
             title="حفظ الموضع"
+            aria-label="حفظ الموضع"
           >
             <Bookmark className="size-[18px] md:size-[20px]" fill={bookmarked ? "currentColor" : "none"} />
           </button>
@@ -108,27 +109,33 @@ const ReadingToolbar = ({
 
         {/* Scrollable Center: View & Mode Tools */}
         <div className="flex-1 flex items-center gap-1 md:gap-2 overflow-x-auto no-scrollbar py-1">
-          <button onClick={(e) => { e.stopPropagation(); toggleTheme(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0">
+          <button aria-label={theme === "dark" ? "الوضع النهاري" : "الوضع الليلي"}
+            onClick={(e) => { e.stopPropagation(); toggleTheme(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0">
             {theme === "dark" ? <Moon className="size-[18px] md:size-[20px]" /> : <Sun className="size-[18px] md:size-[20px]" />}
           </button>
 
-          <button onClick={(e) => { e.stopPropagation(); toggleReadingMode(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0">
+          <button aria-label={readingMode === "image" ? "وضع النص" : "وضع الصور"}
+            onClick={(e) => { e.stopPropagation(); toggleReadingMode(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0">
             {readingMode === "image" ? <Type className="size-[18px] md:size-[20px]" /> : <FileImage className="size-[18px] md:size-[20px]" />}
           </button>
 
-          <button onClick={(e) => { e.stopPropagation(); onToggleSourceSelector(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0" title="مصدر الصور">
+          <button onClick={(e) => { e.stopPropagation(); onToggleSourceSelector(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0" title="مصدر الصور"
+            aria-label="مصدر الصور">
             <Server className="size-[18px] md:size-[20px]" />
           </button>
 
-          <button onClick={(e) => { e.stopPropagation(); setAtmosphericBackground(!atmosphericBackground); }} className={cn("toolbar-btn !p-2 md:!p-2.5 shrink-0", atmosphericBackground ? "text-accent" : "text-primary/70")}>
+          <button aria-label="خلفية الأجواء"
+            onClick={(e) => { e.stopPropagation(); setAtmosphericBackground(!atmosphericBackground); }} className={cn("toolbar-btn !p-2 md:!p-2.5 shrink-0", atmosphericBackground ? "text-accent" : "text-primary/70")}>
             <Wand2 className="size-[18px] md:size-[20px]" />
           </button>
 
-          <button onClick={(e) => { e.stopPropagation(); toggleScrollDirection(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0">
+          <button aria-label={scrollDirection === "vertical" ? "تمرير أفقي" : "تمرير رأسي"}
+            onClick={(e) => { e.stopPropagation(); toggleScrollDirection(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0">
             {scrollDirection === "vertical" ? <ArrowDown className="size-[18px] md:size-[20px]" /> : <ArrowRightLeft className="size-[18px] md:size-[20px]" />}
           </button>
 
-          <button onClick={(e) => { e.stopPropagation(); onDownloadAudio?.(); }} className={cn("toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0", isDownloadingAudio && "animate-pulse text-accent")}>
+          <button aria-label="تنزيل التلاوة"
+            onClick={(e) => { e.stopPropagation(); onDownloadAudio?.(); }} className={cn("toolbar-btn !p-2 md:!p-2.5 text-primary/70 shrink-0", isDownloadingAudio && "animate-pulse text-accent")}>
             <DownloadCloud className="size-[18px] md:size-[20px]" />
           </button>
 
@@ -138,6 +145,7 @@ const ReadingToolbar = ({
               onClick={(e) => { e.stopPropagation(); setIsQuizOpen(true); }}
               className="p-1.5 md:p-2 rounded-full text-primary/60 hover:text-primary transition-all"
               title="اختبار الحفظ"
+            aria-label="اختبار الحفظ"
             >
               <GraduationCap className="size-[16px] md:size-[18px]" />
             </button>
@@ -145,6 +153,7 @@ const ReadingToolbar = ({
               onClick={(e) => { e.stopPropagation(); onToggleHifzMode(); }}
               className={cn("p-1.5 md:p-2 rounded-full transition-all", hifzMode ? "bg-accent text-white shadow-sm" : "text-primary/60 hover:text-primary")}
               title="وضع الحفظ (الإخفاء)"
+            aria-label="وضع الحفظ (الإخفاء)"
             >
               <EyeOff className="size-[16px] md:size-[18px]" />
             </button>
@@ -162,6 +171,7 @@ const ReadingToolbar = ({
               onClick={(e) => { e.stopPropagation(); onZoomOut(); }}
               className="p-1 rounded-full text-primary/60 hover:text-primary transition-all active:scale-90"
               title="تصغير"
+              aria-label="تصغير"
             >
               <ZoomOut className="size-[16px]" />
             </button>
@@ -175,15 +185,18 @@ const ReadingToolbar = ({
               onClick={(e) => { e.stopPropagation(); onZoomIn(); }}
               className="p-1 rounded-full text-primary/60 hover:text-primary transition-all active:scale-90"
               title="تكبير"
+              aria-label="تكبير"
             >
               <ZoomIn className="size-[16px]" />
             </button>
           </div>
 
-          <button onClick={(e) => { e.stopPropagation(); onTogglePageNav(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70" title="الانتقال لصفحة">
+          <button onClick={(e) => { e.stopPropagation(); onTogglePageNav(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70" title="الانتقال لصفحة"
+            aria-label="الانتقال لصفحة">
             <BookOpen className="size-[18px] md:size-[20px]" />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); onToggleJuzIndex(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70" title="الفهرس">
+          <button onClick={(e) => { e.stopPropagation(); onToggleJuzIndex(); }} className="toolbar-btn !p-2 md:!p-2.5 text-primary/70" title="الفهرس"
+            aria-label="الفهرس">
             <List className="size-[18px] md:size-[20px]" />
           </button>
         </div>

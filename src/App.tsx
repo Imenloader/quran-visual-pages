@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
+import { useMemo } from "react";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -205,15 +206,18 @@ const NotificationInitializer = () => {
 };
 
 const QanetNotificationBridge = () => {
-  try {
-    const qanetState = JSON.parse(localStorage.getItem('qanet_state') || '{}');
-    useQanetNotifications(
-      qanetState.notificationsEnabled || false,
-      qanetState.reminderTime || '21:00'
-    );
-  } catch {
-    // Qanet state not available
-  }
+  const qanetState = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem('qanet_state') || '{}');
+    } catch {
+      // Qanet state not available
+      return {};
+    }
+  }, []);
+  useQanetNotifications(
+    qanetState.notificationsEnabled || false,
+    qanetState.reminderTime || '21:00'
+  );
   return null;
 };
 

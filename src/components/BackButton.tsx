@@ -2,6 +2,7 @@ import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { smartBack } from "@/lib/smartBack";
 
 interface BackButtonProps {
   className?: string;
@@ -24,7 +25,7 @@ const BackButton = ({
 
   return (
     <button
-      onClick={() => navigate(-1)}
+      onClick={() => smartBack(navigate)}
       className={cn(
         "flex items-center justify-center gap-2 px-4 h-10 md:h-12 rounded-2xl transition-all active:scale-95 group",
         variants[variant],

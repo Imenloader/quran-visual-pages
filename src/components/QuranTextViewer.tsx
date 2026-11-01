@@ -4,7 +4,6 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "react-i18next";
 import { Loader2, AlertCircle, RefreshCw, BookOpen, GraduationCap, Sparkles, Share2, Info, Play, Pause, SkipBack, SkipForward, Music, Settings2, Volume2, Heart, Check } from "lucide-react";
 import { juzData, toArabicNumber } from "@/data/quranData";
-import { juzTextData } from "@/data/juzTextData";
 import { applyTajweedColors } from "@/lib/tajweedParser";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
@@ -133,7 +132,19 @@ const QuranTextViewer: React.FC<QuranTextViewerProps> = ({
 
       if (targetJuz) {
         setCurrentJuz(targetJuz);
-        setLocalText(juzTextData[targetJuz as number] || null);
+        // Lazily load only the juz text we need (each juz file is large)
+        let cancelled = false;
+        import(`@/data/juz/juz${targetJuz}.ts`)
+          .then((mod) => {
+            if (!cancelled) setLocalText(mod[`juz${targetJuz}Text`] || null);
+          })
+          .catch(() => {
+            if (!cancelled) setLocalText(null);
+          })
+          .finally(() => {
+            if (!cancelled) setLoading(false);
+          });
+        return () => { cancelled = true; };
       }
 
       setLoading(false);

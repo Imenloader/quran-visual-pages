@@ -10,6 +10,7 @@ import JuzIndex from "@/components/JuzIndex";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { ChevronRight, ChevronLeft, ArrowUp, Maximize, Minimize, ChevronUp, GraduationCap, RefreshCw, Music, Eye, EyeOff, LayoutList, Square, Trophy, Menu, ArrowLeft } from "lucide-react";
 import LazyImage from "@/components/LazyImage";
+import { smartBack } from "@/lib/smartBack";
 import QuranTextViewer from "@/components/QuranTextViewer";
 import TajweedLegend from "@/components/TajweedLegend";
 import QuranPlayerBar from "@/components/QuranPlayerBar";
@@ -727,17 +728,29 @@ function JuzViewer() {
     if (!juz || pages.length === 0 || !isLoaded) return;
     
     const cacheImages = async () => {
-      // Cache current page and next 10 pages
+      // Cache current page and next 10 pages into the Cache API so the
+      // service worker can serve them (and they work offline), instead of
+      // bare `new Image()` fetches the SW can't track.
       const currentPageIdx = pages.indexOf(currentPage);
       const start = Math.max(0, currentPageIdx - 2);
       const end = Math.min(pages.length - 1, currentPageIdx + 10);
       
       const pagesToCache = pages.slice(start, end);
+      const urls = pagesToCache.map((p) => getImageUrl(p)).filter(Boolean);
       
-      for (const p of pagesToCache) {
-        const url = getImageUrl(p);
-        const img = new Image();
-        img.src = url;
+      if ("caches" in window && urls.length) {
+        try {
+          const cache = await caches.open("quran-pages-cache");
+          await Promise.allSettled(urls.map(async (url) => {
+            const hit = await cache.match(url);
+            if (!hit) await cache.add(url).catch(() => null);
+          }));
+        } catch {
+          // Cache API unavailable; fall back to image preloading
+          urls.forEach((url) => { const img = new Image(); img.src = url; });
+        }
+      } else {
+        urls.forEach((url) => { const img = new Image(); img.src = url; });
       }
     };
     
@@ -846,7 +859,8 @@ function JuzViewer() {
       <div className={`fixed top-0 left-0 right-0 z-[150] transition-all duration-400 ease-out ${showControls ? "opacity-100 pointer-events-auto translate-y-0" : "opacity-0 pointer-events-none -translate-y-full"}`}>
         <div className="bg-black/60 backdrop-blur-xl px-3 py-2 flex items-center justify-between safe-area-top">
           <button
-            onClick={(e) => { e.stopPropagation(); navigate(-1); }}
+            onClick={(e) => { e.stopPropagation(); smartBack(navigate); }}
+            aria-label="رجوع"
             className="w-9 h-9 rounded-xl flex items-center justify-center text-white/90 hover:bg-white/10 transition-all active:scale-90"
           >
             <ArrowLeft size={20} />
@@ -861,6 +875,7 @@ function JuzViewer() {
           </div>
           <button
             onClick={(e) => { e.stopPropagation(); setShowToolsDrawer(true); }}
+            aria-label="أدوات القراءة"
             className="w-9 h-9 rounded-xl flex items-center justify-center text-white/90 hover:bg-white/10 transition-all active:scale-90"
           >
             <Menu size={20} />
@@ -938,7 +953,7 @@ function JuzViewer() {
 
         <div 
           ref={containerRef}
-          className="w-full h-full flex-1 overflow-x-auto custom-scrollbar touch-auto flex flex-col"
+          className="w-full h-full flex-1 overflow-x-auto custom-scrollbar touch-auto flex flex-col no-scroll-anchor"
         >
           <div 
             className={cn(
@@ -972,6 +987,7 @@ function JuzViewer() {
                             togglePageHidden(page);
                           }}
                           title={isPageHidden(page) ? "إظهار الصفحة" : "إخفاء الصفحة"}
+                            aria-label={isPageHidden(page) ? "إظهار الصفحة" : "إخفاء الصفحة"}
                           className={`p-2 rounded-xl transition-all ${isPageHidden(page) ? "bg-primary text-primary-foreground" : "hover:bg-accent/10 text-primary"}`}
                         >
                           {isPageHidden(page) ? <Eye size={16} /> : <EyeOff size={16} />}
@@ -982,6 +998,7 @@ function JuzViewer() {
                             hideAllLines(page);
                           }}
                           title="إخفاء الأسطر"
+                            aria-label="إخفاء الأسطر"
                           className="p-2 rounded-xl hover:bg-accent/10 text-primary transition-all"
                         >
                           <Square size={16} />
@@ -992,6 +1009,7 @@ function JuzViewer() {
                             showAllLines(page);
                           }}
                           title="إظهار الأسطر"
+                            aria-label="إظهار الأسطر"
                           className="p-2 rounded-xl hover:bg-accent/10 text-primary transition-all"
                         >
                           <LayoutList size={16} />
@@ -1087,6 +1105,7 @@ function JuzViewer() {
                               togglePageHidden(currentPage);
                             }}
                             title={isPageHidden(currentPage) ? "إظهار الصفحة" : "إخفاء الصفحة"}
+                            aria-label={isPageHidden(currentPage) ? "إظهار الصفحة" : "إخفاء الصفحة"}
                             className={`p-2 rounded-xl transition-all ${isPageHidden(currentPage) ? "bg-primary text-primary-foreground" : "hover:bg-accent/10 text-primary"}`}
                           >
                             {isPageHidden(currentPage) ? <Eye size={16} /> : <EyeOff size={16} />}
@@ -1097,6 +1116,7 @@ function JuzViewer() {
                               hideAllLines(currentPage);
                             }}
                             title="إخفاء الأسطر"
+                            aria-label="إخفاء الأسطر"
                             className="p-2 rounded-xl hover:bg-accent/10 text-primary transition-all"
                           >
                             <Square size={16} />
@@ -1107,6 +1127,7 @@ function JuzViewer() {
                               showAllLines(currentPage);
                             }}
                             title="إظهار الأسطر"
+                            aria-label="إظهار الأسطر"
                             className="p-2 rounded-xl hover:bg-accent/10 text-primary transition-all"
                           >
                             <LayoutList size={16} />
