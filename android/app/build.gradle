@@ -7,8 +7,8 @@ android {
         applicationId "com.quraaniat.visual"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
-        versionName "1.0.1"
+        versionCode 4
+        versionName "1.2.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
             cruncherEnabled = false
@@ -21,6 +21,21 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // Release signing is provided through environment variables so no
+            // keystore or password is ever committed. Set RELEASE_STORE_FILE,
+            // RELEASE_STORE_PASSWORD, RELEASE_KEY_ALIAS and RELEASE_KEY_PASSWORD
+            // to produce a signed APK/AAB; without them the artifact is unsigned.
+            signingConfig signingConfigs.findByName('release')
+        }
+    }
+    signingConfigs {
+        if (System.getenv('RELEASE_STORE_FILE')) {
+            release {
+                storeFile file(System.getenv('RELEASE_STORE_FILE'))
+                storePassword System.getenv('RELEASE_STORE_PASSWORD')
+                keyAlias System.getenv('RELEASE_KEY_ALIAS')
+                keyPassword System.getenv('RELEASE_KEY_PASSWORD')
+            }
         }
     }
 }

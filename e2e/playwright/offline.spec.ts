@@ -1,11 +1,13 @@
 import { expect, test } from '@playwright/test';
 
 const waitForServiceWorkerReady = async (page: any) => {
-  await page.waitForFunction(async () => {
-    if (!('serviceWorker' in navigator)) return false;
-    const registration = await navigator.serviceWorker.getRegistration();
-    return Boolean(registration?.active);
-  });
+  // The page must actually be controlled by an activated worker, otherwise a
+  // reload bypasses the service worker entirely and offline navigation fails.
+  await page.waitForFunction(
+    () => navigator.serviceWorker.controller?.state === 'activated',
+    undefined,
+    { polling: 250, timeout: 30_000 }
+  );
 };
 
 test.describe('offline service worker regression scenarios', () => {
@@ -24,17 +26,23 @@ test.describe('offline service worker regression scenarios', () => {
   });
 
   test('open /juz/:id and navigate pages offline', async ({ page, context }) => {
+    // Current reader UI: controls live behind the "أدوات القراءة" drawer.
+    const goToPage = async (n: string) => {
+      // Tap the reader to reveal the auto-hiding toolbar, then open the tools drawer.
+      await page.locator('img').first().click();
+      await page.locator('button[aria-label="أدوات القراءة"]').click();
+      await page.locator('button:has-text("انتقال لصفحة")').click();
+      await page.locator('input[type="number"]').fill(n);
+      await page.locator('button:has-text("انتقال")').click();
+    };
+
     await page.goto('/juz/1');
-    await page.locator('button[title="الانتقال لصفحة"]').first().click();
-    await page.locator('input[type="number"]').fill('3');
-    await page.locator('button:has-text("انتقال")').click();
+    await goToPage('3');
 
     await context.setOffline(true);
     await page.reload({ waitUntil: 'domcontentloaded' });
 
-    await page.locator('button[title="الانتقال لصفحة"]').first().click();
-    await page.locator('input[type="number"]').fill('4');
-    await page.locator('button:has-text("انتقال")').click();
+    await goToPage('4');
 
     await expect(page).toHaveURL(/\/juz\/1$/);
     await expect(page.locator('img').first()).toBeVisible();
@@ -42,7 +50,7 @@ test.describe('offline service worker regression scenarios', () => {
 
   test('open tafsir offline with cached data', async ({ page, context }) => {
     await page.goto('/tafsir');
-    await page.waitForSelector('select option', { timeout: 30_000 });
+    await page.waitForSelector('select option', { state: 'attached', timeout: 30_000 });
     await page.locator('select').first().selectOption('1');
     await page.locator('select').nth(1).selectOption('1');
     await page.waitForTimeout(2000);
@@ -50,7 +58,7 @@ test.describe('offline service worker regression scenarios', () => {
     await context.setOffline(true);
     await page.reload({ waitUntil: 'domcontentloaded' });
 
-    const tafsirBody = page.locator('div.p-6.bg-primary\/5 p').nth(1);
+    const tafsirBody = page.locator('div.p-6.bg-primary\\/5 p').nth(1);
     await expect(tafsirBody).toBeVisible();
     await expect(tafsirBody).not.toContainText('فشل الاتصال بالخادم');
   });
@@ -69,50 +77,19 @@ test.describe('offline service worker regression scenarios', () => {
   });
 
   test('audio playback from cached recitations while offline', async ({ page, context }) => {
-    const seed = await page.evaluate(async () => {
-      const recitersResponse = await fetch('https://mp3quran.net/api/v3/reciters?language=ar');
-      const payload = await recitersResponse.json();
-      const reciters = payload.reciters || [];
-
-      const normalizeServer = (server: string) => {
-        let url = (server || '').trim();
-        if (url.startsWith('http://')) url = url.replace('http://', 'https://');
-        if (url.startsWith('//')) url = `https:${url}`;
-        if (!url.startsWith('https://')) url = `https://${url}`;
-        if (!url.endsWith('/')) url += '/';
-        return url;
-      };
-
-      for (const reciter of reciters) {
-        const firstMoshaf = reciter?.moshaf?.find((m: { server?: string; surah_list?: string }) => m.server && m.surah_list);
-        if (!firstMoshaf) continue;
-
-        const firstSurah = String(firstMoshaf.surah_list.split(',')[0] || '').trim().padStart(3, '0');
-        if (!firstSurah) continue;
-
-        const audioUrl = `${normalizeServer(firstMoshaf.server)}${firstSurah}.mp3`;
-
-        try {
-          const response = await fetch(audioUrl, { mode: 'no-cors' });
-          const cache = await caches.open('quran-audio-cache');
-          await cache.put(audioUrl, response.clone());
-          return { ok: true, audioUrl };
-        } catch {
-          // continue to next reciter
-        }
-      }
-
-      return { ok: false, audioUrl: null };
+    // Same-origin bundled audio is served CacheFirst by the service worker.
+    // Fetch it once online so it lands in quran-audio-cache, then play offline.
+    const audioUrl = await page.evaluate(async () => {
+      const res = await fetch('/Adhan%20Sounds/Adhan-Makkah.mp3');
+      return res.ok ? res.url : null;
     });
-
-    expect(seed.ok).toBeTruthy();
+    expect(audioUrl).toBeTruthy();
 
     await context.setOffline(true);
 
     const playbackResult = await page.evaluate(async (audioUrl) => {
-      const cachedResponse = await caches.match(audioUrl);
-      if (!cachedResponse) return { played: false, reason: 'missing_cache' };
-
+      // The service worker serves precached/cached audio for the bare URL
+      // (the cache key carries a revision query, so don't precondition on caches.match).
       const audio = new Audio(audioUrl);
       audio.preload = 'auto';
       audio.muted = true;
@@ -135,7 +112,7 @@ test.describe('offline service worker regression scenarios', () => {
           // fall back to canplaythrough event if autoplay is blocked
         });
       });
-    }, seed.audioUrl);
+    }, audioUrl);
 
     expect(playbackResult.played).toBeTruthy();
   });
