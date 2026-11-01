@@ -10,6 +10,7 @@ import SyncStatusIndicator from "@/components/SyncStatusIndicator";
 import { Search, List, Settings, BookMarked, ChevronLeft, Heart, Sparkles, Clock, Sun, MoonStar } from "lucide-react";
 import { Link } from "react-router-dom";
 import ScrollReveal from "@/components/ScrollReveal";
+import ReadingStreakCard from "@/components/ReadingStreakCard";
 import { normalizeArabic } from "@/lib/arabicUtils";
 import { applyTajweedColors } from "@/lib/tajweedParser";
 import { useNativeWidgets } from "@/hooks/useNativeWidgets";
@@ -234,6 +235,7 @@ const Index = () => {
               </button>
             )}
           </div>
+          <ReadingStreakCard />
         </div>
       </section>
 

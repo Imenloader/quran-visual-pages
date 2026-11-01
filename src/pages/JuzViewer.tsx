@@ -6,6 +6,8 @@ import QuranHeader from "@/components/QuranHeader";
 import ReaderToolsDrawer from "@/components/ReaderToolsDrawer";
 import ProgressBar from "@/components/ProgressBar";
 import PageNavigator from "@/components/PageNavigator";
+import PageScrubber from "@/components/PageScrubber";
+import AppShellSkeleton from "@/components/AppShellSkeleton";
 import JuzIndex from "@/components/JuzIndex";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { ChevronRight, ChevronLeft, ArrowUp, Maximize, Minimize, ChevronUp, GraduationCap, RefreshCw, Music, Eye, EyeOff, LayoutList, Square, Trophy, Menu, ArrowLeft } from "lucide-react";
@@ -136,7 +138,7 @@ function JuzViewer() {
     }
   }, [searchParams, setHifzMode]);
 
-  const { isFullscreen, setIsFullscreen } = useTheme();
+  const { isFullscreen, setIsFullscreen, fontSizes: readerFontSizes, setFontSize: setReaderFontSize } = useTheme();
   const { playAyah, togglePlay, currentSurah, stopPlayer, syncMode } = useAudioPlayer();
     const [showControls, setShowControls] = useState(false);
     const [showToolsDrawer, setShowToolsDrawer] = useState(false);
@@ -187,6 +189,8 @@ function JuzViewer() {
   const [initialDist, setInitialDist] = useState<number | null>(null);
   const [initialZoom, setInitialZoom] = useState<number>(100);
   const [isPinching, setIsPinching] = useState(false);
+  // Direction of the last page turn in horizontal mode, for the flip animation
+  const [flipDir, setFlipDir] = useState<'next' | 'prev' | null>(null);
 
   // Pinch-to-zoom logic
   useEffect(() => {
@@ -503,6 +507,7 @@ function JuzViewer() {
   const handleNextPage = useCallback(() => {
     if (currentPage < juz!.endPage) {
       const next = currentPage + 1;
+      setFlipDir('next');
       setCurrentPage(next);
       if (scrollDirection === "vertical") {
         scrollToPage(next);
@@ -513,6 +518,7 @@ function JuzViewer() {
   const handlePrevPage = useCallback(() => {
     if (currentPage > juz!.startPage) {
       const prev = currentPage - 1;
+      setFlipDir('prev');
       setCurrentPage(prev);
       if (scrollDirection === "vertical") {
         scrollToPage(prev);
@@ -811,12 +817,7 @@ function JuzViewer() {
 
 
 
-  if (!isLoaded) return (
-    <div className="min-h-dvh bg-background flex flex-col items-center justify-center gap-4">
-      <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full" />
-      <p className="text-muted-foreground font-serif italic">جاري تحميل إعداداتك الخاصة...</p>
-    </div>
-  );
+  if (!isLoaded) return <AppShellSkeleton />;
 
   if (!juz) return <Navigate to="/" replace />;
 
@@ -885,6 +886,15 @@ function JuzViewer() {
       </div>
 
       {/* Tools Drawer (bottom sheet) */}
+      <PageScrubber
+        pages={pages}
+        currentPage={currentPage}
+        onScrubTo={(page) => {
+          setCurrentPage(page);
+          if (scrollDirection === "vertical") scrollToPage(page);
+        }}
+        isAr={isAr}
+      />
       <ReaderToolsDrawer
         open={showToolsDrawer}
         onOpenChange={setShowToolsDrawer}
@@ -907,6 +917,8 @@ function JuzViewer() {
         }}
         onDownloadAudio={handleDownloadAudio}
         isDownloadingAudio={isDownloadingAudio}
+        fontSize={readerFontSizes.reading}
+        onFontSizeChange={(size) => setReaderFontSize("reading", size)}
         onPrepareOffline={handlePrepareThisJuzOffline}
         isPreparingOffline={isPreparingJuzOffline}
         currentPage={currentPage}
@@ -1092,7 +1104,10 @@ function JuzViewer() {
               ))
             ) : (
               <div className="w-full flex-1 h-full flex flex-col items-center">
-                <div key={currentPage} className="w-full h-full flex-1 flex flex-col items-center justify-center">
+                <div
+                  key={currentPage}
+                  className={`w-full h-full flex-1 flex flex-col items-center justify-center animate-in fade-in ${flipDir === 'next' ? (isAr ? 'slide-in-from-left-8' : 'slide-in-from-right-8') : flipDir === 'prev' ? (isAr ? 'slide-in-from-right-8' : 'slide-in-from-left-8') : 'zoom-in-95'} duration-500 ease-out`}
+                >
                   <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
                     <div className="absolute inset-0 w-full h-full">
                       <div className="quran-page-bg absolute inset-0 w-full h-full" />

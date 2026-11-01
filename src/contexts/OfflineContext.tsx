@@ -48,6 +48,12 @@ const getOrderedSourceUrls = (page: number, isTajweed = true, preferredSourceId?
     urls.unshift(primary);
   }
 
+  // Vector source is always cacheable (full CORS) — put it near the front
+  const svg = `https://cdn.jsdelivr.net/gh/quran-ws/quran-svg@master/mushafs/hafs/kfqc/svg/${String(page).padStart(3, '0')}.svg`;
+  if (!seen.has(svg)) {
+    urls.splice(1, 0, svg);
+  }
+
   return Array.from(new Set(urls));
 };
 

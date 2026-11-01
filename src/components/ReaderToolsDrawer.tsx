@@ -33,6 +33,8 @@ interface ReaderToolsDrawerProps {
   juzNumber: number;
   pages: number[];
   onGoToPage: (page: number) => void;
+  fontSize?: number;
+  onFontSizeChange?: (size: number) => void;
 }
 
 const ReaderToolsDrawer = ({
@@ -54,6 +56,8 @@ const ReaderToolsDrawer = ({
   juzNumber,
   pages,
   onGoToPage,
+  fontSize,
+  onFontSizeChange,
 }: ReaderToolsDrawerProps) => {
   const {
     theme, setTheme,
@@ -199,6 +203,42 @@ const ReaderToolsDrawer = ({
               صفحة {toArabicNumber(currentPage.toString())} · الجزء {toArabicNumber(juzNumber.toString())}
             </SheetDescription>
           </SheetHeader>
+
+          {/* Font size (text reading mode) — previously hidden in Profile only */}
+          {fontSize !== undefined && onFontSizeChange && (
+            <div className="px-5 pb-2">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-bold text-muted-foreground">حجم خط النص</span>
+                <span className="text-xs font-mono text-primary">{fontSize}%</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  aria-label="تصغير الخط"
+                  onClick={() => onFontSizeChange(Math.max(60, fontSize - 10))}
+                  className="p-1.5 rounded-lg hover:bg-muted text-xs font-bold"
+                >
+                  أ-
+                </button>
+                <input
+                  type="range"
+                  min={60}
+                  max={160}
+                  step={10}
+                  value={fontSize}
+                  onChange={(e) => onFontSizeChange(Number(e.target.value))}
+                  className="flex-1 accent-[hsl(var(--primary))]"
+                  aria-label="حجم خط النص"
+                />
+                <button
+                  aria-label="تكبير الخط"
+                  onClick={() => onFontSizeChange(Math.min(160, fontSize + 10))}
+                  className="p-1.5 rounded-lg hover:bg-muted text-base font-bold"
+                >
+                  أ+
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Tools Grid */}
           {activeView === "tools" && (
