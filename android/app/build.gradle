@@ -7,8 +7,8 @@ android {
         applicationId "com.quraaniat.visual"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
-        versionName "1.0.1"
+        versionCode 4
+        versionName "1.2.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
             cruncherEnabled = false
@@ -17,10 +17,26 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            def props = new Properties()
+            def pf = rootProject.file('gradle.properties')
+            if (pf.exists()) { pf.withInputStream { props.load(it) } }
+            def sf = file(props.getProperty('QURAANIAT_STORE_FILE', 'quraaniat-release.keystore'))
+            if (sf.exists()) {
+                storeFile sf
+                storePassword props.getProperty('QURAANIAT_STORE_PASSWORD')
+                keyAlias props.getProperty('QURAANIAT_KEY_ALIAS')
+                keyPassword props.getProperty('QURAANIAT_KEY_PASSWORD')
+            }
+        }
+    }
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 }
