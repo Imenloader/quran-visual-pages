@@ -13,7 +13,6 @@ import {
   CheckCircle2, 
   Search, 
   Download,
-  LayoutGrid,
   Headphones,
   Sparkles,
   DownloadCloud,
@@ -24,19 +23,16 @@ import {
   Moon,
   Shield,
   Dumbbell,
-  ChevronRight,
   Users,
   Globe,
-  Wifi,
-  WifiOff,
-  MessageSquare,
   GraduationCap as GradIcon,
   Pin
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import ScrollReveal from "@/components/ScrollReveal";
 import { dailyVerses } from "@/data/dailyVersesData";
-import { juzData, toArabicNumber, getQuranPageImageUrl } from "@/data/quranData";
+import { toArabicNumber } from "@/data/quranData";
+import { APP_VERSION } from "@/lib/appVersion";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import QuranHeader from "@/components/QuranHeader";
@@ -50,6 +46,17 @@ import DashboardCustomizer from "@/components/DashboardCustomizer";
 
 const ReadingProgress = lazy(() => import("@/components/ReadingProgress"));
 
+interface RemoteHubTool {
+  id: string;
+  name?: string;
+  visible?: boolean;
+}
+
+interface RemoteHubSection {
+  id: string;
+  tools: RemoteHubTool[];
+}
+
 const Hub = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -60,7 +67,7 @@ const Hub = () => {
   const [downloadAllState, setDownloadAllState] = useState<"idle" | "downloading" | "paused" | "done">("idle");
   const [downloadAllProgress, setDownloadAllProgress] = useState(0);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [hubSettings, setHubSettings] = useState<any>(null);
+  const [hubSettings, setHubSettings] = useState<RemoteHubSection[] | null>(null);
   
   const [pinnedToolIds, setPinnedToolIds] = usePersistentState<string[]>("hub-pinned-tools", []);
 
@@ -97,17 +104,22 @@ const Hub = () => {
       setTimeout(() => {
         window.scrollTo({
           top: parseInt(savedPosition),
-          behavior: "instant" as any
+          behavior: "instant"
         });
       }, 100);
     }
 
+    // Throttle the session-storage write so fast scrolling doesn't hammer it.
+    let saveTimer: number | undefined;
     const handleScroll = () => {
-      // Save scroll position with a small debounce/throttle effect implicitly by just saving
-      sessionStorage.setItem("hubScrollPosition", window.scrollY.toString());
+      if (saveTimer !== undefined) return;
+      saveTimer = window.setTimeout(() => {
+        saveTimer = undefined;
+        sessionStorage.setItem("hubScrollPosition", window.scrollY.toString());
+      }, 250);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     const today = new Date();
     const dateString = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
@@ -119,12 +131,17 @@ const Hub = () => {
     const verse = dailyVerses[index];
     setVerseOfDay({ text: verse.text, surah: verse.surah, number: verse.number });
 
-    const unsub = onSnapshot(doc(db, "settings", "hub"), (snap) => {
-      if (snap.exists()) setHubSettings(snap.data().sections);
-    });
+    const unsub = onSnapshot(
+      doc(db, "settings", "hub"),
+      (snap) => {
+        if (snap.exists()) setHubSettings((snap.data().sections ?? null) as RemoteHubSection[] | null);
+      },
+      (error) => console.error("Hub settings listener failed:", error)
+    );
     
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      if (saveTimer !== undefined) window.clearTimeout(saveTimer);
       unsub();
     };
   }, []);
@@ -310,13 +327,13 @@ const Hub = () => {
     if (!hubSettings) return base;
 
     return base.map(section => {
-      const remoteSection = hubSettings.find((s: any) => s.id === section.id);
+      const remoteSection = hubSettings.find((s) => s.id === section.id);
       if (!remoteSection) return section;
 
       return {
         ...section,
         tools: section.tools.map((tool): HubTool => {
-          const remoteTool = remoteSection.tools.find((t: any) => t.id === tool.id);
+          const remoteTool = remoteSection.tools.find((t) => t.id === tool.id);
           if (!remoteTool) return tool;
           return { ...tool, name: remoteTool.name || tool.name, visible: remoteTool.visible !== false };
         }).filter(t => t.visible !== false)
@@ -551,7 +568,7 @@ const Hub = () => {
           
           <div className="text-center md:text-left">
             <p className="text-[10px] text-muted-foreground font-bold tracking-[0.2em] uppercase">
-              Version 1.0.0 • 2026
+              Version {APP_VERSION} • {new Date().getFullYear()}
             </p>
           </div>
         </div>

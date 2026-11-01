@@ -1,6 +1,7 @@
 /// <reference lib="webworker" />
 
 import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching';
+import { clientsClaim } from 'workbox-core';
 import { NavigationRoute, registerRoute } from 'workbox-routing';
 import { CacheFirst, StaleWhileRevalidate, NetworkFirst, NetworkOnly } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
@@ -465,6 +466,13 @@ cleanupOutdatedCaches();
 
 precacheAndRoute(self.__WB_MANIFEST);
 
+// Claim existing clients so the SW takes control on first install, and honor
+// the SKIP_WAITING message the vite-plugin-pwa updater sends when the user
+// taps "Install update". Without it the new worker waits for every tab to
+// close and the update button appears to do nothing.
+self.addEventListener('install', () => self.skipWaiting());
+clientsClaim();
+
 // Register modular routes
 registerQuranImageRoutes();
 registerTafsirRoutes();
@@ -474,6 +482,10 @@ registerShellRoutes();
 // --- Event Listeners ---
 
 self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+    return;
+  }
   if (event.data?.type === 'GET_SW_METRICS') {
     event.source?.postMessage({
       type: 'SW_METRICS_SNAPSHOT',

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { toast } from "sonner";
 import { toArabicNumber } from "@/data/quranData";
+import { APP_VERSION } from "@/lib/appVersion";
 
 const UpdateManager: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -11,7 +12,6 @@ const UpdateManager: React.FC = () => {
   const [lastCheck, setLastCheck] = useState<Date | null>(null);
 
   const {
-    offlineReady: [offlineReady, setOfflineReady],
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
   } = useRegisterSW({
@@ -76,7 +76,7 @@ const UpdateManager: React.FC = () => {
             </div>
             <div className={`${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
               <h4 className="font-serif font-bold text-primary text-sm">{t("settings.update.version") || "إصدار التطبيق"}</h4>
-              <p className="text-[10px] text-primary/60 font-mono">v1.2.5-stable</p>
+              <p className="text-[10px] text-primary/60 font-mono">v{APP_VERSION}</p>
             </div>
           </div>
           

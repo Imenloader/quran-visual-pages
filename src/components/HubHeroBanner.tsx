@@ -111,6 +111,17 @@ const HubHeroBanner: React.FC = () => {
                   {isAr ? "تحميل التطبيق" : "Download App"}
                 </a>
               ) : null}
+              {links.playStore ? (
+                <a
+                  href={links.playStore}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 px-6 py-3 bg-white/10 text-white border border-white/20 rounded-2xl font-bold text-sm font-serif shadow-xl hover:bg-white/20 transition-all"
+                >
+                  <Store size={18} className="text-gold" />
+                  Google Play
+                </a>
+              ) : null}
             </div>
 
             <div className={`flex items-center justify-center ${isAr ? 'lg:justify-start' : 'lg:justify-end'} gap-6 opacity-40`}>

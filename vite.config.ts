@@ -38,6 +38,8 @@ export default defineConfig(({ mode }) => ({
         orientation: "portrait",
         dir: "rtl",
         lang: "ar",
+        id: "/",
+        scope: "/",
         start_url: "/",
         categories: ["books", "education", "lifestyle"],
         shortcuts: [
