@@ -10,6 +10,8 @@ export interface NameOfAllah {
     en: string;
     ar: string;
   };
+  audioUrl?: string;
+  docId?: string;
 }
 
 export const NAMES_OF_ALLAH: NameOfAllah[] = [

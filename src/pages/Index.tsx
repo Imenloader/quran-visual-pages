@@ -17,6 +17,7 @@ import { usePrayerTimes, formatTime, PRAYER_NAMES } from "@/hooks/usePrayerTimes
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { sunnahActions } from "@/data/sunnahData";
 import GlobalKhatmaBanner from "@/components/GlobalKhatmaBanner";
+import { syncService } from "@/services/syncService";
 
 const BOOKMARK_KEY = "quran-bookmark";
 
@@ -39,9 +40,6 @@ const Index = () => {
   const [surahResults, setSurahResults] = useState<SurahInfo[]>([]);
   const { tajweedMode } = useTheme();
 
-  // Widget Hooks
-  useNativeWidgets();
-
   const { nextPrayer, settings: prayerSettings } = usePrayerTimes();
 
   const verseOfDay = useMemo(() => {
@@ -49,6 +47,9 @@ const Index = () => {
     const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000);
     return dailyVerses[dayOfYear % dailyVerses.length];
   }, []);
+
+  // Widget Hooks
+  useNativeWidgets(verseOfDay);
 
   const sunnahOfDay = useMemo(() => {
     const today = new Date();

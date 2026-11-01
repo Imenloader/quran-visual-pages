@@ -69,8 +69,9 @@ interface AudioPlayerContextType {
   duration: number;
   volume: number;
   isMuted: boolean;
-  isRepeat: boolean;
   isShuffle: boolean;
+  repeatMode: 'none' | 'all' | 'one';
+  setRepeatMode: (mode: 'none' | 'all' | 'one') => void;
   audioLoading: boolean;
   playerMinimized: boolean;
   selectedReciterName: string;
@@ -98,7 +99,6 @@ interface AudioPlayerContextType {
   handleSeek: (val: number[]) => void;
   handleVolume: (val: number[]) => void;
   toggleMute: () => void;
-  setIsRepeat: (v: boolean) => void;
   setIsShuffle: (v: boolean) => void;
   setPlayerMinimized: (v: boolean) => void;
   stopPlayer: () => void;

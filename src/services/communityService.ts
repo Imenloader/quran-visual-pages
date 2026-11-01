@@ -66,7 +66,7 @@ export interface Notification {
   type: "dua" | "duel_request" | "duel_accepted";
   payload?: Record<string, unknown>;
   read: boolean;
-  timestamp: FirestoreDate;
+  timestamp?: Timestamp;
 }
 
 export interface Duel {
@@ -108,7 +108,7 @@ export const communityService = {
       fromName,
       type: "dua",
       read: false,
-      timestamp: serverTimestamp(),
+      timestamp: serverTimestamp() as unknown as Timestamp,
     };
     await addDoc(collection(db, "notifications"), notification);
   },
@@ -145,7 +145,7 @@ export const communityService = {
       type: "duel_request",
       payload: { duelId: duelDoc.id },
       read: false,
-      timestamp: serverTimestamp(),
+      timestamp: serverTimestamp() as unknown as Timestamp,
     } satisfies Omit<Notification, "id">);
   },
 
@@ -160,7 +160,7 @@ export const communityService = {
       fromName: userName,
       type: "duel_accepted",
       read: false,
-      timestamp: serverTimestamp(),
+      timestamp: serverTimestamp() as unknown as Timestamp,
     } satisfies Omit<Notification, "id">);
   },
 

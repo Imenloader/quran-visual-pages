@@ -25,9 +25,9 @@ export const Bootstrapper: React.FC<{ children: React.ReactNode }> = ({ children
               clientId: "130128331336-jsf2phje1obt9ln0lj5f5nlfsgl6rssn.apps.googleusercontent.com",
               scopes: ['profile', 'email'],
               grantOfflineAccess: true,
-            }).catch(() => null);
+            });
           }).catch(() => null);
-          notificationService.requestPermission().catch(() => null);
+          notificationService.requestPermission().then(() => null).catch(() => null);
         }
 
         getRedirectResult(auth).then((result) => {

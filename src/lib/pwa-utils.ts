@@ -10,11 +10,9 @@ export async function registerPeriodicSync() {
   }
 
   try {
-    // @ts-expect-error: periodicSync is not yet in standard TS types
     const status = await navigator.permissions.query({
-      // @ts-expect-error: periodicSync is not yet in standard TS types
       name: 'periodic-background-sync',
-    });
+    } as unknown as PermissionDescriptor);
 
     if (status.state === 'granted') {
       // @ts-expect-error: periodicSync is not yet in standard TS types

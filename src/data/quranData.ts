@@ -212,13 +212,6 @@ export interface QuranImageSource {
 
 export const QURAN_IMAGE_SOURCES: QuranImageSource[] = [
   {
-    id: "madinah-alt",
-    nameAr: "مصحف المدينة (مصدر بديل - GitHub)",
-    nameEn: "Madinah (GitHub)",
-    isTajweed: false,
-    getUrl: (p) => `https://raw.githubusercontent.com/zeyadetman/quran-pages-images/master/images/${p}.jpg`
-  },
-  {
     id: "tajweed",
     nameAr: "مصحف التجويد (GitHub)",
     nameEn: "Tajweed Quran",
@@ -231,20 +224,6 @@ export const QURAN_IMAGE_SOURCES: QuranImageSource[] = [
     nameEn: "Madinah (High Res)",
     isTajweed: false,
     getUrl: (p) => `https://android.quran.com/data/width_1260/page${p}.png`
-  },
-  {
-    id: "madinah-classic",
-    nameAr: "مصحف المدينة (كلاسيكي)",
-    nameEn: "Madinah (Classic)",
-    isTajweed: false,
-    getUrl: (p) => `https://madinah-quran.com/pages/${p}.png`
-  },
-  {
-    id: "mushaf-standard",
-    nameAr: "المصحف القياسي",
-    nameEn: "Standard Mushaf",
-    isTajweed: false,
-    getUrl: (p) => `https://quran.com/images/quran_pages/${p}.png`
   }
 ];
 

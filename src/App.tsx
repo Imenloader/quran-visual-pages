@@ -41,8 +41,6 @@ import GenderGuard from "./components/community/GenderGuard";
 import { App as CapApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import { notificationService } from "./services/notificationService";
-import { Capacitor } from "@capacitor/core";
-import { notificationService } from "./services/notificationService";
 import ErrorBoundary from "./components/ErrorBoundary";
 
 // --- التعديل هنا: تحميل الصفحات الأساسية بشكل LazyRetry لمحاولة حل مشكلة الـ ReferenceError و Chunk errors ---
