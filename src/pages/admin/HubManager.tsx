@@ -64,7 +64,7 @@ const HubManager = () => {
         title: "الأدوات الروحانية",
         tools: [
           { id: "tasbih", name: "المسبحة الرقمية", path: "/tasbih", visible: true, order: 1 },
-          { id: "dhikr", name: "التسبيح العالمي", path: "/global-dhikr", visible: true, order: 2 },
+          { id: "global-dhikr", name: "التسبيح العالمي", path: "/global-dhikr", visible: true, order: 2 },
           { id: "qibla", name: "بوصلة القبلة", path: "/qibla", visible: true, order: 3 },
           { id: "names", name: "أسماء الله الحسنى", path: "/names-of-allah", visible: true, order: 4 }
         ]

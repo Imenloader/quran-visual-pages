@@ -19,3 +19,11 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# --- Quraaniat: Capacitor + Firebase + WebView bridge ---
+-keep class com.getcapacitor.** { *; }
+-keep class android.webkit.** { *; }
+-keepclassmembers class * extends android.webkit.WebViewClient { *; }
+-dontwarn com.google.android.gms.**
+-keep class com.google.android.gms.** { *; }
+-keep class com.codetrixstudio.capacitor.** { *; }

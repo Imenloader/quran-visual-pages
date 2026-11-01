@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Smartphone, Download, Store, Sparkles, ArrowLeft, ArrowRight, BrainCircuit } from 'lucide-react';
+import { Download, Play, Sparkles, BrainCircuit } from 'lucide-react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/firebase';
 import { useTranslation } from 'react-i18next';
@@ -109,6 +109,17 @@ const HubHeroBanner: React.FC = () => {
                 >
                   <Download size={18} />
                   {isAr ? "تحميل التطبيق" : "Download App"}
+                </a>
+              ) : null}
+              {links.playStore ? (
+                <a
+                  href={links.playStore}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 px-6 py-3 bg-white/10 text-white rounded-2xl font-bold text-sm font-serif backdrop-blur-md hover:bg-white/20 transition-all border border-white/20"
+                >
+                  <Play size={18} />
+                  {isAr ? "جوجل بلاي" : "Google Play"}
                 </a>
               ) : null}
             </div>

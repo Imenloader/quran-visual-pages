@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { RefreshCw, CheckCircle2, AlertCircle, Download, Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useRegisterSW } from 'virtual:pwa-register/react';
@@ -9,6 +9,11 @@ const UpdateManager: React.FC = () => {
   const { t, i18n } = useTranslation();
   const [isChecking, setIsChecking] = useState(false);
   const [lastCheck, setLastCheck] = useState<Date | null>(null);
+  const updateTimerRef = useRef<number | null>(null);
+
+  useEffect(() => () => {
+    if (updateTimerRef.current) clearInterval(updateTimerRef.current);
+  }, []);
 
   const {
     offlineReady: [offlineReady, setOfflineReady],
@@ -17,11 +22,11 @@ const UpdateManager: React.FC = () => {
   } = useRegisterSW({
     onRegistered(r) {
       console.log('SW Registered:', r);
-      // Check for updates every hour
+      // Check for updates every hour (store the id so it can be cleared on unmount)
       if (r) {
-        setInterval(() => {
+        updateTimerRef.current = setInterval(() => {
           r.update();
-        }, 60 * 60 * 1000);
+        }, 60 * 60 * 1000) as unknown as number;
       }
     },
     onRegisterError(error) {

@@ -70,7 +70,7 @@ const QiblaFinder = () => {
       let newHeading = 0;
       if (e.webkitCompassHeading !== undefined) {
         newHeading = e.webkitCompassHeading;
-      } else if (e.alpha !== null) {
+      } else if (e.alpha != null) {
         newHeading = 360 - e.alpha;
       }
       setHeading(newHeading);

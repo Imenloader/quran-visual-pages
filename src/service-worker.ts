@@ -212,6 +212,26 @@ function registerQuranImageRoutes() {
       ],
     })
   );
+
+  // Quran page images (high-res CDN) — CacheFirst so downloaded pages work offline
+  registerRoute(
+    ({ url }) => (url.hostname === 'files.quran.app' && url.pathname.startsWith('/hafs/madani/')) ||
+                 (url.hostname === 'cdn.jsdelivr.net' && url.pathname.includes('/quran-svg/')),
+    new CacheFirst({
+      cacheName: 'quran-pages-cache',
+      plugins: [
+        metricsPlugin('quran-pages', 'files.quran.app/hafs/*', 'quran-pages-cache'),
+        new ExpirationPlugin({
+          maxEntries: 700,
+          maxAgeSeconds: 60 * 60 * 24 * 365 * 2,
+        }),
+        new CacheableResponsePlugin({
+          statuses: [0, 200],
+        }),
+        cacheEventPlugin,
+      ],
+    })
+  );
 }
 
 function registerTafsirRoutes() {

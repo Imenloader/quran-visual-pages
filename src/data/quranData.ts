@@ -223,7 +223,17 @@ export const QURAN_IMAGE_SOURCES: QuranImageSource[] = [
     nameAr: "مصحف المدينة (دقة عالية)",
     nameEn: "Madinah (High Res)",
     isTajweed: false,
-    getUrl: (p) => `https://android.quran.com/data/width_1260/page${p}.png`
+    // files.quran.app serves without CORS headers, so it renders as <img> but
+    // cannot be cached by the service worker — kept as second source for display
+    getUrl: (p) => `https://files.quran.app/hafs/madani/width_1260/page${p}.png`
+  },
+  {
+    id: "madinah-svg",
+    nameAr: "مصحف المدينة (فيكتور - قابل للتخزين)",
+    nameEn: "Madinah (SVG, cacheable)",
+    isTajweed: false,
+    // Full CORS, crisp at any zoom, cacheable by the service worker for offline use
+    getUrl: (p) => `https://cdn.jsdelivr.net/gh/quran-ws/quran-svg@master/mushafs/hafs/kfqc/svg/${p}.svg`
   }
 ];
 
