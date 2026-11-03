@@ -75,32 +75,31 @@ const MoonTracker = () => {
   }, [calculateLocalMoonPhase]);
 
   const renderMoon = () => {
-    const size = 200;
-    const radius = size / 2;
-    const illumination = moonPhase <= 0.5 ? moonPhase * 2 : (1 - moonPhase) * 2;
-    
+    const size = 220;
+    const r = size / 2;
+    // Waxing shows lit side on the LEFT in sky-view for southern crescent;
+    // standard convention: lit side left when waxing (as seen after sunset)
+    const waxing = moonPhase <= 0.5;
+    const illumination = waxing ? moonPhase * 2 : (1 - moonPhase) * 2;
+
+    // Terminator ellipse offset: 0 = half moon, near r = thin crescent
+    const offset = r * (1 - 2 * Math.abs(0.5 - illumination));
+
     return (
-      <div className="relative w-[200px] h-[200px] mx-auto">
-        {/* Background Glow */}
-        <div className="absolute inset-0 rounded-full bg-amber-500/10 blur-3xl animate-pulse" />
-        
-        {/* Moon Base */}
-        <div className="absolute inset-0 rounded-full bg-slate-900 border-4 border-slate-800 shadow-2xl overflow-hidden">
-          {/* Craters (Static) */}
-          <div className="absolute top-1/4 left-1/4 w-8 h-8 rounded-full bg-slate-800/50" />
-          <div className="absolute bottom-1/3 right-1/4 w-12 h-12 rounded-full bg-slate-800/50" />
-          <div className="absolute top-1/2 right-1/3 w-6 h-6 rounded-full bg-slate-800/50" />
-          
-          {/* Illumination Layer */}
-          <div 
-            className="absolute inset-0 bg-amber-100"
-            style={{
-              clipPath: moonPhase <= 0.5 
-                ? `ellipse(${illumination * 100}% 100% at 100% 50%)`
-                : `ellipse(${(1 - illumination) * 100}% 100% at 0% 50%)`
-            }}
-          />
-        </div>
+      <div className="relative mx-auto" style={{ width: size, height: size }}>
+        <div className="absolute inset-0 rounded-full bg-amber-100 shadow-[0_0_80px_-10px_rgba(254,240,138,0.5)]" />
+        {/* shadow disc, offset to carve the terminator */}
+        <div
+          className="absolute inset-0 rounded-full bg-slate-950 transition-all duration-1000"
+          style={{
+            transform: `translateX(${waxing ? offset : -offset}px)`,
+            boxShadow: "inset 0 0 30px rgba(0,0,0,0.8)"
+          }}
+        />
+        {/* subtle craters */}
+        <div className="absolute rounded-full bg-amber-200/40" style={{ width: size*0.18, height: size*0.18, top: size*0.25, left: size*0.3 }} />
+        <div className="absolute rounded-full bg-amber-200/30" style={{ width: size*0.12, height: size*0.12, top: size*0.55, left: size*0.55 }} />
+        <div className="absolute rounded-full bg-amber-200/25" style={{ width: size*0.09, height: size*0.09, top: size*0.35, left: size*0.62 }} />
       </div>
     );
   };
@@ -165,7 +164,13 @@ const MoonTracker = () => {
               {isAr ? "توقعات الشهور القادمة" : "Upcoming Month Predictions"}
             </h3>
             <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
+              {[1, 2, 3].map((i) => {
+                // Anchor predictions on the current Hijri day (via API) so the
+                // cadence tracks the real lunar month, not a fixed guess
+                const currentDay = hijriDate ? parseInt(hijriDate.day) : 1;
+                const daysToNextNewMoon = (29.53 - currentDay) + (i - 1) * 29.53;
+                const predicted = addDays(new Date(), Math.round(daysToNextNewMoon));
+                return (
                 <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-muted/50 border border-border/40">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
@@ -173,12 +178,13 @@ const MoonTracker = () => {
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">{isAr ? "بداية الشهر المتوقعة" : "Expected Start Date"}</p>
-                      <p className="font-bold">{format(addDays(new Date(), i * 29.5), 'dd MMMM yyyy', { locale })}</p>
+                      <p className="font-bold">{format(predicted, 'dd MMMM yyyy', { locale })}</p>
                     </div>
                   </div>
                   <Sparkles className="w-4 h-4 text-amber-500" />
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
