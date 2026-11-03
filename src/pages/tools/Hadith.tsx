@@ -116,10 +116,17 @@ const Hadith = () => {
           name: i18n.language === 'ar' ? (bookNamesAr[book.id] || book.name) : book.name
         }));
         setBooks(mappedBooks);
+      } else {
+        throw new Error("bad response");
       }
-    } catch (error) {
-      console.error("Failed to fetch books:", error);
-      toast.error("فشل في تحميل قائمة الكتب");
+    } catch {
+      // gading.dev is frequently down; derive the book list from the jsDelivr dataset
+      const fallbackBooks = Object.entries(HADITH_API_EDITIONS).map(([id, edition]) => ({
+        id,
+        name: i18n.language === 'ar' ? (bookNamesAr[id] || id) : id,
+        available: 0 // unknown until a fetch succeeds; load-more handles it
+      }));
+      setBooks(fallbackBooks);
     }
   }, [i18n.language]);
 
@@ -426,7 +433,7 @@ const Hadith = () => {
                 </div>
               ))}
 
-              {hadiths.length < totalAvailable && (
+              {totalAvailable > 0 && hadiths.length < totalAvailable && (
                 <div className="flex justify-center pt-8">
                   <button
                     onClick={handleLoadMore}
