@@ -66,6 +66,33 @@ const MoonTracker = () => {
       } catch (error) {
         console.warn("Failed to fetch moon data from API, falling back to local calculation:", error);
         calculateLocalMoonPhase();
+        // Offline-safe Hijri date from the Intl Umm al-Qura calendar
+        try {
+          const fmt = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' });
+          const parts = fmt.formatToParts(new Date());
+          const get = (t: string) => parts.find(p => p.type === t)?.value || '';
+          const monthEn = get('month');
+          const monthNames: Record<string, { en: string; ar: string }> = {
+            'Muharram': { en: 'Muharram', ar: 'محرم' },
+            'Safar': { en: 'Safar', ar: 'صفر' },
+            "Rabi' al-awwal": { en: "Rabi' al-awwal", ar: 'ربيع الأول' },
+            "Rabi' al-thani": { en: "Rabi' al-thani", ar: 'ربيع الثاني' },
+            'Jumada al-ula': { en: 'Jumada al-ula', ar: 'جمادى الأولى' },
+            'Jumada al-akhira': { en: 'Jumada al-akhira', ar: 'جمادى الآخرة' },
+            'Rajab': { en: 'Rajab', ar: 'رجب' },
+            "Sha'ban": { en: "Sha'ban", ar: 'شعبان' },
+            'Ramadan': { en: 'Ramadan', ar: 'رمضان' },
+            'Shawwal': { en: 'Shawwal', ar: 'شوال' },
+            "Dhu al-Qi'dah": { en: "Dhu al-Qi'dah", ar: 'ذو القعدة' },
+            'Dhu al-Hijjah': { en: 'Dhu al-Hijjah', ar: 'ذو الحجة' },
+          };
+          const matched = Object.keys(monthNames).find(k => monthEn.includes(k));
+          setHijriDate({
+            day: get('day'),
+            month: matched ? monthNames[matched] : { en: monthEn, ar: monthEn },
+            year: get('year').replace(/[^0-9]/g, '')
+          });
+        } catch { /* Intl calendar unavailable */ }
       } finally {
         setLoading(false);
       }
