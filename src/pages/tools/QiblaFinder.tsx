@@ -70,10 +70,12 @@ const QiblaFinder = () => {
         const dLng = (39.8262 - pos.coords.longitude) * Math.PI / 180;
         const a = Math.sin(dLat/2)**2 + Math.cos(pos.coords.latitude*Math.PI/180) * Math.cos(21.4225*Math.PI/180) * Math.sin(dLng/2)**2;
         setDistanceKm(Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))));
+        setError(null);
       },
       (err) => {
         setError("يرجى تفعيل الموقع لتحديد اتجاه القبلة");
-      }
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
     );
 
     const handleOrientation = (e: any) => {
@@ -226,8 +228,14 @@ const QiblaFinder = () => {
         </div>
 
         {error && (
-          <div className="p-5 bg-destructive/10 border border-destructive/20 text-destructive rounded-[1.5rem] text-sm font-naskh text-center w-full shadow-sm">
-            {error}
+          <div className="p-5 bg-destructive/10 border border-destructive/20 text-destructive rounded-[1.5rem] text-sm font-naskh text-center w-full shadow-sm space-y-3">
+            <p>{error}</p>
+            <button
+              onClick={() => { setError(null); window.location.reload(); }}
+              className="px-4 py-2 rounded-xl bg-destructive/15 hover:bg-destructive/25 font-bold text-xs transition-colors"
+            >
+              {isArabic ? "إعادة المحاولة" : "Retry"}
+            </button>
           </div>
         )}
       </div>
