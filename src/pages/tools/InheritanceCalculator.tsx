@@ -29,10 +29,17 @@ const InheritanceCalculator = () => {
   const [hasFather, setHasFather] = useState<boolean>(false);
   const [hasMother, setHasMother] = useState<boolean>(false);
   const [results, setResults] = useState<Result[] | null>(null);
+  const [unallocated, setUnallocated] = useState<number>(0);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const calculateInheritance = () => {
     const estate = parseFloat(totalEstate);
-    if (isNaN(estate) || estate <= 0) return;
+    if (isNaN(estate) || estate <= 0) {
+      setValidationError(isAr ? "يرجى إدخال قيمة التركة أولاً" : "Please enter the estate value first");
+      setResults(null);
+      return;
+    }
+    setValidationError(null);
 
     const heirs: Result[] = [];
     let remainingEstate = estate;
@@ -190,6 +197,7 @@ const InheritanceCalculator = () => {
       }
     }
 
+    setUnallocated(Math.max(0, remainingEstate));
     setResults(heirs);
   };
 
@@ -217,6 +225,12 @@ const InheritanceCalculator = () => {
                 />
                 <Calculator className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
               </div>
+              {validationError && (
+                <p className="text-xs text-destructive font-naskh mt-2 flex items-center gap-1.5">
+                  <AlertCircle className="w-3.5 h-3.5" />
+                  {validationError}
+                </p>
+              )}
             </div>
 
             <div className="space-y-4">
@@ -337,6 +351,16 @@ const InheritanceCalculator = () => {
                 ))}
               </div>
 
+              {unallocated > 0 && (
+                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex gap-3">
+                  <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                  <p className="text-xs text-amber-700 dark:text-amber-400 font-naskh leading-relaxed">
+                    {isAr
+                      ? `تبقى ${unallocated.toLocaleString()} (${((unallocated / parseFloat(totalEstate)) * 100).toFixed(1)}%) من التركة غير موزعة — قد تحتاج لمراجعة ولي الأمر أو الوصية. استشر مختصاً.`
+                      : `${unallocated.toLocaleString()} (${((unallocated / parseFloat(totalEstate)) * 100).toFixed(1)}%) of the estate remains unallocated — a guardian or will may be needed. Consult a specialist.`}
+                  </p>
+                </div>
+              )}
               <div className="bento-card !p-8 bg-primary/5 border-primary/20">
                 <div className="flex items-center justify-between mb-4">
                   <span className="font-bold">{isAr ? "إجمالي التركة" : "Total Estate"}</span>

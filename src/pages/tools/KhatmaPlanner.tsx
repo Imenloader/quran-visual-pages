@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { BookOpen, Clock, Info, Bell, BellOff, Check } from "lucide-react";
+import { BookOpen, Clock, Info, Bell, BellOff, Check, Flame, TrendingUp } from "lucide-react";
+import { toArabicNumber } from "@/data/quranData";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -29,12 +30,34 @@ const KhatmaPlanner = () => {
     setPagesPerDay(Math.ceil(604 / days));
   }, [days]);
 
+  // Live plan progress from the user's real reading history
+  const [planProgress, setPlanProgress] = useState({ pagesRead: 0, streak: 0, daysActive: 0 });
+  useEffect(() => {
+    try {
+      const history = JSON.parse(localStorage.getItem("quran-reading-history") || "{}");
+      let pagesRead = 0;
+      const daySet = new Set<string>();
+      Object.values(history).forEach((juz: any) => {
+        pagesRead += juz?.pagesRead || 0;
+        (juz?.visitedPages || []).forEach((p: number) => daySet.add(String(p)));
+      });
+      // streak = consecutive days ending today/yesterday (from profile data if available)
+      const profile = JSON.parse(localStorage.getItem("user-profile") || "{}");
+      setPlanProgress({
+        pagesRead: Math.min(pagesRead, 604),
+        streak: profile.currentStreak || 0,
+        daysActive: daySet.size
+      });
+    } catch { /* malformed history */ }
+  }, []);
+
   const saveSettings = () => {
     localStorage.setItem("khatma-settings", JSON.stringify({
       days,
       notificationsEnabled,
       reminderTime
     }));
+    window.dispatchEvent(new Event('khatma-settings-saved'));
     toast.success(i18n.language === 'ar' ? "تم حفظ إعدادات الختمة" : "Khatma settings saved");
   };
 
@@ -89,6 +112,37 @@ const KhatmaPlanner = () => {
           <h1 className="text-xl font-bold font-naskh text-foreground">{t("hub.khatma")}</h1>
           <div className="w-10 h-10" />
         </header>
+
+        {(planProgress.pagesRead > 0 || planProgress.streak > 0) && (
+          <div className="glass-card rounded-[2.5rem] p-8 shadow-islamic space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold font-naskh flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-primary" />
+                {i18n.language === 'ar' ? "تقدمك الحالي" : "Your current progress"}
+              </h2>
+              {planProgress.streak > 0 && (
+                <span className="flex items-center gap-1 text-orange-500 font-bold text-sm">
+                  <Flame className="w-4 h-4" />
+                  {i18n.language === 'ar' ? toArabicNumber(planProgress.streak.toString()) : planProgress.streak}
+                </span>
+              )}
+            </div>
+            <div>
+              <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                <span>{i18n.language === 'ar' ? `${toArabicNumber(planProgress.pagesRead.toString())} من ٦٠٤ صفحة` : `${planProgress.pagesRead} of 604 pages`}</span>
+                <span className="font-bold text-primary">{Math.round((planProgress.pagesRead / 604) * 100)}%</span>
+              </div>
+              <div className="h-3 bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-primary to-emerald-500 rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (planProgress.pagesRead / 604) * 100)}%` }} />
+              </div>
+            </div>
+            <p className="text-[10px] text-muted-foreground font-naskh">
+              {i18n.language === 'ar'
+                ? `قرأت في ${toArabicNumber(planProgress.daysActive.toString())} أيام مختلفة`
+                : `Read on ${planProgress.daysActive} different day${planProgress.daysActive === 1 ? "" : "s"}`}
+            </p>
+          </div>
+        )}
 
         <div className="glass-card hover:-translate-y-1 rounded-[2.5rem] p-8 shadow-islamic space-y-8">
           <div className="space-y-4">

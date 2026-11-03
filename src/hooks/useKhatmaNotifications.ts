@@ -8,6 +8,12 @@ export const useKhatmaNotifications = () => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    // Re-run whenever the KhatmaPlanner saves new settings
+    const onSettingsChanged = () => {
+      window.dispatchEvent(new Event('khatma-settings-changed'));
+    };
+    window.addEventListener('khatma-settings-saved', onSettingsChanged);
+
     const scheduleNotification = async () => {
       if (timerRef.current) clearTimeout(timerRef.current);
 
@@ -103,8 +109,12 @@ export const useKhatmaNotifications = () => {
 
     scheduleNotification();
 
+    // Re-schedule immediately when the planner saves new settings
+    window.addEventListener('khatma-settings-saved', scheduleNotification);
+
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
+      window.removeEventListener('khatma-settings-saved', scheduleNotification);
     };
   }, [i18n.language]);
 };

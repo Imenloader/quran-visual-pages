@@ -1,13 +1,14 @@
 import React from 'react';
-import { X } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 import { Exercise, Recipe } from '@/data/fitnessData';
 
 interface Props {
   item: Exercise | Recipe;
   onClose: () => void;
+  onComplete?: (id: string, done: boolean) => void;
 }
 
-const ExerciseModal: React.FC<Props> = ({ item, onClose }) => {
+const ExerciseModal: React.FC<Props> = ({ item, onClose, onComplete }) => {
   const isExercise = 'steps' in item && 'image' in item;
 
   return (
@@ -52,6 +53,16 @@ const ExerciseModal: React.FC<Props> = ({ item, onClose }) => {
                     ))}
                   </ul>
                 </div>
+              )}
+
+              {onComplete && (
+                <button
+                  onClick={() => { onComplete(item.id, true); onClose(); }}
+                  className="w-full py-4 rounded-2xl bg-emerald-500 text-white font-bold font-naskh flex items-center justify-center gap-2 hover:bg-emerald-600 transition-colors active:scale-95"
+                >
+                  <Check className="w-5 h-5" />
+                  تم الإنجاز
+                </button>
               )}
 
               {item.steps && (

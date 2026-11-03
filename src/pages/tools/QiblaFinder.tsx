@@ -1,14 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Compass, Camera, CameraOff, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import BackButton from "@/components/BackButton";
 
 const QiblaFinder = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isArabic = i18n.language.startsWith("ar");
   const navigate = useNavigate();
   const [heading, setHeading] = useState(0);
   const [qiblaDirection, setQiblaDirection] = useState(0);
+  const [distanceKm, setDistanceKm] = useState<number | null>(null);
+  const [accuracy, setAccuracy] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [arMode, setArMode] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -60,10 +63,19 @@ const QiblaFinder = () => {
       (pos) => {
         const qibla = calculateQibla(pos.coords.latitude, pos.coords.longitude);
         setQiblaDirection(qibla);
+        setAccuracy(Math.round(pos.coords.accuracy));
+        // Great-circle distance to the Kaaba
+        const R = 6371;
+        const dLat = (21.4225 - pos.coords.latitude) * Math.PI / 180;
+        const dLng = (39.8262 - pos.coords.longitude) * Math.PI / 180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(pos.coords.latitude*Math.PI/180) * Math.cos(21.4225*Math.PI/180) * Math.sin(dLng/2)**2;
+        setDistanceKm(Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))));
+        setError(null);
       },
       (err) => {
         setError("يرجى تفعيل الموقع لتحديد اتجاه القبلة");
-      }
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
     );
 
     const handleOrientation = (e: any) => {
@@ -108,6 +120,15 @@ const QiblaFinder = () => {
 
   const relativeQibla = (qiblaDirection - heading + 360) % 360;
   const isFacingQibla = Math.abs(relativeQibla) < 5 || Math.abs(relativeQibla - 360) < 5;
+
+  // Brief vibration the moment the user aligns with the Qibla
+  const wasAlignedRef = useRef(false);
+  useEffect(() => {
+    if (isFacingQibla && !wasAlignedRef.current) {
+      navigator.vibrate?.([80, 40, 80]);
+    }
+    wasAlignedRef.current = isFacingQibla;
+  }, [isFacingQibla]);
 
   return (
     <div className={`relative min-h-screen flex flex-col items-center overflow-hidden transition-colors duration-1000 ${arMode ? "bg-black" : "bg-background"}`}>
@@ -197,11 +218,24 @@ const QiblaFinder = () => {
             <span className={`text-sm font-naskh ${arMode ? "text-white/60" : "text-muted-foreground"}`}>اتجاه القبلة:</span>
             <span className="text-lg font-bold font-mono text-primary">{Math.round(qiblaDirection)}°</span>
           </div>
+          {(distanceKm !== null || accuracy !== null) && (
+            <div className={`flex items-center justify-center gap-3 text-[10px] font-bold ${arMode ? "text-white/50" : "text-muted-foreground"}`}>
+              {distanceKm !== null && <span>{isArabic ? `المسافة للكعبة: ${distanceKm.toLocaleString('ar-EG')} كم` : `${distanceKm.toLocaleString()} km to the Kaaba`}</span>}
+              {accuracy !== null && <span>•</span>}
+              {accuracy !== null && <span>{isArabic ? `دقة الموقع: ±${accuracy.toLocaleString('ar-EG')} م` : `Location ±${accuracy} m`}</span>}
+            </div>
+          )}
         </div>
 
         {error && (
-          <div className="p-5 bg-destructive/10 border border-destructive/20 text-destructive rounded-[1.5rem] text-sm font-naskh text-center w-full shadow-sm">
-            {error}
+          <div className="p-5 bg-destructive/10 border border-destructive/20 text-destructive rounded-[1.5rem] text-sm font-naskh text-center w-full shadow-sm space-y-3">
+            <p>{error}</p>
+            <button
+              onClick={() => { setError(null); window.location.reload(); }}
+              className="px-4 py-2 rounded-xl bg-destructive/15 hover:bg-destructive/25 font-bold text-xs transition-colors"
+            >
+              {isArabic ? "إعادة المحاولة" : "Retry"}
+            </button>
           </div>
         )}
       </div>

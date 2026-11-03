@@ -87,11 +87,29 @@ const FastingTracker = () => {
       const month = today.getMonth() + 1;
       const year = today.getFullYear();
       
+      // Use the user's real location when permitted; Cairo is the fallback
+      const getLocation = (): Promise<{ lat: number; lng: number }> =>
+        new Promise((resolve) => {
+          if (!navigator.geolocation) return resolve({ lat: 29.9602, lng: 31.2569 });
+          navigator.geolocation.getCurrentPosition(
+            (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+            () => resolve({ lat: 29.9602, lng: 31.2569 }),
+            { timeout: 4000 }
+          );
+        });
+      const { lat, lng } = await getLocation();
+      // Use the same calculation method the user picked for prayer times
+      let method = 5;
+      try {
+        const saved = localStorage.getItem("prayer-times-settings");
+        if (saved) method = JSON.parse(saved).method || 5;
+      } catch { /* default method */ }
+
       const fetchMonth = async (m: number, y: number) => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
         try {
-          const res = await fetch(`https://api.aladhan.com/v1/calendar?latitude=29.9602&longitude=31.2569&method=5&month=${m}&year=${y}`, { signal: controller.signal });
+          const res = await fetch(`https://api.aladhan.com/v1/calendar?latitude=${lat}&longitude=${lng}&method=${method}&month=${m}&year=${y}`, { signal: controller.signal });
           clearTimeout(timeoutId);
           if (!res.ok) throw new Error(`Failed to fetch calendar for ${m}/${y}`);
           return res.json();
