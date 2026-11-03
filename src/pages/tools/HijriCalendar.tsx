@@ -125,12 +125,31 @@ const HijriCalendar = () => {
   }, []);
 
   const fetchCalendar = useCallback(async (date: Date) => {
+      // Honor the user's location and prayer calculation method
+      let LAT = 29.9602, LNG = 31.2569; let METHOD = 5;
+      try {
+        const saved = localStorage.getItem("prayer-times-settings");
+        if (saved) {
+          const ps = JSON.parse(saved);
+          if (ps.latitude) LAT = ps.latitude;
+          if (ps.longitude) LNG = ps.longitude;
+          if (ps.method) METHOD = ps.method;
+        }
+      } catch { /* defaults */ }
+      if (LAT === 29.9602 && navigator.geolocation) {
+        // Try the device location when no saved setting exists
+        try {
+          const pos = await new Promise<GeolocationPosition>((res, rej) =>
+            navigator.geolocation.getCurrentPosition(res, rej, { timeout: 4000 }));
+          LAT = pos.coords.latitude; LNG = pos.coords.longitude;
+        } catch { /* keep defaults */ }
+      }
     setLoading(true);
     try {
       const month = date.getMonth() + 1;
       const year = date.getFullYear();
       // Using Maadi coordinates (29.9602, 31.2569) and Egyptian method (5)
-      const res = await fetch(`https://api.aladhan.com/v1/calendar?latitude=29.9602&longitude=31.2569&method=5&month=${month}&year=${year}`);
+      const res = await fetch(`https://api.aladhan.com/v1/calendar?latitude=${LAT}&longitude=${LNG}&method=${METHOD}&month=${month}&year=${year}`);
       const data = await res.json();
       if (data.status === "OK") {
         setCalendarData(data.data);
