@@ -119,7 +119,7 @@ const MoonTracker = () => {
         <div
           className="absolute inset-0 rounded-full bg-slate-950 transition-all duration-1000"
           style={{
-            transform: `translateX(${waxing ? offset : -offset}px)`,
+            transform: `translateX(${waxing ? -offset : offset}px)`,
             boxShadow: "inset 0 0 30px rgba(0,0,0,0.8)"
           }}
         />
