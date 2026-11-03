@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Dumbbell, Play, Heart, Flame, Timer, ChevronRight, Sparkles, BookOpen } from "lucide-react";
+import { Dumbbell, Play, Heart, Flame, Timer, ChevronRight, Sparkles, BookOpen, Check } from "lucide-react";
 import QuranHeader from "@/components/QuranHeader";
 import BackButton from "@/components/BackButton";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -15,6 +15,19 @@ const StrongBeliever = () => {
   const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState('home');
   const [activeItem, setActiveItem] = useState<Exercise | Recipe | null>(null);
+  const [completed, setCompleted] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    try { setCompleted(JSON.parse(localStorage.getItem("strong-believer-completed") || "{}")); } catch { /* fresh start */ }
+  }, []);
+
+  const toggleCompleted = (id: string) => {
+    setCompleted(prev => {
+      const next = { ...prev, [id]: !prev[id] };
+      localStorage.setItem("strong-believer-completed", JSON.stringify(next));
+      return next;
+    });
+  };
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-background pb-24">
@@ -95,6 +108,11 @@ const StrongBeliever = () => {
                           <span className="text-[8px] md:text-[9px] font-bold text-accent bg-accent/10 px-2 py-0.5 rounded-full uppercase tracking-widest mb-1 md:mb-2 inline-block">
                             {exercise.difficulty}
                           </span>
+                          {completed[exercise.id] && (
+                            <span className="text-[8px] md:text-[9px] font-bold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                              <Check className="w-2.5 h-2.5" /> تم
+                            </span>
+                          )}
                           <h3 className="font-bold font-naskh text-base md:text-lg truncate text-foreground">{exercise.name}</h3>
                           <p className="text-[10px] md:text-xs text-muted-foreground font-naskh truncate">{exercise.target}</p>
                         </div>
@@ -207,6 +225,7 @@ const StrongBeliever = () => {
         <ExerciseModal
           item={activeItem}
           onClose={() => setActiveItem(null)}
+          onComplete={toggleCompleted}
         />
       )}
     </div>
